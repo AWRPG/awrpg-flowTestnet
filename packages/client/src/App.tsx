@@ -11,12 +11,12 @@ export const App = () => {
   const counter = useComponentValue(Counter, singletonEntity);
 
   return (
-    <>
-      <div>
+    <div className="absolute h-full w-full text-white">
+      <div className="">
         Counter: <span>{counter?.value ?? "??"}</span>
       </div>
       <button
-        type="button"
+        className="btn btn-success border"
         onClick={async (event) => {
           event.preventDefault();
           console.log("new counter value:", await increment());
@@ -24,6 +24,6 @@ export const App = () => {
       >
         Increment
       </button>
-    </>
+    </div>
   );
 };
