@@ -40,11 +40,17 @@ export class GameScene extends Phaser.Scene {
     this.load.image("tree", "src/assets/tiles/Tree.png");
     this.load.image("water", "src/assets/tiles/Water.png");
     this.load.image("stump", "src/assets/tiles/Stump.png");
+    this.load.atlas(
+      "host1",
+      "src/assets/hosts/sprites/host1.png",
+      "src/assets/hosts/sprites/host1.json"
+    );
   }
 
   create() {
     const { TerrainValue } = this.components;
     const world = this.network.world;
+    this.createAnimations();
 
     defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {
       const { x, y } = split(BigInt(entity));
@@ -85,5 +91,43 @@ export class GameScene extends Phaser.Scene {
 
   update() {}
 
-  createAnimations() {}
+  createAnimations() {
+    this.anims.create({
+      key: "host1-walk-down",
+      frames: this.anims.generateFrameNames("host1", {
+        prefix: "0",
+        start: 0,
+        end: 2,
+        suffix: ".png",
+      }),
+    });
+    this.anims.create({
+      key: "host1-walk-left",
+      frames: this.anims.generateFrameNames("host1", {
+        prefix: "0",
+        start: 3,
+        end: 5,
+        suffix: ".png",
+      }),
+    });
+    this.anims.create({
+      key: "host1-walk-right",
+      frames: this.anims.generateFrameNames("host1", {
+        prefix: "0",
+        start: 6,
+        end: 8,
+        suffix: ".png",
+      }),
+    });
+    this.anims.create({
+      key: "host1-walk-up",
+      frames: this.anims.generateFrameNames("host1", {
+        prefix: "0",
+        start: 9,
+        end: 11,
+        suffix: ".png",
+      }),
+    });
+  }
+
 }
