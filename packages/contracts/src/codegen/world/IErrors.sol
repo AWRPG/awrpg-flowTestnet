@@ -14,4 +14,5 @@ interface IErrors {
   error ExceedMaxMoves();
   error NotIncrementalMoves();
   error NotFromHostPosition();
+  error InvalidMove();
 }

@@ -9,5 +9,5 @@ pragma solidity >=0.8.24;
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IMoveSystem {
-  function move(bytes32 host, uint64[] memory moves) external;
+  function move(bytes32 host, uint8[] memory moves) external;
 }
