@@ -6,7 +6,7 @@ import { MapLogic } from "@/libraries/MapLogic.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 
-uint8 constant MAX_MOVES = 10;
+uint8 constant MAX_MOVES = 20;
 uint32 constant STAMINA_COST = 10;
 
 library MoveLogic {
