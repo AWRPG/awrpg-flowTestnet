@@ -4,11 +4,13 @@ import {
   UpdateType,
   defineSystem,
   getComponentValue,
+  removeComponent,
+  setComponent,
 } from "@latticexyz/recs";
 import { SetupResult } from "../../mud/setup";
 import Phaser from "phaser";
-import { combine, split } from "../../logics/move";
-import { TerrainType, terrainMapping } from "../../constants";
+import { combine, movesToPositions, split } from "../../logics/move";
+import { SOURCE, TerrainType, terrainMapping } from "../../constants";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -19,6 +21,10 @@ export class GameScene extends Phaser.Scene {
 
   tilesLayer0: Record<Entity, Phaser.GameObjects.Sprite> = {};
   tiles: Record<Entity, Phaser.GameObjects.Sprite> = {};
+
+  hosts: Record<Entity, Phaser.GameObjects.Sprite> = {};
+  hostMoveTo?: Phaser.GameObjects.Sprite;
+  moves?: Phaser.GameObjects.Group;
 
   // map: Phaser.Tilemaps.Tilemap;
   // layer: Phaser.Tilemaps.TilemapLayer;
@@ -48,28 +54,96 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const { TerrainValue } = this.components;
+    const { TerrainValue, Position, Moves, SelectedHost } = this.components;
     const world = this.network.world;
     this.createAnimations();
 
+    // render map terrain
     defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {
       const { x, y } = split(BigInt(entity));
       if (type === UpdateType.Exit) {
         return this.unloadTile(x, y);
       }
-
       const value = getComponentValue(TerrainValue, entity)!.value;
       this.loadTile(x, y, value);
       // console.log(value);
     });
+
+    // render hosts (or entities have position)
+    defineSystem(world, [Has(Position)], ({ entity, type }) => {
+      if (type === UpdateType.Exit) {
+        this.hosts[entity]?.destroy();
+        return delete this.hosts[entity];
+      }
+      const position = getComponentValue(Position, entity)!;
+      const { x, y } = position;
+      this.hosts[entity]?.destroy();
+      this.hosts[entity] = this.add
+        .sprite(
+          x * this.tileSize + this.tileSize / 2,
+          y * this.tileSize + this.tileSize / 2,
+          "host1"
+        )
+        .setDepth(2);
+      // host.play("host1-walk-down");
+      this.hosts[entity].setInteractive();
+      this.hosts[entity].on("pointerdown", () =>
+        this.sourceSelectHandler(entity)
+      );
+    });
+
+    // render moves assuming they are all valid
+    defineSystem(world, [Has(Moves)], ({ entity, type }) => {
+      if (type === UpdateType.Exit) {
+        this.moves?.clear(true, true);
+        return this.hostMoveTo?.destroy();
+      }
+      if (entity !== SOURCE) return;
+      const moves = getComponentValue(Moves, entity)!.value;
+      if (moves.length === 0) return;
+      const source = getComponentValue(SelectedHost, SOURCE)?.value;
+      if (!source) return;
+      const from = getComponentValue(Position, source)!;
+      const positions = movesToPositions(moves, from);
+      console.log(positions);
+      if (positions.length <= 1) return this.hostMoveTo?.destroy();
+      // hostObj
+      const { x, y } = positions[positions.length - 1];
+      this.hostMoveTo?.destroy();
+      this.hostMoveTo = this.add
+        .sprite(
+          x * this.tileSize + this.tileSize / 2,
+          y * this.tileSize + this.tileSize / 2,
+          "host1"
+        )
+        .setDepth(5);
+      // movesTo
+      this.moves?.clear(true, true);
+      this.moves = this.add.group();
+      // for each move of moves, add a line into the moves group
+      for (let i = 0; i < positions.length - 1; i++) {
+        const { x: x1, y: y1 } = positions[i];
+        const { x: x2, y: y2 } = positions[i + 1];
+        const line = this.add.line(0, 0, 0, 0, 0, 0, 0xff0000).setDepth(10);
+        line.setPosition(
+          x1 * this.tileSize + this.tileSize / 2,
+          y1 * this.tileSize + this.tileSize / 2
+        );
+        line.geom.x2 = x2 * this.tileSize - x1 * this.tileSize;
+        line.geom.y2 = y2 * this.tileSize - y1 * this.tileSize;
+        this.moves.add(line);
+      }
+    });
   }
 
   loadTile(x: number, y: number, terrain: number) {
-    const tileX = x * this.tileSize;
-    const tileY = y * this.tileSize;
+    const tileX = x * this.tileSize + this.tileSize / 2;
+    const tileY = y * this.tileSize + this.tileSize / 2;
     const tile = this.add.sprite(tileX, tileY, terrainMapping[terrain]);
     const entity = combine(x, y) as Entity;
     this.tiles[entity] = tile;
+    tile.setInteractive();
+    tile.on("pointerdown", () => console.log("tile", x, y, terrain));
     // handle 0 layer
     if (terrain === TerrainType.Rock) {
       const tile0 = this.add.sprite(tileX, tileY, "water").setDepth(-1);
@@ -130,4 +204,25 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  sourceSelectHandler(entity: Entity) {
+    const { SelectedHost } = this.components;
+    if (getComponentValue(SelectedHost, SOURCE)?.value === entity) {
+      removeComponent(SelectedHost, SOURCE);
+    } else {
+      setComponent(SelectedHost, SOURCE, {
+        value: entity,
+      });
+    }
+  }
+
+  // targetSelectHandler(entity: Entity) {
+  //   const { SelectedHost } = this.components;
+  //   if (getComponentValue(SelectedHost, TARGET)?.value === entity) {
+  //     removeComponent(SelectedHost, TARGET);
+  //   } else {
+  //     setComponent(SelectedHost, TARGET, {
+  //       value: entity,
+  //     });
+  //   }
+  // }
 }
