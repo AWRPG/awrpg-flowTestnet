@@ -6,10 +6,12 @@ import { Perlin } from "../utils/Perlin.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 
+uint8 constant PERLIN_DENOM = 6;
+
 library MapLogic {
   // noise is 20~80
   function getPerlin(uint32 x, uint32 y) internal pure returns (uint8) {
-    int128 noise = Perlin.noise2d(int40(uint40(x)), int40(uint40(y)), 9, 64);
+    int128 noise = Perlin.noise2d(int40(uint40(x)), int40(uint40(y)), int8(PERLIN_DENOM), 64);
 
     uint8 precision = 2;
     uint256 denominator = 10 ** precision;

@@ -7,7 +7,7 @@ import { Entity, getComponentValue, removeComponent } from "@latticexyz/recs";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
-import { TEST } from "../contract/constants";
+import { PERLIN_DENOM, TEST } from "../contract/constants";
 import { Hex } from "viem";
 import { SOURCE } from "../constants";
 
@@ -39,7 +39,7 @@ export function createSystemCalls(
   const { Counter, Moves } = components;
 
   const getNoise = (x: number, y: number) => {
-    const noise = perlin(x, y, 0, 9);
+    const noise = perlin(x, y, 0, PERLIN_DENOM);
     return Math.floor(noise * 100);
   };
 
