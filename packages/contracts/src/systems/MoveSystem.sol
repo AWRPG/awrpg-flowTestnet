@@ -9,7 +9,7 @@ import { TypeCast } from "@/utils/TypeCast.sol";
 contract MoveSystem is System {
   using TypeCast for address;
 
-  function move(bytes32 host, uint64[] memory moves) public {
+  function move(bytes32 host, uint8[] memory moves) public {
     MoveLogic._move(host, moves);
   }
 }

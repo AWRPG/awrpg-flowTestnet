@@ -10,29 +10,61 @@ uint8 constant MAX_MOVES = 10;
 uint32 constant STAMINA_COST = 10;
 
 library MoveLogic {
-  function _move(bytes32 host, uint64[] memory moves) internal {
-    canMoveStrict(host, moves);
+  enum Direction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+  }
 
+  function _move(bytes32 host, uint8[] memory moves) internal {
     // TODO: burn stamina
     uint32 staminaCost = uint32(moves.length) * STAMINA_COST;
 
-    (uint32 toX, uint32 toY) = split(moves[moves.length - 1]);
+    (uint32 toX, uint32 toY) = canMoveStrict(host, moves);
     Position.set(host, toX, toY);
   }
 
-  function canMoveStrict(bytes32 host, uint64[] memory moves) internal view {
+  function canMoveStrict(bytes32 host, uint8[] memory moves) internal view returns (uint32 toX, uint32 toY) {
     PositionData memory position = Position.get(host);
-    (uint32 fromX, uint32 fromY) = split(moves[0]);
-    if (position.x != fromX || position.y != fromY) revert Errors.NotFromHostPosition();
+    // (uint32 fromX, uint32 fromY) = split(moves[0]);
+    // if (position.x != fromX || position.y != fromY) revert Errors.NotFromHostPosition();
+    // if (!isIncrementalMoves(moves)) revert Errors.NotIncrementalMoves();
     if (moves.length > MAX_MOVES) revert Errors.ExceedMaxMoves();
-    if (!isIncrementalMoves(moves)) revert Errors.NotIncrementalMoves();
-    canMoveToStrict(moves);
+    uint64[] memory toPositions = movesToPositions(moves, position.x, position.y);
+    canMoveToStrict(toPositions);
+    return split(toPositions[toPositions.length - 1]);
   }
 
   function canMoveToStrict(uint64[] memory moves) internal view {
     for (uint256 i = 1; i < moves.length; i++) {
       (uint32 x, uint32 y) = split(moves[i]);
       MapLogic.canMoveToStrict(x, y);
+    }
+  }
+
+  function movesToPositions(uint8[] memory moves, uint32 fromX, uint32 fromY) internal pure returns (uint64[] memory) {
+    uint64[] memory positions = new uint64[](moves.length);
+    uint32 newX = fromX;
+    uint32 newY = fromY;
+    for (uint256 i = 0; i < moves.length; i++) {
+      positions[i] = moveToPosition(moves[i], newX, newY);
+      (newX, newY) = split(positions[i]);
+    }
+    return positions;
+  }
+
+  function moveToPosition(uint8 move, uint32 fromX, uint32 fromY) internal pure returns (uint64) {
+    if (move == uint8(Direction.UP)) {
+      return combine(fromX, fromY - 1);
+    } else if (move == uint8(Direction.DOWN)) {
+      return combine(fromX, fromY + 1);
+    } else if (move == uint8(Direction.LEFT)) {
+      return combine(fromX - 1, fromY);
+    } else if (move == uint8(Direction.RIGHT)) {
+      return combine(fromX + 1, fromY);
+    } else {
+      revert Errors.InvalidMove();
     }
   }
 
