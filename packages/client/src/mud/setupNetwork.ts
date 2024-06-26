@@ -18,9 +18,13 @@ import { encodeEntity, syncToRecs } from "@latticexyz/store-sync/recs";
 import { getNetworkConfig } from "./getNetworkConfig";
 import { world } from "./world";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
-import { createBurnerAccount, transportObserver, ContractWrite } from "@latticexyz/common";
+import {
+  createBurnerAccount,
+  transportObserver,
+  ContractWrite,
+} from "@latticexyz/common";
 import { transactionQueue, writeObserver } from "@latticexyz/common/actions";
-
+import { createPerlin } from "@latticexyz/noise";
 import { Subject, share } from "rxjs";
 
 /*
@@ -37,6 +41,8 @@ export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
 export async function setupNetwork() {
   const networkConfig = await getNetworkConfig();
+
+  const perlin = await createPerlin();
 
   /*
    * Create a viem public (read only) client
@@ -83,18 +89,23 @@ export async function setupNetwork() {
    * to the viem publicClient to make RPC calls to fetch MUD
    * events from the chain.
    */
-  const { components, latestBlock$, storedBlockLogs$, waitForTransaction } = await syncToRecs({
-    world,
-    config: mudConfig,
-    address: networkConfig.worldAddress as Hex,
-    publicClient,
-    startBlock: BigInt(networkConfig.initialBlockNumber),
-  });
+  const { components, latestBlock$, storedBlockLogs$, waitForTransaction } =
+    await syncToRecs({
+      world,
+      config: mudConfig,
+      address: networkConfig.worldAddress as Hex,
+      publicClient,
+      startBlock: BigInt(networkConfig.initialBlockNumber),
+    });
 
   return {
     world,
+    perlin,
     components,
-    playerEntity: encodeEntity({ address: "address" }, { address: burnerWalletClient.account.address }),
+    playerEntity: encodeEntity(
+      { address: "address" },
+      { address: burnerWalletClient.account.address }
+    ),
     publicClient,
     walletClient: burnerWalletClient,
     latestBlock$,
