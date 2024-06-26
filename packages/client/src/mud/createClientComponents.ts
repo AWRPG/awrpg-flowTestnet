@@ -22,5 +22,12 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     TerrainValue: defineComponent(world, {
       value: Type.Number,
     }),
+    // SOURCE ->
+    Moves: defineComponent(world, {
+      value: Type.NumberArray,
+    }),
+    SelectedHost: defineComponent(world, {
+      value: Type.Entity,
+    }),
   };
 }

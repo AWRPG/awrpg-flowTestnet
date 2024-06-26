@@ -1,3 +1,17 @@
+import { Entity } from "@latticexyz/recs";
+import { toHex } from "viem";
+import {
+  BUSH,
+  GRASS,
+  GRAVEL,
+  RED_MINE,
+  ROCK,
+  SAND,
+  STUMP,
+  TREE,
+  WATER,
+} from "./contract/constants";
+
 export enum TerrainType {
   Grass = 0,
   Water = 1,
@@ -22,3 +36,17 @@ export const terrainMapping = [
   "stump",
   "redmine",
 ];
+
+export const terrainTypeMapping = {
+  [TerrainType.Grass]: GRASS,
+  [TerrainType.Water]: WATER,
+  [TerrainType.Bush]: BUSH,
+  [TerrainType.Rock]: ROCK,
+  [TerrainType.Tree]: TREE,
+  [TerrainType.Gravel]: GRAVEL,
+  [TerrainType.Sand]: SAND,
+  [TerrainType.Stump]: STUMP,
+  [TerrainType.RED_MINE]: RED_MINE,
+};
+
+export const SOURCE = toHex("SOURCE", { size: 32 }) as Entity;
