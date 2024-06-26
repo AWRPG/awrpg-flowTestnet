@@ -31,9 +31,7 @@ library MapLogic {
     uint8 noise = getPerlin(x, y);
     bytes16 terrainType = noiseToTerrainType(noise);
     bytes32 coordId = getCoordId(x, y);
-    if (RemovedCoord.get(coordId) && !TerrainSpecs.getCanMove(terrainType)) {
-      return GRASS;
-    }
+    if (RemovedCoord.get(coordId)) return GRASS;
     return terrainType;
   }
 
@@ -42,7 +40,7 @@ library MapLogic {
     bool terrainCanMove = TerrainSpecs.getCanMove(terrainType);
     bytes32 coorId = getCoordId(x, y);
     bool hasBuilding = BuildingCoord.get(coorId) == 0;
-    return terrainCanMove && hasBuilding;
+    return terrainCanMove && !hasBuilding;
   }
 
   function canMoveToStrict(uint32 x, uint32 y) internal view {
