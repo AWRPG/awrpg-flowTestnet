@@ -3,10 +3,13 @@
  * for changes in the World state (using the System contracts).
  */
 
-import { getComponentValue } from "@latticexyz/recs";
+import { Entity, getComponentValue, removeComponent } from "@latticexyz/recs";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
+import { TEST } from "../contract/constants";
+import { Hex } from "viem";
+import { SOURCE } from "../constants";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
@@ -33,27 +36,21 @@ export function createSystemCalls(
   { worldContract, waitForTransaction, perlin }: SetupNetworkResult,
   components: ClientComponents
 ) {
-  const { Counter } = components;
+  const { Counter, Moves } = components;
 
   const getNoise = (x: number, y: number) => {
     const noise = perlin(x, y, 0, 9);
     return Math.floor(noise * 100);
   };
 
-  const increment = async () => {
-    /*
-     * Because IncrementSystem
-     * (https://mud.dev/templates/typescript/contracts#incrementsystemsol)
-     * is in the root namespace, `.increment` can be called directly
-     * on the World contract.
-     */
-    const tx = await worldContract.write.increment();
+  const move = async (moves: number[]) => {
+    const tx = await worldContract.write.move([TEST, moves]);
     await waitForTransaction(tx);
-    return getComponentValue(Counter, singletonEntity);
+    removeComponent(Moves, SOURCE);
   };
 
   return {
-    increment,
     getNoise,
+    move,
   };
 }

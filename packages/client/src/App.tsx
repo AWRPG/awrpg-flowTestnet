@@ -2,12 +2,16 @@ import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "./MUDContext";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
 import useSyncComputedComponents from "./hooks/useSyncComputedComponents";
+import useHotkeys from "./hooks/useHotKeys";
+import { getComponentValue } from "@latticexyz/recs";
+import { SOURCE } from "./constants";
 
 export const App = () => {
   useSyncComputedComponents();
+  useHotkeys();
   const {
-    components: { Counter },
-    systemCalls: { increment },
+    components: { Counter, Moves },
+    systemCalls: { move },
   } = useMUD();
 
   const counter = useComponentValue(Counter, singletonEntity);
@@ -21,10 +25,13 @@ export const App = () => {
         className="btn btn-success border"
         onClick={async (event) => {
           event.preventDefault();
-          console.log("new counter value:", await increment());
+          const moves = getComponentValue(Moves, SOURCE)?.value;
+          console.log(moves);
+          if (!moves || moves.length === 0) return;
+          await move(moves);
         }}
       >
-        Increment
+        $Move
       </button>
     </div>
   );
