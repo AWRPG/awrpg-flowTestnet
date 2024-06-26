@@ -11,13 +11,8 @@ import {
 import { useEffect } from "react";
 import { useMUD } from "../MUDContext";
 import { SOURCE } from "../constants";
-import { Direction, combine, split, validMovesForHost } from "../logics/move";
-import { ClientComponents } from "../mud/createClientComponents";
-import { SystemCalls } from "../mud/createSystemCalls";
-
-export const oppositeDirection = (d1: Direction, d2: Direction) => {
-  return d1 + d2 === 1 || d1 + d2 === 5;
-};
+import { Direction, updateMoves } from "../logics/move";
+import { TEST } from "../contract/constants";
 
 export default function useHotkeys() {
   const {
@@ -41,6 +36,10 @@ export default function useHotkeys() {
         updateMoves(components, systemCalls, Direction.LEFT);
       } else if (e.key == "d") {
         updateMoves(components, systemCalls, Direction.RIGHT);
+      } else if (e.key == "Shift") {
+        setComponent(SelectedHost, SOURCE, { value: TEST as Entity });
+      } else if (e.key == "Enter") {
+        console.log("Enter");
       } else if (/[0-9]/.test(e.key)) {
         const index = (Number(e.key) + 9) % 10;
         const host = ownedHosts[index];
@@ -60,36 +59,3 @@ export default function useHotkeys() {
     };
   }, [ownedHosts]);
 }
-
-export const updateMoves = (
-  components: ClientComponents,
-  systemCalls: SystemCalls,
-  direction: Direction
-) => {
-  const { Moves, SelectedHost } = components;
-  // there must be a selected host for it to start moving
-  const source = getComponentValue(SelectedHost, SOURCE)?.value;
-  if (!source) return;
-  const moves = getComponentValue(Moves, SOURCE)?.value ?? [];
-  let newMoves = [...moves];
-  if (moves.length === 0) {
-    newMoves = [direction as number];
-  } else {
-    const lastMove = moves[moves.length - 1];
-    if (oppositeDirection(lastMove, direction)) {
-      newMoves.pop();
-    } else {
-      newMoves.push(direction as number);
-    }
-  }
-  const validMoves = validMovesForHost(
-    components,
-    systemCalls,
-    source,
-    newMoves
-  );
-  if (!validMoves || validMoves.length === 0)
-    return removeComponent(Moves, SOURCE);
-  console.log("newMoves", newMoves, validMoves);
-  setComponent(Moves, SOURCE, { value: validMoves });
-};

@@ -11,3 +11,6 @@ export const GRAVEL = toHex("GRAVEL", { size: 16 });
 export const SAND = toHex("SAND", { size: 16 });
 export const STUMP = toHex("STUMP", { size: 16 });
 export const RED_MINE = toHex("RED_MINE", { size: 16 });
+
+export const MAX_MOVES = 20;
+export const PERLIN_DENOM = 4;
