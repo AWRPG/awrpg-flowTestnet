@@ -3,6 +3,10 @@ lockfileVersion: '6.0'
 importers:
 
   .:
+    dependencies:
+      '@latticexyz/noise':
+        specifier: 2.0.0-next.14
+        version: 2.0.0-next.14
     devDependencies:
       '@latticexyz/cli':
         specifier: 2.0.12
@@ -1567,6 +1571,14 @@ packages:
       table: 6.8.2
       yargs: 17.7.2
 
+  /@latticexyz/noise@2.0.0-next.14:
+    resolution: {integrity: sha512-AvqC7HsfWjCvZLbZxHbPufxSjMSPpgIL1owa9GmWwVZk7vthkKp0+o20ExY60mytAgAhQkCx63q/5jd8FEiCIg==}
+    dependencies:
+      abdk-libraries-solidity: 3.2.0
+      ds-test: github.com/dapphub/ds-test/e282159d5170298eb2455a6c05280ab5a73a4ef0
+      forge-std: github.com/foundry-rs/forge-std/74cfb77e308dd188d2f58864aaf44963ae6b88b1
+    dev: false
+
   /@latticexyz/protocol-parser@2.0.12(@aws-sdk/client-kms@3.600.0)(asn1.js@5.4.1)(typescript@5.4.2)(zod@3.23.8):
     resolution: {integrity: sha512-2P+4nLPPC6ZG9BmAIvS7GBr8+ZiCxeFP5yzHyNrEEPUhZHXyXXPsElupcXV4IptfiFDipwJWkGx9nzF9p4g8ZQ==}
     dependencies:
@@ -2389,6 +2401,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /abdk-libraries-solidity@3.2.0:
+    resolution: {integrity: sha512-JyedKxyqsszb9qCTX+YCOQHA4m0YAq9p77Qvumiy8LJLLrm1FfA9D3pdSAZN5wrmi3PSv0y3Svy8c/C+8S9K8g==}
+    dev: false
 
   /abitype@1.0.0(typescript@5.4.2)(zod@3.23.8):
     resolution: {integrity: sha512-NMeMah//6bJ56H5XRj8QCV4AwuW6hB6zqz2LnhhLdcWVQOsXki6/Pn3APeqxCma62nXIcmZWdu1DlHWS74umVQ==}
@@ -5766,10 +5782,8 @@ packages:
     resolution: {tarball: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0}
     name: ds-test
     version: 1.0.0
-    dev: true
 
   github.com/foundry-rs/forge-std/74cfb77e308dd188d2f58864aaf44963ae6b88b1:
     resolution: {tarball: https://codeload.github.com/foundry-rs/forge-std/tar.gz/74cfb77e308dd188d2f58864aaf44963ae6b88b1}
     name: forge-std
     version: 1.6.0
-    dev: true
