@@ -30,9 +30,16 @@ export function createSystemCalls(
    *   syncToRecs
    *   (https://github.com/latticexyz/mud/blob/main/templates/react/packages/client/src/mud/setupNetwork.ts#L77-L83).
    */
-  { worldContract, waitForTransaction }: SetupNetworkResult,
-  { Counter }: ClientComponents,
+  { worldContract, waitForTransaction, perlin }: SetupNetworkResult,
+  components: ClientComponents
 ) {
+  const { Counter } = components;
+
+  const getNoise = (x: number, y: number) => {
+    const noise = perlin(x, y, 0, 9);
+    return Math.floor(noise * 100);
+  };
+
   const increment = async () => {
     /*
      * Because IncrementSystem
@@ -40,12 +47,13 @@ export function createSystemCalls(
      * is in the root namespace, `.increment` can be called directly
      * on the World contract.
      */
-    const tx = await worldContract.write.app__increment();
+    const tx = await worldContract.write.increment();
     await waitForTransaction(tx);
     return getComponentValue(Counter, singletonEntity);
   };
 
   return {
     increment,
+    getNoise,
   };
 }

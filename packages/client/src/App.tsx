@@ -1,8 +1,10 @@
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "./MUDContext";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
+import useSyncComputedComponents from "./hooks/useSyncComputedComponents";
 
 export const App = () => {
+  useSyncComputedComponents();
   const {
     components: { Counter },
     systemCalls: { increment },
