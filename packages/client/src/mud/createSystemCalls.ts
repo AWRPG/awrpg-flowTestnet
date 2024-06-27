@@ -7,7 +7,7 @@ import { Entity, getComponentValue, removeComponent } from "@latticexyz/recs";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
-import { PERLIN_DENOM, TEST } from "../contract/constants";
+import { PERLIN_DENOM } from "../contract/constants";
 import { Hex } from "viem";
 import { SOURCE } from "../constants";
 
@@ -43,14 +43,25 @@ export function createSystemCalls(
     return Math.floor(noise * 100);
   };
 
-  const move = async (moves: number[]) => {
-    const tx = await worldContract.write.move([TEST, moves]);
+  const spawnHero = async () => {
+    const tx = await worldContract.write.spawnHero();
     await waitForTransaction(tx);
+  };
+
+  const move = async (host: Hex, moves: number[]) => {
+    const tx = await worldContract.write.move([host, moves]);
+    await waitForTransaction(tx);
+    // try {
+    //   const tx = await worldContract.write.move([TEST, moves]);
+    // } catch (error) {
+    //   console.error("Transaction failed:", error);
+    // }
     removeComponent(Moves, SOURCE);
   };
 
   return {
     getNoise,
+    spawnHero,
     move,
   };
 }
