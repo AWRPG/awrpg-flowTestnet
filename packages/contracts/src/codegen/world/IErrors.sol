@@ -9,10 +9,26 @@ pragma solidity >=0.8.24;
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IErrors {
+  error NotCommander();
+  error NotApproved();
   error CannotMoveToTerrain(bytes16 terrainType);
   error CannotMoveToBuilding(bytes32 coordId);
   error ExceedMaxMoves();
   error NotIncrementalMoves();
   error NotFromHostPosition();
   error InvalidMove();
+  error MintToNull();
+  error TransferFromNull();
+  error TransferToNull();
+  error TransferExceedsBalance();
+  error TransferIncorrectOwner();
+  error BurnFromNull();
+  error BurnExceedsBalance();
+  error Minted();
+  error ApproveOwnerNull();
+  error ApproveSpenderNull();
+  error InsufficientAllowance();
+  error InsufficientStorage();
+  error StorageUnderflow();
+  error NestedContainer();
 }
