@@ -84,5 +84,21 @@ export default defineWorld({
       },
       key: ["buildingType"],
     },
+    // all erc20 & erc721 has size
+    SizeSpecs: {
+      schema: {
+        entityType: "bytes16",
+        size: "uint128",
+      },
+      key: ["entityType"],
+    },
+    //
+    ContainerSpecs: {
+      schema: {
+        entityType: "bytes16",
+        capacity: "uint256",
+      },
+      key: ["entityType"],
+    },
   },
 });
