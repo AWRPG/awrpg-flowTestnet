@@ -4,6 +4,10 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 
 contract Errors is System {
+  // access error
+  error NotCommander();
+  error NotApproved();
+
   // move error
   error CannotMoveToTerrain(bytes16 terrainType);
   error CannotMoveToBuilding(bytes32 coordId);
