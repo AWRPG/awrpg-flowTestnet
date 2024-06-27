@@ -8,4 +8,8 @@ library DefineTypes {
   function defineTerrain(bytes16 terrainType, TerrainSpecsData memory terrainSpecs) internal {
     TerrainSpecs.set(terrainType, terrainSpecs);
   }
+
+  function definePool(bytes16 poolType, uint256 capacity) internal {
+    ContainerSpecs.set(poolType, capacity);
+  }
 }

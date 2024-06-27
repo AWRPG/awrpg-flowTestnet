@@ -21,6 +21,7 @@ import "@/codegen/index.sol";
 function initializeTypes() {
   // initConstants();
   initTerrainTypes();
+  initPoolTypes();
 }
 
 function initTerrainTypes() {
@@ -30,6 +31,10 @@ function initTerrainTypes() {
   DefineTypes.defineTerrain(BUSH, TerrainSpecsData({ canMove: true, awardType: 0, awardAmount: 0 }));
   DefineTypes.defineTerrain(TREE, TerrainSpecsData({ canMove: false, awardType: 0, awardAmount: 0 }));
   DefineTypes.defineTerrain(RED_MINE, TerrainSpecsData({ canMove: true, awardType: 0, awardAmount: 0 }));
+}
+
+function initPoolTypes() {
+  DefineTypes.definePool(POOL, 1000);
 }
 
 // function initConstants() {

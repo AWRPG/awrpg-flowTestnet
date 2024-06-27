@@ -20,7 +20,7 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
     initializeTypes();
-    Position.set(bytes32("testing"), 10, 10);
+    // world.spawnHero();
 
     vm.stopBroadcast();
   }
