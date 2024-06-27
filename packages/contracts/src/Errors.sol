@@ -28,4 +28,9 @@ contract Errors is System {
   error ApproveOwnerNull();
   error ApproveSpenderNull();
   error InsufficientAllowance();
+
+  // Storage errors
+  error InsufficientStorage();
+  error StorageUnderflow();
+  error NestedContainer();
 }
