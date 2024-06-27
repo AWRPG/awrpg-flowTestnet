@@ -12,17 +12,42 @@ export default defineWorld({
   tables: {
     Counter: {
       schema: {
-        value: "uint32",
-      },
-      key: [],
-    },
-    EntityType: {
-      schema: {
         entityType: "bytes16",
-        value: "bytes32",
+        value: "uint256",
       },
       key: ["entityType"],
     },
+    Approval: "bytes32",
+    Allowance: {
+      schema: {
+        entityType: "bytes16",
+        owner: "bytes32",
+        spender: "bytes32",
+        value: "uint256",
+      },
+      key: ["entityType", "owner", "spender"],
+    },
+    Balance: {
+      schema: {
+        entityType: "bytes16",
+        owner: "bytes32",
+        value: "uint256",
+      },
+      key: ["entityType", "owner"],
+    },
+    TotalSupply: {
+      schema: {
+        entityType: "bytes16",
+        value: "uint256",
+      },
+      key: ["entityType"],
+    },
+    StoredSize: "uint256",
+    // building & host -> player
+    Commander: "bytes32",
+    // -> building & host
+    Owner: "bytes32",
+    EntityType: "bytes16",
     // building & host
     Position: {
       schema: {

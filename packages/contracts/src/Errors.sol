@@ -11,4 +11,17 @@ contract Errors is System {
   error NotIncrementalMoves();
   error NotFromHostPosition();
   error InvalidMove();
+
+  // Token errors
+  error MintToNull();
+  error TransferFromNull();
+  error TransferToNull();
+  error TransferExceedsBalance();
+  error TransferIncorrectOwner();
+  error BurnFromNull();
+  error BurnExceedsBalance();
+  error Minted();
+  error ApproveOwnerNull();
+  error ApproveSpenderNull();
+  error InsufficientAllowance();
 }

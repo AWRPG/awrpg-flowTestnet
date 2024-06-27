@@ -16,17 +16,17 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library EntityType {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "EntityType", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000456e7469747954797065000000000000);
+library Approval {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "Approval", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000417070726f76616c0000000000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0010010010000000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bytes16)
-  Schema constant _valueSchema = Schema.wrap(0x001001004f000000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32)
+  Schema constant _valueSchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -63,51 +63,51 @@ library EntityType {
   /**
    * @notice Get value.
    */
-  function getValue(bytes32 id) internal view returns (bytes16 value) {
+  function getValue(bytes32 id) internal view returns (bytes32 value) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes16(_blob));
+    return (bytes32(_blob));
   }
 
   /**
    * @notice Get value.
    */
-  function _getValue(bytes32 id) internal view returns (bytes16 value) {
+  function _getValue(bytes32 id) internal view returns (bytes32 value) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes16(_blob));
+    return (bytes32(_blob));
   }
 
   /**
    * @notice Get value.
    */
-  function get(bytes32 id) internal view returns (bytes16 value) {
+  function get(bytes32 id) internal view returns (bytes32 value) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes16(_blob));
+    return (bytes32(_blob));
   }
 
   /**
    * @notice Get value.
    */
-  function _get(bytes32 id) internal view returns (bytes16 value) {
+  function _get(bytes32 id) internal view returns (bytes32 value) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
-    return (bytes16(_blob));
+    return (bytes32(_blob));
   }
 
   /**
    * @notice Set value.
    */
-  function setValue(bytes32 id, bytes16 value) internal {
+  function setValue(bytes32 id, bytes32 value) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
@@ -117,7 +117,7 @@ library EntityType {
   /**
    * @notice Set value.
    */
-  function _setValue(bytes32 id, bytes16 value) internal {
+  function _setValue(bytes32 id, bytes32 value) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
@@ -127,7 +127,7 @@ library EntityType {
   /**
    * @notice Set value.
    */
-  function set(bytes32 id, bytes16 value) internal {
+  function set(bytes32 id, bytes32 value) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
@@ -137,7 +137,7 @@ library EntityType {
   /**
    * @notice Set value.
    */
-  function _set(bytes32 id, bytes16 value) internal {
+  function _set(bytes32 id, bytes32 value) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = id;
 
@@ -168,7 +168,7 @@ library EntityType {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bytes16 value) internal pure returns (bytes memory) {
+  function encodeStatic(bytes32 value) internal pure returns (bytes memory) {
     return abi.encodePacked(value);
   }
 
@@ -178,7 +178,7 @@ library EntityType {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(bytes16 value) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+  function encode(bytes32 value) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
     bytes memory _staticData = encodeStatic(value);
 
     EncodedLengths _encodedLengths;
