@@ -100,5 +100,57 @@ export default defineWorld({
       },
       key: ["entityType"],
     },
+    // building/item
+    MintCosts: {
+      schema: {
+        mintType: "bytes16", // erc721
+        // 1st 16 bytes type, 2nd 16 amount
+        costs: "bytes32[]",
+      },
+      key: ["mintType"],
+    },
+    // building/item
+    UpgradeCosts: {
+      schema: {
+        fromType: "bytes16", // erc721
+        toType: "bytes16", // erc721
+        costs: "bytes32[]",
+      },
+      key: ["fromType"],
+    },
+    // terrain/building
+    BurnCosts: {
+      schema: {
+        burnType: "bytes16", // erc721
+        costs: "bytes32[]",
+      },
+      key: ["burnType"],
+    },
+    // terrain/building/host
+    BurnAwards: {
+      schema: {
+        burnType: "bytes16", //erc20 or erc721
+        awards: "bytes32[]",
+      },
+      key: ["burnType"],
+    },
+    // terrain
+    InteractCosts: {
+      schema: {
+        interactType: "bytes16", //erc721?
+        costs: "bytes32[]",
+      },
+      key: ["interactType"],
+    },
+    InteractAwards: {
+      schema: {
+        interactType: "bytes16", //erc20 or erc721
+        awards: "bytes32[]",
+      },
+      key: ["interactType"],
+    },
+
+    // destroyable: building, host, terrain
+    // Destroy stuff, award erc20s or erc721
   },
 });
