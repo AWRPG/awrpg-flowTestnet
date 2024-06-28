@@ -8,6 +8,9 @@ contract Errors is System {
   error NotCommander();
   error NotApproved();
 
+  // position error
+  error NotAdjacent();
+
   // move error
   error CannotMoveToTerrain(bytes16 terrainType);
   error CannotMoveToBuilding(bytes32 coordId);
