@@ -99,6 +99,16 @@ export default defineWorld({
       },
       key: ["entityType"],
     },
+    // stamina -> soul/blood
+    ConvertRatio: {
+      schema: {
+        fromType: "bytes16",
+        toType: "bytes16",
+        num: "uint8",
+        denom: "uint8",
+      },
+      key: ["fromType", "toType"],
+    },
     // building/item
     MintCosts: {
       schema: {
