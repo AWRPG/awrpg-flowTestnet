@@ -48,6 +48,20 @@ library LibUtils {
     return keccak256(buffer);
   }
 
+  function compileCosts(
+    bytes16[] memory entityTypes,
+    uint128[] memory amounts
+  ) internal pure returns (bytes32[] memory costs) {
+    if (entityTypes.length != amounts.length) revert("Invalid input");
+
+    costs = new bytes32[](entityTypes.length);
+
+    for (uint256 i = 0; i < entityTypes.length; i++) {
+      // if (amounts[i] == 0) break;
+      costs[i] = LibUtils.combineBytes32(entityTypes[i], bytes16(amounts[i]));
+    }
+  }
+
   /// @notice Calculates the square root of x, rounding down.
   /// @dev Uses the Babylonian method https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method.
   /// @param x The uint256 number for which to calculate the square root.
