@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Owner } from "@/codegen/index.sol";
+import { Owner, BurnAwards, BuildingSpecs } from "@/codegen/index.sol";
 import { Errors } from "@/Errors.sol";
+import "@/constants.sol";
 
 library EntityLogic {
   function isOwner(bytes32 entity, bytes32 owner) internal view returns (bool) {
@@ -12,5 +13,20 @@ library EntityLogic {
       if (curr == 0) return false;
     }
     return true;
+  }
+
+  // hardcoded pool type; can consider putting them into table later
+  function isPoolType(bytes16 entityType) internal pure returns (bool) {
+    return entityType == BLOOD || entityType == SOUL || entityType == STAMINA;
+  }
+
+  function hasBurnAwards(bytes16 burnType) internal view returns (bool) {
+    return BurnAwards.lengthAwards(burnType) != 0;
+  }
+
+  // function hasMin
+
+  function isBuildingType(bytes16 buildingType) internal view returns (bool) {
+    return BuildingSpecs.getTerrainType(buildingType) != 0;
   }
 }

@@ -33,4 +33,9 @@ contract Errors is System {
   error InsufficientStorage();
   error StorageUnderflow();
   error NestedContainer();
+
+  // building errors
+  error HasBuildingOnCoord();
+  error WrongTerrainToBuildOn();
+  error NoBuildingOnCoord();
 }
