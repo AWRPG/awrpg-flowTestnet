@@ -11,6 +11,7 @@ pragma solidity >=0.8.24;
 interface IErrors {
   error NotCommander();
   error NotApproved();
+  error NotAdjacent();
   error CannotMoveToTerrain(bytes16 terrainType);
   error CannotMoveToBuilding(bytes32 coordId);
   error ExceedMaxMoves();
@@ -31,4 +32,9 @@ interface IErrors {
   error InsufficientStorage();
   error StorageUnderflow();
   error NestedContainer();
+  error HasBuildingOnCoord();
+  error WrongTerrainToBuildOn();
+  error NoBuildingOnCoord();
+  error NoTerrainToBurn();
+  error NoAvailableUpgrade();
 }
