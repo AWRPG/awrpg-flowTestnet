@@ -2,7 +2,6 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Counter } from "@/codegen/index.sol";
 import { TypeCast } from "@/utils/TypeCast.sol";
 import { HeroLogic } from "@/libraries/HeroLogic.sol";
 
