@@ -70,8 +70,7 @@ export default defineWorld({
       schema: {
         terrainType: "bytes16",
         canMove: "bool",
-        awardType: "bytes16",
-        awardAmount: "uint32",
+        canBurn: "bool",
       },
       key: ["terrainType"],
     },

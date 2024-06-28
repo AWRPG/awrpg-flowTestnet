@@ -38,4 +38,7 @@ contract Errors is System {
   error HasBuildingOnCoord();
   error WrongTerrainToBuildOn();
   error NoBuildingOnCoord();
+
+  // terrain errors
+  error NoTerrainToBurn();
 }

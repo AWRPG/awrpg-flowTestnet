@@ -18,8 +18,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct TerrainSpecsData {
   bool canMove;
-  bytes16 awardType;
-  uint32 awardAmount;
+  bool canBurn;
 }
 
 library TerrainSpecs {
@@ -27,12 +26,12 @@ library TerrainSpecs {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000005465727261696e537065637300000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0015030001100400000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0002020001010000000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes16)
   Schema constant _keySchema = Schema.wrap(0x001001004f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool, bytes16, uint32)
-  Schema constant _valueSchema = Schema.wrap(0x00150300604f0300000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bool, bool)
+  Schema constant _valueSchema = Schema.wrap(0x0002020060600000000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -48,10 +47,9 @@ library TerrainSpecs {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](3);
+    fieldNames = new string[](2);
     fieldNames[0] = "canMove";
-    fieldNames[1] = "awardType";
-    fieldNames[2] = "awardAmount";
+    fieldNames[1] = "canBurn";
   }
 
   /**
@@ -111,87 +109,45 @@ library TerrainSpecs {
   }
 
   /**
-   * @notice Get awardType.
+   * @notice Get canBurn.
    */
-  function getAwardType(bytes16 terrainType) internal view returns (bytes16 awardType) {
+  function getCanBurn(bytes16 terrainType) internal view returns (bool canBurn) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(terrainType);
 
     bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (bytes16(_blob));
+    return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
-   * @notice Get awardType.
+   * @notice Get canBurn.
    */
-  function _getAwardType(bytes16 terrainType) internal view returns (bytes16 awardType) {
+  function _getCanBurn(bytes16 terrainType) internal view returns (bool canBurn) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(terrainType);
 
     bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
-    return (bytes16(_blob));
+    return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
-   * @notice Set awardType.
+   * @notice Set canBurn.
    */
-  function setAwardType(bytes16 terrainType, bytes16 awardType) internal {
+  function setCanBurn(bytes16 terrainType, bool canBurn) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(terrainType);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((awardType)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((canBurn)), _fieldLayout);
   }
 
   /**
-   * @notice Set awardType.
+   * @notice Set canBurn.
    */
-  function _setAwardType(bytes16 terrainType, bytes16 awardType) internal {
+  function _setCanBurn(bytes16 terrainType, bool canBurn) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(terrainType);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((awardType)), _fieldLayout);
-  }
-
-  /**
-   * @notice Get awardAmount.
-   */
-  function getAwardAmount(bytes16 terrainType) internal view returns (uint32 awardAmount) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(terrainType);
-
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint32(bytes4(_blob)));
-  }
-
-  /**
-   * @notice Get awardAmount.
-   */
-  function _getAwardAmount(bytes16 terrainType) internal view returns (uint32 awardAmount) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(terrainType);
-
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
-    return (uint32(bytes4(_blob)));
-  }
-
-  /**
-   * @notice Set awardAmount.
-   */
-  function setAwardAmount(bytes16 terrainType, uint32 awardAmount) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(terrainType);
-
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((awardAmount)), _fieldLayout);
-  }
-
-  /**
-   * @notice Set awardAmount.
-   */
-  function _setAwardAmount(bytes16 terrainType, uint32 awardAmount) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32(terrainType);
-
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((awardAmount)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((canBurn)), _fieldLayout);
   }
 
   /**
@@ -227,8 +183,8 @@ library TerrainSpecs {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes16 terrainType, bool canMove, bytes16 awardType, uint32 awardAmount) internal {
-    bytes memory _staticData = encodeStatic(canMove, awardType, awardAmount);
+  function set(bytes16 terrainType, bool canMove, bool canBurn) internal {
+    bytes memory _staticData = encodeStatic(canMove, canBurn);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -242,8 +198,8 @@ library TerrainSpecs {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes16 terrainType, bool canMove, bytes16 awardType, uint32 awardAmount) internal {
-    bytes memory _staticData = encodeStatic(canMove, awardType, awardAmount);
+  function _set(bytes16 terrainType, bool canMove, bool canBurn) internal {
+    bytes memory _staticData = encodeStatic(canMove, canBurn);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -258,7 +214,7 @@ library TerrainSpecs {
    * @notice Set the full data using the data struct.
    */
   function set(bytes16 terrainType, TerrainSpecsData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.canMove, _table.awardType, _table.awardAmount);
+    bytes memory _staticData = encodeStatic(_table.canMove, _table.canBurn);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -273,7 +229,7 @@ library TerrainSpecs {
    * @notice Set the full data using the data struct.
    */
   function _set(bytes16 terrainType, TerrainSpecsData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.canMove, _table.awardType, _table.awardAmount);
+    bytes memory _staticData = encodeStatic(_table.canMove, _table.canBurn);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -287,14 +243,10 @@ library TerrainSpecs {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(
-    bytes memory _blob
-  ) internal pure returns (bool canMove, bytes16 awardType, uint32 awardAmount) {
+  function decodeStatic(bytes memory _blob) internal pure returns (bool canMove, bool canBurn) {
     canMove = (_toBool(uint8(Bytes.getBytes1(_blob, 0))));
 
-    awardType = (Bytes.getBytes16(_blob, 1));
-
-    awardAmount = (uint32(Bytes.getBytes4(_blob, 17)));
+    canBurn = (_toBool(uint8(Bytes.getBytes1(_blob, 1))));
   }
 
   /**
@@ -308,7 +260,7 @@ library TerrainSpecs {
     EncodedLengths,
     bytes memory
   ) internal pure returns (TerrainSpecsData memory _table) {
-    (_table.canMove, _table.awardType, _table.awardAmount) = decodeStatic(_staticData);
+    (_table.canMove, _table.canBurn) = decodeStatic(_staticData);
   }
 
   /**
@@ -335,8 +287,8 @@ library TerrainSpecs {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bool canMove, bytes16 awardType, uint32 awardAmount) internal pure returns (bytes memory) {
-    return abi.encodePacked(canMove, awardType, awardAmount);
+  function encodeStatic(bool canMove, bool canBurn) internal pure returns (bytes memory) {
+    return abi.encodePacked(canMove, canBurn);
   }
 
   /**
@@ -345,12 +297,8 @@ library TerrainSpecs {
    * @return The lengths of the dynamic fields (packed into a single bytes32 value).
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
-  function encode(
-    bool canMove,
-    bytes16 awardType,
-    uint32 awardAmount
-  ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(canMove, awardType, awardAmount);
+  function encode(bool canMove, bool canBurn) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
+    bytes memory _staticData = encodeStatic(canMove, canBurn);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
