@@ -138,6 +138,16 @@ library ContainerLogic {
     return entity;
   }
 
+  function _mintLoose(bytes16 entityType, bytes32 to, uint128 amount) internal {
+    uint256 remainedSize = getRemainedSize(to);
+
+    if (remainedSize == 0) return;
+    uint128 size = SizeSpecs.get(entityType);
+    uint128 actualAmount = remainedSize / size < uint128(amount) ? uint128(remainedSize / size) : uint128(amount);
+
+    _mint(entityType, to, actualAmount);
+  }
+
   function getRemainedSize(bytes32 module) internal view returns (uint256) {
     return ContainerSpecs.get(EntityType.get(module)) - StoredSize.get(module);
   }
