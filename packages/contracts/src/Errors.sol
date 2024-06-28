@@ -41,4 +41,7 @@ contract Errors is System {
 
   // terrain errors
   error NoTerrainToBurn();
+
+  // upgrade errors
+  error NoAvailableUpgrade();
 }

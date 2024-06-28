@@ -7,6 +7,7 @@ import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 import "@/hashes.sol";
 
+// TODO: change name to RoleLogic?
 library HeroLogic {
   function _spawn(bytes32 player) internal {
     bytes32 hero = ContainerLogic._mint(HOST, space());
@@ -28,5 +29,14 @@ library HeroLogic {
     bytes32 staminaPool = getPool(hero, STAMINA);
     EntityType.set(staminaPool, POOL);
     ContainerLogic._mint(STAMINA, staminaPool, 1000);
+  }
+
+  function _delete(bytes32 hero) internal {
+    ContainerLogic._burn(hero);
+    Position.deleteRecord(hero);
+  }
+
+  function _deprive(bytes32 hero) internal {
+    Commander.deleteRecord(hero);
   }
 }

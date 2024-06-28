@@ -83,7 +83,7 @@ export default defineWorld({
       },
       key: ["buildingType"],
     },
-    // all erc20 & erc721 has size
+    // all erc20 & erc721 has size; except building or terrain
     SizeSpecs: {
       schema: {
         entityType: "bytes16",
