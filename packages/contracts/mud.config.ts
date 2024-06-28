@@ -75,12 +75,12 @@ export default defineWorld({
       },
       key: ["terrainType"],
     },
+    // for all building group
     BuildingSpecs: {
       schema: {
         buildingType: "bytes16",
         canMove: "bool",
-        awardType: "bytes16",
-        awardAmount: "uint32",
+        terrainType: "bytes16",
       },
       key: ["buildingType"],
     },
