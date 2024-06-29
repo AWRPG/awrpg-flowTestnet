@@ -18,6 +18,8 @@ export class GameScene extends Phaser.Scene {
   systemCalls: SetupResult["systemCalls"];
 
   tileSize = 32;
+  minZoomLevel = 1 / 2 ** 2;
+  maxZoomLevel = 1;
 
   tilesLayer0: Record<Entity, Phaser.GameObjects.Sprite> = {};
   tiles: Record<Entity, Phaser.GameObjects.Sprite> = {};
@@ -56,6 +58,7 @@ export class GameScene extends Phaser.Scene {
   create() {
     const { TerrainValue, Position, Moves, SelectedHost } = this.components;
     const world = this.network.world;
+    const camera = this.cameras.main;
     this.createAnimations();
 
     // render map terrain
@@ -105,7 +108,7 @@ export class GameScene extends Phaser.Scene {
       if (!source) return;
       const from = getComponentValue(Position, source)!;
       const positions = movesToPositions(moves, from);
-      console.log(positions);
+      // console.log(positions);
       if (positions.length <= 1) return this.hostMoveTo?.destroy();
       // hostObj
       const { x, y } = positions[positions.length - 1];
@@ -133,6 +136,44 @@ export class GameScene extends Phaser.Scene {
         line.geom.y2 = y2 * this.tileSize - y1 * this.tileSize;
         this.moves.add(line);
       }
+    });
+
+    // panning
+    this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
+      if (pointer.buttons) {
+        camera.scrollX -=
+          (pointer.position.x - pointer.prevPosition.x) / camera.zoom;
+        camera.scrollY -=
+          (pointer.position.y - pointer.prevPosition.y) / camera.zoom;
+      }
+    });
+
+    // zooming
+    let lastPointerPosition = { x: 0, y: 0, worldX: 0, worldY: 0 };
+    this.input.on("wheel", (pointer: Phaser.Input.Pointer) => {
+      if (
+        Phaser.Math.Distance.BetweenPoints(pointer, lastPointerPosition) > 2
+      ) {
+        lastPointerPosition = {
+          x: pointer.x,
+          y: pointer.y,
+          worldX: pointer.worldX,
+          worldY: pointer.worldY,
+        };
+      }
+      const deltaZoom = 1 + 0.05 * (pointer.deltaY < 0 ? 1 : -1);
+      const newZoom = Phaser.Math.Clamp(
+        camera.zoom * deltaZoom,
+        this.minZoomLevel,
+        this.maxZoomLevel
+      );
+      const deltaScrollX =
+        (lastPointerPosition.worldX - camera.scrollX) * (camera.zoom / newZoom);
+      const deltaScrollY =
+        (lastPointerPosition.worldY - camera.scrollY) * (camera.zoom / newZoom);
+      camera.scrollX = lastPointerPosition.worldX - deltaScrollX;
+      camera.scrollY = lastPointerPosition.worldY - deltaScrollY;
+      camera.zoom = newZoom;
     });
   }
 
