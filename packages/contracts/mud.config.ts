@@ -62,7 +62,7 @@ export default defineWorld({
     // coordId ->
     RemovedCoord: "bool",
     // coordId -> buildingId
-    BuildingCoord: "bytes32",
+    EntityCoord: "bytes32",
     // entity types: terrain, building, host, food, material
     // terrain: when destoryed, award destroyer; 0 means cannot be destroyed
     // default is change to GRASS

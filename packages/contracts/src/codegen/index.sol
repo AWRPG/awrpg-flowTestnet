@@ -14,7 +14,7 @@ import { Owner } from "./tables/Owner.sol";
 import { EntityType } from "./tables/EntityType.sol";
 import { Position, PositionData } from "./tables/Position.sol";
 import { RemovedCoord } from "./tables/RemovedCoord.sol";
-import { BuildingCoord } from "./tables/BuildingCoord.sol";
+import { EntityCoord } from "./tables/EntityCoord.sol";
 import { TerrainSpecs, TerrainSpecsData } from "./tables/TerrainSpecs.sol";
 import { BuildingSpecs, BuildingSpecsData } from "./tables/BuildingSpecs.sol";
 import { SizeSpecs } from "./tables/SizeSpecs.sol";

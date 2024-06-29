@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Position, BuildingSpecs, BuildingCoord, EntityType, TerrainSpecs, RemovedCoord, UpgradeCosts, SizeSpecs } from "@/codegen/index.sol";
+import { Position, BuildingSpecs, EntityCoord, EntityType, TerrainSpecs, RemovedCoord, UpgradeCosts, SizeSpecs } from "@/codegen/index.sol";
 import { LibUtils } from "@/utils/LibUtils.sol";
 import { ContainerLogic } from "./ContainerLogic.sol";
 import { AwardLogic } from "./AwardLogic.sol";
 import { MapLogic } from "./MapLogic.sol";
 import { CostLogic } from "./CostLogic.sol";
+import { EntityLogic } from "./EntityLogic.sol";
 import { Errors } from "@/Errors.sol";
 import "@/hashes.sol";
 import "@/constants.sol";
@@ -20,31 +21,32 @@ library BuildingLogic {
 
     // check if there is already a building
     bytes32 coordId = MapLogic.getCoordId(x, y);
-    if (BuildingCoord.get(coordId) != 0) revert Errors.HasBuildingOnCoord();
+    if (EntityCoord.get(coordId) != 0) revert Errors.HasEntityOnCoord();
 
     // burn costs
     CostLogic._burnMintCosts(buildingType, role);
 
     // mint building
     bytes32 building = ContainerLogic._mint(buildingType, space());
-    BuildingCoord.set(coordId, building);
+    EntityCoord.set(coordId, building);
     Position.set(building, x, y);
   }
 
   // burn erc721 (building), which burn erc20s & award erc20s
   function _burnBuilding(bytes32 role, uint32 x, uint32 y) internal {
     bytes32 coordId = MapLogic.getCoordId(x, y);
-    bytes32 building = BuildingCoord.get(coordId);
-    if (building == 0) revert Errors.NoBuildingOnCoord();
+    bytes32 entity = EntityCoord.get(coordId);
+    if (entity == 0) revert Errors.HasNoEntityOnCoord();
 
-    bytes16 buildingType = EntityType.get(building);
-    CostLogic._burnBurnCosts(buildingType, role);
+    bytes16 entityType = EntityType.get(entity);
+    if (!EntityLogic.isBuildingType(entityType)) revert Errors.NotBuildingType();
+    CostLogic._burnBurnCosts(entityType, role);
 
-    AwardLogic._mintBurnAwards(buildingType, role);
+    AwardLogic._mintBurnAwards(entityType, role);
 
-    ContainerLogic._burn(building);
-    BuildingCoord.deleteRecord(coordId);
-    Position.deleteRecord(building);
+    ContainerLogic._burn(entity);
+    EntityCoord.deleteRecord(coordId);
+    Position.deleteRecord(entity);
   }
 
   // ------- individual buildingType has its own active functionalities -------

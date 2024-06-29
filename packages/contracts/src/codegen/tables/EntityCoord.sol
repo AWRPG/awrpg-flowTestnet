@@ -16,9 +16,9 @@ import { Schema } from "@latticexyz/store/src/Schema.sol";
 import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/EncodedLengths.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-library BuildingCoord {
-  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "BuildingCoord", typeId: RESOURCE_TABLE });`
-  ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004275696c64696e67436f6f7264000000);
+library EntityCoord {
+  // Hex below is the result of `WorldResourceIdLib.encode({ namespace: "", name: "EntityCoord", typeId: RESOURCE_TABLE });`
+  ResourceId constant _tableId = ResourceId.wrap(0x74620000000000000000000000000000456e74697479436f6f72640000000000);
 
   FieldLayout constant _fieldLayout =
     FieldLayout.wrap(0x0020010020000000000000000000000000000000000000000000000000000000);

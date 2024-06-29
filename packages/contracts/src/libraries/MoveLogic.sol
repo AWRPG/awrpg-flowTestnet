@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Position, PositionData } from "@/codegen/index.sol";
+import { Position, PositionData, EntityCoord } from "@/codegen/index.sol";
 import { MapLogic } from "@/libraries/MapLogic.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
@@ -23,6 +23,7 @@ library MoveLogic {
 
     (uint32 toX, uint32 toY) = canMoveStrict(host, moves);
     Position.set(host, toX, toY);
+    EntityCoord.set(MapLogic.getCoordId(toX, toY), host);
   }
 
   function canMoveStrict(bytes32 host, uint8[] memory moves) internal view returns (uint32 toX, uint32 toY) {

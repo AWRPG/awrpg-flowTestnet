@@ -13,7 +13,7 @@ contract Errors is System {
 
   // move error
   error CannotMoveToTerrain(bytes16 terrainType);
-  error CannotMoveToBuilding(bytes32 coordId);
+  error CannotMoveOnEntity(bytes32 coordId);
   error ExceedMaxMoves();
   error NotIncrementalMoves();
   error NotFromHostPosition();
@@ -38,7 +38,8 @@ contract Errors is System {
   error NestedContainer();
 
   // building errors
-  error HasBuildingOnCoord();
+  error HasNoEntityOnCoord();
+  error HasEntityOnCoord();
   error WrongTerrainToBuildOn();
   error NoBuildingOnCoord();
 
@@ -47,4 +48,7 @@ contract Errors is System {
 
   // upgrade errors
   error NoAvailableUpgrade();
+
+  // entity errors
+  error NotBuildingType();
 }

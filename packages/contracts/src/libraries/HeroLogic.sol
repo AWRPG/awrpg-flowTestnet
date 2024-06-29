@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Owner, Commander, Position, EntityType } from "@/codegen/index.sol";
+import { Owner, Commander, Position, EntityCoord, EntityType } from "@/codegen/index.sol";
 import { ContainerLogic } from "@/libraries/ContainerLogic.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
@@ -17,6 +17,7 @@ library HeroLogic {
     uint32 x = 20;
     uint32 y = 20;
     Position.set(hero, x, y);
+    EntityCoord.set(MapLogic.getCoordId(x, y), hero);
 
     bytes32 bloodPool = getPool(hero, BLOOD);
     EntityType.set(bloodPool, POOL);

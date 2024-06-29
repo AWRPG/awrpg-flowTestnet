@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Position, BuildingSpecs, BuildingCoord, EntityType, TerrainSpecs, RemovedCoord, UpgradeCosts, SizeSpecs, ConvertRatio, ConvertRatioData } from "@/codegen/index.sol";
+import { Position, BuildingSpecs, EntityType, TerrainSpecs, RemovedCoord, UpgradeCosts, SizeSpecs, ConvertRatio, ConvertRatioData } from "@/codegen/index.sol";
 import { LibUtils } from "@/utils/LibUtils.sol";
 import { ContainerLogic } from "./ContainerLogic.sol";
 import { AwardLogic } from "./AwardLogic.sol";

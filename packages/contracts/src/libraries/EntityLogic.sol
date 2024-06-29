@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Owner, BurnAwards, BuildingSpecs } from "@/codegen/index.sol";
+import { Owner, BurnAwards, BuildingSpecs, EntityType } from "@/codegen/index.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 
@@ -25,6 +25,10 @@ library EntityLogic {
   }
 
   // function hasMin
+
+  function isBuilding(bytes32 building) internal view returns (bool) {
+    return isBuildingType(EntityType.get(building));
+  }
 
   function isBuildingType(bytes16 buildingType) internal view returns (bool) {
     return BuildingSpecs.getTerrainType(buildingType) != 0;

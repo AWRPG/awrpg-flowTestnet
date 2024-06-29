@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { TerrainSpecs, RemovedCoord, BuildingCoord, EntityType } from "@/codegen/index.sol";
+import { TerrainSpecs, RemovedCoord, EntityCoord, EntityType } from "@/codegen/index.sol";
 import { Perlin } from "../utils/Perlin.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
@@ -41,8 +41,8 @@ library MapLogic {
     bytes16 terrainType = getTerrainType(x, y);
     bool terrainCanMove = TerrainSpecs.getCanMove(terrainType);
     bytes32 coorId = getCoordId(x, y);
-    bool hasBuilding = BuildingCoord.get(coorId) == 0;
-    return terrainCanMove && !hasBuilding;
+    bool hasEntity = EntityCoord.get(coorId) == 0;
+    return terrainCanMove && !hasEntity;
   }
 
   function canMoveToStrict(uint32 x, uint32 y) internal view {
@@ -50,8 +50,8 @@ library MapLogic {
     bool terrainCanMove = TerrainSpecs.getCanMove(terrainType);
     if (!terrainCanMove) revert Errors.CannotMoveToTerrain(terrainType);
     bytes32 coorId = getCoordId(x, y);
-    bool hasBuilding = BuildingCoord.get(coorId) == 0;
-    if (!hasBuilding) revert Errors.CannotMoveToBuilding(coorId);
+    bool hasEntity = EntityCoord.get(coorId) == 0;
+    if (!hasEntity) revert Errors.CannotMoveOnEntity(coorId);
   }
 
   function getCoordId(uint32 x, uint32 y) internal pure returns (bytes32) {
