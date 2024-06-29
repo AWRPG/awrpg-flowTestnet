@@ -3,7 +3,7 @@ import { useMUD } from "../MUDContext";
 import { MAIN_MENU, MENU, SELECTED, SOURCE, TARGET } from "../constants";
 import { Has, HasValue } from "@latticexyz/recs";
 // import PoolBars from "./PoolBars";
-// import MainMenu from "./menu/MainMenu";
+import MainMenu from "./menu/MainMenu";
 
 export default function Overlay() {
   const {
@@ -25,7 +25,7 @@ export default function Overlay() {
       {/* {sourceHost && <PoolBars host={sourceHost} />} */}
       <div className="relative h-full">
         <div className="absolute pointer-events-auto top-2 right-2">
-          {/* {menu === MAIN_MENU && <MainMenu player={playerEntity} />} */}
+          {menu === MAIN_MENU && <MainMenu player={playerEntity} />}
         </div>
         {/* {source && (
           <div className="absolute pointer-events-auto top-2 left-2">
