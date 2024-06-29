@@ -13,7 +13,7 @@ interface IErrors {
   error NotApproved();
   error NotAdjacent();
   error CannotMoveToTerrain(bytes16 terrainType);
-  error CannotMoveToBuilding(bytes32 coordId);
+  error CannotMoveOnEntity(bytes32 coordId);
   error ExceedMaxMoves();
   error NotIncrementalMoves();
   error NotFromHostPosition();
@@ -32,9 +32,11 @@ interface IErrors {
   error InsufficientStorage();
   error StorageUnderflow();
   error NestedContainer();
-  error HasBuildingOnCoord();
+  error HasNoEntityOnCoord();
+  error HasEntityOnCoord();
   error WrongTerrainToBuildOn();
   error NoBuildingOnCoord();
   error NoTerrainToBurn();
   error NoAvailableUpgrade();
+  error NotBuildingType();
 }
