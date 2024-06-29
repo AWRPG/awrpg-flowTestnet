@@ -29,5 +29,8 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     SelectedHost: defineComponent(world, {
       value: Type.Entity,
     }),
+    SelectedEntity: defineComponent(world, {
+      value: Type.Entity,
+    }),
   };
 }
