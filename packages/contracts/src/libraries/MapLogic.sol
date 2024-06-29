@@ -57,4 +57,19 @@ library MapLogic {
   function getCoordId(uint32 x, uint32 y) internal pure returns (bytes32) {
     return bytes32((uint256(x) << 128) | uint256(y));
   }
+
+  function getRandomEmptyPosition(uint256 seed, uint32 maxX, uint32 maxY) internal view returns (uint32 x, uint32 y) {
+    (x, y) = getRandomPosition(seed, maxX, maxY);
+    while (EntityCoord.get(getCoordId(x, y)) != 0) {
+      seed += 1;
+      (x, y) = getRandomPosition(seed, maxX, maxY);
+    }
+    return (x, y);
+  }
+
+  function getRandomPosition(uint256 seed, uint32 maxX, uint32 maxY) internal pure returns (uint32, uint32) {
+    uint256 x = uint256(keccak256(abi.encodePacked(seed, "x"))) % maxX;
+    uint256 y = uint256(keccak256(abi.encodePacked(seed, "y"))) % maxY;
+    return (uint32(x), uint32(y));
+  }
 }

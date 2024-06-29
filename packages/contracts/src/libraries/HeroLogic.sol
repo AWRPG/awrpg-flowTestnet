@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import { Owner, Commander, Position, EntityCoord, EntityType } from "@/codegen/index.sol";
 import { ContainerLogic } from "@/libraries/ContainerLogic.sol";
+import { MapLogic } from "@/libraries/MapLogic.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 import "@/hashes.sol";
@@ -13,9 +14,7 @@ library HeroLogic {
     bytes32 hero = ContainerLogic._mint(HOST, space());
     Commander.set(hero, player);
 
-    // TODO: randomly set hero position or ask player to set
-    uint32 x = 20;
-    uint32 y = 20;
+    (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 32, 32);
     Position.set(hero, x, y);
     EntityCoord.set(MapLogic.getCoordId(x, y), hero);
 
