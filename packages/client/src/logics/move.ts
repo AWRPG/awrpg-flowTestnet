@@ -90,16 +90,20 @@ export function validMovesFrom(
     const move = moves[i];
     to = moveTo(move, to);
     toPositions.push(to);
-    if (!validMoveTo(components, systemCalls, to)) {
-      return i === 0 ? [] : moves.slice(0, i);
-    }
   }
   // check loop
-  if (toPositions.length < 2) return moves;
+  // if (toPositions.length < 2) return moves;
   const last = toPositions[toPositions.length - 1];
   toPositions.pop();
   const index = toPositions.findIndex((p) => p.x === last.x && p.y === last.y);
-  return index === -1 ? moves : moves.slice(0, index);
+  const validMoves = index === -1 ? moves : moves.slice(0, index);
+  // check if all moves are valid
+  for (let i = validMoves.length; i < moves.length; i++) {
+    if (!validMoveTo(components, systemCalls, to)) {
+      return i === 0 ? [] : validMoves.slice(0, i);
+    }
+  }
+  return validMoves;
 }
 
 export function validMoveTo(
