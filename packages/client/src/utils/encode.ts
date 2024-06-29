@@ -13,6 +13,11 @@ export function fromEntity(entity: Hex) {
   };
 }
 
+export function castToBytes32(value: bigint) {
+  const hexValue = toHex(value);
+  return pad(hexValue, { dir: "left" });
+}
+
 export function encodeTypeEntity(type: Hex) {
   return pad(type, { dir: "right" });
 }

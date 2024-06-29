@@ -3,7 +3,7 @@ import { TerrainType, terrainTypeMapping } from "../constants";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { ClientComponents } from "../mud/createClientComponents";
 import { Entity, getComponentValue } from "@latticexyz/recs";
-import { encodeTypeEntity } from "../utils/encode";
+import { castToBytes32, encodeTypeEntity } from "../utils/encode";
 
 export const noiseToTerrain = (noise: number) => {
   if (noise < 23) return TerrainType.Rock;
@@ -28,7 +28,7 @@ export const getTerrain = (
   systemCalls: SystemCalls,
   position: Vector
 ) => {
-  const coordId = getCoordId(position.x, position.y);
+  const coordId = getCoordId(position.x, position.y) as Entity;
   const isRemoved =
     getComponentValue(components.RemovedCoord, coordId)?.value ?? false;
   if (isRemoved) return TerrainType.Grass;
@@ -42,19 +42,20 @@ export const canMoveTo = (
   systemCalls: SystemCalls,
   position: Vector
 ) => {
-  const { BuildingCoord, TerrainSpecs } = components;
+  const { EntityCoord, TerrainSpecs } = components;
   const terrain = getTerrain(components, systemCalls, position);
   const terrainType = terrainTypeMapping[terrain];
   const terrainTypeEntity = encodeTypeEntity(terrainType) as Entity;
   const terrainCanMove =
     getComponentValue(TerrainSpecs, terrainTypeEntity)?.canMove ?? false;
 
-  const coordId = getCoordId(position.x, position.y);
-  const hasBuilding = getComponentValue(BuildingCoord, coordId) ? true : false;
-  return terrainCanMove && !hasBuilding;
+  const coordId = getCoordId(position.x, position.y) as Entity;
+  const hasEntity = getComponentValue(EntityCoord, coordId) ? true : false;
+  console.log("hasEntity", coordId, hasEntity);
+  return terrainCanMove && !hasEntity;
 };
 
 export function getCoordId(x: number, y: number) {
   const id = (BigInt(x) << BigInt(128)) | BigInt(y);
-  return id.toString() as Entity;
+  return castToBytes32(id);
 }
