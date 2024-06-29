@@ -1,16 +1,31 @@
 import {
   Entity,
   Has,
+  HasValue,
   UpdateType,
   defineSystem,
   getComponentValue,
   removeComponent,
+  runQuery,
   setComponent,
 } from "@latticexyz/recs";
 import { SetupResult } from "../../mud/setup";
 import Phaser from "phaser";
-import { combine, movesToPositions, split } from "../../logics/move";
-import { SOURCE, TerrainType, terrainMapping } from "../../constants";
+import {
+  Direction,
+  combine,
+  movesToPositions,
+  split,
+  updateMoves,
+} from "../../logics/move";
+import {
+  EXPLORE_MENU,
+  MAIN_MENU,
+  MENU,
+  SOURCE,
+  TerrainType,
+  terrainMapping,
+} from "../../constants";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -56,7 +71,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const { TerrainValue, Position, Moves, SelectedHost } = this.components;
+    const {
+      TerrainValue,
+      Position,
+      Moves,
+      SelectedHost,
+      SelectedEntity,
+      Commander,
+    } = this.components;
     const world = this.network.world;
     const camera = this.cameras.main;
     this.createAnimations();
@@ -135,6 +157,35 @@ export class GameScene extends Phaser.Scene {
         line.geom.x2 = x2 * this.tileSize - x1 * this.tileSize;
         line.geom.y2 = y2 * this.tileSize - y1 * this.tileSize;
         this.moves.add(line);
+      }
+    });
+
+    this.input.keyboard?.on("keydown", (event: KeyboardEvent) => {
+      // TODO: find better way to make exception?
+      const menu = getComponentValue(SelectedEntity, MENU)?.value;
+      if (event.key === "w") {
+        if (menu) return;
+        updateMoves(this.components, this.systemCalls, Direction.UP);
+      } else if (event.key === "s") {
+        if (menu) return;
+        updateMoves(this.components, this.systemCalls, Direction.DOWN);
+      } else if (event.key === "a") {
+        if (menu) return;
+        updateMoves(this.components, this.systemCalls, Direction.LEFT);
+      } else if (event.key === "d") {
+        if (menu) return;
+        updateMoves(this.components, this.systemCalls, Direction.RIGHT);
+      } else if (event.key === "Enter") {
+        const hosts = [
+          ...runQuery([
+            HasValue(Commander, { value: this.network.playerEntity }),
+          ]),
+        ];
+        if (hosts.length > 0) {
+          setComponent(SelectedHost, SOURCE, { value: hosts[0] });
+        }
+        if (menu) return removeComponent(SelectedEntity, MENU);
+        return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       }
     });
 
