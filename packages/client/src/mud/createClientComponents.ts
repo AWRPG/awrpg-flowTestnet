@@ -32,5 +32,8 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     SelectedEntity: defineComponent(world, {
       value: Type.Entity,
     }),
+    RoleDirection: defineComponent(world, {
+      value: Type.Number,
+    }),
   };
 }

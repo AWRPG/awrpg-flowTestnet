@@ -51,7 +51,7 @@ export const canMoveTo = (
 
   const coordId = getCoordId(position.x, position.y) as Entity;
   const hasEntity = getComponentValue(EntityCoord, coordId) ? true : false;
-  console.log("hasEntity", coordId, hasEntity);
+  // console.log("hasEntity", coordId, hasEntity);
   return terrainCanMove && !hasEntity;
 };
 
