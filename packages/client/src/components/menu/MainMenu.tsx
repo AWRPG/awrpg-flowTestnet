@@ -50,7 +50,7 @@ export default function MainMenu({ player }: { player: Entity }) {
       onClick: async () => {
         console.log("Move To");
         if (!host) return;
-        const moves = getComponentValue(Moves, SOURCE)?.value;
+        const moves = getComponentValue(Moves, host as Entity)?.value;
         if (!moves || moves.length === 0) return;
         await move(host, moves);
         removeComponent(SelectedEntity, MENU);

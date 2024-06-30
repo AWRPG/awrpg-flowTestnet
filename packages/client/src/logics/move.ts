@@ -27,7 +27,7 @@ export const updateMoves = (
   // there must be a selected host for it to start moving
   const source = getComponentValue(SelectedHost, SOURCE)?.value;
   if (!source) return;
-  const moves = getComponentValue(Moves, SOURCE)?.value ?? [];
+  const moves = getComponentValue(Moves, source)?.value ?? [];
   let newMoves = [...moves];
   if (moves.length === 0) {
     newMoves = [direction as number];
@@ -46,8 +46,8 @@ export const updateMoves = (
     newMoves
   );
   if (!validMoves || validMoves.length === 0)
-    return removeComponent(Moves, SOURCE);
-  setComponent(Moves, SOURCE, { value: validMoves });
+    return removeComponent(Moves, source);
+  setComponent(Moves, source, { value: validMoves });
 };
 
 export const oppositeDirection = (d1: Direction, d2: Direction) => {
@@ -89,21 +89,16 @@ export function validMovesFrom(
   for (let i = 0; i < moves.length; i++) {
     const move = moves[i];
     to = moveTo(move, to);
+    // check loop
+    const index = toPositions.findIndex((p) => p.x === to.x && p.y === to.y);
+    if (index !== -1) return moves.slice(0, index);
+    // check validity
     toPositions.push(to);
-  }
-  // check loop
-  // if (toPositions.length < 2) return moves;
-  const last = toPositions[toPositions.length - 1];
-  toPositions.pop();
-  const index = toPositions.findIndex((p) => p.x === last.x && p.y === last.y);
-  const validMoves = index === -1 ? moves : moves.slice(0, index);
-  // check if all moves are valid
-  for (let i = validMoves.length; i < moves.length; i++) {
     if (!validMoveTo(components, systemCalls, to)) {
-      return i === 0 ? [] : validMoves.slice(0, i);
+      return i === 0 ? [] : moves.slice(0, i);
     }
   }
-  return validMoves;
+  return moves;
 }
 
 export function validMoveTo(

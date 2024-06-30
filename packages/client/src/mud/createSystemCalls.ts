@@ -56,7 +56,7 @@ export function createSystemCalls(
     // } catch (error) {
     //   console.error("Transaction failed:", error);
     // }
-    removeComponent(Moves, SOURCE);
+    removeComponent(Moves, host as Entity);
   };
 
   return {

@@ -123,7 +123,6 @@ export class GameScene extends Phaser.Scene {
         this.moves?.clear(true, true);
         return this.hostMoveTo?.destroy();
       }
-      if (entity !== SOURCE) return;
       const moves = getComponentValue(Moves, entity)!.value;
       if (moves.length === 0) return;
       const source = getComponentValue(SelectedHost, SOURCE)?.value;
@@ -150,6 +149,7 @@ export class GameScene extends Phaser.Scene {
         const { x: x1, y: y1 } = positions[i];
         const { x: x2, y: y2 } = positions[i + 1];
         const line = this.add.line(0, 0, 0, 0, 0, 0, 0xff0000).setDepth(10);
+        line.setLineWidth(3);
         line.setPosition(
           x1 * this.tileSize + this.tileSize / 2,
           y1 * this.tileSize + this.tileSize / 2
