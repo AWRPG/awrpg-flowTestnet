@@ -42,8 +42,8 @@ export class GameScene extends Phaser.Scene {
 
   hosts: Record<Entity, Role> = {};
 
-  // map: Phaser.Tilemaps.Tilemap;
-  // layer: Phaser.Tilemaps.TilemapLayer;
+  tapDuration = 80;
+  keyDownTime: number | null = null;
 
   constructor(
     setupResult: SetupResult,
@@ -126,32 +126,53 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.input.keyboard?.on("keydown", (event: KeyboardEvent) => {
+      if (!this.keyDownTime) {
+        this.keyDownTime = Date.now();
+      }
+    });
+
+    this.input.keyboard?.on("keyup", (event: KeyboardEvent) => {
+      let isTap = false;
+      if (this.keyDownTime) {
+        const duration = Date.now() - this.keyDownTime;
+        if (duration < this.tapDuration) {
+          isTap = true;
+        }
+        this.keyDownTime = null;
+      }
+      const source = getComponentValue(SelectedHost, SOURCE)?.value;
       // TODO: find better way to make exception?
       const menu = getComponentValue(SelectedEntity, MENU)?.value;
       if (event.key === "w") {
         if (menu || !source) return;
         setComponent(RoleDirection, source, { value: Direction.UP });
-        updateMoves(this.components, this.systemCalls, Direction.UP);
+        if (!isTap)
+          updateMoves(this.components, this.systemCalls, Direction.UP);
       } else if (event.key === "s") {
         if (menu || !source) return;
         setComponent(RoleDirection, source, { value: Direction.DOWN });
-        updateMoves(this.components, this.systemCalls, Direction.DOWN);
+        if (!isTap)
+          updateMoves(this.components, this.systemCalls, Direction.DOWN);
       } else if (event.key === "a") {
         if (menu || !source) return;
         setComponent(RoleDirection, source, { value: Direction.LEFT });
-        updateMoves(this.components, this.systemCalls, Direction.LEFT);
+        if (!isTap)
+          updateMoves(this.components, this.systemCalls, Direction.LEFT);
       } else if (event.key === "d") {
         if (menu || !source) return;
         setComponent(RoleDirection, source, { value: Direction.RIGHT });
-        updateMoves(this.components, this.systemCalls, Direction.RIGHT);
+        if (!isTap)
+          updateMoves(this.components, this.systemCalls, Direction.RIGHT);
+      } else if (event.key === "j") {
+        if (menu || !source) return;
+        setComponent(SelectedEntity, MENU, { value: EXPLORE_MENU });
       } else if (event.key === "Enter") {
         if (!source) {
-        const hosts = [
-          ...runQuery([
-            HasValue(Commander, { value: this.network.playerEntity }),
-          ]),
-        ];
-        if (hosts.length > 0) {
+          const hosts = [
+            ...runQuery([
+              HasValue(Commander, { value: this.network.playerEntity }),
+            ]),
+          ];
           setComponent(SelectedHost, SOURCE, { value: hosts[0] });
         }
         if (menu) return removeComponent(SelectedEntity, MENU);
