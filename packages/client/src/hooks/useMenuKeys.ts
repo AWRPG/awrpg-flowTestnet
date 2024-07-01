@@ -37,7 +37,7 @@ export default function useMenuKeys({
     network: { playerEntity },
     systemCalls,
   } = useMUD();
-  const { SelectedEntity, Commander, Moves, SelectedHost } = components;
+  const { SelectedEntity, ConsoleMessage, Moves, SelectedHost } = components;
   const menu = useComponentValue(SelectedEntity, MENU)?.value;
 
   useEffect(() => {
@@ -54,6 +54,7 @@ export default function useMenuKeys({
         console.log("onA", selected);
         return onA?.(selected);
       } else if (e.key == "k") {
+        removeComponent(ConsoleMessage, SOURCE);
         return onB?.(selected);
       }
     };

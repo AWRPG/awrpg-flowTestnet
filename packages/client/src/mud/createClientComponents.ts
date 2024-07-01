@@ -35,5 +35,8 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     RoleDirection: defineComponent(world, {
       value: Type.Number,
     }),
+    ConsoleMessage: defineComponent(world, {
+      value: Type.String,
+    }),
   };
 }
