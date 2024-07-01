@@ -21,4 +21,12 @@ library TerrainLogic {
 
     RemovedCoord.set(coordId, true);
   }
+
+  function _interactTerrain(bytes32 role, uint32 x, uint32 y) internal {
+    bytes16 terrainType = MapLogic.getTerrainType(x, y);
+
+    CostLogic._burnInteractCosts(terrainType, role);
+
+    AwardLogic._mintInteractAwards(terrainType, role);
+  }
 }
