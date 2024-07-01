@@ -22,6 +22,11 @@ library MoveLogic {
     uint32 staminaCost = uint32(moves.length) * STAMINA_COST;
 
     (uint32 toX, uint32 toY) = canMoveStrict(host, moves);
+
+    uint32 fromX = Position.getX(host);
+    uint32 fromY = Position.getY(host);
+    EntityCoord.deleteRecord(MapLogic.getCoordId(fromX, fromY));
+
     Position.set(host, toX, toY);
     EntityCoord.set(MapLogic.getCoordId(toX, toY), host);
   }
