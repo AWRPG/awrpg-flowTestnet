@@ -1,15 +1,23 @@
 import { Entity } from "@latticexyz/recs";
 import { toHex } from "viem";
 import {
+  BERRY,
+  BLOOD,
   BUSH,
+  FISH,
   GRASS,
   GRAVEL,
+  RED,
   RED_MINE,
   ROCK,
   SAND,
+  SOUL,
+  STAMINA,
   STUMP,
   TREE,
   WATER,
+  WOOD,
+  YELLOW,
 } from "./contract/constants";
 
 export enum TerrainType {
@@ -49,9 +57,38 @@ export const terrainTypeMapping = {
   [TerrainType.RED_MINE]: RED_MINE,
 };
 
+export const POOL_TYPES = [SOUL, STAMINA, BLOOD];
+export const POOL_COLORS = {
+  [SOUL]: 0xffff00,
+  [STAMINA]: 0x0000ff,
+  [BLOOD]: 0xff0000,
+};
+
+export const POOL_COLORS_STRING = {
+  [SOUL]: "gold",
+  [STAMINA]: "blue",
+  [BLOOD]: "red",
+};
+
+export const ERC20_TYPES = [WOOD, BERRY, FISH, RED, YELLOW];
+
 export const SOURCE = toHex("SOURCE", { size: 32 }) as Entity;
 export const TARGET = toHex("TARGET", { size: 32 }) as Entity;
 export const SELECTED = toHex("SELECTED", { size: 32 }) as Entity;
 
 export const MENU = toHex("MENU", { size: 32 }) as Entity;
 export const MAIN_MENU = toHex("MAIN_MENU", { size: 32 }) as Entity;
+export const ROLE_MENU = toHex("ROLE_MENU", { size: 32 }) as Entity;
+export const BAG_MENU = toHex("BAG_MENU", { size: 32 }) as Entity;
+
+export const ITEM_MENU = toHex("ITEM_MENU", { size: 32 }) as Entity;
+export const SELECT_MENU = toHex("SELECT_MENU", { size: 32 }) as Entity;
+
+export const EXPLORE_MENU = toHex("EXPLORE_MENU", { size: 32 }) as Entity;
+export const TERRAIN_MENU = toHex("TERRAIN_MENU", { size: 32 }) as Entity;
+export const TERRAIN_BURN_MENU = toHex("TERRAIN_BURN_MENU", {
+  size: 32,
+}) as Entity;
+export const TERRAIN_INTERACT_MENU = toHex("TERRAIN_INTERACT_MENU", {
+  size: 32,
+}) as Entity;
