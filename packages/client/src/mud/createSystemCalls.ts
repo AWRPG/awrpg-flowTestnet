@@ -10,6 +10,7 @@ import { singletonEntity } from "@latticexyz/store-sync/recs";
 import { PERLIN_DENOM } from "../contract/constants";
 import { Hex } from "viem";
 import { SOURCE } from "../constants";
+import { Vector } from "../utils/vector";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
@@ -36,7 +37,7 @@ export function createSystemCalls(
   { worldContract, waitForTransaction, perlin }: SetupNetworkResult,
   components: ClientComponents
 ) {
-  const { Counter, Moves } = components;
+  const { Moves } = components;
 
   const getNoise = (x: number, y: number) => {
     const noise = perlin(x, y, 0, PERLIN_DENOM);
@@ -59,9 +60,16 @@ export function createSystemCalls(
     removeComponent(Moves, host as Entity);
   };
 
+  const burnTerrain = async (host: Hex, coord: Vector) => {
+    const tx = await worldContract.write.burnTerrain([host, coord.x, coord.y]);
+    await waitForTransaction(tx);
+  };
+
+
   return {
     getNoise,
     spawnHero,
     move,
+    burnTerrain,
   };
 }
