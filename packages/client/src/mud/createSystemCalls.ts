@@ -65,11 +65,20 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const interactTerrain = async (host: Hex, coord: Vector) => {
+    const tx = await worldContract.write.interactTerrain([
+      host,
+      coord.x,
+      coord.y,
+    ]);
+    await waitForTransaction(tx);
+  };
 
   return {
     getNoise,
     spawnHero,
     move,
     burnTerrain,
+    interactTerrain,
   };
 }
