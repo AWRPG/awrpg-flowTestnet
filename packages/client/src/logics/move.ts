@@ -18,6 +18,41 @@ export enum Direction {
   RIGHT = 3,
 }
 
+export function hasPendingMoves(components: ClientComponents, role: Entity) {
+  // check if unresolved moves
+  const unresolvedMoves =
+    getComponentValue(components.Moves, role)?.value ?? [];
+  const hasMoves = unresolvedMoves.length > 0;
+  return hasMoves;
+}
+
+export function getDirectionTerrain(
+  components: ClientComponents,
+  role: Entity
+) {
+  const to = getDirectionCoord(components, role);
+  if (!to) return undefined;
+  return getComponentValue(
+    components.TerrainValue,
+    combine(to.x, to.y) as Entity
+  )?.value;
+}
+
+export function getDirectionCoord(components: ClientComponents, role: Entity) {
+  const { Moves, RoleDirection, Position } = components;
+  const moves = getComponentValue(Moves, role)?.value ?? [];
+  const position = getComponentValue(Position, role);
+  const direction =
+    getComponentValue(RoleDirection, role)?.value ?? Direction.DOWN;
+  if (!position) return undefined;
+  const positions = movesToPositions([...moves, direction], {
+    x: position.x,
+    y: position.y,
+  });
+  const toPosition = positions[positions.length - 1];
+  return toPosition;
+}
+
 export const updateMoves = (
   components: ClientComponents,
   systemCalls: SystemCalls,
@@ -56,6 +91,7 @@ export const oppositeDirection = (d1: Direction, d2: Direction) => {
 
 // assuming moves are valid
 export function movesToPositions(moves: Direction[], from: Vector): Vector[] {
+  if (moves.length === 0) return [from];
   return moves.reduce(
     (acc, move) => {
       const last = acc[acc.length - 1];

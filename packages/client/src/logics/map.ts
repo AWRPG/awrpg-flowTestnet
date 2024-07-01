@@ -49,8 +49,7 @@ export const canMoveTo = (
   const terrainCanMove =
     getComponentValue(TerrainSpecs, terrainTypeEntity)?.canMove ?? false;
 
-  const coordId = getCoordId(position.x, position.y) as Entity;
-  const hasEntity = getComponentValue(EntityCoord, coordId) ? true : false;
+  const hasEntity = hasEntityOnCoord(components, position);
   // console.log("hasEntity", coordId, hasEntity);
   return terrainCanMove && !hasEntity;
 };
@@ -59,3 +58,11 @@ export function getCoordId(x: number, y: number) {
   const id = (BigInt(x) << BigInt(128)) | BigInt(y);
   return castToBytes32(id);
 }
+
+export const hasEntityOnCoord = (
+  components: ClientComponents,
+  position: Vector
+) => {
+  const coordId = getCoordId(position.x, position.y) as Entity;
+  return getComponentValue(components.EntityCoord, coordId) ? true : false;
+};
