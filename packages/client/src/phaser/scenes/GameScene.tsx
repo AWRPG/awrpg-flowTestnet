@@ -72,6 +72,7 @@ export class GameScene extends Phaser.Scene {
   create() {
     const {
       TerrainValue,
+      RemovedCoord,
       Position,
       Moves,
       SelectedHost,
@@ -92,6 +93,11 @@ export class GameScene extends Phaser.Scene {
       const value = getComponentValue(TerrainValue, entity)!.value;
       this.loadTile(x, y, value);
       // console.log(value);
+    });
+
+    defineSystem(world, [Has(RemovedCoord)], ({ entity }) => {
+      removeComponent(TerrainValue, entity);
+      setComponent(TerrainValue, entity, { value: TerrainType.Grass });
     });
 
     // render hosts (or entities have position)

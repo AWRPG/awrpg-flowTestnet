@@ -8,7 +8,7 @@ import { SetupResult } from "./setup";
 import { combine } from "../logics/move";
 import { ClientComponents } from "./createClientComponents";
 import { TerrainType } from "../constants";
-import { noiseToTerrain } from "../logics/map";
+import { getTerrain, noiseToTerrain } from "../logics/map";
 
 export function syncComputedComponents({
   components,
@@ -24,8 +24,9 @@ export function syncComputedComponents({
 
   for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) {
-      const noise = systemCalls.getNoise(i, j);
-      const terrainValue = noiseToTerrain(noise);
+      // const noise = systemCalls.getNoise(i, j);
+      // const terrainValue = noiseToTerrain(noise);
+      const terrainValue = getTerrain(components, systemCalls, { x: i, y: j });
       setComponent(TerrainValue, combine(i, j) as Entity, {
         value: terrainValue as number,
       });
