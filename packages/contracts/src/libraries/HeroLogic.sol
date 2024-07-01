@@ -14,10 +14,6 @@ library HeroLogic {
     bytes32 hero = ContainerLogic._mint(HOST, space());
     Commander.set(hero, player);
 
-    (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 32, 32);
-    Position.set(hero, x, y);
-    EntityCoord.set(MapLogic.getCoordId(x, y), hero);
-
     bytes32 bloodPool = getPool(hero, BLOOD);
     EntityType.set(bloodPool, POOL);
     ContainerLogic._mint(BLOOD, bloodPool, 1000);
@@ -29,6 +25,10 @@ library HeroLogic {
     bytes32 staminaPool = getPool(hero, STAMINA);
     EntityType.set(staminaPool, POOL);
     ContainerLogic._mint(STAMINA, staminaPool, 1000);
+
+    (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 32, 32);
+    Position.set(hero, x, y);
+    EntityCoord.set(MapLogic.getCoordId(x, y), hero);
   }
 
   function _delete(bytes32 hero) internal {
