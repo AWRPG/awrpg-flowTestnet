@@ -1,6 +1,10 @@
 import { ClientComponents } from "../../mud/createClientComponents";
 import { Direction, movesToPositions } from "../../logics/move";
 import { Entity, ComponentValue, getComponentValue } from "@latticexyz/recs";
+import { Hex } from "viem";
+import { getPool } from "../../contract/hashes";
+import { getPoolAmount, getPoolCapacity } from "../../logics/pool";
+import { POOL_COLORS, POOL_TYPES } from "../../constants";
 
 export class Role {
   scene: Phaser.Scene;
@@ -16,8 +20,10 @@ export class Role {
   isPlayer: boolean;
 
   roleObj: Phaser.GameObjects.Sprite;
-  roleMoveToObj?: Phaser.GameObjects.Sprite;
   movesObj?: Phaser.GameObjects.Group;
+
+  pools: Record<Hex, Phaser.GameObjects.Graphics> = {};
+  incrementY: number;
 
   constructor(
     scene: Phaser.Scene,
@@ -40,6 +46,7 @@ export class Role {
     this.scene = scene;
     this.components = components;
     this.tileSize = tileSize;
+    this.incrementY = this.tileSize / 4;
 
     this.entity = entity;
     const position = getComponentValue(components.Position, entity)!;
@@ -50,6 +57,11 @@ export class Role {
       getComponentValue(components.RoleDirection, entity)?.value ??
       Direction.DOWN;
     this.isPlayer = isPlayer;
+
+    POOL_TYPES.forEach((poolType, index) => {
+      this.pools[poolType] = this.makePoolBar(poolType, index);
+    });
+    this.updatePoolBar();
 
     this.roleObj = this.scene.add
       .sprite(
@@ -63,39 +75,28 @@ export class Role {
 
   // triggered whenever Moves component is updated
   movesUpdate() {
-    const moves = getComponentValue(this.components.Moves, this.entity)?.value;
-    if (!moves || moves.length === 0) {
-      this.positions = [{ x: this.x, y: this.y }];
-      this.roleMoveToObj?.destroy();
-      this.movesObj?.clear(true, true);
-      return;
-    }
-    const from = this.positions[this.positions.length - 1];
+    const moves =
+      getComponentValue(this.components.Moves, this.entity)?.value ?? [];
     this.positions = movesToPositions(moves, {
       x: this.x,
       y: this.y,
     });
     const to = this.positions[this.positions.length - 1];
-    // update roleMovetoObj
-    this.roleMoveToObj?.destroy();
-    this.roleMoveToObj = this.scene.add
-      .sprite(
-        from.x * this.tileSize + this.tileSize / 2,
-        from.y * this.tileSize + this.tileSize / 2,
-        "host1"
-      )
-      .setDepth(5);
-    this.scene.tweens.add({
-      targets: this.roleMoveToObj,
-      x: to.x * this.tileSize + this.tileSize / 2,
-      y: to.y * this.tileSize + this.tileSize / 2,
-      ease: "linear",
-      duration: 200,
-      repeat: 0,
-      // onComplete: () => {
-      //   this.idle();
-      // },
+    const poolObjs = Object.values(this.pools);
+    const tweenTargets = [this.roleObj, ...poolObjs];
+    const toX = to.x * this.tileSize + this.tileSize / 2;
+    const toY = to.y * this.tileSize + this.tileSize / 2;
+    tweenTargets.forEach((target, index) => {
+      this.scene.tweens.add({
+        targets: target,
+        x: index === 0 ? toX : toX - this.tileSize / 2,
+        y:
+          index === 0 ? toY : toY - this.incrementY * index - this.tileSize / 2,
+        duration: 200,
+        repeat: 0,
+      });
     });
+
     this.walk();
     // update movesObj
     this.movesObj?.clear(true, true);
@@ -125,13 +126,13 @@ export class Role {
       getComponentValue(this.components.RoleDirection, this.entity)?.value ??
       Direction.DOWN;
     if (this.direction === Direction.UP)
-      return this.roleMoveToObj?.play("host1-walk-up");
+      return this.roleObj.play("host1-walk-up");
     if (this.direction === Direction.DOWN)
-      return this.roleMoveToObj?.play("host1-walk-down");
+      return this.roleObj.play("host1-walk-down");
     if (this.direction === Direction.LEFT)
-      return this.roleMoveToObj?.play("host1-walk-left");
+      return this.roleObj.play("host1-walk-left");
     if (this.direction === Direction.RIGHT)
-      return this.roleMoveToObj?.play("host1-walk-right");
+      return this.roleObj.play("host1-walk-right");
   }
 
   idle() {
@@ -150,7 +151,44 @@ export class Role {
 
   destroy() {
     this.roleObj.destroy();
-    this.roleMoveToObj?.destroy();
     this.movesObj?.clear(true, true);
+    POOL_TYPES.forEach((poolType) => {
+      this.pools[poolType].destroy();
+    });
+  }
+
+  makePoolBar(poolType: Hex, index: number) {
+    const bar = this.scene.add.graphics();
+    bar.fillStyle(POOL_COLORS[poolType], 1);
+    bar.fillRect(0, 0, 30, 3).setDepth(5);
+    return bar;
+  }
+
+  updatePoolBarPosition(poolType: Hex, index: number) {
+    const position = this.positions[this.positions.length - 1];
+    const x = position.x * this.tileSize;
+    const y = position.y * this.tileSize - this.incrementY * index;
+    this.pools[poolType].setPosition(x, y);
+  }
+
+  setPoolBarValue(poolType: Hex) {
+    const poolAmount = getPoolAmount(
+      this.components,
+      this.entity as Hex,
+      poolType
+    );
+    const poolCapacity = getPoolCapacity(
+      this.components,
+      this.entity as Hex,
+      poolType
+    );
+    this.pools[poolType].scaleX = Number(poolAmount) / Number(poolCapacity);
+  }
+
+  updatePoolBar() {
+    POOL_TYPES.forEach((poolType, index) => {
+      this.setPoolBarValue(poolType);
+      this.updatePoolBarPosition(poolType, index);
+    });
   }
 }
