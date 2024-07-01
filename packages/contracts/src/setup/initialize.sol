@@ -16,6 +16,8 @@ function initializeTypes() {
   initPoolTypes();
   initBuildingTypes();
   initConvertRatios();
+  initHostTypes();
+  initERC20Sizes();
 }
 
 function initTerrainTypes() {
@@ -25,7 +27,7 @@ function initTerrainTypes() {
   DefineTypes.defineTerrain(
     WATER,
     TerrainSpecsData({ canMove: false, canBurn: false }),
-    compileOneType(STAMINA, 5),
+    compileOneType(STAMINA, 200),
     compileOneType(FISH, 1),
     empty,
     empty
@@ -33,23 +35,23 @@ function initTerrainTypes() {
   DefineTypes.defineTerrain(
     BUSH,
     TerrainSpecsData({ canMove: true, canBurn: false }),
-    compileOneType(STAMINA, 5),
+    compileOneType(STAMINA, 100),
     compileOneType(BERRY, 1),
     empty,
     empty
   );
   DefineTypes.defineTerrain(
     TREE,
-    TerrainSpecsData({ canMove: false, canBurn: false }),
+    TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
     empty,
-    compileOneType(STAMINA, 20),
-    compileOneType(WOOD, 1)
+    compileOneType(STAMINA, 300),
+    compileOneType(WOOD, 2)
   );
   DefineTypes.defineTerrain(
     RED_MINE,
     TerrainSpecsData({ canMove: true, canBurn: false }),
-    compileOneType(STAMINA, 5),
+    compileOneType(STAMINA, 100),
     compileOneType(RED, 1),
     empty,
     empty
@@ -95,6 +97,20 @@ function initPoolTypes() {
 // 	Resource crystal = new Resource(world, "CRYSTAL", "CRYSTAL");
 // 	TokenAddress.set(CRYSTAL, address(crystal));
 // }
+
+function initHostTypes() {
+  DefineTypes.defineHost(HOST, 1000);
+}
+
+function initERC20Sizes() {
+  SizeSpecs.set(STAMINA, 1);
+  SizeSpecs.set(BLOOD, 1);
+  SizeSpecs.set(SOUL, 1);
+  SizeSpecs.set(WOOD, 1);
+  SizeSpecs.set(BERRY, 1);
+  SizeSpecs.set(FISH, 1);
+  SizeSpecs.set(RED, 1);
+}
 
 function compileOneType(bytes16 erc20Type, uint128 amount) returns (bytes32[] memory inputs) {
   bytes16[] memory types = new bytes16[](1);
