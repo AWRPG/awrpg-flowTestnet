@@ -2,6 +2,11 @@ import { toHex } from "viem";
 
 export const TEST = toHex("testing", { size: 32 });
 
+export const POOL = toHex("POOL", { size: 16 });
+export const BLOOD = toHex("BLOOD", { size: 16 });
+export const SOUL = toHex("SOUL", { size: 16 });
+export const STAMINA = toHex("STAMINA", { size: 16 });
+
 export const GRASS = toHex("GRASS", { size: 16 });
 export const WATER = toHex("WATER", { size: 16 });
 export const BUSH = toHex("BUSH", { size: 16 });
@@ -11,6 +16,13 @@ export const GRAVEL = toHex("GRAVEL", { size: 16 });
 export const SAND = toHex("SAND", { size: 16 });
 export const STUMP = toHex("STUMP", { size: 16 });
 export const RED_MINE = toHex("RED_MINE", { size: 16 });
+
+// erc20s
+export const WOOD = toHex("WOOD", { size: 16 });
+export const BERRY = toHex("BERRY", { size: 16 });
+export const FISH = toHex("FISH", { size: 16 });
+export const RED = toHex("RED", { size: 16 });
+export const YELLOW = toHex("YELLOW", { size: 16 });
 
 export const MAX_MOVES = 20;
 export const PERLIN_DENOM = 6;
