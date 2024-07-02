@@ -12,6 +12,7 @@ import {
   TERRAIN_INTERACT_MENU,
   ROLE_MENU,
   BAG_MENU,
+  TERRAIN_BUILD_MENU,
 } from "../constants";
 import { Has, HasValue } from "@latticexyz/recs";
 // import PoolBars from "./PoolBars";
@@ -23,6 +24,7 @@ import Console from "./Console";
 import TerrainInteractMenu from "./menu/TerrainInteractMenu";
 import RoleMenu from "./menu/RoleMenu";
 import BagMenu from "./menu/BagMenu";
+import TerrainBuildMenu from "./menu/TerrainBuildMenu";
 
 export default function Overlay() {
   const {
@@ -55,6 +57,7 @@ export default function Overlay() {
           {menu === TERRAIN_MENU && <TerrainMenu />}
           {menu === TERRAIN_BURN_MENU && <TerrainBurnMenu />}
           {menu === TERRAIN_INTERACT_MENU && <TerrainInteractMenu />}
+          {menu === TERRAIN_BUILD_MENU && <TerrainBuildMenu />}
         </div>
         <div className="absolute pointer-events-auto bottom-2 w-1/2 left-1/4 h-48">
           {message && <Console message={message} />}

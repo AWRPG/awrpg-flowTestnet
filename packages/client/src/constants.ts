@@ -98,3 +98,6 @@ export const TERRAIN_BURN_MENU = toHex("TERRAIN_BURN_MENU", {
 export const TERRAIN_INTERACT_MENU = toHex("TERRAIN_INTERACT_MENU", {
   size: 32,
 }) as Entity;
+export const TERRAIN_BUILD_MENU = toHex("TERRAIN_BUILD_MENU", {
+  size: 32,
+}) as Entity;

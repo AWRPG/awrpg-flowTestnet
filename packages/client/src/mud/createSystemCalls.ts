@@ -74,11 +74,22 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const buildBuilding = async (host: Hex, buildingType: Hex, coord: Vector) => {
+    const tx = await worldContract.write.buildBuilding([
+      host,
+      buildingType,
+      coord.x,
+      coord.y,
+    ]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
     move,
     burnTerrain,
     interactTerrain,
+    buildBuilding,
   };
 }

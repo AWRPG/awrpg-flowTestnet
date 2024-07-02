@@ -9,6 +9,7 @@ import {
   terrainTypeMapping,
   EXPLORE_MENU,
   TERRAIN_INTERACT_MENU,
+  TERRAIN_BUILD_MENU,
 } from "../../constants";
 import { useEffect, useState } from "react";
 import useMenuKeys from "../../hooks/useMenuKeys";
@@ -55,10 +56,7 @@ export default function TerrainMenu() {
       name: "Build",
       disabled: !canBuild,
       onClick: () => {
-        console.log("Build");
-        // setTimeout(() => {
-        //   removeComponent(SelectedEntity, MENU);
-        // }, 100);
+        setComponent(SelectedEntity, MENU, { value: TERRAIN_BUILD_MENU });
       },
     },
   ];
