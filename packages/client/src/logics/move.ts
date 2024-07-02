@@ -26,7 +26,7 @@ export function hasPendingMoves(components: ClientComponents, role: Entity) {
   return hasMoves;
 }
 
-export function getDirectionTerrain(
+export function getTerrainOnDirection(
   components: ClientComponents,
   role: Entity
 ) {

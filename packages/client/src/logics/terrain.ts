@@ -9,14 +9,14 @@ import {
 } from "@latticexyz/recs";
 import { decodeTypeEntity, encodeTypeEntity } from "../utils/encode";
 import { SOURCE, terrainTypeMapping, TerrainType } from "../constants";
-import { getDirectionCoord, getDirectionTerrain } from "./move";
+import { getDirectionCoord, getTerrainOnDirection } from "./move";
 
 // assumes host's direction is the selected terrain
 export const getSelectedTerrainData = (components: ClientComponents) => {
   const { SelectedHost, Moves } = components;
   const host = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
   const toPosition = getDirectionCoord(components, host);
-  const terrainValue = getDirectionTerrain(components, host) ?? 0;
+  const terrainValue = getTerrainOnDirection(components, host) ?? 0;
   const terrainType = terrainTypeMapping[terrainValue as TerrainType];
   const terrainTypeData = getTerrainTypeData(
     components,

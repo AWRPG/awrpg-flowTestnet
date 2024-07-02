@@ -12,7 +12,7 @@ import { MENU, SOURCE, TERRAIN_MENU, TerrainType } from "../../constants";
 import { useState } from "react";
 import useMenuKeys from "../../hooks/useMenuKeys";
 import ItemContainer from "../ItemContainer";
-import { getDirectionTerrain, hasPendingMoves } from "../../logics/move";
+import { getTerrainOnDirection, hasPendingMoves } from "../../logics/move";
 
 export default function ExploreMenu() {
   const {
@@ -26,8 +26,7 @@ export default function ExploreMenu() {
     HasValue(components.Commander, { value: playerEntity }),
   ]);
   const host = useComponentValue(SelectedHost, SOURCE)?.value as Entity;
-  const terrain = getDirectionTerrain(components, host);
-  console.log("terrain", terrain);
+  const terrain = getTerrainOnDirection(components, host);
   const terrainType = terrain !== undefined ? TerrainType[terrain] : "unknown";
 
   const hasMoves = hasPendingMoves(components, host);
@@ -36,7 +35,6 @@ export default function ExploreMenu() {
     {
       name: `Check ${terrainType}`,
       onClick: () => {
-        console.log("Investiage");
         setComponent(SelectedEntity, MENU, { value: TERRAIN_MENU });
       },
     },
