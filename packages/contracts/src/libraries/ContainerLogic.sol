@@ -32,9 +32,9 @@ library ContainerLogic {
   ) internal {
     uint256 size = SizeSpecs.get(entityType) * amount;
 
+    ERC20Logic._transferFrom(spender, entityType, fromModule, toModule, amount);
     _decreaseStoredSize(fromModule, size);
     _increaseStoredSize(toModule, size);
-    ERC20Logic._transferFrom(spender, entityType, fromModule, toModule, amount);
   }
 
   /**
@@ -47,9 +47,9 @@ library ContainerLogic {
   function _transfer(bytes16 entityType, bytes32 fromModule, bytes32 toModule, uint256 amount) internal {
     uint256 size = SizeSpecs.get(entityType) * amount;
 
+    ERC20Logic._transfer(entityType, fromModule, toModule, amount);
     _decreaseStoredSize(fromModule, size);
     _increaseStoredSize(toModule, size);
-    ERC20Logic._transfer(entityType, fromModule, toModule, amount);
   }
 
   /**
@@ -61,8 +61,8 @@ library ContainerLogic {
   function _burn(bytes16 entityType, bytes32 fromModule, uint128 amount) internal {
     uint256 size = SizeSpecs.get(entityType) * amount;
 
-    _decreaseStoredSize(fromModule, size);
     ERC20Logic._burn(entityType, fromModule, amount);
+    _decreaseStoredSize(fromModule, size);
   }
 
   /**
@@ -74,8 +74,8 @@ library ContainerLogic {
   function _mint(bytes16 entityType, bytes32 toModule, uint128 amount) internal {
     uint256 size = SizeSpecs.get(entityType) * amount;
 
-    _increaseStoredSize(toModule, size);
     ERC20Logic._mint(entityType, toModule, amount);
+    _increaseStoredSize(toModule, size);
   }
 
   /**
@@ -89,9 +89,9 @@ library ContainerLogic {
 
     uint256 size = SizeSpecs.get(EntityType.get(entity));
 
+    ERC721Logic._transfer(fromModule, toModule, entity);
     _decreaseStoredSize(fromModule, size);
     _increaseStoredSize(toModule, size);
-    ERC721Logic._transfer(fromModule, toModule, entity);
 
     // LastUpdated.set(entity, uint40(block.timestamp));
   }
@@ -103,9 +103,9 @@ library ContainerLogic {
   function _burn(bytes32 entity) internal {
     uint256 size = SizeSpecs.get(EntityType.get(entity));
 
-    _decreaseStoredSize(Owner.get(entity), size);
     // Health.deleteRecord(entity);
     ERC721Logic._burn(entity);
+    _decreaseStoredSize(Owner.get(entity), size);
   }
 
   /**
@@ -116,8 +116,9 @@ library ContainerLogic {
   function _mint(bytes16 entityType, bytes32 toModule) internal returns (bytes32) {
     uint256 size = SizeSpecs.get(entityType);
 
-    _increaseStoredSize(toModule, size);
     bytes32 entity = ERC721Logic._mint(entityType, toModule);
+    _increaseStoredSize(toModule, size);
+
     // if (sharedSpecs.maxHealth > 0) Health.set(entity, sharedSpecs.maxHealth);
 
     // LastUpdated.set(entity, uint40(block.timestamp));
@@ -129,8 +130,9 @@ library ContainerLogic {
   function _mint(bytes16 entityType, bytes32 toModule, bytes32 entity) internal returns (bytes32) {
     uint256 size = SizeSpecs.get(entityType);
 
-    _increaseStoredSize(toModule, size);
     ERC721Logic._mint(entityType, toModule, entity);
+    _increaseStoredSize(toModule, size);
+
     // if (sharedSpecs.maxHealth > 0) Health.set(entity, sharedSpecs.maxHealth);
 
     // LastUpdated.set(entity, uint40(block.timestamp));
