@@ -2,6 +2,8 @@ import { toHex } from "viem";
 
 export const TEST = toHex("testing", { size: 32 });
 
+export const HOST = toHex("HOST", { size: 16 });
+
 export const POOL = toHex("POOL", { size: 16 });
 export const BLOOD = toHex("BLOOD", { size: 16 });
 export const SOUL = toHex("SOUL", { size: 16 });

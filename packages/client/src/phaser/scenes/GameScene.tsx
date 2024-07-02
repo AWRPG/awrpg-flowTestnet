@@ -27,6 +27,7 @@ import {
   terrainMapping,
 } from "../../constants";
 import { Role } from "../objects/Role";
+import { POOL } from "../../contract/constants";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -74,6 +75,9 @@ export class GameScene extends Phaser.Scene {
       TerrainValue,
       RemovedCoord,
       Position,
+      EntityType,
+      StoredSize,
+      Owner,
       Moves,
       SelectedHost,
       SelectedEntity,
@@ -121,6 +125,16 @@ export class GameScene extends Phaser.Scene {
       //   this.sourceSelectHandler(entity)
       // );
     });
+
+    defineSystem(
+      world,
+      [HasValue(EntityType, { value: POOL }), Has(StoredSize)],
+      ({ entity, type }) => {
+        const role = getComponentValue(Owner, entity)?.value as Entity;
+        if (!role) return;
+        this.hosts[role]?.updatePoolBar();
+      }
+    );
 
     // render moves assuming they are all valid
     defineSystem(world, [Has(Moves)], ({ entity, type }) => {
