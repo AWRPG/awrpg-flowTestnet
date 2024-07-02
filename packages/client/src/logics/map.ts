@@ -39,6 +39,14 @@ export const getTerrainFromTerrainValue = (
   )?.value;
 };
 
+export const getEntityOnCoord = (
+  components: ClientComponents,
+  position: Vector
+) => {
+  const coordId = getCoordId(position.x, position.y) as Entity;
+  return getComponentValue(components.EntityCoord, coordId)?.value as Entity;
+};
+
 export const getTerrain = (
   components: ClientComponents,
   systemCalls: SystemCalls,

@@ -7,7 +7,7 @@ import {
 import { Vector } from "matter";
 import { SOURCE } from "../constants";
 import { ClientComponents } from "../mud/createClientComponents";
-import { canMoveTo, getTerrainFromTerrainValue } from "./map";
+import { canMoveTo, getEntityOnCoord, getTerrainFromTerrainValue } from "./map";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { MAX_MOVES } from "../contract/constants";
 
@@ -24,6 +24,16 @@ export function hasPendingMoves(components: ClientComponents, role: Entity) {
     getComponentValue(components.Moves, role)?.value ?? [];
   const hasMoves = unresolvedMoves.length > 0;
   return hasMoves;
+}
+
+// rename it as getEntityOnDirection?
+export function getEntityOnDirection(
+  components: ClientComponents,
+  role: Entity
+) {
+  const to = getDirectionCoord(components, role);
+  if (!to) return undefined;
+  return getEntityOnCoord(components, to);
 }
 
 export function getTerrainOnDirection(

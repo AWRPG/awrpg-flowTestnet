@@ -7,12 +7,25 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { useMUD } from "../../MUDContext";
-import { Hex } from "viem";
-import { MENU, SOURCE, TERRAIN_MENU, TerrainType } from "../../constants";
+import { Hex, hexToString } from "viem";
+import {
+  BUILDING_MENU,
+  MENU,
+  SOURCE,
+  TARGET_MENU,
+  TERRAIN_MENU,
+  TerrainType,
+} from "../../constants";
 import { useState } from "react";
 import useMenuKeys from "../../hooks/useMenuKeys";
 import ItemContainer from "../ItemContainer";
-import { getTerrainOnDirection, hasPendingMoves } from "../../logics/move";
+import {
+  getEntityOnDirection,
+  getTerrainOnDirection,
+  hasPendingMoves,
+} from "../../logics/move";
+import { getEntityOnCoord } from "../../logics/map";
+import { isBuilding, isRole } from "../../logics/entity";
 
 export default function ExploreMenu() {
   const {
@@ -28,14 +41,24 @@ export default function ExploreMenu() {
   const host = useComponentValue(SelectedHost, SOURCE)?.value as Entity;
   const terrain = getTerrainOnDirection(components, host);
   const terrainType = terrain !== undefined ? TerrainType[terrain] : "unknown";
+  const entity = getEntityOnDirection(components, host) as Hex;
+  const isBuildingType = isBuilding(components, entity as Entity);
+  const isRoleType = isRole(components, entity as Entity);
+  const nameToCheck =
+    isBuildingType || isRoleType ? hexToString(entity) : terrainType;
+  const menuToGo = isBuildingType
+    ? BUILDING_MENU
+    : isRoleType
+      ? TARGET_MENU
+      : TERRAIN_MENU;
 
   const hasMoves = hasPendingMoves(components, host);
 
   const selections = [
     {
-      name: `Check ${terrainType}`,
+      name: `Check ${nameToCheck}`,
       onClick: () => {
-        setComponent(SelectedEntity, MENU, { value: TERRAIN_MENU });
+        setComponent(SelectedEntity, MENU, { value: menuToGo });
       },
     },
     {
@@ -50,18 +73,18 @@ export default function ExploreMenu() {
         removeComponent(SelectedEntity, MENU);
       },
     },
-    {
-      name: "Cancel Moves",
-      disabled: false,
-      onClick: () => {
-        if (!host) return removeComponent(SelectedEntity, MENU);
-        removeComponent(Moves, host as Entity);
-        // to avoid conflict with keyboard listener in GameScene
-        setTimeout(() => {
-          removeComponent(SelectedEntity, MENU);
-        }, 100);
-      },
-    },
+    // {
+    //   name: "Cancel Moves",
+    //   disabled: false,
+    //   onClick: () => {
+    //     if (!host) return removeComponent(SelectedEntity, MENU);
+    //     removeComponent(Moves, host as Entity);
+    //     // to avoid conflict with keyboard listener in GameScene
+    //     setTimeout(() => {
+    //       removeComponent(SelectedEntity, MENU);
+    //     }, 100);
+    //   },
+    // },
   ];
 
   const [selected, setSelected] = useState(0);
