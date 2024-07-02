@@ -36,14 +36,14 @@ export class GameScene extends Phaser.Scene {
 
   tileSize = 32;
   minZoomLevel = 1 / 2 ** 2;
-  maxZoomLevel = 1;
+  maxZoomLevel = 1.5;
 
   tilesLayer0: Record<Entity, Phaser.GameObjects.Sprite> = {};
   tiles: Record<Entity, Phaser.GameObjects.Sprite> = {};
 
   hosts: Record<Entity, Role> = {};
 
-  tapDuration = 80;
+  tapDuration = 60;
   keyDownTime: number | null = null;
 
   constructor(
@@ -83,6 +83,7 @@ export class GameScene extends Phaser.Scene {
       SelectedEntity,
       Commander,
       RoleDirection,
+      ConsoleMessage,
     } = this.components;
     const world = this.network.world;
     const camera = this.cameras.main;
@@ -149,6 +150,37 @@ export class GameScene extends Phaser.Scene {
       if (!this.keyDownTime) {
         this.keyDownTime = Date.now();
       }
+      const source = getComponentValue(SelectedHost, SOURCE)?.value;
+      const menu = getComponentValue(SelectedEntity, MENU)?.value;
+      if (event.key === "j") {
+        if (menu || !source) return;
+        setComponent(SelectedEntity, MENU, { value: EXPLORE_MENU });
+      } else if (event.key === "Enter") {
+        if (!source) {
+          const hosts = [
+            ...runQuery([
+              HasValue(Commander, { value: this.network.playerEntity }),
+            ]),
+          ];
+          setComponent(SelectedHost, SOURCE, { value: hosts[0] });
+        }
+        removeComponent(ConsoleMessage, SOURCE);
+        if (menu) return removeComponent(SelectedEntity, MENU);
+        return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
+      } else if (event.key === "q") {
+        const hosts = [
+          ...runQuery([
+            HasValue(Commander, { value: this.network.playerEntity }),
+          ]),
+        ];
+        const index = source ? hosts.indexOf(source) : -1;
+        const nextIndex = (index + 1) % hosts.length;
+        setComponent(SelectedHost, SOURCE, { value: hosts[nextIndex] });
+      } else if (event.key === "k") {
+        // if (menu || !source) return;
+        // return removeComponent(Moves, source);
+        return removeComponent(ConsoleMessage, SOURCE);
+      }
     });
 
     this.input.keyboard?.on("keyup", (event: KeyboardEvent) => {
@@ -183,20 +215,6 @@ export class GameScene extends Phaser.Scene {
         setComponent(RoleDirection, source, { value: Direction.RIGHT });
         if (!isTap)
           updateMoves(this.components, this.systemCalls, Direction.RIGHT);
-      } else if (event.key === "j") {
-        if (menu || !source) return;
-        setComponent(SelectedEntity, MENU, { value: EXPLORE_MENU });
-      } else if (event.key === "Enter") {
-        if (!source) {
-          const hosts = [
-            ...runQuery([
-              HasValue(Commander, { value: this.network.playerEntity }),
-            ]),
-          ];
-          setComponent(SelectedHost, SOURCE, { value: hosts[0] });
-        }
-        if (menu) return removeComponent(SelectedEntity, MENU);
-        return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       }
     });
 
