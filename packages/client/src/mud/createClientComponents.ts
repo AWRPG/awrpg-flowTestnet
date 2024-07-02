@@ -22,6 +22,10 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     TerrainValue: defineComponent(world, {
       value: Type.Number,
     }),
+    // // pool -> player
+    // PoolOf: defineComponent(world, {
+    //   value: Type.Entity,
+    // }),
     // SOURCE ->
     Moves: defineComponent(world, {
       value: Type.NumberArray,

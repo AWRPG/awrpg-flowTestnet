@@ -6,6 +6,7 @@ import mudConfig from "contracts/mud.config";
 import "./index.css";
 import { GameScene } from "./phaser/scenes/GameScene";
 import config from "./phaser/phaser.config";
+// import { syncPools } from "./mud/syncPools";
 
 const rootElement = document.getElementById("react-root");
 if (!rootElement) throw new Error("React root not found");
@@ -13,6 +14,8 @@ const root = ReactDOM.createRoot(rootElement);
 
 // TODO: figure out if we actually want this to be async or if we should render something else in the meantime
 setup().then(async (result) => {
+  // syncPools(result);
+
   new Phaser.Game({
     ...config,
     scene: [new GameScene(result)],
