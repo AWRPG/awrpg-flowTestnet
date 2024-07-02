@@ -23,6 +23,12 @@ export type MenuKeysProps = {
   selected?: number;
 };
 
+// Notes: there are in total two groups keyevent listeners: one here, another in GameScene
+// the problem is conflict.
+// useMenuKeys is supposed to function when menu is on, and GameScene is supposed to function when menu is off
+// but, problem arises for onB() in ExploreMenu & MainMenu, where it removes the menu, but also triggers GameScene's keyevent listener
+// some hacks are implemented in ExploreMenu & MainMenu to avoid this conflict: setTimeout to remove menu,
+// so that GameScene's listener still checks if menu is on, and doesn't trigger the action
 export default function useMenuKeys({
   onUp,
   onDown,

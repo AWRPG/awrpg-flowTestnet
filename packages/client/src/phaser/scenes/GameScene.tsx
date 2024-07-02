@@ -177,8 +177,8 @@ export class GameScene extends Phaser.Scene {
         const nextIndex = (index + 1) % hosts.length;
         setComponent(SelectedHost, SOURCE, { value: hosts[nextIndex] });
       } else if (event.key === "k") {
-        // if (menu || !source) return;
-        // return removeComponent(Moves, source);
+        if (menu || !source) return;
+        removeComponent(Moves, source);
         return removeComponent(ConsoleMessage, SOURCE);
       }
     });

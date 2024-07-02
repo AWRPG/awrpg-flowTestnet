@@ -82,7 +82,11 @@ export default function ExploreMenu() {
       });
     },
     onA: () => selections[selected].onClick(),
-    onB: () => removeComponent(SelectedEntity, MENU),
+    onB: () => {
+      setTimeout(() => {
+        removeComponent(SelectedEntity, MENU);
+      }, 100);
+    },
     selected,
   });
 
