@@ -16,11 +16,11 @@ export default function ItemContainer({
       className={[
         "flex flex-col w-auto p-1 border cursor-pointer hover:text-info hover:border-info",
         disabled && selected
-          ? "opacity-80 bg-gray-300 text-white"
+          ? "opacity-80 bg-gray-500 text-white"
           : disabled
-            ? "opacity-80 bg-gray-300 text-gray-500 "
+            ? "opacity-80 bg-gray-500 text-gray-900 "
             : selected
-              ? "bg-white text-black"
+              ? "bg-gray-200 text-black"
               : "",
         className ?? "",
       ].join(" ")}

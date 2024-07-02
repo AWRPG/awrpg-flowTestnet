@@ -4,10 +4,11 @@ import {
   HasValue,
   getComponentValue,
   removeComponent,
+  setComponent,
 } from "@latticexyz/recs";
 import { useMUD } from "../../MUDContext";
 import { Hex } from "viem";
-import { MENU, SOURCE } from "../../constants";
+import { BAG_MENU, MENU, ROLE_MENU, SOURCE } from "../../constants";
 import { useCallback, useState } from "react";
 import useMenuKeys from "../../hooks/useMenuKeys";
 import ItemContainer from "../ItemContainer";
@@ -30,30 +31,39 @@ export default function MainMenu({ player }: { player: Entity }) {
 
   const selections = [
     {
+      name: "Role",
+      disabled: false,
+      onClick: () => {
+        setComponent(SelectedEntity, MENU, { value: ROLE_MENU });
+      },
+    },
+    {
+      name: "Bag",
+      onClick: () => {
+        setComponent(SelectedEntity, MENU, { value: BAG_MENU });
+      },
+    },
+    {
+      name: "Player",
+      onClick: () => {
+        console.log("player");
+      },
+    },
+    {
       name: "Spawn Hero",
       disabled: hasSpawned,
       onClick: async () => {
+        // if (hasSpawned) return;
         await spawnHero();
         removeComponent(SelectedEntity, MENU);
       },
     },
     {
-      name: "Hosts",
-      disabled: false,
+      name: "Back",
       onClick: () => {
-        console.log("Hosts");
-      },
-    },
-    {
-      name: "Move To",
-      disabled: !host,
-      onClick: async () => {
-        console.log("Move To");
-        if (!host) return;
-        const moves = getComponentValue(Moves, host as Entity)?.value;
-        if (!moves || moves.length === 0) return;
-        await move(host, moves);
-        removeComponent(SelectedEntity, MENU);
+        setTimeout(() => {
+          removeComponent(SelectedEntity, MENU);
+        }, 100);
       },
     },
   ];
@@ -74,6 +84,7 @@ export default function MainMenu({ player }: { player: Entity }) {
       });
     },
     onA: () => selections[selected].onClick(),
+    onB: () => removeComponent(SelectedEntity, MENU),
     selected,
   });
 
