@@ -4,6 +4,7 @@ import { SystemCalls } from "../mud/createSystemCalls";
 import { ClientComponents } from "../mud/createClientComponents";
 import { Entity, getComponentValue } from "@latticexyz/recs";
 import { castToBytes32, encodeTypeEntity } from "../utils/encode";
+import { combine } from "./move";
 
 export const noiseToTerrain = (noise: number) => {
   if (noise < 23) return TerrainType.Rock;
@@ -21,6 +22,21 @@ export const noiseToTerrainType = (noise: number) => {
 
 export const getPerlin = (systemCalls: SystemCalls, position: Vector) => {
   return systemCalls.getNoise(position.x, position.y);
+};
+
+export const getTerrainFromTerrainValue = (
+  components: ClientComponents,
+  position: Vector
+) => {
+  // TODO: coordId is not the same as TerrainValue's coordId
+  const coordId = getCoordId(position.x, position.y) as Entity;
+  const isRemoved =
+    getComponentValue(components.RemovedCoord, coordId)?.value ?? false;
+  if (isRemoved) return TerrainType.Grass;
+  return getComponentValue(
+    components.TerrainValue,
+    combine(position.x, position.y) as Entity
+  )?.value;
 };
 
 export const getTerrain = (

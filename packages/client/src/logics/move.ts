@@ -7,7 +7,7 @@ import {
 import { Vector } from "matter";
 import { SOURCE } from "../constants";
 import { ClientComponents } from "../mud/createClientComponents";
-import { canMoveTo } from "./map";
+import { canMoveTo, getTerrainFromTerrainValue } from "./map";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { MAX_MOVES } from "../contract/constants";
 
@@ -32,10 +32,7 @@ export function getDirectionTerrain(
 ) {
   const to = getDirectionCoord(components, role);
   if (!to) return undefined;
-  return getComponentValue(
-    components.TerrainValue,
-    combine(to.x, to.y) as Entity
-  )?.value;
+  return getTerrainFromTerrainValue(components, to);
 }
 
 export function getDirectionCoord(components: ClientComponents, role: Entity) {
