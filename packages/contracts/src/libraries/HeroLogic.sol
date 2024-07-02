@@ -16,14 +16,20 @@ library HeroLogic {
 
     bytes32 bloodPool = getPool(hero, BLOOD);
     EntityType.set(bloodPool, POOL);
+    // Owner.set() allows clientside to track pool balance changes back to role
+    // essentially, a trade-off between requireing three writes when spawning
+    // vs. clientside code tracking pool-> player
+    Owner.set(bloodPool, hero);
     ContainerLogic._mint(BLOOD, bloodPool, 1000);
 
     bytes32 soulPool = getPool(hero, SOUL);
     EntityType.set(soulPool, POOL);
+    Owner.set(soulPool, hero);
     ContainerLogic._mint(SOUL, soulPool, 1000);
 
     bytes32 staminaPool = getPool(hero, STAMINA);
     EntityType.set(staminaPool, POOL);
+    Owner.set(staminaPool, hero);
     ContainerLogic._mint(STAMINA, staminaPool, 1000);
 
     (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 32, 32);
