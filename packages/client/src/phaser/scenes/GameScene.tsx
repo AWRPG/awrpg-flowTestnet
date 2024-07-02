@@ -2,6 +2,7 @@ import {
   Entity,
   Has,
   HasValue,
+  Not,
   UpdateType,
   defineSystem,
   getComponentValue,
@@ -19,15 +20,18 @@ import {
   updateMoves,
 } from "../../logics/move";
 import {
+  BUILDING_TYPES,
   EXPLORE_MENU,
   MAIN_MENU,
   MENU,
   SOURCE,
   TerrainType,
+  buildingMapping,
   terrainMapping,
 } from "../../constants";
 import { Role } from "../objects/Role";
 import { POOL } from "../../contract/constants";
+import { Hex } from "viem";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -35,11 +39,12 @@ export class GameScene extends Phaser.Scene {
   systemCalls: SetupResult["systemCalls"];
 
   tileSize = 32;
-  minZoomLevel = 1 / 2 ** 2;
+  minZoomLevel = 1 / 2 ** 1;
   maxZoomLevel = 1.5;
 
   tilesLayer0: Record<Entity, Phaser.GameObjects.Sprite> = {};
   tiles: Record<Entity, Phaser.GameObjects.Sprite> = {};
+  buildings: Record<Entity, Phaser.GameObjects.Sprite> = {};
 
   hosts: Record<Entity, Role> = {};
 
@@ -63,6 +68,10 @@ export class GameScene extends Phaser.Scene {
     this.load.image("tree", "src/assets/tiles/Tree.png");
     this.load.image("water", "src/assets/tiles/Water.png");
     this.load.image("stump", "src/assets/tiles/Stump.png");
+    this.load.image("fence", "src/assets/tiles/Fence.png");
+    this.load.image("node", "src/assets/tiles/Node.png");
+    this.load.image("foundry", "src/assets/tiles/Foundry.png");
+    this.load.image("safe", "src/assets/tiles/Safe.png");
     this.load.atlas(
       "host1",
       "src/assets/hosts/sprites/host1.png",
@@ -105,8 +114,8 @@ export class GameScene extends Phaser.Scene {
       setComponent(TerrainValue, entity, { value: TerrainType.Grass });
     });
 
-    // render hosts (or entities have position)
-    defineSystem(world, [Has(Position)], ({ entity, type }) => {
+    // render roles
+    defineSystem(world, [Has(Position), Has(Commander)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
         this.hosts[entity]?.destroy();
         return delete this.hosts[entity];
@@ -121,10 +130,15 @@ export class GameScene extends Phaser.Scene {
         onPointerOver: () => {},
         onPointerOut: () => {},
       });
-      // this.hosts[entity].setInteractive();
-      // this.hosts[entity].on("pointerdown", () =>
-      //   this.sourceSelectHandler(entity)
-      // );
+    });
+
+    // render buildings
+    defineSystem(world, [Has(Position), Not(Commander)], ({ entity, type }) => {
+      if (type === UpdateType.Exit) {
+        return this.unloadBuilding(entity);
+      }
+      this.buildings[entity]?.destroy();
+      this.loadBuilding(entity);
     });
 
     defineSystem(
@@ -255,6 +269,30 @@ export class GameScene extends Phaser.Scene {
       camera.scrollY = lastPointerPosition.worldY - deltaScrollY;
       camera.zoom = newZoom;
     });
+  }
+
+  loadBuilding(building: Entity) {
+    const position = getComponentValue(this.components.Position, building);
+    const buildingType = getComponentValue(
+      this.components.EntityType,
+      building
+    )?.value;
+    if (!position || !buildingType) return;
+    const { x, y } = position;
+    const mapX = x * this.tileSize + this.tileSize / 2;
+    const mapY = y * this.tileSize + this.tileSize / 2;
+    const buildingNumber = BUILDING_TYPES.indexOf(buildingType as Hex);
+    const sprite = this.add
+      .sprite(mapX, mapY, buildingMapping[buildingNumber])
+      .setDepth(1)
+      .setScale(0.5);
+    this.buildings[building] = sprite;
+  }
+
+  unloadBuilding(building: Entity) {
+    const sprite = this.buildings[building];
+    sprite?.destroy();
+    delete this.buildings[building];
   }
 
   loadTile(x: number, y: number, terrain: number) {

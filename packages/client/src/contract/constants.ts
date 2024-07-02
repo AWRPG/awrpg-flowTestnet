@@ -26,5 +26,11 @@ export const FISH = toHex("FISH", { size: 16 });
 export const RED = toHex("RED", { size: 16 });
 export const YELLOW = toHex("YELLOW", { size: 16 });
 
+// buildings
+export const SAFE = toHex("SAFE", { size: 16 });
+export const NODE = toHex("NODE", { size: 16 });
+export const FOUNDRY = toHex("FOUNDRY", { size: 16 });
+export const FENCE = toHex("FENCE", { size: 16 });
+
 export const MAX_MOVES = 20;
 export const PERLIN_DENOM = 6;

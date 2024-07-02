@@ -4,12 +4,16 @@ import {
   BERRY,
   BLOOD,
   BUSH,
+  FENCE,
   FISH,
+  FOUNDRY,
   GRASS,
   GRAVEL,
+  NODE,
   RED,
   RED_MINE,
   ROCK,
+  SAFE,
   SAND,
   SOUL,
   STAMINA,
@@ -71,6 +75,8 @@ export const POOL_COLORS_STRING = {
 };
 
 export const ERC20_TYPES = [WOOD, BERRY, FISH, RED, YELLOW];
+export const BUILDING_TYPES = [SAFE, NODE, FOUNDRY, FENCE];
+export const buildingMapping = ["safe", "node", "foundry", "fence"];
 
 export const SOURCE = toHex("SOURCE", { size: 32 }) as Entity;
 export const TARGET = toHex("TARGET", { size: 32 }) as Entity;
