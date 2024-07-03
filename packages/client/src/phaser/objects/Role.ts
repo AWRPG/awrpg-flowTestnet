@@ -4,7 +4,7 @@ import { Entity, ComponentValue, getComponentValue } from "@latticexyz/recs";
 import { Hex } from "viem";
 import { getPool } from "../../contract/hashes";
 import { getPoolAmount, getPoolCapacity } from "../../logics/pool";
-import { POOL_COLORS, POOL_TYPES } from "../../constants";
+import { POOL_COLORS, POOL_TYPES, SOURCE } from "../../constants";
 
 export class Role {
   scene: Phaser.Scene;
@@ -71,6 +71,17 @@ export class Role {
       )
       .setDepth(2);
     this.idle();
+
+    const role = getComponentValue(components.SelectedHost, SOURCE)?.value;
+    if (role) this.follow();
+  }
+
+  follow() {
+    this.scene.cameras.main.startFollow(this.roleObj, true);
+  }
+
+  unfollow() {
+    this.scene.cameras.main.startFollow(this.roleObj, false);
   }
 
   // triggered whenever Moves component is updated

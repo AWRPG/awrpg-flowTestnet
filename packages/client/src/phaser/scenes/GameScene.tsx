@@ -197,6 +197,15 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
+    defineSystem(world, [Has(SelectedHost)], ({ entity, type }) => {
+      const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
+      if (!role) return;
+      if (type === UpdateType.Exit) {
+        return this.hosts[role]?.unfollow();
+      }
+      return this.hosts[role]?.follow();
+    });
+
     this.input.keyboard?.on("keyup", (event: KeyboardEvent) => {
       let isTap = false;
       if (this.keyDownTime) {
