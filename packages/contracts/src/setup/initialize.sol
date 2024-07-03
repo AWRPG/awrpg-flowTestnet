@@ -18,6 +18,7 @@ function initializeTypes() {
   initConvertRatios();
   initHostTypes();
   initERC20Sizes();
+  initERC20BurnAwards();
 }
 
 function initTerrainTypes() {
@@ -45,8 +46,8 @@ function initTerrainTypes() {
     TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
     empty,
-    compileOneType(STAMINA, 300),
-    compileOneType(WOOD, 2)
+    compileOneType(STAMINA, 100),
+    compileOneType(WOOD, 20)
   );
   DefineTypes.defineTerrain(
     RED_MINE,
@@ -62,9 +63,30 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     SAFE,
     BuildingSpecsData({ canMove: false, terrainType: GRASS }),
-    compileTwoTypes(STAMINA, WOOD, 10, 10),
-    compileOneType(STAMINA, 5),
-    compileOneType(WOOD, 2)
+    compileTwoTypes(STAMINA, WOOD, 50, 10),
+    compileOneType(STAMINA, 100),
+    compileOneType(WOOD, 4)
+  );
+  DefineTypes.defineBuilding(
+    FENCE,
+    BuildingSpecsData({ canMove: false, terrainType: GRASS }),
+    compileTwoTypes(STAMINA, WOOD, 20, 5),
+    compileOneType(STAMINA, 50),
+    compileOneType(WOOD, 1)
+  );
+  DefineTypes.defineBuilding(
+    NODE,
+    BuildingSpecsData({ canMove: false, terrainType: GRASS }),
+    compileTwoTypes(STAMINA, WOOD, 60, 8),
+    compileOneType(STAMINA, 100),
+    compileOneType(WOOD, 4)
+  );
+  DefineTypes.defineBuilding(
+    FOUNDRY,
+    BuildingSpecsData({ canMove: false, terrainType: GRASS }),
+    compileTwoTypes(STAMINA, WOOD, 80, 9),
+    compileOneType(STAMINA, 100),
+    compileOneType(WOOD, 4)
   );
   // TODO: add more building types
 }
@@ -110,6 +132,12 @@ function initERC20Sizes() {
   SizeSpecs.set(BERRY, 1);
   SizeSpecs.set(FISH, 1);
   SizeSpecs.set(RED, 1);
+}
+
+function initERC20BurnAwards() {
+  BurnAwards.set(BERRY, compileOneType(STAMINA, 200));
+  BurnAwards.set(FISH, compileOneType(STAMINA, 300));
+  BurnAwards.set(RED, compileOneType(BLOOD, 100));
 }
 
 function compileOneType(bytes16 erc20Type, uint128 amount) returns (bytes32[] memory inputs) {
