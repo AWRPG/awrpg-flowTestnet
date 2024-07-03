@@ -32,6 +32,7 @@ import {
 import { Role } from "../objects/Role";
 import { POOL } from "../../contract/constants";
 import { Hex } from "viem";
+import { selectFirstHost, selectNextHost } from "../../logics/entity";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -39,8 +40,8 @@ export class GameScene extends Phaser.Scene {
   systemCalls: SetupResult["systemCalls"];
 
   tileSize = 32;
-  minZoomLevel = 1 / 2 ** 1;
-  maxZoomLevel = 1.5;
+  minZoomLevel = 1 / 2 ** 2;
+  maxZoomLevel = 2;
 
   tilesLayer0: Record<Entity, Phaser.GameObjects.Sprite> = {};
   tiles: Record<Entity, Phaser.GameObjects.Sprite> = {};
@@ -171,25 +172,13 @@ export class GameScene extends Phaser.Scene {
         setComponent(SelectedEntity, MENU, { value: EXPLORE_MENU });
       } else if (event.key === "Enter") {
         if (!source) {
-          const hosts = [
-            ...runQuery([
-              HasValue(Commander, { value: this.network.playerEntity }),
-            ]),
-          ];
-          setComponent(SelectedHost, SOURCE, { value: hosts[0] });
+          selectFirstHost(this.components, this.network.playerEntity);
         }
         removeComponent(ConsoleMessage, SOURCE);
         if (menu) return removeComponent(SelectedEntity, MENU);
         return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       } else if (event.key === "q") {
-        const hosts = [
-          ...runQuery([
-            HasValue(Commander, { value: this.network.playerEntity }),
-          ]),
-        ];
-        const index = source ? hosts.indexOf(source) : -1;
-        const nextIndex = (index + 1) % hosts.length;
-        setComponent(SelectedHost, SOURCE, { value: hosts[nextIndex] });
+        selectNextHost(this.components, this.network.playerEntity);
       } else if (event.key === "k") {
         if (menu || !source) return;
         removeComponent(Moves, source);

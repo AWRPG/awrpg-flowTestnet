@@ -11,6 +11,7 @@ import { PERLIN_DENOM } from "../contract/constants";
 import { Hex } from "viem";
 import { SOURCE } from "../constants";
 import { Vector } from "../utils/vector";
+import { selectNextHost } from "../logics/entity";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
@@ -34,7 +35,12 @@ export function createSystemCalls(
    *   syncToRecs
    *   (https://github.com/latticexyz/mud/blob/main/templates/react/packages/client/src/mud/setupNetwork.ts#L77-L83).
    */
-  { worldContract, waitForTransaction, perlin }: SetupNetworkResult,
+  {
+    worldContract,
+    waitForTransaction,
+    perlin,
+    playerEntity,
+  }: SetupNetworkResult,
   components: ClientComponents
 ) {
   const { Moves } = components;
@@ -47,6 +53,7 @@ export function createSystemCalls(
   const spawnHero = async () => {
     const tx = await worldContract.write.spawnHero();
     await waitForTransaction(tx);
+    selectNextHost(components, playerEntity);
   };
 
   const move = async (host: Hex, moves: number[]) => {

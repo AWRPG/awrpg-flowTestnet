@@ -10,6 +10,7 @@ export default function useSyncComputedComponents() {
   const {
     components: { SyncProgress },
   } = mud;
+  const role = useComponentValue(SelectedHost, SOURCE)?.value;
 
   const syncProgress = useComponentValue(SyncProgress, singletonEntity);
   const [ready, setReady] = useState(false);
@@ -18,7 +19,7 @@ export default function useSyncComputedComponents() {
       syncComputedComponents(mud);
       setReady(true);
     }
-  }, [syncProgress?.step]);
+  }, [syncProgress?.step, role]);
 
   return ready;
 }

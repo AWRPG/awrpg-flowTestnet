@@ -22,10 +22,10 @@ export function syncComputedComponents({
   const width = 64;
   const height = 64;
 
-  for (let i = 0; i < width; i++) {
-    for (let j = 0; j < height; j++) {
-      // const noise = systemCalls.getNoise(i, j);
-      // const terrainValue = noiseToTerrain(noise);
+  const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
+  if (!role) {
+    selectFirstHost(components, network.playerEntity);
+  }
       const terrainValue = getTerrain(components, systemCalls, { x: i, y: j });
       setComponent(TerrainValue, combine(i, j) as Entity, {
         value: terrainValue as number,

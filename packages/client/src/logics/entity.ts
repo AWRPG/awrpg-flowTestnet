@@ -1,9 +1,16 @@
-import { Entity, getComponentValue, Component } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  Component,
+  setComponent,
+  HasValue,
+  runQuery,
+} from "@latticexyz/recs";
 import { Hex } from "viem";
 import { ClientComponents } from "../mud/createClientComponents";
 import { encodeTypeEntity } from "../utils/encode";
 import { BLOOD, HOST, STAMINA } from "../contract/constants";
-import { POOL_TYPES } from "../constants";
+import { POOL_TYPES, SOURCE } from "../constants";
 
 export function getEntitySpecs<
   S extends ClientComponents[keyof ClientComponents]["schema"],
@@ -32,4 +39,25 @@ export function isRole(components: ClientComponents, entity: Entity) {
   const entityType = getComponentValue(components.EntityType, entity)
     ?.value as Hex;
   return entityType === HOST;
+}
+
+export function selectFirstHost(
+  components: ClientComponents,
+  playerEntity: Entity
+) {
+  const { Commander, SelectedHost } = components;
+  const hosts = [...runQuery([HasValue(Commander, { value: playerEntity })])];
+  setComponent(SelectedHost, SOURCE, { value: hosts[0] });
+}
+
+export function selectNextHost(
+  components: ClientComponents,
+  playerEntity: Entity
+) {
+  const { SelectedHost, Commander } = components;
+  const selectedHost = getComponentValue(SelectedHost, SOURCE)?.value;
+  const hosts = [...runQuery([HasValue(Commander, { value: playerEntity })])];
+  const index = hosts.findIndex((host) => host === selectedHost);
+  const nextIndex = (index + 1) % hosts.length;
+  setComponent(SelectedHost, SOURCE, { value: hosts[nextIndex] });
 }
