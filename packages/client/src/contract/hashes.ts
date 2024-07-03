@@ -1,5 +1,4 @@
-import { Hex, encodeAbiParameters } from "viem";
-import { keccak256 } from "ethers/lib/utils";
+import { Hex, encodeAbiParameters, keccak256 } from "viem";
 
 export function getPool(role: Hex, poolType: Hex) {
   return keccak256(
