@@ -298,16 +298,19 @@ export class GameScene extends Phaser.Scene {
   loadTile(x: number, y: number, terrain: number) {
     const tileX = x * this.tileSize + this.tileSize / 2;
     const tileY = y * this.tileSize + this.tileSize / 2;
-    const tile = this.add.sprite(tileX, tileY, terrainMapping[terrain]);
     const entity = combine(x, y) as Entity;
-    this.tiles[entity] = tile;
-    tile.setInteractive();
-    tile.on("pointerdown", () => console.log("tile", x, y, terrain));
+    this.tiles[entity]?.destroy();
+    this.tiles[entity] = this.add
+      .sprite(tileX, tileY, terrainMapping[terrain])
+      .setInteractive()
+      .on("pointerdown", () => console.log("tile", x, y, terrain));
     // handle 0 layer
     if (terrain === TerrainType.Rock) {
+      this.tilesLayer0[entity]?.destroy();
       const tile0 = this.add.sprite(tileX, tileY, "water").setDepth(-1);
       this.tilesLayer0[entity] = tile0;
     } else if (terrain !== TerrainType.Water && terrain !== TerrainType.Grass) {
+      this.tilesLayer0[entity]?.destroy();
       const tile0 = this.add.sprite(tileX, tileY, "grass").setDepth(-1);
       this.tilesLayer0[entity] = tile0;
     }
@@ -315,8 +318,7 @@ export class GameScene extends Phaser.Scene {
 
   unloadTile(x: number, y: number) {
     const entity = combine(x, y) as Entity;
-    const tile = this.tiles[entity];
-    tile?.destroy();
+    this.tiles[entity]?.destroy();
     delete this.tiles[entity];
     this.tilesLayer0[entity]?.destroy();
     delete this.tilesLayer0[entity];
