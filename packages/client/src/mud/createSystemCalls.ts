@@ -84,6 +84,11 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const consumeERC20 = async (host: Hex, itemType: Hex) => {
+    const tx = await worldContract.write.consumeERC20([itemType, host]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
@@ -91,5 +96,6 @@ export function createSystemCalls(
     burnTerrain,
     interactTerrain,
     buildBuilding,
+    consumeERC20,
   };
 }

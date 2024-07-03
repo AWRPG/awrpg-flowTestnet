@@ -21,6 +21,7 @@ export type MenuKeysProps = {
   onA?: (selected: number) => void;
   onB?: (selected: number) => void;
   selected?: number;
+  selected2?: number | null;
 };
 
 // Notes: there are in total two groups keyevent listeners: one here, another in GameScene
@@ -37,6 +38,7 @@ export default function useMenuKeys({
   onA,
   onB,
   selected = 0,
+  selected2 = null,
 }: MenuKeysProps) {
   const {
     components,
@@ -69,5 +71,5 @@ export default function useMenuKeys({
     return () => {
       document.removeEventListener("keydown", handler);
     };
-  }, [menu, selected]);
+  }, [menu, selected, selected2]);
 }

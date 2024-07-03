@@ -38,6 +38,15 @@ export const getConsumeData = (
   return { costs, hasCosts, awards, actualAwards };
 };
 
+// canConsume = has burn awards
+export const canConsume = (
+  components: ClientComponents,
+  consumeType: Hex
+): boolean => {
+  const awards = getBurnAwards(components, consumeType) as Hex[];
+  return awards.length > 0;
+};
+
 export const getCraftData = (
   components: ClientComponents,
   role: Hex,
