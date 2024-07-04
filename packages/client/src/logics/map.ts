@@ -56,8 +56,11 @@ export const getTerrain = (
   const isRemoved =
     getComponentValue(components.RemovedCoord, coordId)?.value ?? false;
   if (isRemoved) return TerrainType.Grass;
+  const jsonStr = localStorage.getItem(coordId);
+  if (jsonStr) return JSON.parse(jsonStr).terrain;
   const noise = getPerlin(systemCalls, position);
-  const terrain = noiseToTerrain(noise);
+  const terrain = noiseToTerrain(noise) as number;
+  localStorage.setItem(coordId, JSON.stringify({ terrain }));
   return terrain;
 };
 
