@@ -67,6 +67,7 @@ function initBuildingTypes() {
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
   );
+  ContainerSpecs.set(SAFE, 200);
   DefineTypes.defineBuilding(
     FENCE,
     BuildingSpecsData({ canMove: false, terrainType: GRASS }),
