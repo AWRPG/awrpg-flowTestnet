@@ -6,6 +6,7 @@ import { Hex, pad } from "viem";
 import { encodeEntity } from "@latticexyz/store-sync/recs";
 import { getPool } from "../contract/hashes";
 import { encodeTypeEntity } from "../utils/encode";
+import { ERC20_TYPES } from "../constants";
 
 export function canStoreERC721(
   components: ClientComponents,
@@ -46,6 +47,7 @@ export function canIncreaseStoredSize(
   return capacity && capacity >= storedSize + increaseSize;
 }
 
+// generalized (including pool) canStoreERC20Amount
 export const getRemainedERC20Amount = (
   components: ClientComponents,
   role: Hex,
@@ -82,6 +84,17 @@ export const hasERC20Balance = (
   amount: bigint
 ) => {
   return getERC20Balance(components, role, erc20Type) >= amount;
+};
+
+// excluding pool types
+export const getERC20Balances = (components: ClientComponents, host: Hex) => {
+  return ERC20_TYPES.map((erc20Type) => {
+    const balance = getERC20Balance(components, host, erc20Type);
+    return {
+      erc20Type,
+      balance,
+    };
+  }).filter((erc20) => erc20.balance > 0n);
 };
 
 // general usage for both pool & role

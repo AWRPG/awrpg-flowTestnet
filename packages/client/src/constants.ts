@@ -104,4 +104,6 @@ export const TERRAIN_BUILD_MENU = toHex("TERRAIN_BUILD_MENU", {
 }) as Entity;
 
 export const BUILDING_MENU = toHex("BUILDING_MENU", { size: 32 }) as Entity;
+export const TRANSFER_MENU = toHex("TRANSFER_MENU", { size: 32 }) as Entity;
+
 export const TARGET_MENU = toHex("TARGET_MENU", { size: 32 }) as Entity;
