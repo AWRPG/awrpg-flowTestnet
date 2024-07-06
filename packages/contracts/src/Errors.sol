@@ -7,6 +7,7 @@ contract Errors is System {
   // access error
   error NotCommander();
   error NotApproved();
+  error NotController();
 
   // position error
   error NotAdjacent();
