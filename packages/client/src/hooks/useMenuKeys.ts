@@ -21,7 +21,9 @@ export type MenuKeysProps = {
   onA?: (selected: number) => void;
   onB?: (selected: number) => void;
   selected?: number;
-  selected2?: number | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  selected2?: any;
+  disabled?: boolean;
 };
 
 // Notes: there are in total two groups keyevent listeners: one here, another in GameScene
@@ -39,6 +41,7 @@ export default function useMenuKeys({
   onB,
   selected = 0,
   selected2 = null,
+  disabled = false,
 }: MenuKeysProps) {
   const {
     components,
@@ -50,6 +53,7 @@ export default function useMenuKeys({
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (disabled) return;
       if (e.key == "w") {
         return onUp?.();
       } else if (e.key == "s") {
