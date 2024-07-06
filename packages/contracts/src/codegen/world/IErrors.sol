@@ -11,6 +11,7 @@ pragma solidity >=0.8.24;
 interface IErrors {
   error NotCommander();
   error NotApproved();
+  error NotController();
   error NotAdjacent();
   error CannotMoveToTerrain(bytes16 terrainType);
   error CannotMoveOnEntity(bytes32 coordId);

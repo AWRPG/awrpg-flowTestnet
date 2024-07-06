@@ -11,6 +11,7 @@ import { ICombatSystem } from "./ICombatSystem.sol";
 import { IItemSystem } from "./IItemSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
+import { IStorageSystem } from "./IStorageSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 
 /**
@@ -28,5 +29,6 @@ interface IWorld is
   IItemSystem,
   IMoveSystem,
   IPlayerSystem,
+  IStorageSystem,
   ITerrainSystem
 {}
