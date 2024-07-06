@@ -43,9 +43,10 @@ export default function TerrainBuildMenu() {
     return {
       content: <span>$Build {hexToString(buildingType)}</span>,
       disabled: !hasCosts,
-      onClick: () => {
+      onClick: async () => {
         if (!toPosition || !hasCosts) return;
-        buildBuilding(host as Hex, buildingType, toPosition);
+        await buildBuilding(host as Hex, buildingType, toPosition);
+        removeComponent(SelectedEntity, MENU);
       },
       message: `Build ${hexToString(buildingType)} on ${hexToString(terrainType)}.......${hasMoves ? "$Move First" : ""}....... Cost: ${costs.map((cost) => `(${hexToString(cost.type)}, ${cost.amount})`).join("\n")}........ `,
     };

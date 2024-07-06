@@ -3,6 +3,7 @@ import { ClientComponents } from "../mud/createClientComponents";
 import { getBurnData, getCraftData } from "./convert";
 import { Entity, getComponentValue } from "@latticexyz/recs";
 import { encodeTypeEntity } from "../utils/encode";
+import { Vector } from "../utils/vector";
 
 export const getBuildingTypeData = (
   components: ClientComponents,
@@ -27,3 +28,8 @@ export const canBuildingOnTerrain = (
       ?.terrainType as Hex) === terrainType
   );
 };
+
+// export const getBuilding = (
+//   components: ClientComponents,
+//   position: Vector
+// ) => { }

@@ -115,7 +115,7 @@ export class GameScene extends Phaser.Scene {
       setComponent(TerrainValue, entity, { value: TerrainType.Grass });
     });
 
-    // render roles
+    // render roles ~ hosts
     defineSystem(world, [Has(Position), Has(Commander)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
         this.hosts[entity]?.destroy();

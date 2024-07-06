@@ -50,6 +50,19 @@ export default function MainMenu({ player }: { player: Entity }) {
       },
     },
     {
+      name: "Map",
+      disabled: false,
+      onClick: () => {
+        console.log("map");
+      },
+    },
+    {
+      name: "Setting",
+      onClick: () => {
+        console.log("setting");
+      },
+    },
+    {
       name: "Spawn Hero",
       disabled: hasSpawned,
       onClick: async () => {

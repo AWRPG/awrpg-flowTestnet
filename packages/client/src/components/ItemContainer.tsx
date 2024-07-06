@@ -20,7 +20,7 @@ export default function ItemContainer({
           : disabled
             ? "opacity-80 bg-gray-500 text-gray-900 "
             : selected
-              ? "bg-gray-200 text-black"
+              ? "bg-gray-200 text-black border-blue-700 border-2 rounded"
               : "",
         className ?? "",
       ].join(" ")}
