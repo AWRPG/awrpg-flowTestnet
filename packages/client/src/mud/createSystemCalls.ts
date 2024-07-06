@@ -96,6 +96,21 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const transferERC20 = async (
+    from: Hex,
+    to: Hex,
+    itemType: Hex,
+    amount: bigint
+  ) => {
+    const tx = await worldContract.write.transferERC20([
+      itemType,
+      from,
+      to,
+      amount,
+    ]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
@@ -104,5 +119,6 @@ export function createSystemCalls(
     interactTerrain,
     buildBuilding,
     consumeERC20,
+    transferERC20,
   };
 }

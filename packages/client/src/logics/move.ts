@@ -36,6 +36,15 @@ export function getEntityOnDirection(
   return getEntityOnCoord(components, to);
 }
 
+export function getBuildingOnDirection(
+  components: ClientComponents,
+  role: Entity
+) {
+  const to = getDirectionCoord(components, role);
+  if (!to) return undefined;
+  return getEntityOnCoord(components, to);
+}
+
 export function getTerrainOnDirection(
   components: ClientComponents,
   role: Entity
