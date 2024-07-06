@@ -16,7 +16,8 @@ contract BuildingSystem is System, AccessControl, PositionControl {
     uint32 x,
     uint32 y
   ) public onlyCommander(role) onlyAdjacentCoord(role, x, y) {
-    BuildingLogic._buildBuilding(role, buildingType, x, y);
+    bytes32 player = _msgSender().toBytes32();
+    BuildingLogic._buildBuilding(player, role, buildingType, x, y);
   }
 
   function burnBuilding(bytes32 role, uint32 x, uint32 y) public onlyCommander(role) onlyAdjacentCoord(role, x, y) {

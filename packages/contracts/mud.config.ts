@@ -43,7 +43,10 @@ export default defineWorld({
       key: ["entityType"],
     },
     StoredSize: "uint256",
-    // building & host -> player
+    // main reasons might be easier for clientside to diff
+    // building -> player
+    Creator: "bytes32",
+    // role -> player
     Commander: "bytes32",
     // -> building & host
     Owner: "bytes32",

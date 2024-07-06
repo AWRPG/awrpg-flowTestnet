@@ -9,6 +9,7 @@ import { Allowance } from "./tables/Allowance.sol";
 import { Balance } from "./tables/Balance.sol";
 import { TotalSupply } from "./tables/TotalSupply.sol";
 import { StoredSize } from "./tables/StoredSize.sol";
+import { Creator } from "./tables/Creator.sol";
 import { Commander } from "./tables/Commander.sol";
 import { Owner } from "./tables/Owner.sol";
 import { EntityType } from "./tables/EntityType.sol";
