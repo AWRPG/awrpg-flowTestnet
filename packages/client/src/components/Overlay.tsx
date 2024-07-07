@@ -16,6 +16,7 @@ import {
   BUILDING_MENU,
   TRANSFER_MENU,
   TARGET_MENU,
+  SWAP_CONTROL_MENU,
 } from "../constants";
 import { Has, HasValue } from "@latticexyz/recs";
 // import PoolBars from "./PoolBars";
@@ -31,6 +32,7 @@ import TerrainBuildMenu from "./menu/TerrainBuildMenu";
 import BuildingMenu from "./menu/BuildingMenu";
 import TransferMenu from "./menu/TransferMenu";
 import TargetMenu from "./menu/TargetMenu";
+import SwapControlMenu from "./menu/SwapControlMenu";
 
 export default function Overlay() {
   const {
@@ -57,6 +59,7 @@ export default function Overlay() {
           {menu === MAIN_MENU && <MainMenu player={playerEntity} />}
           {menu === ROLE_MENU && <RoleMenu />}
           {menu === BAG_MENU && <BagMenu />}
+          {menu === SWAP_CONTROL_MENU && <SwapControlMenu />}
         </div>
         <div className="absolute pointer-events-auto top-1/2 right-2">
           {menu === EXPLORE_MENU && <ExploreMenu />}

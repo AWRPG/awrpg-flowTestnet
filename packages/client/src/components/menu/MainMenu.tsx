@@ -8,7 +8,13 @@ import {
 } from "@latticexyz/recs";
 import { useMUD } from "../../MUDContext";
 import { Hex } from "viem";
-import { BAG_MENU, MENU, ROLE_MENU, SOURCE } from "../../constants";
+import {
+  BAG_MENU,
+  MENU,
+  ROLE_MENU,
+  SOURCE,
+  SWAP_CONTROL_MENU,
+} from "../../constants";
 import { useCallback, useState } from "react";
 import useMenuKeys from "../../hooks/useMenuKeys";
 import ItemContainer from "../ItemContainer";
@@ -41,6 +47,12 @@ export default function MainMenu({ player }: { player: Entity }) {
       name: "Bag",
       onClick: () => {
         setComponent(SelectedEntity, MENU, { value: BAG_MENU });
+      },
+    },
+    {
+      name: "Swaps",
+      onClick: () => {
+        setComponent(SelectedEntity, MENU, { value: SWAP_CONTROL_MENU });
       },
     },
     {
