@@ -12,6 +12,7 @@ import { IItemSystem } from "./IItemSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
 import { IStorageSystem } from "./IStorageSystem.sol";
+import { ISwapSystem } from "./ISwapSystem.sol";
 import { ITerrainSystem } from "./ITerrainSystem.sol";
 
 /**
@@ -30,5 +31,6 @@ interface IWorld is
   IMoveSystem,
   IPlayerSystem,
   IStorageSystem,
+  ISwapSystem,
   ITerrainSystem
 {}

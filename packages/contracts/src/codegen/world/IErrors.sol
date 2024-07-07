@@ -40,4 +40,5 @@ interface IErrors {
   error NoTerrainToBurn();
   error NoAvailableUpgrade();
   error NotBuildingType();
+  error SwapRatioNotSet();
 }
