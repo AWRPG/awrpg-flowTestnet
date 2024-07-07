@@ -93,6 +93,7 @@ export const SELECT_MENU = toHex("SELECT_MENU", { size: 32 }) as Entity;
 export const SWAP_CONTROL_MENU = toHex("SWAP_CONTROL_MENU", {
   size: 32,
 }) as Entity;
+export const SWAP_MENU = toHex("SWAP_MENU", { size: 32 }) as Entity;
 
 export const EXPLORE_MENU = toHex("EXPLORE_MENU", { size: 32 }) as Entity;
 
