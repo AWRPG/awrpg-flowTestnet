@@ -1,6 +1,12 @@
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../../MUDContext";
-import { EXPLORE_MENU, TRANSFER_MENU, MENU, SOURCE } from "../../constants";
+import {
+  EXPLORE_MENU,
+  TRANSFER_MENU,
+  SWAP_MENU,
+  MENU,
+  SOURCE,
+} from "../../constants";
 import { Entity, removeComponent, setComponent } from "@latticexyz/recs";
 import { getEntityOnDirection } from "../../logics/move";
 import { isController, isCreator } from "../../logics/access";
@@ -33,6 +39,13 @@ export default function TargetMenu() {
       disabled: false,
       onClick: () => {
         setComponent(SelectedEntity, MENU, { value: TRANSFER_MENU });
+      },
+    },
+    {
+      name: "Swap",
+      disabled: false,
+      onClick: () => {
+        setComponent(SelectedEntity, MENU, { value: SWAP_MENU });
       },
     },
     {

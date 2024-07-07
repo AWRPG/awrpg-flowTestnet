@@ -17,6 +17,7 @@ import {
   TRANSFER_MENU,
   TARGET_MENU,
   SWAP_CONTROL_MENU,
+  SWAP_MENU,
 } from "../constants";
 import { Has, HasValue } from "@latticexyz/recs";
 // import PoolBars from "./PoolBars";
@@ -33,6 +34,7 @@ import BuildingMenu from "./menu/BuildingMenu";
 import TransferMenu from "./menu/TransferMenu";
 import TargetMenu from "./menu/TargetMenu";
 import SwapControlMenu from "./menu/SwapControlMenu";
+import SwapMenu from "./menu/SwapMenu";
 
 export default function Overlay() {
   const {
@@ -70,6 +72,7 @@ export default function Overlay() {
           {menu === BUILDING_MENU && <BuildingMenu />}
           {menu === TARGET_MENU && <TargetMenu />}
           {menu === TRANSFER_MENU && <TransferMenu />}
+          {menu === SWAP_MENU && <SwapMenu />}
         </div>
         <div className="absolute pointer-events-auto bottom-2 w-1/2 left-1/4 h-48">
           {message && <Console message={message} />}
