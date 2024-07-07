@@ -20,6 +20,7 @@ import { TerrainSpecs, TerrainSpecsData } from "./tables/TerrainSpecs.sol";
 import { BuildingSpecs, BuildingSpecsData } from "./tables/BuildingSpecs.sol";
 import { SizeSpecs } from "./tables/SizeSpecs.sol";
 import { ContainerSpecs } from "./tables/ContainerSpecs.sol";
+import { SwapRatio, SwapRatioData } from "./tables/SwapRatio.sol";
 import { ConvertRatio, ConvertRatioData } from "./tables/ConvertRatio.sol";
 import { MintCosts } from "./tables/MintCosts.sol";
 import { UpgradeCosts, UpgradeCostsData } from "./tables/UpgradeCosts.sol";

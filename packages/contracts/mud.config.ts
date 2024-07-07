@@ -102,6 +102,18 @@ export default defineWorld({
       },
       key: ["entityType"],
     },
+    SwapRatio: {
+      schema: {
+        fromType: "bytes16",
+        toType: "bytes16",
+        host: "bytes32",
+        // easier to querry in client
+        hostCopy: "bytes32",
+        num: "uint16",
+        denom: "uint16",
+      },
+      key: ["fromType", "toType", "host"],
+    },
     // stamina -> soul/blood
     ConvertRatio: {
       schema: {
