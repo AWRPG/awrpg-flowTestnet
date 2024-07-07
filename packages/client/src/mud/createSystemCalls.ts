@@ -111,6 +111,40 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const setSwapRatio = async (
+    fromType: Hex,
+    toType: Hex,
+    host: Hex,
+    num: number,
+    denom: number
+  ) => {
+    const tx = await worldContract.write.setSwapRatio([
+      fromType,
+      toType,
+      host,
+      num,
+      denom,
+    ]);
+    await waitForTransaction(tx);
+  };
+
+  const swapERC20 = async (
+    fromType: Hex,
+    toType: Hex,
+    from: Hex,
+    to: Hex,
+    amount: bigint
+  ) => {
+    const tx = await worldContract.write.swapERC20([
+      fromType,
+      toType,
+      from,
+      to,
+      amount,
+    ]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
@@ -120,5 +154,7 @@ export function createSystemCalls(
     buildBuilding,
     consumeERC20,
     transferERC20,
+    setSwapRatio,
+    swapERC20,
   };
 }

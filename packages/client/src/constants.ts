@@ -90,6 +90,10 @@ export const BAG_MENU = toHex("BAG_MENU", { size: 32 }) as Entity;
 export const ITEM_MENU = toHex("ITEM_MENU", { size: 32 }) as Entity;
 export const SELECT_MENU = toHex("SELECT_MENU", { size: 32 }) as Entity;
 
+export const SWAP_CONTROL_MENU = toHex("SWAP_CONTROL_MENU", {
+  size: 32,
+}) as Entity;
+
 export const EXPLORE_MENU = toHex("EXPLORE_MENU", { size: 32 }) as Entity;
 
 export const TERRAIN_MENU = toHex("TERRAIN_MENU", { size: 32 }) as Entity;
