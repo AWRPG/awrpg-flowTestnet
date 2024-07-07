@@ -52,4 +52,7 @@ contract Errors is System {
 
   // entity errors
   error NotBuildingType();
+
+  // swap errors
+  error SwapRatioNotSet();
 }
