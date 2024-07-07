@@ -25,7 +25,7 @@ export default function BuildingMenu() {
   const created = isCreator(components, playerEntity, building);
   const hasCapacity =
     getEntitySpecs(components, ContainerSpecs, building)?.capacity ?? 0n > 0n;
-  const canTransfer = hasCapacity && created;
+  const canTransfer = hasCapacity;
 
   const selections = [
     {

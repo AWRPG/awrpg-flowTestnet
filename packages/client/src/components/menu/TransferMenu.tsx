@@ -46,6 +46,13 @@ export default function TransferMenu() {
   // 0: to, 1: from; 2: amount
   const [selectedMenu, setSelectedMenu] = useState(0);
 
+  if (roleCapacity === 0n || hostCapacity === 0n)
+    return (
+      <div className="border text-white text-lg p-2 pointer-events-auto bg-gray-500">
+        CANNOT TRANSFER
+      </div>
+    );
+
   return (
     <div className="flex flex-row text-white pointer-events-auto space-x-4">
       <TransferFrom
