@@ -107,7 +107,6 @@ export class GameScene extends Phaser.Scene {
       }
       const value = getComponentValue(TerrainValue, entity)!.value;
       this.loadTile(x, y, value);
-      // console.log(value);
     });
 
     defineSystem(world, [Has(RemovedCoord)], ({ entity }) => {

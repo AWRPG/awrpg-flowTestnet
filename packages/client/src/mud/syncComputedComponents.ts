@@ -35,7 +35,9 @@ export function syncComputedComponents({
     selectFirstHost(components, network.playerEntity);
   }
 
-  const position = getComponentValue(Position, role) ?? { x: 0, y: 0 };
+  const initX = 2 ** 16; // 32 * 10;
+  const initY = 2 ** 16; // 32 * 10;
+  const position = getComponentValue(Position, role) ?? { x: initX, y: initY };
   // const moves = getComponentValue(components.Moves, role)?.value ?? [];
   // const positions = movesToPositions(moves, position);
   // const from = positions[positions.length - 1];
