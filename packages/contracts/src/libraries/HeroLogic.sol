@@ -32,7 +32,7 @@ library HeroLogic {
     Owner.set(staminaPool, hero);
     ContainerLogic._mint(STAMINA, staminaPool, 1000);
 
-    (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 32, 32);
+    (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 2 ** 16 - 32, 2 ** 16 - 32, 2 ** 16, 2 ** 16);
     Position.set(hero, x, y);
     EntityCoord.set(MapLogic.getCoordId(x, y), hero);
   }
