@@ -5,79 +5,32 @@ import { ClientComponents } from "../mud/createClientComponents";
 import { Entity, getComponentValue } from "@latticexyz/recs";
 import { castToBytes32, encodeTypeEntity } from "../utils/encode";
 import { combine } from "./move";
-
-export const noiseToTerrain = (noise: number) => {
-  if (noise < 23) return TerrainType.Rock;
-  if (noise < 40) return TerrainType.Water;
-  if (noise < 55) return TerrainType.Grass;
-  if (noise < 65) return TerrainType.Bush;
-  if (noise < 78) return TerrainType.Tree;
-  else return TerrainType.Stump;
-};
-
-export const noiseToTerrainType = (noise: number) => {
-  const terrain = noiseToTerrain(noise);
-  return terrainTypeMapping[terrain];
-};
-
-export const getPerlin = (systemCalls: SystemCalls, position: Vector) => {
-  return systemCalls.getNoise(position.x, position.y);
-};
-
-export const getTerrainFromTerrainValue = (
-  components: ClientComponents,
-  position: Vector
-) => {
-  // TODO: coordId is not the same as TerrainValue's coordId
-  const coordId = getCoordId(position.x, position.y) as Entity;
-  const isRemoved =
-    getComponentValue(components.RemovedCoord, coordId)?.value ?? false;
-  if (isRemoved) return TerrainType.Grass;
-  return getComponentValue(
-    components.TerrainValue,
-    combine(position.x, position.y) as Entity
-  )?.value;
-};
+import { getTerrainType } from "./terrain";
 
 export const getEntityOnCoord = (
   components: ClientComponents,
   position: Vector
 ) => {
   const coordId = getCoordId(position.x, position.y) as Entity;
-  return getComponentValue(components.EntityCoord, coordId)?.value as Entity;
-};
-
-export const getTerrain = (
-  components: ClientComponents,
-  systemCalls: SystemCalls,
-  position: Vector
-) => {
-  const coordId = getCoordId(position.x, position.y) as Entity;
-  const isRemoved =
-    getComponentValue(components.RemovedCoord, coordId)?.value ?? false;
-  if (isRemoved) return TerrainType.Grass;
-  const jsonStr = localStorage.getItem(coordId);
-  if (jsonStr) return JSON.parse(jsonStr).terrain;
-  const noise = getPerlin(systemCalls, position);
-  const terrain = noiseToTerrain(noise) as number;
-  localStorage.setItem(coordId, JSON.stringify({ terrain }));
-  return terrain;
+  return getComponentValue(components.TileEntity, coordId)?.value as Entity;
 };
 
 export const canMoveTo = (
   components: ClientComponents,
   systemCalls: SystemCalls,
+  host: Entity,
   position: Vector
 ) => {
-  const { EntityCoord, TerrainSpecs } = components;
-  const terrain = getTerrain(components, systemCalls, position);
+  const { TileEntity, TerrainSpecs } = components;
+  const terrain = getTerrainType(components, systemCalls, position);
   const terrainType = terrainTypeMapping[terrain];
   const terrainTypeEntity = encodeTypeEntity(terrainType) as Entity;
   const terrainCanMove =
-    getComponentValue(TerrainSpecs, terrainTypeEntity)?.canMove ?? false;
+    getComponentValue(TerrainSpecs, terrainTypeEntity)?.canMove ?? true;
 
   const hasEntity = hasEntityOnCoord(components, position);
   // console.log("hasEntity", coordId, hasEntity);
+  console.log("canMoveTo", position, terrainType, terrainCanMove, hasEntity);
   return terrainCanMove && !hasEntity;
 };
 
@@ -91,5 +44,5 @@ export const hasEntityOnCoord = (
   position: Vector
 ) => {
   const coordId = getCoordId(position.x, position.y) as Entity;
-  return getComponentValue(components.EntityCoord, coordId) ? true : false;
+  return getComponentValue(components.TileEntity, coordId) ? true : false;
 };
