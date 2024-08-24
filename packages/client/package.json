@@ -21,6 +21,7 @@
     "@latticexyz/world": "2.0.12",
     "autoprefixer": "^10.4.19",
     "contracts": "workspace:*",
+    "dayjs": "^1.11.13",
     "phaser": "^3.80.1",
     "postcss": "^8.4.38",
     "react": "^18.2.0",

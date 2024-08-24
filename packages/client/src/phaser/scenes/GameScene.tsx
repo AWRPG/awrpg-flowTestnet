@@ -71,18 +71,21 @@ export class GameScene extends Phaser.Scene {
 
   preload() {
     // tiles texture
-    this.load.image("bush", "src/assets/tiles/Bush.png");
-    this.load.image("grass", "src/assets/tiles/Grass.png");
-    this.load.image("rock", "src/assets/tiles/Rock.png");
-    this.load.image("tree", "src/assets/tiles/Tree.png");
-    this.load.image("water", "src/assets/tiles/Water.png");
-    this.load.image("stump", "src/assets/tiles/Stump.png");
-    this.load.image("fence", "src/assets/tiles/Fence.png");
-    this.load.image("node", "src/assets/tiles/Node.png");
-    this.load.image("foundry", "src/assets/tiles/Foundry.png");
-    this.load.image("safe", "src/assets/tiles/Safe.png");
+    // this.load.image("bush", "src/assets/tiles/Bush.png");
+    // this.load.image("grass", "src/assets/tiles/Grass.png");
+    this.load.image("plain", "src/assets/tiles/Grass.png");
+    // this.load.image("rock", "src/assets/tiles/Rock.png");
+    this.load.image("mountain", "src/assets/tiles/Rock.png");
+    // this.load.image("tree", "src/assets/tiles/Tree.png");
+    this.load.image("forest", "src/assets/tiles/Tree.png");
+    this.load.image("ocean", "src/assets/tiles/Water.png");
+    // this.load.image("stump", "src/assets/tiles/Stump.png");
+    // this.load.image("fence", "src/assets/tiles/Fence.png");
+    // this.load.image("node", "src/assets/tiles/Node.png");
+    // this.load.image("foundry", "src/assets/tiles/Foundry.png");
+    // this.load.image("safe", "src/assets/tiles/Safe.png");
 
-    // player texture
+    // player texture    
     this.load.atlas(
       "host1",
       "src/assets/hosts/sprites/host1.png",
@@ -115,6 +118,7 @@ export class GameScene extends Phaser.Scene {
     const {
       TerrainValue,
       RemovedCoord,
+      Path,
       Position,
       EntityType,
       StoredSize,
@@ -138,16 +142,16 @@ export class GameScene extends Phaser.Scene {
       }
       const value = getComponentValue(TerrainValue, entity)!.value;
       this.loadTile(x, y, value);
-      // console.log(value);
+      // console.log("terrain", x, y, value);
     });
 
-    defineSystem(world, [Has(RemovedCoord)], ({ entity }) => {
-      removeComponent(TerrainValue, entity);
-      setComponent(TerrainValue, entity, { value: TerrainType.Grass });
-    });
+    // defineSystem(world, [Has(RemovedCoord)], ({ entity }) => {
+    //   removeComponent(TerrainValue, entity);
+    //   setComponent(TerrainValue, entity, { value: TerrainType.Grass });
+    // });
 
     // render roles ~ hosts
-    defineSystem(world, [Has(Position), Has(Commander)], ({ entity, type }) => {
+    defineSystem(world, [Has(Path), Has(Commander)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
         this.hosts[entity]?.destroy();
         return delete this.hosts[entity];
@@ -334,15 +338,15 @@ export class GameScene extends Phaser.Scene {
       .setInteractive()
       .on("pointerdown", () => console.log("tile", x, y, terrain));
     // handle 0 layer
-    if (terrain === TerrainType.Rock) {
-      this.tilesLayer0[entity]?.destroy();
-      const tile0 = this.add.sprite(tileX, tileY, "water").setDepth(-1);
-      this.tilesLayer0[entity] = tile0;
-    } else if (terrain !== TerrainType.Water && terrain !== TerrainType.Grass) {
-      this.tilesLayer0[entity]?.destroy();
-      const tile0 = this.add.sprite(tileX, tileY, "grass").setDepth(-1);
-      this.tilesLayer0[entity] = tile0;
-    }
+    // if (terrain === TerrainType.Rock) {
+    //   this.tilesLayer0[entity]?.destroy();
+    //   const tile0 = this.add.sprite(tileX, tileY, "water").setDepth(-1);
+    //   this.tilesLayer0[entity] = tile0;
+    // } else if (terrain !== TerrainType.Water && terrain !== TerrainType.Grass) {
+    //   this.tilesLayer0[entity]?.destroy();
+    //   const tile0 = this.add.sprite(tileX, tileY, "grass").setDepth(-1);
+    //   this.tilesLayer0[entity] = tile0;
+    // }
   }
 
   unloadTile(x: number, y: number) {

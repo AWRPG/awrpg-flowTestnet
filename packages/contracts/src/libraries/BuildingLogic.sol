@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Position, BuildingSpecs, EntityCoord, EntityType, TerrainSpecs, RemovedCoord, UpgradeCosts, SizeSpecs, Creator } from "@/codegen/index.sol";
+import { Position, BuildingSpecs, TileEntity, EntityType, TerrainSpecs, RemovedCoord, UpgradeCosts, SizeSpecs, Creator } from "@/codegen/index.sol";
 import { LibUtils } from "@/utils/LibUtils.sol";
 import { ContainerLogic } from "./ContainerLogic.sol";
 import { AwardLogic } from "./AwardLogic.sol";
 import { MapLogic } from "./MapLogic.sol";
+import { TerrainLogic } from "./TerrainLogic.sol";
 import { CostLogic } from "./CostLogic.sol";
 import { EntityLogic } from "./EntityLogic.sol";
 import { Errors } from "@/Errors.sol";
@@ -16,19 +17,19 @@ library BuildingLogic {
   // burn erc20s, which mint erc721, a building
   function _buildBuilding(bytes32 player, bytes32 role, bytes16 buildingType, uint32 x, uint32 y) internal {
     // check terrainType to build on
-    bytes16 terrainType = MapLogic.getTerrainType(x, y);
+    bytes16 terrainType = TerrainLogic.getTerrainEntityType(x, y);
     if (terrainType != BuildingSpecs.getTerrainType(buildingType)) revert Errors.WrongTerrainToBuildOn();
 
     // check if there is already a building
     bytes32 coordId = MapLogic.getCoordId(x, y);
-    if (EntityCoord.get(coordId) != 0) revert Errors.HasEntityOnCoord();
+    if (TileEntity.get(coordId) != 0) revert Errors.HasEntityOnCoord();
 
     // burn costs
     CostLogic._burnMintCosts(buildingType, role);
 
     // mint building
     bytes32 building = ContainerLogic._mint(buildingType, space());
-    EntityCoord.set(coordId, building);
+    TileEntity.set(coordId, building);
     Position.set(building, x, y);
     Creator.set(building, player);
   }
@@ -36,7 +37,7 @@ library BuildingLogic {
   // burn erc721 (building), which burn erc20s & award erc20s
   function _burnBuilding(bytes32 role, uint32 x, uint32 y) internal {
     bytes32 coordId = MapLogic.getCoordId(x, y);
-    bytes32 entity = EntityCoord.get(coordId);
+    bytes32 entity = TileEntity.get(coordId);
     if (entity == 0) revert Errors.HasNoEntityOnCoord();
 
     bytes16 entityType = EntityType.get(entity);
@@ -46,7 +47,7 @@ library BuildingLogic {
     AwardLogic._mintBurnAwards(entityType, role);
 
     ContainerLogic._burn(entity);
-    EntityCoord.deleteRecord(coordId);
+    TileEntity.deleteRecord(coordId);
     Position.deleteRecord(entity);
     Creator.deleteRecord(entity);
   }
@@ -63,4 +64,10 @@ library BuildingLogic {
   function _produceERC20(bytes32 role, bytes32 building, bytes16 erc20Type, uint128 amount) internal {}
 
   function _produceERC721(bytes32 role, bytes32 building, bytes16 erc721Type) internal {}
+
+  // ------- check if the building can moved to/across -------
+  function canMoveTo(bytes32 building) internal view returns (bool) {
+    bytes16 buildingType = EntityType.get(building);
+    return BuildingSpecs.getCanMove(buildingType);
+  }
 }

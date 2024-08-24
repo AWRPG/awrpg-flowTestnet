@@ -33,4 +33,12 @@ export const FOUNDRY = toHex("FOUNDRY", { size: 16 });
 export const FENCE = toHex("FENCE", { size: 16 });
 
 export const MAX_MOVES = 20;
-export const PERLIN_DENOM = 6;
+export const PERLIN_DENOM = 30;
+// in ms
+export const MOVE_DURATION = 300;
+
+// terrain
+export const OCEAN = toHex("OCEAN", { size: 16 });
+export const FOREST = toHex("FOREST", { size: 16 });
+export const PLAIN = toHex("PLAIN", { size: 16 });
+export const MOUNTAIN = toHex("MOUNTAIN", { size: 16 });

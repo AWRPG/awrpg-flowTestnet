@@ -7,15 +7,28 @@ import {
 import { Vector } from "matter";
 import { SOURCE } from "../constants";
 import { ClientComponents } from "../mud/createClientComponents";
-import { canMoveTo, getEntityOnCoord, getTerrainFromTerrainValue } from "./map";
+import { canMoveTo, getEntityOnCoord } from "./map";
+import { getTerrainFromTerrainValue } from "./terrain";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { MAX_MOVES } from "../contract/constants";
+import { getReadyPosition } from "./path";
 
 export enum Direction {
-  UP = 0,
-  DOWN = 1,
-  LEFT = 2,
-  RIGHT = 3,
+  NONE = 0,
+  UP = 1,
+  DOWN = 2,
+  LEFT = 3,
+  RIGHT = 4,
+}
+
+// TODO: temp for fromPosition
+export function getPositionFromPath(
+  components: ClientComponents,
+  role: Entity
+) {
+  const { Path } = components;
+  const path = getComponentValue(Path, role);
+  return { x: toTileX, y: toTileY };
 }
 
 export function hasPendingMoves(components: ClientComponents, role: Entity) {
@@ -80,6 +93,7 @@ export const updateMoves = (
   if (!source) return;
   const moves = getComponentValue(Moves, source)?.value ?? [];
   let newMoves = [...moves];
+  console.log("updateMoves", direction, moves);
   if (moves.length === 0) {
     newMoves = [direction as number];
   } else {
@@ -96,6 +110,7 @@ export const updateMoves = (
     source,
     newMoves
   );
+  console.log("validMoves", newMoves, validMoves);
   if (!validMoves || validMoves.length === 0)
     return removeComponent(Moves, source);
   setComponent(Moves, source, { value: validMoves });
@@ -123,15 +138,17 @@ export function validMovesForHost(
   host: Entity,
   moves: Direction[]
 ) {
-  const from = getComponentValue(components.Position, host);
-  if (!from) return;
-  const { x, y } = from;
-  return validMovesFrom(components, systemCalls, { x, y }, moves);
+  const position = getReadyPosition(components, host);
+  console.log("position", position);
+
+  if (!position) return;
+  return validMovesFrom(components, systemCalls, host, position, moves);
 }
 
 export function validMovesFrom(
   components: ClientComponents,
   systemCalls: SystemCalls,
+  host: Entity,
   from: Vector,
   moves: Direction[]
 ): Direction[] {
@@ -146,7 +163,7 @@ export function validMovesFrom(
     if (index !== -1) return moves.slice(0, index);
     // check validity
     toPositions.push(to);
-    if (!validMoveTo(components, systemCalls, to)) {
+    if (!validMoveTo(components, systemCalls, host, to)) {
       return i === 0 ? [] : moves.slice(0, i);
     }
   }
@@ -156,10 +173,11 @@ export function validMovesFrom(
 export function validMoveTo(
   components: ClientComponents,
   systemCalls: SystemCalls,
+  host: Entity,
   to: Vector
 ) {
   const onMap = isOnMap(to);
-  const canMove = canMoveTo(components, systemCalls, to);
+  const canMove = canMoveTo(components, systemCalls, host, to);
   return onMap && canMove;
 }
 // export function moveToPositionStrict(move: Direction, from: Vector): Vector {

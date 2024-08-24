@@ -7,6 +7,7 @@ import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { Position } from "@/codegen/index.sol";
 import { initializeTypes } from "@/setup/initialize.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { TerrainLogic } from "@/libraries/TerrainLogic.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -20,7 +21,10 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
     initializeTypes();
-    // world.spawnHero();
+    (uint32 x, uint32 y) = world.spawnHero();
+    // TerrainLogic._setTerrainValue(x, y, uint8(TerrainLogic.TerrainType.PLAIN));
+    // TerrainLogic._setTerrainValue(x + 1, y, uint8(TerrainLogic.TerrainType.PLAIN));
+    // TerrainLogic._setTerrainValue(x + 2, y, uint8(TerrainLogic.TerrainType.PLAIN));
 
     vm.stopBroadcast();
   }
