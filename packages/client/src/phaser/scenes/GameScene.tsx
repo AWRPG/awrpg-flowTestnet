@@ -17,6 +17,7 @@ import {
   combine,
   movesToPositions,
   split,
+  splitFromEntity,
   updateMoves,
 } from "../../logics/move";
 import {
@@ -33,6 +34,7 @@ import { Host } from "../objects/Host";
 import { POOL } from "../../contract/constants";
 import { Hex } from "viem";
 import { selectFirstHost, selectNextHost } from "../../logics/entity";
+import { GRID_SIZE } from "../../logics/terrain";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -117,6 +119,7 @@ export class GameScene extends Phaser.Scene {
   create() {
     const {
       TerrainValue,
+      TerrainValues,
       RemovedCoord,
       Path,
       Position,
@@ -135,15 +138,22 @@ export class GameScene extends Phaser.Scene {
     this.createAnimations();
 
     // render map terrain
-    defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {
-      const { x, y } = split(BigInt(entity));
+    defineSystem(world, [Has(TerrainValues)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
-        return this.unloadTile(x, y);
+        return this.unloadGrid(entity);
       }
-      const value = getComponentValue(TerrainValue, entity)!.value;
-      this.loadTile(x, y, value);
-      console.log("terrain", x, y, value);
+      const value = getComponentValue(TerrainValues, entity)!.value;
+      this.loadGrid(entity, value);
     });
+    // defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {
+    //   const { x, y } = split(BigInt(entity));
+    //   if (type === UpdateType.Exit) {
+    //     return this.unloadTile(x, y);
+    //   }
+    //   const value = getComponentValue(TerrainValue, entity)!.value;
+    //   this.loadTile(x, y, value);
+    //   console.log("terrain", x, y, value);
+    // });
 
     // defineSystem(world, [Has(RemovedCoord)], ({ entity }) => {
     //   removeComponent(TerrainValue, entity);
@@ -287,13 +297,13 @@ export class GameScene extends Phaser.Scene {
         };
       }
       const deltaZoom = 1 + 0.05 * (pointer.deltaY < 0 ? 1 : -1);
-      console.log(camera.zoom, deltaZoom);
-      const newZoom = this.maxZoomLevel;
-      // const newZoom = Phaser.Math.Clamp(
-      //   camera.zoom * deltaZoom,
-      //   this.minZoomLevel,
-      //   this.maxZoomLevel
-      // );
+      // console.log(camera.zoom, deltaZoom);
+      // const newZoom = this.maxZoomLevel;
+      const newZoom = Phaser.Math.Clamp(
+        camera.zoom * deltaZoom,
+        this.minZoomLevel,
+        this.maxZoomLevel
+      );
       const deltaScrollX =
         (lastPointerPosition.worldX - camera.scrollX) * (camera.zoom / newZoom);
       const deltaScrollY =
@@ -326,6 +336,34 @@ export class GameScene extends Phaser.Scene {
     const sprite = this.buildings[building];
     sprite?.destroy();
     delete this.buildings[building];
+  }
+
+  loadGrid(gridId: Entity, terrainValues: bigint) {
+    const gridCoord = splitFromEntity(gridId);
+    for (let i = 0; i < GRID_SIZE; i++) {
+      for (let j = 0; j < GRID_SIZE; j++) {
+        const shift = i + j * GRID_SIZE;
+        const tileCoord = {
+          x: gridCoord.x * GRID_SIZE + i,
+          y: gridCoord.y * GRID_SIZE + j,
+        };
+        const terrain = Number((terrainValues >> BigInt(shift * 4)) & 15n);
+        this.loadTile(tileCoord.x, tileCoord.y, terrain);
+      }
+    }
+  }
+
+  unloadGrid(gridId: Entity) {
+    const gridCoord = splitFromEntity(gridId);
+    for (let i = 0; i < GRID_SIZE; i++) {
+      for (let j = 0; j < GRID_SIZE; j++) {
+        const tileCoord = {
+          x: gridCoord.x * GRID_SIZE + i,
+          y: gridCoord.y * GRID_SIZE + j,
+        };
+        this.unloadTile(tileCoord.x, tileCoord.y);
+      }
+    }
   }
 
   loadTile(x: number, y: number, terrain: number) {

@@ -22,6 +22,10 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     TerrainValue: defineComponent(world, {
       value: Type.Number,
     }),
+    // gridId -> terrainValues (uint256)
+    TerrainValues: defineComponent(world, {
+      value: Type.BigInt,
+    }),
     // // pool -> player
     // PoolOf: defineComponent(world, {
     //   value: Type.Entity,

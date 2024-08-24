@@ -9,7 +9,12 @@ import {
 } from "@latticexyz/recs";
 import { decodeTypeEntity, encodeTypeEntity } from "../utils/encode";
 import { SOURCE, terrainTypeMapping, TerrainType } from "../constants";
-import { combine, getDirectionCoord, getTerrainOnDirection } from "./move";
+import {
+  combine,
+  getDirectionCoord,
+  getTerrainOnDirection,
+  splitFromEntity,
+} from "./move";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { Vector } from "../utils/vector";
 import { getCoordId } from "./map";
@@ -66,6 +71,55 @@ export const getTerrainFromTable = (
   // localStorage.setItem(coordId, JSON.stringify({ terrain }));
   // return terrain;
 };
+
+// ----------------- localStorage & clientComponent -----------------
+export const getGridTerrainValues = (
+  components: ClientComponents,
+  systemCalls: SystemCalls,
+  gridId: Entity
+): bigint => {
+  const terrainTypes = getGridTerrainTypes(components, systemCalls, gridId);
+  let terrainValues: bigint = 0n;
+  terrainTypes.forEach(({ i, j, terrainType }) => {
+    const shift = i + j * GRID_SIZE;
+    terrainValues |= BigInt(terrainType) << BigInt(shift * 4);
+  });
+  return terrainValues;
+};
+
+export const getGridTerrainTypes = (
+  components: ClientComponents,
+  systemCalls: SystemCalls,
+  gridId: Entity
+) => {
+  const terrainValues = getComponentValue(components.Terrain, gridId)?.value;
+  const gridCoord = splitFromEntity(gridId);
+  const tileTerrains: { i: number; j: number; terrainType: number }[] = [];
+  for (let i = 0; i < GRID_SIZE; i++) {
+    for (let j = 0; j < GRID_SIZE; j++) {
+      const shift = i + j * GRID_SIZE;
+      const tileCoord = {
+        x: gridCoord.x * GRID_SIZE + i,
+        y: gridCoord.y * GRID_SIZE + j,
+      };
+      const terrain = Number(
+        ((terrainValues ?? 0n) >> BigInt(shift * 4)) & 15n
+      );
+      const terrainType =
+        terrain === Number(TerrainType.NONE)
+          ? noiseToTerrainType(getPerlin(systemCalls, tileCoord))
+          : terrain;
+      tileTerrains.push({
+        i,
+        j,
+        terrainType,
+      });
+    }
+  }
+  return tileTerrains;
+};
+
+// ----------------------------------
 
 // assumes host's direction is the selected terrain
 export const getSelectedTerrainData = (components: ClientComponents) => {
