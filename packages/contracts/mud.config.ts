@@ -52,6 +52,23 @@ export default defineWorld({
     Owner: "bytes32",
     EntityType: "bytes16",
     // building & host
+    Path: {
+      schema: {
+        entityId: "bytes32",
+        fromTileX: "uint32",
+        fromTileY: "uint32",
+        toTileX: "uint32",
+        toTileY: "uint32",
+        lastUpdated: "uint40",
+        duration: "uint40",
+      },
+      key: ["entityId"],
+    },
+    Moves: "uint256",
+    // tileId -> terrainType
+    Terrain: "uint256",
+    // tileId -> buildingId
+    TileEntity: "bytes32",
     Position: {
       schema: {
         entityId: "bytes32",
@@ -64,8 +81,6 @@ export default defineWorld({
     // if true, not obstacle, can build, can move onto if no building
     // coordId ->
     RemovedCoord: "bool",
-    // coordId -> buildingId
-    EntityCoord: "bytes32",
     // entity types: terrain, building, host, food, material
     // terrain: when destoryed, award destroyer; 0 means cannot be destroyed
     // default is change to GRASS
