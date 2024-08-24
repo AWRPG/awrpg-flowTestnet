@@ -43,6 +43,11 @@ export class Host extends SceneObject {
   tilesToMove: { x: number; y: number }[] = [];
 
   /**
+   * the side face to
+   */
+  direction: Direction;
+
+  /**
    * @param scene the scene belong
    * @param components the world's components
    * @param params others
@@ -61,22 +66,22 @@ export class Host extends SceneObject {
     }
   ) {
     super(entity, components, scene);
-
-    // this.incrementY = this.tileSize / 4;
-    // const position = getComponentValue(components.Position, entity)!;
-    // this.positions = [{ x: this.tileX, y: this.tileY }];
-
     this.isPlayer = isPlayer;
 
-    this.avatar = this.scene.add
-      .sprite(
-        this.tileX * this.tileSize,
-        this.tileY * this.tileSize,
-        "host-farmer1"
-      )
-      .setDepth(2);
-    this.idle();
+    // draw avatar & set animation
+    this.direction =
+      getComponentValue(components.RoleDirection, entity)?.value ??
+      Direction.DOWN;
+    this.avatar = new Phaser.GameObjects.Sprite(
+      this.scene,
+      0,
+      0,
+      "host-farmer1"
+    ).setOrigin(0.5, 0.75);
+    this.root.add(this.avatar);
+    this.doIdleAnimation();
 
+    // add the bars of pools on the host
     POOL_TYPES.forEach((poolType, index) => {
       this.pools[poolType] = this.makePoolBar(poolType, index);
       this.isPoolShow[poolType] = true;
@@ -88,14 +93,6 @@ export class Host extends SceneObject {
     if (role) this.follow();
   }
 
-  follow() {
-    this.scene.cameras.main.startFollow(this.avatar, true);
-  }
-
-  unfollow() {
-    this.scene.cameras.main.startFollow(this.avatar, false);
-  }
-
   // triggered whenever Moves component is updated
   movesUpdate() {
     const moves =
@@ -105,21 +102,16 @@ export class Host extends SceneObject {
       y: this.tileY,
     });
     const to = this.tilesToMove[this.tilesToMove.length - 1];
-    const poolObjs = Object.values(this.pools);
-    const tweenTargets = [this.avatar, ...poolObjs];
-    const toX = to.x * this.tileSize;
-    const toY = to.y * this.tileSize;
-    tweenTargets.forEach((target, index) => {
-      this.scene.tweens.add({
-        targets: target,
-        x: index === 0 ? toX : toX,
-        y: index === 0 ? toY : toY,
-        duration: 200,
-        repeat: 0,
-      });
+
+    this.scene.tweens.add({
+      targets: this.root,
+      x: (to.x + 0.5) * this.tileSize,
+      y: (to.y + 0.5) * this.tileSize,
+      duration: 200,
+      repeat: 0,
     });
 
-    this.walk();
+    this.doWalkAnimation();
     // update movesObj
     // this.movesObj?.clear(true, true);
     // this.movesObj = this.scene.add.group();
@@ -142,10 +134,10 @@ export class Host extends SceneObject {
   }
 
   directionUpdate() {
-    this.idle();
+    this.doIdleAnimation();
   }
 
-  walk() {
+  doWalkAnimation() {
     this.direction =
       getComponentValue(this.components.RoleDirection, this.entity)?.value ??
       Direction.DOWN;
@@ -154,7 +146,7 @@ export class Host extends SceneObject {
     return this.avatar.play("host-farmer1-walk-right");
   }
 
-  idle() {
+  doIdleAnimation() {
     this.direction =
       getComponentValue(this.components.RoleDirection, this.entity)?.value ??
       Direction.DOWN;
@@ -172,18 +164,16 @@ export class Host extends SceneObject {
   }
 
   makePoolBar(poolType: Hex, index: number) {
-    const bar = this.scene.add.graphics();
+    const bar = new Phaser.GameObjects.Graphics(this.scene);
     bar.fillStyle(POOL_COLORS[poolType], 1);
     bar.fillRect(0, 0, 30, 3).setDepth(5);
     bar.alpha = 0.5;
+    this.root.add(bar);
     return bar;
   }
 
   updatePoolBarPosition(poolType: Hex, index: number) {
-    this.pools[poolType].setPosition(
-      this.tileX * this.tileSize,
-      (this.tileY + 0.75) * this.tileSize
-    );
+    this.pools[poolType].setPosition(-0.5 * this.tileSize, 2);
     this.pools[poolType].visible = this.isPoolShow[poolType];
   }
 

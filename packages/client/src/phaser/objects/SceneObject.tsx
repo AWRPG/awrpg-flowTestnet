@@ -63,14 +63,14 @@ export class SceneObject {
   tileHeight: number = 1;
 
   /**
-   * the side face to
-   */
-  direction: Direction;
-
-  /**
    * capable of being moved
    */
   movable: boolean = false;
+
+  /**
+   * the root object to the display
+   */
+  root: Phaser.GameObjects.Container;
 
   /**
    * @param entity the scene object's entity
@@ -90,8 +90,19 @@ export class SceneObject {
     this.tileX = position.x;
     this.tileY = position.y;
 
-    this.direction =
-      getComponentValue(components.RoleDirection, entity)?.value ??
-      Direction.DOWN;
+    this.root = this.scene.add
+      .container(
+        (this.tileX + 0.5) * this.tileSize,
+        (this.tileY + 0.5) * this.tileSize
+      )
+      .setDepth(2);
+  }
+
+  follow() {
+    this.scene.cameras.main.startFollow(this.root, true);
+  }
+
+  unfollow() {
+    this.scene.cameras.main.startFollow(this.root, false);
   }
 }
