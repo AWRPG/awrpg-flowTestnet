@@ -29,7 +29,7 @@ import {
   buildingMapping,
   terrainMapping,
 } from "../../constants";
-import { Role } from "../objects/Role";
+import { Host } from "../objects/Host";
 import { POOL } from "../../contract/constants";
 import { Hex } from "viem";
 import { selectFirstHost, selectNextHost } from "../../logics/entity";
@@ -40,14 +40,21 @@ export class GameScene extends Phaser.Scene {
   systemCalls: SetupResult["systemCalls"];
 
   tileSize = 32;
-  minZoomLevel = 1 / 2 ** 2;
-  maxZoomLevel = 2;
+  minZoomLevel = 1 / 2;
+  maxZoomLevel = 4;
 
   tilesLayer0: Record<Entity, Phaser.GameObjects.Sprite> = {};
   tiles: Record<Entity, Phaser.GameObjects.Sprite> = {};
   buildings: Record<Entity, Phaser.GameObjects.Sprite> = {};
 
-  hosts: Record<Entity, Role> = {};
+  hosts: Record<Entity, Host> = {};
+
+  hostTextures: {
+    key: string;
+    url: string;
+    frameWidth?: number;
+    frameHeight?: number;
+  }[] = [];
 
   tapDuration = 60;
   keyDownTime: number | null = null;
@@ -63,6 +70,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    // tiles texture
     // this.load.image("bush", "src/assets/tiles/Bush.png");
     // this.load.image("grass", "src/assets/tiles/Grass.png");
     this.load.image("plain", "src/assets/tiles/Grass.png");
@@ -76,11 +84,34 @@ export class GameScene extends Phaser.Scene {
     // this.load.image("node", "src/assets/tiles/Node.png");
     // this.load.image("foundry", "src/assets/tiles/Foundry.png");
     // this.load.image("safe", "src/assets/tiles/Safe.png");
+
+    // player texture    
     this.load.atlas(
       "host1",
       "src/assets/hosts/sprites/host1.png",
       "src/assets/hosts/sprites/host1.json"
     );
+    this.hostTextures = [
+      { key: "host-farmer1", url: "src/assets/hosts/sprites/farmer_1_1.png" },
+      { key: "host-farmer2", url: "src/assets/hosts/sprites/farmer_1_2.png" },
+      { key: "host-farmer3", url: "src/assets/hosts/sprites/farmer_1_3.png" },
+      { key: "host-farmer4", url: "src/assets/hosts/sprites/farmer_1_4.png" },
+      { key: "host-farmer5", url: "src/assets/hosts/sprites/farmer_1_5.png" },
+    ];
+    for (let i = 0; i < this.hostTextures.length; i++) {
+      this.load.spritesheet(
+        this.hostTextures[i].key,
+        this.hostTextures[i].url,
+        {
+          frameWidth: this.hostTextures[i]?.frameWidth ?? 64,
+          frameHeight: this.hostTextures[i]?.frameHeight ?? 64,
+        }
+      );
+    }
+    this.load.spritesheet("farmer", "src/assets/hosts/sprites/farmer_1_1.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
   }
 
   create() {
@@ -126,14 +157,12 @@ export class GameScene extends Phaser.Scene {
         return delete this.hosts[entity];
       }
       this.hosts[entity]?.destroy();
-      this.hosts[entity] = new Role(this, this.components, this.tileSize, {
+      this.hosts[entity] = new Host(this, this.components, {
         entity,
         isPlayer:
           getComponentValue(Commander, entity)?.value ===
           this.network.playerEntity,
         onClick: () => this.sourceSelectHandler(entity),
-        onPointerOver: () => {},
-        onPointerOut: () => {},
       });
     });
 
@@ -258,11 +287,13 @@ export class GameScene extends Phaser.Scene {
         };
       }
       const deltaZoom = 1 + 0.05 * (pointer.deltaY < 0 ? 1 : -1);
-      const newZoom = Phaser.Math.Clamp(
-        camera.zoom * deltaZoom,
-        this.minZoomLevel,
-        this.maxZoomLevel
-      );
+      console.log(camera.zoom, deltaZoom);
+      const newZoom = this.maxZoomLevel;
+      // const newZoom = Phaser.Math.Clamp(
+      //   camera.zoom * deltaZoom,
+      //   this.minZoomLevel,
+      //   this.maxZoomLevel
+      // );
       const deltaScrollX =
         (lastPointerPosition.worldX - camera.scrollX) * (camera.zoom / newZoom);
       const deltaScrollY =
@@ -329,6 +360,27 @@ export class GameScene extends Phaser.Scene {
   update() {}
 
   createAnimations() {
+    for (let i = 0; i < this.hostTextures.length; i++) {
+      this.anims.create({
+        key: this.hostTextures[i].key + "-idle-right",
+        frames: this.anims.generateFrameNumbers(this.hostTextures[i].key, {
+          start: 0,
+          end: 5,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
+      this.anims.create({
+        key: this.hostTextures[i].key + "-walk-right",
+        frames: this.anims.generateFrameNumbers(this.hostTextures[i].key, {
+          start: 6,
+          end: 11,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
+    }
+
     this.anims.create({
       key: "host1-walk-down",
       frames: this.anims.generateFrameNames("host1", {
