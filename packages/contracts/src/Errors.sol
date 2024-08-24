@@ -13,7 +13,10 @@ contract Errors is System {
   error NotAdjacent();
 
   // move error
-  error CannotMoveToTerrain(bytes16 terrainType);
+  error NotOnGround();
+  error NotArrived();
+  error CannotMoveAcrossBuilding();
+  error CannotMoveToTerrain();
   error CannotMoveOnEntity(bytes32 coordId);
   error ExceedMaxMoves();
   error NotIncrementalMoves();

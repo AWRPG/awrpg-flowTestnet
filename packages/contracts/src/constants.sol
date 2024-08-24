@@ -55,6 +55,12 @@ bytes16 constant BLOOD = bytes16("BLOOD");
 bytes16 constant SOUL = bytes16("SOUL");
 bytes16 constant STAMINA = bytes16("STAMINA");
 
+// terrain
+bytes16 constant OCEAN = bytes16("OCEAN");
+bytes16 constant FOREST = bytes16("FOREST");
+bytes16 constant PLAIN = bytes16("PLAIN");
+bytes16 constant MOUNTAIN = bytes16("MOUNTAIN");
+
 function space() view returns (bytes32) {
   return TypeCast.toBytes32(StoreSwitch.getStoreAddress());
 }

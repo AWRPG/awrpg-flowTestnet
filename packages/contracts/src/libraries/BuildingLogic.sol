@@ -63,4 +63,10 @@ library BuildingLogic {
   function _produceERC20(bytes32 role, bytes32 building, bytes16 erc20Type, uint128 amount) internal {}
 
   function _produceERC721(bytes32 role, bytes32 building, bytes16 erc721Type) internal {}
+
+  // ------- check if the building can moved to/across -------
+  function canMoveTo(bytes32 building) internal view returns (bool) {
+    bytes16 buildingType = EntityType.get(building);
+    return BuildingSpecs.getCanMove(buildingType);
+  }
 }
