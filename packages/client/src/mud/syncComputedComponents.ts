@@ -12,7 +12,7 @@ import { SetupResult } from "./setup";
 import { combine, movesToPositions, split } from "../logics/move";
 import { ClientComponents } from "./createClientComponents";
 import { SOURCE, TerrainType } from "../constants";
-import { getTerrain, noiseToTerrain } from "../logics/map";
+import { getTerrainType } from "../logics/terrain";
 import { selectFirstHost } from "../logics/entity";
 
 // note: there is an optimzation issue here. When TerrainValue gets updated,
@@ -23,7 +23,7 @@ export function syncComputedComponents({
   systemCalls,
   network,
 }: SetupResult) {
-  const { TerrainValue, SelectedHost, Position } = components;
+  const { TerrainValue, SelectedHost, Path } = components;
 
   // const space = pad(network.worldContract.address) as Hex;
 
@@ -37,12 +37,13 @@ export function syncComputedComponents({
 
   const initX = 2 ** 16; // 32 * 10;
   const initY = 2 ** 16; // 32 * 10;
-  const position = getComponentValue(Position, role) ?? { x: initX, y: initY };
+  const path = getComponentValue(Path, role);
   // const moves = getComponentValue(components.Moves, role)?.value ?? [];
   // const positions = movesToPositions(moves, position);
   // const from = positions[positions.length - 1];
-  const x = position.x; //?? width;
-  const y = position.y; // ?? height;
+  const x = (path?.toTileX as number) ?? initX; //?? width;
+  const y = (path?.ToTileY as number) ?? initY; // ?? height;
+  console.log("syncComputedComponents", x, y);
 
   const currCoordIds: Entity[] = [];
   for (let i = Math.max(0, x - width); i < x + width; i++) {
@@ -59,7 +60,8 @@ export function syncComputedComponents({
   currCoordIds.forEach((curr) => {
     if (!getComponentValue(TerrainValue, curr)?.value) {
       const { x, y } = split(BigInt(curr));
-      const terrainValue = getTerrain(components, systemCalls, { x, y });
+      const terrainValue = getTerrainType(components, systemCalls, { x, y });
+      localStorage.setItem(curr, JSON.stringify({ terrainValue }));
       setComponent(TerrainValue, curr, {
         value: terrainValue as number,
       });
