@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Owner, Commander, Position, EntityCoord, EntityType } from "@/codegen/index.sol";
+import { Owner, Commander, Position, TileEntity, EntityType } from "@/codegen/index.sol";
 import { ContainerLogic } from "@/libraries/ContainerLogic.sol";
 import { MapLogic } from "@/libraries/MapLogic.sol";
 import { Errors } from "@/Errors.sol";
@@ -10,7 +10,7 @@ import "@/hashes.sol";
 
 // TODO: change name to RoleLogic?
 library HeroLogic {
-  function _spawn(bytes32 player) internal {
+  function _spawn(bytes32 player) internal returns (uint32, uint32) {
     bytes32 hero = ContainerLogic._mint(HOST, space());
     Commander.set(hero, player);
 
@@ -33,8 +33,8 @@ library HeroLogic {
     ContainerLogic._mint(STAMINA, staminaPool, 1000);
 
     (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 2 ** 16 - 32, 2 ** 16 - 32, 2 ** 16, 2 ** 16);
-    Position.set(hero, x, y);
-    EntityCoord.set(MapLogic.getCoordId(x, y), hero);
+    MapLogic._initGroundPath(hero, x, y);
+    return (x, y);
   }
 
   function _delete(bytes32 hero) internal {
