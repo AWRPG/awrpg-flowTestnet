@@ -13,7 +13,10 @@ interface IErrors {
   error NotApproved();
   error NotController();
   error NotAdjacent();
-  error CannotMoveToTerrain(bytes16 terrainType);
+  error NotOnGround();
+  error NotArrived();
+  error CannotMoveAcrossBuilding();
+  error CannotMoveToTerrain();
   error CannotMoveOnEntity(bytes32 coordId);
   error ExceedMaxMoves();
   error NotIncrementalMoves();
