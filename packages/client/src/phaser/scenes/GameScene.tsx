@@ -85,7 +85,7 @@ export class GameScene extends Phaser.Scene {
     // this.load.image("foundry", "src/assets/tiles/Foundry.png");
     // this.load.image("safe", "src/assets/tiles/Safe.png");
 
-    // player texture    
+    // player texture
     this.load.atlas(
       "host1",
       "src/assets/hosts/sprites/host1.png",
@@ -142,7 +142,7 @@ export class GameScene extends Phaser.Scene {
       }
       const value = getComponentValue(TerrainValue, entity)!.value;
       this.loadTile(x, y, value);
-      // console.log("terrain", x, y, value);
+      console.log("terrain", x, y, value);
     });
 
     // defineSystem(world, [Has(RemovedCoord)], ({ entity }) => {
@@ -166,14 +166,14 @@ export class GameScene extends Phaser.Scene {
       });
     });
 
-    // render buildings
-    defineSystem(world, [Has(Position), Not(Commander)], ({ entity, type }) => {
-      if (type === UpdateType.Exit) {
-        return this.unloadBuilding(entity);
-      }
-      this.buildings[entity]?.destroy();
-      this.loadBuilding(entity);
-    });
+    // // render buildings
+    // defineSystem(world, [Has(Position), Not(Commander)], ({ entity, type }) => {
+    //   if (type === UpdateType.Exit) {
+    //     return this.unloadBuilding(entity);
+    //   }
+    //   this.buildings[entity]?.destroy();
+    //   this.loadBuilding(entity);
+    // });
 
     defineSystem(
       world,

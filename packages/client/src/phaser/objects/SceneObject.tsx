@@ -83,12 +83,13 @@ export class SceneObject {
     this.scene = scene;
     this.tileSize = scene.tileSize;
 
-    const position = getComponentValue(components.Position, entity) ?? {
+    // TDOO: different obj has different position calc
+    const path = getComponentValue(components.Path, entity) ?? {
       x: 0,
       y: 0,
     };
-    this.tileX = position.x;
-    this.tileY = position.y;
+    this.tileX = path.toTileX;
+    this.tileY = path.toTileY;
 
     this.root = this.scene.add
       .container(
