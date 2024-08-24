@@ -28,8 +28,56 @@ export function getPositionFromPath(
 ) {
   const { Path } = components;
   const path = getComponentValue(Path, role);
-  return { x: toTileX, y: toTileY };
+  if (!path) return;
+  return { x: path.toTileX, y: path.toTileY };
 }
+
+export const calculateMoves = (components: ClientComponents, role: Entity) => {
+  const { TargetCoord, Path } = components;
+  const targetCoordId = getComponentValue(TargetCoord, role)?.value;
+  if (!targetCoordId) return;
+  const targetCoord = splitFromEntity(targetCoordId);
+  const sourceCoord = getPositionFromPath(components, role);
+  if (!sourceCoord) return;
+  // const ableCoords =
+};
+
+// set new target coord from direction
+export const setNewTargetCoord = (
+  components: ClientComponents,
+  role: Entity,
+  direction: Direction
+) => {
+  const coord = getNewTargetCoord(components, role, direction);
+  if (!coord) return;
+  setComponent(components.TargetCoord, role, {
+    value: combineToEntity(coord.x, coord.y),
+  });
+};
+
+// get new target coord from direction
+export const getNewTargetCoord = (
+  components: ClientComponents,
+  role: Entity,
+  direction: Direction
+) => {
+  const position = getPositionFromPath(components, role);
+  if (!position) return;
+  const targetCoordId = getComponentValue(components.TargetCoord, role)?.value;
+  if (!targetCoordId) return position;
+  const coord = splitFromEntity(targetCoordId);
+  // TODO: check if on map
+  switch (direction) {
+    case Direction.UP:
+      return { x: coord.x, y: coord.y - 1 };
+    case Direction.DOWN:
+      return { x: coord.x, y: coord.y + 1 };
+    case Direction.LEFT:
+      return { x: coord.x - 1, y: coord.y };
+    case Direction.RIGHT:
+      return { x: coord.x + 1, y: coord.y };
+  }
+};
 
 export function hasPendingMoves(components: ClientComponents, role: Entity) {
   // check if unresolved moves

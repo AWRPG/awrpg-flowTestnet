@@ -30,6 +30,10 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     // PoolOf: defineComponent(world, {
     //   value: Type.Entity,
     // }),
+    // entityId -> tileCoord
+    TargetCoord: defineComponent(world, {
+      value: Type.Entity,
+    }),
     // SOURCE ->
     Moves: defineComponent(world, {
       value: Type.NumberArray,
