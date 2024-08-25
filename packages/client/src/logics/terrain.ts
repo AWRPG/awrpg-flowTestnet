@@ -73,12 +73,47 @@ export const getTerrainFromTable = (
 };
 
 // ----------------- localStorage & clientComponent -----------------
-export const getGridTerrainValues = (
+// i, j are tile's position in 8x8 grid
+export type TileTerrain = { i: number; j: number; terrainType: number };
+// x, y are tile's position in the whole map
+export type TileTerrainMap = { x: number; y: number; terrainType: number };
+
+// decode terrainValues to terrain maps for 1 grid
+export const getGridTerrains = (
+  components: ClientComponents,
+  gridId: Entity
+): TileTerrainMap[] => {
+  const { x, y } = splitFromEntity(gridId);
+  const terrainValues = getComponentValue(
+    components.TerrainValues,
+    gridId
+  )?.value;
+  const terrainTypes = decodeGridTerrainValues(terrainValues ?? 0n);
+  return terrainTypes.map(({ i, j, terrainType }) => {
+    return { x: x * GRID_SIZE + i, y: y * GRID_SIZE + j, terrainType };
+  });
+};
+
+// decode terrainValues to terrain maps for 1 grid
+export const decodeGridTerrainValues = (terrainValues: bigint) => {
+  const terrainTypes: TileTerrain[] = [];
+  for (let i = 0; i < GRID_SIZE; i++) {
+    for (let j = 0; j < GRID_SIZE; j++) {
+      const shift = i + j * GRID_SIZE;
+      const terrainType = Number((terrainValues >> BigInt(shift * 4)) & 15n);
+      terrainTypes.push({ i, j, terrainType });
+    }
+  }
+  return terrainTypes;
+};
+
+// compile uint256 terrain type values for 1 grid; so that it can be stored in TerrainValues; also used to set in contract
+export const compileGridTerrainValues = (
   components: ClientComponents,
   systemCalls: SystemCalls,
   gridId: Entity
 ): bigint => {
-  const terrainTypes = getGridTerrainTypes(components, systemCalls, gridId);
+  const terrainTypes = compileGridTerrainTypes(components, systemCalls, gridId);
   let terrainValues: bigint = 0n;
   terrainTypes.forEach(({ i, j, terrainType }) => {
     const shift = i + j * GRID_SIZE;
@@ -87,14 +122,15 @@ export const getGridTerrainValues = (
   return terrainValues;
 };
 
-export const getGridTerrainTypes = (
+// compile 8x8 terrain types for 1 grid from perlin & Terrain table
+export const compileGridTerrainTypes = (
   components: ClientComponents,
   systemCalls: SystemCalls,
   gridId: Entity
 ) => {
   const terrainValues = getComponentValue(components.Terrain, gridId)?.value;
   const gridCoord = splitFromEntity(gridId);
-  const tileTerrains: { i: number; j: number; terrainType: number }[] = [];
+  const tileTerrains: TileTerrain[] = [];
   for (let i = 0; i < GRID_SIZE; i++) {
     for (let j = 0; j < GRID_SIZE; j++) {
       const shift = i + j * GRID_SIZE;

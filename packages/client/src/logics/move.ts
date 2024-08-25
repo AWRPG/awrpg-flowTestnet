@@ -4,14 +4,20 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { Vector } from "matter";
+import { Vector, getRectangleCoords } from "../utils/vector";
 import { SOURCE } from "../constants";
 import { ClientComponents } from "../mud/createClientComponents";
 import { canMoveTo, getEntityOnCoord } from "./map";
-import { getTerrainFromTerrainValue } from "./terrain";
+import {
+  getGridTerrains,
+  getTerrainFromTerrainValue,
+  GRID_SIZE,
+  TileTerrainMap,
+} from "./terrain";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { MAX_MOVES } from "../contract/constants";
 import { getReadyPosition } from "./path";
+import { dijkstraPathfinding } from "../utils/pathFinding";
 
 export enum Direction {
   NONE = 0,
@@ -32,14 +38,36 @@ export function getPositionFromPath(
   return { x: path.toTileX, y: path.toTileY };
 }
 
-export const calculateMoves = (components: ClientComponents, role: Entity) => {
+export const calculatePathCoords = (
+  components: ClientComponents,
+  role: Entity
+) => {
   const { TargetTile, Path } = components;
   const targetCoordId = getComponentValue(TargetTile, role)?.value;
   if (!targetCoordId) return;
   const targetCoord = splitFromEntity(targetCoordId);
   const sourceCoord = getPositionFromPath(components, role);
   if (!sourceCoord) return;
-  // const ableCoords =
+  // available coords need to go through several grids' terrainValues
+  const targetGridCoord = {
+    x: Math.floor(targetCoord.x / GRID_SIZE),
+    y: Math.floor(targetCoord.y / GRID_SIZE),
+  };
+  const sourceGridCoord = {
+    x: Math.floor(sourceCoord.x / GRID_SIZE),
+    y: Math.floor(sourceCoord.y / GRID_SIZE),
+  };
+  // calculate gridCoords as any coords between source and target
+  const gridCoords = getRectangleCoords(sourceGridCoord, targetGridCoord);
+  let terrains: TileTerrainMap[] = [];
+  gridCoords.forEach((coord) => {
+    const gridId = combineToEntity(coord.x, coord.y);
+    terrains = terrains.concat(getGridTerrains(components, gridId));
+  });
+  const pathCoords = dijkstraPathfinding(sourceCoord, targetCoord, terrains);
+  console.log("pathCoords", pathCoords);
+
+  return pathCoords;
 };
 
 // set new target coord from direction
@@ -141,7 +169,7 @@ export const updateMoves = (
   if (!source) return;
   const moves = getComponentValue(Moves, source)?.value ?? [];
   let newMoves = [...moves];
-  console.log("updateMoves", direction, moves);
+  // console.log("updateMoves", direction, moves);
   if (moves.length === 0) {
     newMoves = [direction as number];
   } else {
@@ -158,7 +186,7 @@ export const updateMoves = (
     source,
     newMoves
   );
-  console.log("validMoves", newMoves, validMoves);
+  // console.log("validMoves", newMoves, validMoves);
   if (!validMoves || validMoves.length === 0)
     return removeComponent(Moves, source);
   setComponent(Moves, source, { value: validMoves });
@@ -187,7 +215,7 @@ export function validMovesForHost(
   moves: Direction[]
 ) {
   const position = getReadyPosition(components, host);
-  console.log("position", position);
+  // console.log("position", position);
 
   if (!position) return;
   return validMovesFrom(components, systemCalls, host, position, moves);

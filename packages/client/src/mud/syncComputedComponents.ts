@@ -18,7 +18,7 @@ import {
 import { ClientComponents } from "./createClientComponents";
 import { SOURCE, TerrainType } from "../constants";
 import {
-  getGridTerrainValues,
+  compileGridTerrainValues,
   getTerrainType,
   GRID_SIZE,
 } from "../logics/terrain";
@@ -72,10 +72,13 @@ export function syncComputedComponents({
   prevGridIds.forEach((prev) => {
     if (!currGridIds.includes(prev)) removeComponent(TerrainValues, prev);
   });
-
   currGridIds.forEach((curr) => {
     if (!getComponentValue(TerrainValues, curr)?.value) {
-      const terrainValues = getGridTerrainValues(components, systemCalls, curr);
+      const terrainValues = compileGridTerrainValues(
+        components,
+        systemCalls,
+        curr
+      );
       setComponent(TerrainValues, curr, { value: terrainValues });
       // const terrainValue = getTerrainType(components, systemCalls, { x, y });
       // localStorage.setItem(curr, JSON.stringify({ terrainValue }));

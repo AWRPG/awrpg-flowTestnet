@@ -9,7 +9,7 @@ export const getReadyPosition = (
   host: Entity
 ) => {
   const path = getComponentValue(components.Path, host);
-  console.log("getReadyPosition", path);
+  // console.log("getReadyPosition", path);
   if (!path) return;
   if (path.lastUpdated + path.duration > unixTimeSecond()) return;
   // if (path!.lastUpdated ?? 0 > unixTimeSecond()) return;

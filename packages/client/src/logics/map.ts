@@ -30,7 +30,7 @@ export const canMoveTo = (
 
   const hasEntity = hasEntityOnCoord(components, position);
   // console.log("hasEntity", coordId, hasEntity);
-  console.log("canMoveTo", position, terrainType, terrainCanMove, hasEntity);
+  // console.log("canMoveTo", position, terrainType, terrainCanMove, hasEntity);
   return terrainCanMove && !hasEntity;
 };
 
