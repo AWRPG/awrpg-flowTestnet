@@ -33,8 +33,8 @@ export function getPositionFromPath(
 }
 
 export const calculateMoves = (components: ClientComponents, role: Entity) => {
-  const { TargetCoord, Path } = components;
-  const targetCoordId = getComponentValue(TargetCoord, role)?.value;
+  const { TargetTile, Path } = components;
+  const targetCoordId = getComponentValue(TargetTile, role)?.value;
   if (!targetCoordId) return;
   const targetCoord = splitFromEntity(targetCoordId);
   const sourceCoord = getPositionFromPath(components, role);
@@ -43,29 +43,29 @@ export const calculateMoves = (components: ClientComponents, role: Entity) => {
 };
 
 // set new target coord from direction
-export const setNewTargetCoord = (
+export const setNewTargetTile = (
   components: ClientComponents,
   role: Entity,
   direction: Direction
 ) => {
-  const coord = getNewTargetCoord(components, role, direction);
+  const coord = getNewTargetTile(components, role, direction);
   if (!coord) return;
-  setComponent(components.TargetCoord, role, {
+  setComponent(components.TargetTile, role, {
     value: combineToEntity(coord.x, coord.y),
   });
 };
 
 // get new target coord from direction
-export const getNewTargetCoord = (
+export const getNewTargetTile = (
   components: ClientComponents,
   role: Entity,
   direction: Direction
 ) => {
   const position = getPositionFromPath(components, role);
   if (!position) return;
-  const targetCoordId = getComponentValue(components.TargetCoord, role)?.value;
-  if (!targetCoordId) return position;
-  const coord = splitFromEntity(targetCoordId);
+  const tileId = getComponentValue(components.TargetTile, role)?.value;
+  if (!tileId) return position;
+  const coord = splitFromEntity(tileId);
   // TODO: check if on map
   switch (direction) {
     case Direction.UP:

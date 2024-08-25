@@ -16,6 +16,7 @@ import {
   Direction,
   combine,
   movesToPositions,
+  setNewTargetTile,
   split,
   splitFromEntity,
   updateMoves,
@@ -35,6 +36,7 @@ import { POOL } from "../../contract/constants";
 import { Hex } from "viem";
 import { selectFirstHost, selectNextHost } from "../../logics/entity";
 import { GRID_SIZE } from "../../logics/terrain";
+import { Tile } from "../objects/Tile";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -46,7 +48,9 @@ export class GameScene extends Phaser.Scene {
   maxZoomLevel = 4;
 
   tilesLayer0: Record<Entity, Phaser.GameObjects.Sprite> = {};
-  tiles: Record<Entity, Phaser.GameObjects.Sprite> = {};
+  tiles: Record<Entity, Tile> = {};
+  // source entityId -> tileCoordId
+  selectedTiles: Record<Entity, Entity> = {};
   buildings: Record<Entity, Phaser.GameObjects.Sprite> = {};
 
   hosts: Record<Entity, Host> = {};
@@ -120,7 +124,7 @@ export class GameScene extends Phaser.Scene {
     const {
       TerrainValue,
       TerrainValues,
-      RemovedCoord,
+      TargetTile,
       Path,
       Position,
       EntityType,
@@ -145,6 +149,19 @@ export class GameScene extends Phaser.Scene {
       const value = getComponentValue(TerrainValues, entity)!.value;
       this.loadGrid(entity, value);
     });
+
+    defineSystem(world, [Has(TargetTile)], ({ entity, type }) => {
+      const prevTileId = this.selectedTiles[entity];
+      this.tiles[prevTileId]?.unselect();
+      if (type === UpdateType.Exit) {
+        return delete this.selectedTiles[entity];
+      }
+      const currTileId = getComponentValue(TargetTile, entity)?.value;
+      if (!currTileId) return;
+      this.selectedTiles[entity] = currTileId;
+      this.tiles[currTileId]?.select();
+    });
+
     // defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {
     //   const { x, y } = split(BigInt(entity));
     //   if (type === UpdateType.Exit) {
@@ -252,21 +269,25 @@ export class GameScene extends Phaser.Scene {
       const menu = getComponentValue(SelectedEntity, MENU)?.value;
       if (event.key === "w") {
         if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.UP);
         setComponent(RoleDirection, source, { value: Direction.UP });
         if (!isTap)
           updateMoves(this.components, this.systemCalls, Direction.UP);
       } else if (event.key === "s") {
         if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.DOWN);
         setComponent(RoleDirection, source, { value: Direction.DOWN });
         if (!isTap)
           updateMoves(this.components, this.systemCalls, Direction.DOWN);
       } else if (event.key === "a") {
         if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.LEFT);
         setComponent(RoleDirection, source, { value: Direction.LEFT });
         if (!isTap)
           updateMoves(this.components, this.systemCalls, Direction.LEFT);
       } else if (event.key === "d") {
         if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.RIGHT);
         setComponent(RoleDirection, source, { value: Direction.RIGHT });
         if (!isTap)
           updateMoves(this.components, this.systemCalls, Direction.RIGHT);
@@ -367,14 +388,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   loadTile(x: number, y: number, terrain: number) {
-    const tileX = x * this.tileSize + this.tileSize / 2;
-    const tileY = y * this.tileSize + this.tileSize / 2;
     const entity = combine(x, y) as Entity;
     this.tiles[entity]?.destroy();
-    this.tiles[entity] = this.add
-      .sprite(tileX, tileY, terrainMapping[terrain])
-      .setInteractive()
-      .on("pointerdown", () => console.log("tile", x, y, terrain));
+    this.tiles[entity] = new Tile(this, this.components, {
+      entity,
+      terrain,
+      onClick: () => this.sourceSelectHandler(entity),
+    });
     // handle 0 layer
     // if (terrain === TerrainType.Rock) {
     //   this.tilesLayer0[entity]?.destroy();
@@ -391,8 +411,8 @@ export class GameScene extends Phaser.Scene {
     const entity = combine(x, y) as Entity;
     this.tiles[entity]?.destroy();
     delete this.tiles[entity];
-    this.tilesLayer0[entity]?.destroy();
-    delete this.tilesLayer0[entity];
+    // this.tilesLayer0[entity]?.destroy();
+    // delete this.tilesLayer0[entity];
   }
 
   update() {}
