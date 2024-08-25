@@ -14,6 +14,7 @@ import { SetupResult } from "../../mud/setup";
 import Phaser from "phaser";
 import {
   Direction,
+  calculatePathCoords,
   combine,
   movesToPositions,
   setNewTargetTile,
@@ -160,6 +161,7 @@ export class GameScene extends Phaser.Scene {
       if (!currTileId) return;
       this.selectedTiles[entity] = currTileId;
       this.tiles[currTileId]?.select();
+      const pathCoords = calculatePathCoords(this.components, entity);
     });
 
     // defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {
