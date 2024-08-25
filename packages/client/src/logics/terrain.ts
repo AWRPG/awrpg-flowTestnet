@@ -73,12 +73,13 @@ export const getTerrainFromTable = (
 };
 
 // ----------------- localStorage & clientComponent -----------------
-export const getGridTerrainValues = (
+// calc uint256 terrain type values for 1 grid; so that it can be stored in TerrainValues; also used to set in contract
+export const compileGridTerrainValues = (
   components: ClientComponents,
   systemCalls: SystemCalls,
   gridId: Entity
 ): bigint => {
-  const terrainTypes = getGridTerrainTypes(components, systemCalls, gridId);
+  const terrainTypes = compileGridTerrainTypes(components, systemCalls, gridId);
   let terrainValues: bigint = 0n;
   terrainTypes.forEach(({ i, j, terrainType }) => {
     const shift = i + j * GRID_SIZE;
@@ -87,7 +88,8 @@ export const getGridTerrainValues = (
   return terrainValues;
 };
 
-export const getGridTerrainTypes = (
+// calc 8x8 terrain types for 1 grid from perlin & Terrain table
+export const compileGridTerrainTypes = (
   components: ClientComponents,
   systemCalls: SystemCalls,
   gridId: Entity
