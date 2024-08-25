@@ -18,6 +18,7 @@ import {
   combine,
   movesToPositions,
   setNewTargetTile,
+  getNewTargetTile,
   split,
   splitFromEntity,
   updateMoves,
@@ -28,16 +29,19 @@ import {
   MAIN_MENU,
   MENU,
   SOURCE,
+  OBSERVER,
   TerrainType,
   buildingMapping,
   terrainMapping,
 } from "../../constants";
 import { Host } from "../objects/Host";
 import { POOL } from "../../contract/constants";
-import { Hex } from "viem";
+import { Hex, toHex } from "viem";
 import { selectFirstHost, selectNextHost } from "../../logics/entity";
 import { GRID_SIZE } from "../../logics/terrain";
 import { Tile } from "../objects/Tile";
+import { castToBytes32 } from "../../utils/encode";
+import { TileHighlight } from "../objects/TileHighlight";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -52,6 +56,7 @@ export class GameScene extends Phaser.Scene {
   tiles: Record<Entity, Tile> = {};
   // source entityId -> tileCoordId
   selectedTiles: Record<Entity, Entity> = {};
+  tileHighlights: Record<Entity, TileHighlight> = {};
   buildings: Record<Entity, Phaser.GameObjects.Sprite> = {};
 
   hosts: Record<Entity, Host> = {};
@@ -65,6 +70,8 @@ export class GameScene extends Phaser.Scene {
 
   tapDuration = 60;
   keyDownTime: number | null = null;
+
+  keyboardFocus: string = "Scene"; // [TODO]
 
   constructor(
     setupResult: SetupResult,
@@ -222,22 +229,79 @@ export class GameScene extends Phaser.Scene {
       }
       const source = getComponentValue(SelectedHost, SOURCE)?.value;
       const menu = getComponentValue(SelectedEntity, MENU)?.value;
+
+      if (event.key === "Enter") {
+        const target: Entity = source || OBSERVER;
+        const targetCoordId = getComponentValue(TargetTile, target)?.value;
+        if (targetCoordId) {
+          const entityId = getComponentValue(
+            this.components.TileEntity,
+            castToBytes32(BigInt(targetCoordId)) as Entity
+          )?.value;
+          if (entityId === source) {
+            // Focus on the hosts can be controlled by this player
+            this.tileHighlights[target]?.destroy();
+            this.tileHighlights[target] = new TileHighlight(
+              target,
+              this.components,
+              this,
+              {
+                canControl: true,
+              }
+            );
+          }
+        }
+      }
+
       if (event.key === "j") {
         if (menu || !source) return;
         setComponent(SelectedEntity, MENU, { value: EXPLORE_MENU });
       } else if (event.key === "Enter") {
         if (!source) {
-          selectFirstHost(this.components, this.network.playerEntity);
+          // selectFirstHost(this.components, this.network.playerEntity);
         }
-        removeComponent(ConsoleMessage, SOURCE);
-        if (menu) return removeComponent(SelectedEntity, MENU);
-        return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
+        // removeComponent(ConsoleMessage, SOURCE);
+        // if (menu) return removeComponent(SelectedEntity, MENU);
+        // return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       } else if (event.key === "q") {
         selectNextHost(this.components, this.network.playerEntity);
       } else if (event.key === "k") {
         if (menu || !source) return;
         removeComponent(Moves, source);
         return removeComponent(ConsoleMessage, SOURCE);
+      }
+
+      let isTap = false;
+      if (this.keyDownTime) {
+        const duration = Date.now() - this.keyDownTime;
+        if (duration < this.tapDuration) {
+          isTap = true;
+        }
+        this.keyDownTime = null;
+      }
+
+      if (event.key === "w") {
+        if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.UP);
+        // if (!isTap)
+        // updateMoves(this.components, this.systemCalls, Direction.UP);
+      } else if (event.key === "s") {
+        if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.DOWN);
+        // if (!isTap)
+        // updateMoves(this.components, this.systemCalls, Direction.DOWN);
+      } else if (event.key === "a") {
+        if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.LEFT);
+        // setComponent(RoleDirection, source, { value: Direction.LEFT });
+        // if (!isTap)
+        // updateMoves(this.components, this.systemCalls, Direction.LEFT);
+      } else if (event.key === "d") {
+        if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.RIGHT);
+        // setComponent(RoleDirection, source, { value: Direction.RIGHT });
+        // if (!isTap)
+        // updateMoves(this.components, this.systemCalls, Direction.RIGHT);
       }
     });
 
@@ -248,45 +312,6 @@ export class GameScene extends Phaser.Scene {
         return this.hosts[role]?.unfollow();
       }
       return this.hosts[role]?.follow();
-    });
-
-    this.input.keyboard?.on("keyup", (event: KeyboardEvent) => {
-      let isTap = false;
-      if (this.keyDownTime) {
-        const duration = Date.now() - this.keyDownTime;
-        if (duration < this.tapDuration) {
-          isTap = true;
-        }
-        this.keyDownTime = null;
-      }
-      const source = getComponentValue(SelectedHost, SOURCE)?.value;
-      // TODO: find better way to make exception?
-      const menu = getComponentValue(SelectedEntity, MENU)?.value;
-      if (event.key === "w") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.UP);
-        setComponent(RoleDirection, source, { value: Direction.UP });
-        if (!isTap)
-          updateMoves(this.components, this.systemCalls, Direction.UP);
-      } else if (event.key === "s") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.DOWN);
-        setComponent(RoleDirection, source, { value: Direction.DOWN });
-        if (!isTap)
-          updateMoves(this.components, this.systemCalls, Direction.DOWN);
-      } else if (event.key === "a") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.LEFT);
-        setComponent(RoleDirection, source, { value: Direction.LEFT });
-        if (!isTap)
-          updateMoves(this.components, this.systemCalls, Direction.LEFT);
-      } else if (event.key === "d") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.RIGHT);
-        setComponent(RoleDirection, source, { value: Direction.RIGHT });
-        if (!isTap)
-          updateMoves(this.components, this.systemCalls, Direction.RIGHT);
-      }
     });
 
     // panning

@@ -83,8 +83,6 @@ export class Host extends SceneObject {
         (this.tileY + 0.5) * this.tileSize
       )
       .setDepth(3);
-    console.log("Host tileCoord:", this.tileX, this.tileY);
-    console.log("Host pos:", this.root.x, this.root.y);
     // draw avatar & set animation
     this.direction =
       getComponentValue(components.RoleDirection, entity)?.value ??
@@ -120,15 +118,15 @@ export class Host extends SceneObject {
     });
     const to = this.tilesToMove[this.tilesToMove.length - 1];
 
-    this.scene.tweens.add({
-      targets: this.root,
-      x: (to.x + 0.5) * this.tileSize,
-      y: (to.y + 0.5) * this.tileSize,
-      duration: 200,
-      repeat: 0,
-    });
+    // this.scene.tweens.add({
+    //   targets: this.root,
+    //   x: (to.x + 0.5) * this.tileSize,
+    //   y: (to.y + 0.5) * this.tileSize,
+    //   duration: 200,
+    //   repeat: 0,
+    // });
 
-    this.doWalkAnimation();
+    // this.doWalkAnimation();
     // update movesObj
     // this.movesObj?.clear(true, true);
     // this.movesObj = this.scene.add.group();
