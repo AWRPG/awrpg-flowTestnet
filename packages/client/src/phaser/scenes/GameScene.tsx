@@ -78,19 +78,10 @@ export class GameScene extends Phaser.Scene {
 
   preload() {
     // tiles texture
-    // this.load.image("bush", "src/assets/tiles/Bush.png");
-    // this.load.image("grass", "src/assets/tiles/Grass.png");
     this.load.image("plain", "src/assets/tiles/Grass.png");
-    // this.load.image("rock", "src/assets/tiles/Rock.png");
     this.load.image("mountain", "src/assets/tiles/Rock.png");
-    // this.load.image("tree", "src/assets/tiles/Tree.png");
     this.load.image("forest", "src/assets/tiles/Tree.png");
     this.load.image("ocean", "src/assets/tiles/Water.png");
-    // this.load.image("stump", "src/assets/tiles/Stump.png");
-    // this.load.image("fence", "src/assets/tiles/Fence.png");
-    // this.load.image("node", "src/assets/tiles/Node.png");
-    // this.load.image("foundry", "src/assets/tiles/Foundry.png");
-    // this.load.image("safe", "src/assets/tiles/Safe.png");
 
     // player texture
     this.load.atlas(
@@ -115,9 +106,11 @@ export class GameScene extends Phaser.Scene {
         }
       );
     }
-    this.load.spritesheet("farmer", "src/assets/hosts/sprites/farmer_1_1.png", {
-      frameWidth: 64,
-      frameHeight: 64,
+
+    // cursor
+    this.load.spritesheet("ui-cursor", "src/assets/ui/cursor.png", {
+      frameWidth: 32,
+      frameHeight: 32,
     });
   }
 
@@ -389,8 +382,8 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  loadTile(x: number, y: number, terrain: number) {
-    const entity = combine(x, y) as Entity;
+  loadTile(tileX: number, tileY: number, terrain: number) {
+    const entity = combine(tileX, tileY) as Entity;
     this.tiles[entity]?.destroy();
     this.tiles[entity] = new Tile(this, this.components, {
       entity,
@@ -409,8 +402,8 @@ export class GameScene extends Phaser.Scene {
     // }
   }
 
-  unloadTile(x: number, y: number) {
-    const entity = combine(x, y) as Entity;
+  unloadTile(tileX: number, tileY: number) {
+    const entity = combine(tileX, tileY) as Entity;
     this.tiles[entity]?.destroy();
     delete this.tiles[entity];
     // this.tilesLayer0[entity]?.destroy();
@@ -420,6 +413,7 @@ export class GameScene extends Phaser.Scene {
   update() {}
 
   createAnimations() {
+    // host
     for (let i = 0; i < this.hostTextures.length; i++) {
       this.anims.create({
         key: this.hostTextures[i].key + "-idle-right",
@@ -520,6 +514,17 @@ export class GameScene extends Phaser.Scene {
         end: 9,
         suffix: ".png",
       }),
+    });
+
+    // cursor
+    this.anims.create({
+      key: "ui-cursor-active",
+      frames: this.anims.generateFrameNumbers("ui-cursor", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 8,
+      repeat: -1,
     });
   }
 

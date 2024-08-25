@@ -25,6 +25,8 @@ export class Tile extends SceneObject {
   tile: Phaser.GameObjects.Sprite;
   terrain: number = 0;
 
+  cursor: Phaser.GameObjects.Sprite | undefined;
+
   constructor(
     scene: GameScene,
     components: ClientComponents,
@@ -41,20 +43,39 @@ export class Tile extends SceneObject {
     super(entity, components, scene);
     this.terrain = terrain;
     const tileCoord = splitFromEntity(entity);
-    const x = this.tileSize * tileCoord.x + this.tileSize / 2;
-    const y = this.tileSize * tileCoord.y + this.tileSize / 2;
-    this.tile = scene.add
-      .sprite(x, y, terrainMapping[terrain])
+    this.tileX = tileCoord.x;
+    this.tileY = tileCoord.y;
+    this.root
+      .setPosition(
+        (this.tileX + 0.5) * this.tileSize,
+        (this.tileY + 0.5) * this.tileSize
+      )
+      .setDepth(1);
+    this.tile = new Phaser.GameObjects.Sprite(
+      this.scene,
+      0,
+      0,
+      terrainMapping[terrain]
+    )
       .setInteractive()
-      .on("pointerdown", () => console.log("tile", x, y, terrain));
+      .on("pointerdown", () =>
+        console.log("tile", this.root.x, this.root.y, terrain)
+      );
+    this.root.add(this.tile);
   }
 
   select() {
-    this.tile.setTint(0xff0000);
+    this.cursor = new Phaser.GameObjects.Sprite(
+      this.scene,
+      0,
+      0,
+      "ui-cursor"
+    ).play("ui-cursor-active");
+    this.root.add(this.cursor);
   }
 
   unselect() {
-    this.tile.clearTint();
+    this.cursor?.destroy();
   }
 
   destroy() {

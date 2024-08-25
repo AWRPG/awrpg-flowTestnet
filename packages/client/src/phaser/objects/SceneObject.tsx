@@ -35,12 +35,12 @@ export class SceneObject {
   /**
    * position X by tile
    */
-  tileX: number;
+  tileX: number = 0;
 
   /**
    * position Y by tile
    */
-  tileY: number;
+  tileY: number = 0;
 
   /**
    * position x by pixel
@@ -82,21 +82,7 @@ export class SceneObject {
     this.components = components;
     this.scene = scene;
     this.tileSize = scene.tileSize;
-
-    // TDOO: different obj has different position calc
-    const path = getComponentValue(components.Path, entity) ?? {
-      toTileX: 0,
-      toTileY: 0,
-    };
-    this.tileX = path.toTileX;
-    this.tileY = path.toTileY;
-
-    this.root = this.scene.add
-      .container(
-        (this.tileX + 0.5) * this.tileSize,
-        (this.tileY + 0.5) * this.tileSize
-      )
-      .setDepth(2);
+    this.root = this.scene.add.container(0, 0);
   }
 
   follow() {
