@@ -85,8 +85,8 @@ export class SceneObject {
 
     // TDOO: different obj has different position calc
     const path = getComponentValue(components.Path, entity) ?? {
-      x: 0,
-      y: 0,
+      toTileX: 0,
+      toTileY: 0,
     };
     this.tileX = path.toTileX;
     this.tileY = path.toTileY;
