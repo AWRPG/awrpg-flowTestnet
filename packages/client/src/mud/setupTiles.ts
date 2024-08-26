@@ -47,9 +47,13 @@ export function setupTileValues(components: ClientComponents) {
   currTileIds.difference(prevTileIds).forEach((tileId) => {
     const tileCoord = splitFromEntity(tileId);
     const neighbors = getNeighborTerrains(terrains, tileCoord);
+    if (neighbors.includes(TerrainType.NONE)) {
+      // console.log("skip tile", tileId);
+      return;
+    }
     const terrain = terrains[tileId];
     const tileValue = terrainToTileValue(terrain, neighbors, tileId);
     setComponent(TileValue, tileId, { value: tileValue });
   });
-  console.log("setupTileValues", terrains, currTileIds, prevTileIds);
+  // console.log("setupTileValues", terrains, currTileIds, prevTileIds);
 }
