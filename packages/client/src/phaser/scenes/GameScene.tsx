@@ -91,11 +91,6 @@ export class GameScene extends Phaser.Scene {
     this.load.image("ocean", "src/assets/tiles/Water.png");
 
     // player texture
-    this.load.atlas(
-      "host1",
-      "src/assets/hosts/sprites/host1.png",
-      "src/assets/hosts/sprites/host1.json"
-    );
     this.hostTextures = [
       { key: "host-farmer1", url: "src/assets/hosts/sprites/farmer_1_1.png" },
       { key: "host-farmer2", url: "src/assets/hosts/sprites/farmer_1_2.png" },
@@ -116,6 +111,12 @@ export class GameScene extends Phaser.Scene {
 
     // cursor
     this.load.spritesheet("ui-cursor", "src/assets/ui/cursor.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
+    // ui
+    this.load.spritesheet("ui-highlight", "src/assets/ui/highlight.png", {
       frameWidth: 32,
       frameHeight: 32,
     });
@@ -240,15 +241,21 @@ export class GameScene extends Phaser.Scene {
           )?.value;
           if (entityId === source) {
             // Focus on the hosts can be controlled by this player
-            this.tileHighlights[target]?.destroy();
-            this.tileHighlights[target] = new TileHighlight(
-              target,
-              this.components,
-              this,
-              {
-                canControl: true,
-              }
-            );
+
+            if (this.tileHighlights[target]) {
+              this.tileHighlights[target].destroy();
+              delete this.tileHighlights[target];
+            } else {
+              this.tileHighlights[target] = new TileHighlight(
+                target,
+                this.components,
+                this,
+                {
+                  canControl: true,
+                  systemCalls: this.systemCalls,
+                }
+              );
+            }
           }
         }
       }
@@ -256,13 +263,13 @@ export class GameScene extends Phaser.Scene {
       if (event.key === "j") {
         if (menu || !source) return;
         setComponent(SelectedEntity, MENU, { value: EXPLORE_MENU });
-      } else if (event.key === "Enter") {
+      } else if (event.key === "Escape") {
         if (!source) {
-          // selectFirstHost(this.components, this.network.playerEntity);
+          selectFirstHost(this.components, this.network.playerEntity);
         }
-        // removeComponent(ConsoleMessage, SOURCE);
-        // if (menu) return removeComponent(SelectedEntity, MENU);
-        // return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
+        removeComponent(ConsoleMessage, SOURCE);
+        if (menu) return removeComponent(SelectedEntity, MENU);
+        return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       } else if (event.key === "q") {
         selectNextHost(this.components, this.network.playerEntity);
       } else if (event.key === "k") {
@@ -460,87 +467,6 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
-    this.anims.create({
-      key: "host1-walk-down",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 0,
-        end: 2,
-        suffix: ".png",
-      }),
-      frameRate: 8,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: "host1-idle-down",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 0,
-        end: 0,
-        suffix: ".png",
-      }),
-    });
-    this.anims.create({
-      key: "host1-walk-left",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 3,
-        end: 5,
-        suffix: ".png",
-      }),
-      frameRate: 8,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: "host1-idle-left",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 3,
-        end: 3,
-        suffix: ".png",
-      }),
-    });
-    this.anims.create({
-      key: "host1-walk-right",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 6,
-        end: 8,
-        suffix: ".png",
-      }),
-      frameRate: 8,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: "host1-idle-right",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 6,
-        end: 6,
-        suffix: ".png",
-      }),
-    });
-    this.anims.create({
-      key: "host1-walk-up",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 9,
-        end: 11,
-        suffix: ".png",
-      }),
-      frameRate: 8,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: "host1-idle-up",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 9,
-        end: 9,
-        suffix: ".png",
-      }),
-    });
-
     // cursor
     this.anims.create({
       key: "ui-cursor-active",
@@ -550,6 +476,12 @@ export class GameScene extends Phaser.Scene {
       }),
       frameRate: 8,
       repeat: -1,
+    });
+
+    // ui-highlight
+    this.anims.create({
+      key: "ui-highlight-active",
+      frames: [{ key: "ui-highlight", frame: 5 }],
     });
   }
 

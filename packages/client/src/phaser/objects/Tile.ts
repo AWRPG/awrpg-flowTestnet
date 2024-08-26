@@ -65,13 +65,14 @@ export class Tile extends SceneObject {
   }
 
   select() {
-    this.cursor = new Phaser.GameObjects.Sprite(
-      this.scene,
-      0,
-      0,
-      "ui-cursor"
-    ).play("ui-cursor-active");
-    this.root.add(this.cursor);
+    this.cursor = this.scene.add
+      .sprite(
+        (this.tileX + 0.5) * this.tileSize,
+        (this.tileY + 0.5) * this.tileSize,
+        "ui-cursor"
+      )
+      .setDepth(5)
+      .play("ui-cursor-active");
   }
 
   unselect() {

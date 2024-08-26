@@ -1,13 +1,27 @@
+import { Vector, getRectangleCoords } from "../../utils/vector";
 import { SceneObject } from "./SceneObject";
 import { Entity, getComponentValue } from "@latticexyz/recs";
 import { ClientComponents } from "../../mud/createClientComponents";
+import { SystemCalls } from "../../mud/createSystemCalls";
 import { GameScene } from "../scenes/GameScene";
+import {
+  getGridTerrains,
+  GRID_SIZE,
+  TileTerrainMap,
+} from "../../logics/terrain";
+import { combineToEntity } from "../../logics/move";
+import { TerrainType } from "../../constants";
 
 export class TileHighlight extends SceneObject {
   /**
    * objects to show the highlight
    */
   highlights: Phaser.GameObjects.Sprite[] = [];
+
+  /**
+   * the tiles really can interact
+   */
+  legalTiles: boolean[][] = [];
 
   /**
    * the distance of each sides
@@ -30,7 +44,10 @@ export class TileHighlight extends SceneObject {
     entity: Entity,
     components: ClientComponents,
     scene: GameScene,
-    { canControl }: { canControl: boolean }
+    {
+      canControl,
+      systemCalls,
+    }: { canControl: boolean; systemCalls: SystemCalls }
   ) {
     super(entity, components, scene);
     const path = getComponentValue(components.Path, entity) ?? {
@@ -44,6 +61,7 @@ export class TileHighlight extends SceneObject {
         (this.tileX + 0.5) * this.tileSize,
         (this.tileY + 0.5) * this.tileSize
       )
+      .setAlpha(1)
       .setDepth(2);
     // Get the type of highlight
     if (canControl) {
@@ -51,21 +69,64 @@ export class TileHighlight extends SceneObject {
     }
     // Get the distance from entity
     this.distance = 5;
+    // Get the data from grids
+    const leftTopGridCoord = {
+      x: Math.floor((this.tileX - this.distance) / GRID_SIZE),
+      y: Math.floor((this.tileY - this.distance) / GRID_SIZE),
+    };
+    const rightBottomGridCoord = {
+      x: Math.floor((this.tileX + this.distance) / GRID_SIZE),
+      y: Math.floor((this.tileY + this.distance) / GRID_SIZE),
+    };
+    const gridCoords = getRectangleCoords(
+      leftTopGridCoord,
+      rightBottomGridCoord
+    );
+    let terrains: TileTerrainMap[] = [];
+    gridCoords.forEach((coord) => {
+      const gridId = combineToEntity(coord.x, coord.y);
+      terrains = terrains.concat(getGridTerrains(components, gridId));
+    });
     // Calc the tiles to highlight
+    for (let i = -this.distance; i <= this.distance; i++) {
+      this.legalTiles[this.tileX + i] = [];
+      for (
+        let j = -this.distance + Math.abs(i);
+        j <= this.distance - Math.abs(i);
+        j++
+      ) {
+        this.legalTiles[this.tileX + i][this.tileY + j] = true;
+      }
+    }
+    for (const i in terrains) {
+      console.log(terrains[i]);
+      if (
+        terrains[i].terrainType !== TerrainType.PLAIN &&
+        this.legalTiles[terrains[i].x] &&
+        this.legalTiles[terrains[i].x][terrains[i].y]
+      ) {
+        this.legalTiles[terrains[i].x][terrains[i].y] = false;
+      }
+    }
+
     for (let i = -this.distance; i <= this.distance; i++) {
       for (
         let j = -this.distance + Math.abs(i);
         j <= this.distance - Math.abs(i);
         j++
       ) {
-        const highlight = new Phaser.GameObjects.Sprite(
-          this.scene,
-          i * this.tileSize,
-          j * this.tileSize,
-          "ui-cursor"
-        );
-        this.highlights.push(highlight);
-        this.root.add(highlight);
+        if (this.legalTiles[this.tileX + i][this.tileY + j]) {
+          const highlight = new Phaser.GameObjects.Sprite(
+            this.scene,
+            i * this.tileSize,
+            j * this.tileSize,
+            "ui-highlight"
+          )
+            .setScale(0.9)
+            .play("ui-highlight-active");
+          this.highlights.push(highlight);
+          this.root.add(highlight);
+        }
       }
     }
   }
