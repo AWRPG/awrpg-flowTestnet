@@ -38,13 +38,15 @@ import { Hex } from "viem";
 import { selectFirstHost, selectNextHost } from "../../logics/entity";
 import { GRID_SIZE } from "../../logics/terrain";
 import { Tile } from "../objects/Tile";
+import grass_0_png from "../../assets/tiles/terrains/grass_0.png";
+import grass_0_json from "../../assets/tiles/terrains/grass_0.json";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
   components: SetupResult["components"];
   systemCalls: SetupResult["systemCalls"];
 
-  tileSize = 32;
+  tileSize = 16;
   minZoomLevel = 1 / 2;
   maxZoomLevel = 4;
 
@@ -86,6 +88,7 @@ export class GameScene extends Phaser.Scene {
     // this.load.image("tree", "src/assets/tiles/Tree.png");
     this.load.image("forest", "src/assets/tiles/Tree.png");
     this.load.image("ocean", "src/assets/tiles/Water.png");
+    this.load.atlas("grass_0", grass_0_png, grass_0_json);
     // this.load.image("stump", "src/assets/tiles/Stump.png");
     // this.load.image("fence", "src/assets/tiles/Fence.png");
     // this.load.image("node", "src/assets/tiles/Node.png");
@@ -123,7 +126,7 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     const {
-      TerrainValue,
+      TileValue,
       TerrainValues,
       TargetTile,
       Path,
@@ -142,13 +145,32 @@ export class GameScene extends Phaser.Scene {
     const camera = this.cameras.main;
     this.createAnimations();
 
+    // this.anims.create({
+    //   key: "grass_0_2",
+    //   frames: this.anims.generateFrameNames("grass_0", {
+    //     start: 2,
+    //     end: 2,
+    //     prefix: "grass_0_",
+    //   }),
+    // frameRate: 12,
+    // repeat: -1,
+    // });
+
     // render map terrain
-    defineSystem(world, [Has(TerrainValues)], ({ entity, type }) => {
+    // defineSystem(world, [Has(TerrainValues)], ({ entity, type }) => {
+    //   if (type === UpdateType.Exit) {
+    //     return this.unloadGrid(entity);
+    //   }
+    //   const value = getComponentValue(TerrainValues, entity)!.value;
+    //   this.loadGrid(entity, value);
+    // });
+    defineSystem(world, [Has(TileValue)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
-        return this.unloadGrid(entity);
+        return this.unloadTile(entity);
+      } else if (type === UpdateType.Enter) {
+        const value = getComponentValue(TileValue, entity)!.value;
+        this.loadTile(entity, value);
       }
-      const value = getComponentValue(TerrainValues, entity)!.value;
-      this.loadGrid(entity, value);
     });
 
     defineSystem(world, [Has(TargetTile)], ({ entity, type }) => {
@@ -361,40 +383,39 @@ export class GameScene extends Phaser.Scene {
     delete this.buildings[building];
   }
 
-  loadGrid(gridId: Entity, terrainValues: bigint) {
-    const gridCoord = splitFromEntity(gridId);
-    for (let i = 0; i < GRID_SIZE; i++) {
-      for (let j = 0; j < GRID_SIZE; j++) {
-        const shift = i + j * GRID_SIZE;
-        const tileCoord = {
-          x: gridCoord.x * GRID_SIZE + i,
-          y: gridCoord.y * GRID_SIZE + j,
-        };
-        const terrain = Number((terrainValues >> BigInt(shift * 4)) & 15n);
-        this.loadTile(tileCoord.x, tileCoord.y, terrain);
-      }
-    }
-  }
+  // loadGrid(gridId: Entity, terrainValues: bigint) {
+  //   const gridCoord = splitFromEntity(gridId);
+  //   for (let i = 0; i < GRID_SIZE; i++) {
+  //     for (let j = 0; j < GRID_SIZE; j++) {
+  //       const shift = i + j * GRID_SIZE;
+  //       const tileCoord = {
+  //         x: gridCoord.x * GRID_SIZE + i,
+  //         y: gridCoord.y * GRID_SIZE + j,
+  //       };
+  //       const terrain = Number((terrainValues >> BigInt(shift * 4)) & 15n);
+  //       this.loadTile(tileCoord.x, tileCoord.y, terrain);
+  //     }
+  //   }
+  // }
 
-  unloadGrid(gridId: Entity) {
-    const gridCoord = splitFromEntity(gridId);
-    for (let i = 0; i < GRID_SIZE; i++) {
-      for (let j = 0; j < GRID_SIZE; j++) {
-        const tileCoord = {
-          x: gridCoord.x * GRID_SIZE + i,
-          y: gridCoord.y * GRID_SIZE + j,
-        };
-        this.unloadTile(tileCoord.x, tileCoord.y);
-      }
-    }
-  }
+  // unloadGrid(gridId: Entity) {
+  //   const gridCoord = splitFromEntity(gridId);
+  //   for (let i = 0; i < GRID_SIZE; i++) {
+  //     for (let j = 0; j < GRID_SIZE; j++) {
+  //       const tileCoord = {
+  //         x: gridCoord.x * GRID_SIZE + i,
+  //         y: gridCoord.y * GRID_SIZE + j,
+  //       };
+  //       this.unloadTile(tileCoord.x, tileCoord.y);
+  //     }
+  //   }
+  // }
 
-  loadTile(x: number, y: number, terrain: number) {
-    const entity = combine(x, y) as Entity;
+  loadTile(entity: Entity, tileValue: string[]) {
     this.tiles[entity]?.destroy();
     this.tiles[entity] = new Tile(this, this.components, {
       entity,
-      terrain,
+      tileValue,
       onClick: () => this.sourceSelectHandler(entity),
     });
     // handle 0 layer
@@ -409,8 +430,7 @@ export class GameScene extends Phaser.Scene {
     // }
   }
 
-  unloadTile(x: number, y: number) {
-    const entity = combine(x, y) as Entity;
+  unloadTile(entity: Entity) {
     this.tiles[entity]?.destroy();
     delete this.tiles[entity];
     // this.tilesLayer0[entity]?.destroy();

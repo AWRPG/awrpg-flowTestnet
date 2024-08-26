@@ -26,6 +26,9 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     TerrainValues: defineComponent(world, {
       value: Type.BigInt,
     }),
+    TileValue: defineComponent(world, {
+      value: Type.StringArray,
+    }),
     // // pool -> player
     // PoolOf: defineComponent(world, {
     //   value: Type.Entity,

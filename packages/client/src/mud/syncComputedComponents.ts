@@ -23,6 +23,7 @@ import {
   GRID_SIZE,
 } from "../logics/terrain";
 import { selectFirstHost } from "../logics/entity";
+import { setupTileValues } from "./setupTiles";
 
 // note: there is an optimzation issue here. When TerrainValue gets updated,
 // phaser going to render new tile sprites, and the delay is noticable when
@@ -87,6 +88,8 @@ export function syncComputedComponents({
       // });
     }
   });
+
+  setupTileValues(components);
 
   // for (let i = Math.max(0, x - width); i < x + width; i++) {
   //   for (let j = Math.max(0, y - height); j < y + height; j++) {

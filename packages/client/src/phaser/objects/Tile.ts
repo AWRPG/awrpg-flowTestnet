@@ -22,7 +22,9 @@ import { Vector } from "../../utils/vector";
  * About the scene object with avatar such as character or building
  */
 export class Tile extends SceneObject {
-  tile: Phaser.GameObjects.Sprite;
+  // tile: Phaser.GameObjects.Sprite;
+  tileSrpites: Record<number, Phaser.GameObjects.TileSprite> = {};
+  tileValue: string[];
   terrain: number = 0;
 
   constructor(
@@ -31,33 +33,46 @@ export class Tile extends SceneObject {
     {
       entity,
       terrain,
+      tileValue,
       onClick,
     }: {
       entity: Entity;
-      terrain: number;
+      terrain?: number;
+      tileValue: string[];
       onClick: () => void;
     }
   ) {
     super(entity, components, scene);
-    this.terrain = terrain;
+    this.tileValue = tileValue;
     const tileCoord = splitFromEntity(entity);
     const x = this.tileSize * tileCoord.x + this.tileSize / 2;
     const y = this.tileSize * tileCoord.y + this.tileSize / 2;
-    this.tile = scene.add
-      .sprite(x, y, terrainMapping[terrain])
-      .setInteractive()
-      .on("pointerdown", () => console.log("tile", x, y, terrain));
+    // if (terrainMapping[terrain] === "forest") {
+    //   this.tile = scene.add.tileSprite(x, y, 16, 16, "grass_0_2");
+    // } else {
+    // const tileValues = tileValue.split("&");
+    tileValue.forEach((tile, index) => {
+      const [texture, frame] = tile.split("&");
+      // console.log("tile", x, y, texture, frame);
+      const tileSprite = scene.add
+        .tileSprite(x, y, 16, 16, texture, frame ?? "")
+        .setDepth(index);
+      this.tileSrpites[index] = tileSprite;
+    });
+
+    // console.log("tile", x, y, tileValue);
+    // this.tile.anims.play("grass_0_2");
   }
 
   select() {
-    this.tile.setTint(0xff0000);
+    this.tileSrpites[0].setTint(0xff0000);
   }
 
   unselect() {
-    this.tile.clearTint();
+    this.tileSrpites[0].clearTint();
   }
 
   destroy() {
-    this.tile.destroy();
+    Object.values(this.tileSrpites).forEach((sprite) => sprite.destroy());
   }
 }
