@@ -75,6 +75,11 @@ export class Tile extends SceneObject {
       .play("ui-cursor-active");
   }
 
+  silentSelect() {
+    this.cursor?.stop();
+    console.log("stop!");
+  }
+
   unselect() {
     this.cursor?.destroy();
   }

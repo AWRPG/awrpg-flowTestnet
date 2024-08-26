@@ -99,7 +99,6 @@ export class TileHighlight extends SceneObject {
       }
     }
     for (const i in terrains) {
-      console.log(terrains[i]);
       if (
         terrains[i].terrainType !== TerrainType.PLAIN &&
         this.legalTiles[terrains[i].x] &&

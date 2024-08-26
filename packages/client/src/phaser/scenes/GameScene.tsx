@@ -163,6 +163,11 @@ export class GameScene extends Phaser.Scene {
       this.selectedTiles[entity] = currTileId;
       this.tiles[currTileId]?.select();
       const pathCoords = calculatePathCoords(this.components, entity);
+
+      Object.keys(this.selectedTiles).forEach((entity) => {
+        const tileId = this.selectedTiles[entity as Entity];
+        if (tileId !== currTileId) this.tiles[tileId]?.silentSelect();
+      });
     });
 
     // defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {
