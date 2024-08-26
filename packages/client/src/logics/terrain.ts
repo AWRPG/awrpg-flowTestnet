@@ -29,7 +29,10 @@ export const noiseToTerrainType = (noise: number) => {
   if (25 <= noise && noise < 30) return TerrainType.MOUNTAIN;
   if (44 <= noise && noise < 55) return TerrainType.OCEAN;
   if (65 <= noise && noise < 70) return TerrainType.FOREST;
-  else return TerrainType.PLAIN;
+  // this is client part to render mud
+  if (noise < 10 || (35 <= noise && noise < 40) || (57 <= noise && noise < 61))
+    return TerrainType.MUD;
+  return TerrainType.PLAIN;
 };
 
 export const noiseToTerrainEntity = (noise: number) => {

@@ -1,5 +1,5 @@
 import { Entity } from "@latticexyz/recs";
-import { Hex, Hex, toHex } from "viem";
+import { Hex, toHex } from "viem";
 import { OCEAN, FOREST, PLAIN, MOUNTAIN } from "./contract/constants";
 import {
   BERRY,
@@ -32,10 +32,19 @@ export enum TerrainType {
   FOREST = 2,
   PLAIN = 3,
   MOUNTAIN = 4,
+  // this is client terrain, equal to PLAIN
+  MUD = 5,
 }
 
 // to display sprites
-export const terrainMapping = ["none", "ocean", "forest", "plain", "mountain"];
+export const terrainMapping = [
+  "none",
+  "ocean",
+  "forest",
+  "plain",
+  "mountain",
+  "mud",
+];
 
 export const terrainTypeMapping = {
   [TerrainType.OCEAN]: OCEAN,
@@ -43,6 +52,7 @@ export const terrainTypeMapping = {
   [TerrainType.PLAIN]: PLAIN,
   [TerrainType.MOUNTAIN]: MOUNTAIN,
   [TerrainType.NONE]: "0" as Hex,
+  [TerrainType.MUD]: "0" as Hex,
 };
 
 export const POOL_TYPES = [SOUL, STAMINA, BLOOD];
