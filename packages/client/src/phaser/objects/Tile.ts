@@ -50,19 +50,38 @@ export class Tile extends SceneObject {
     // if (terrainMapping[terrain] === "forest") {
     //   this.tile = scene.add.tileSprite(x, y, 16, 16, "grass_0_2");
     // } else {
-    // const tileValues = tileValue.split("&");
+
     tileValue.forEach((tile, index) => {
       const [texture, frame] = tile.split("&");
-      // console.log("tile", x, y, texture, frame);
-      const tileSprite = scene.add
-        .tileSprite(x, y, 16, 16, texture, frame ?? "")
-        .setDepth(index);
-      this.tileSrpites[index] = tileSprite;
+      if (texture === "pine_12") {
+        const tileSprite = scene.add
+          .tileSprite(
+            x + (this.tileSize * Math.random()) / 2,
+            y + (this.tileSize * Math.random()) / 2,
+            0,
+            0,
+            "pine_12"
+          )
+          .setOrigin(0.5, 1)
+          .setDepth(index + 5);
+        this.tileSrpites[index] = tileSprite;
+      } else {
+        const tileSprite = scene.add
+          .tileSprite(x, y, 0, 0, texture, frame ?? "")
+          .setDepth(index)
+          .setInteractive()
+          .on("pointerdown", () => {
+            console.log(texture, frame);
+          });
+        this.tileSrpites[index] = tileSprite;
+      }
     });
 
     // console.log("tile", x, y, tileValue);
     // this.tile.anims.play("grass_0_2");
   }
+
+  //
 
   select() {
     this.tileSrpites[0].setTint(0xff0000);

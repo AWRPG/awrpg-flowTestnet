@@ -39,7 +39,16 @@ import { selectFirstHost, selectNextHost } from "../../logics/entity";
 import { GRID_SIZE } from "../../logics/terrain";
 import { Tile } from "../objects/Tile";
 import grass_0_png from "../../assets/tiles/terrains/grass_0.png";
-import grass_0_json from "../../assets/tiles/terrains/grass_0.json";
+import grass_2_png from "../../assets/tiles/terrains/grass_2.png";
+import mud_1_png from "../../assets/tiles/terrains/mud_1.png";
+import ocean_wall_0_png from "../../assets/tiles/terrains/ocean_wall_0.png";
+import mountain_0_png from "../../assets/tiles/terrains/mountain_0.png";
+import cliff_0_png from "../../assets/tiles/terrains/cliff_0.png";
+import gravel_0_png from "../../assets/tiles/terrains/gravel_0.png";
+import boundary_json from "../../assets/tiles/terrains/boundary.json";
+import boundary_reverse_json from "../../assets/tiles/terrains/boundary_reverse.json";
+import ocean_png from "../../assets/tiles/terrains/ocean.png";
+import pine_12_png from "../../assets/tiles/props/trees/pine_12.png";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -87,8 +96,15 @@ export class GameScene extends Phaser.Scene {
     this.load.image("mountain", "src/assets/tiles/Rock.png");
     // this.load.image("tree", "src/assets/tiles/Tree.png");
     this.load.image("forest", "src/assets/tiles/Tree.png");
-    this.load.image("ocean", "src/assets/tiles/Water.png");
-    this.load.atlas("grass_0", grass_0_png, grass_0_json);
+    // this.load.image("ocean", "src/assets/tiles/Water.png");
+    this.load.atlas("grass_boundary", grass_0_png, boundary_json);
+    this.load.atlas("grass_2", grass_2_png, boundary_reverse_json);
+    this.load.atlas("mud_1", mud_1_png, boundary_reverse_json);
+    this.load.atlas("ocean_boundary", ocean_wall_0_png, boundary_json);
+    this.load.atlas("mountain_boundary", mountain_0_png, boundary_json);
+    this.load.atlas("gravel_0", gravel_0_png, boundary_json);
+    this.load.image("ocean", ocean_png);
+    this.load.image("pine_12", pine_12_png);
     // this.load.image("stump", "src/assets/tiles/Stump.png");
     // this.load.image("fence", "src/assets/tiles/Fence.png");
     // this.load.image("node", "src/assets/tiles/Node.png");
