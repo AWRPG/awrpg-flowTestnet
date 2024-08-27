@@ -301,7 +301,6 @@ export class GameScene extends Phaser.Scene {
                 this,
                 {
                   canControl: true,
-                  systemCalls: this.systemCalls,
                 }
               );
             }
