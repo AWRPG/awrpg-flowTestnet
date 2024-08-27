@@ -7,3 +7,10 @@
   margin: 0;
   padding: 0;
 };
+
+@font-face {
+  font-family: "ToaHI";
+  src:
+    local("ToaHI"),
+    url(./asset/fonts/ToaHI.tff) format("tff");
+}
