@@ -1,16 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Position, PositionData, EntityCoord } from "@/codegen/index.sol";
+import { TileEntity, Moves, Path, PathData } from "@/codegen/index.sol";
+import { MapLogic } from "@/libraries/MapLogic.sol";
+import { TerrainLogic } from "@/libraries/TerrainLogic.sol";
+import { EntityLogic } from "@/libraries/EntityLogic.sol";
+import { BuildingLogic } from "@/libraries/BuildingLogic.sol";
 import { MapLogic } from "@/libraries/MapLogic.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 
 uint8 constant MAX_MOVES = 20;
 uint32 constant STAMINA_COST = 10;
+uint32 constant MOVE_DURATION = 300;
 
 library MoveLogic {
   enum Direction {
+    NONE,
     UP,
     DOWN,
     LEFT,
@@ -19,34 +25,104 @@ library MoveLogic {
 
   function _move(bytes32 host, uint8[] memory moves) internal {
     // TODO: burn stamina
-    uint32 staminaCost = uint32(moves.length) * STAMINA_COST;
+    // uint32 staminaCost = uint32(moves.length) * STAMINA_COST;
 
-    (uint32 toX, uint32 toY) = canMoveStrict(host, moves);
+    (uint32 fromTileX, uint32 fromTileY) = getTileCoordStrict(host);
+    (uint32 toTileX, uint32 toTileY) = canMovesStrict(host, fromTileX, fromTileY, moves);
 
-    uint32 fromX = Position.getX(host);
-    uint32 fromY = Position.getY(host);
-    EntityCoord.deleteRecord(MapLogic.getCoordId(fromX, fromY));
+    TileEntity.deleteRecord(MapLogic.getCoordId(fromTileX, fromTileY));
+    TileEntity.set(MapLogic.getCoordId(toTileX, toTileY), host);
 
-    Position.set(host, toX, toY);
-    EntityCoord.set(MapLogic.getCoordId(toX, toY), host);
+    Path.set(
+      host,
+      PathData(
+        fromTileX,
+        fromTileY,
+        toTileX,
+        toTileY,
+        uint40(block.timestamp),
+        uint40((moves.length * MOVE_DURATION) / 1000)
+      )
+    );
+    Moves.set(host, combineMoves(moves));
   }
 
-  function canMoveStrict(bytes32 host, uint8[] memory moves) internal view returns (uint32 toX, uint32 toY) {
-    PositionData memory position = Position.get(host);
-    // (uint32 fromX, uint32 fromY) = split(moves[0]);
-    // if (position.x != fromX || position.y != fromY) revert Errors.NotFromHostPosition();
-    // if (!isIncrementalMoves(moves)) revert Errors.NotIncrementalMoves();
+  function combineMoves(uint8[] memory moves) internal pure returns (uint256) {
+    uint256 result = 0;
+    for (uint256 i = 0; i < moves.length; i++) {
+      result |= uint256(moves[i]) << (4 * i);
+    }
+    return result;
+  }
+
+  function getTileCoordStrict(bytes32 host) internal view returns (uint32 tileX, uint32 tileY) {
+    if (!arrived(host)) revert Errors.NotArrived();
+    tileX = Path.getToTileX(host);
+    tileY = Path.getToTileY(host);
+    if (!onGround(host, tileX, tileY)) revert Errors.NotOnGround();
+  }
+
+  function arrived(bytes32 host) internal view returns (bool) {
+    uint40 lastUpdated = Path.getLastUpdated(host);
+    uint40 duration = Path.getDuration(host);
+    return lastUpdated != 0 && lastUpdated + duration <= block.timestamp;
+  }
+
+  // check if the host is on ground
+  function onGround(bytes32 host, uint32 tileX, uint32 tileY) internal view returns (bool) {
+    return TileEntity.get(MapLogic.getCoordId(tileX, tileY)) == host;
+  }
+
+  // // return moves with length = 20
+  // function splitMoves(uint256 _moves) internal pure returns (uint8[] memory moves) {
+  //   moves = new uint8[](MAX_MOVES);
+  //   for (uint256 i = 0; i < MAX_MOVES; i++) {
+  //     uint8 move = uint8(_moves >> (4 * i));
+  //     if (move == 0) return moves;
+
+  //     moves[i] = uint8(move);
+  //   }
+  //   return moves;
+  // }
+
+  function canMovesStrict(
+    bytes32 host,
+    uint32 fromTileX,
+    uint32 fromTileY,
+    uint8[] memory moves
+  ) internal view returns (uint32 toX, uint32 toY) {
     if (moves.length > MAX_MOVES) revert Errors.ExceedMaxMoves();
-    uint64[] memory toPositions = movesToPositions(moves, position.x, position.y);
-    canMoveToStrict(toPositions);
+    uint64[] memory toPositions = movesToPositions(moves, fromTileX, fromTileY);
+    canMoveToPositionsStrict(host, toPositions);
     return split(toPositions[toPositions.length - 1]);
   }
 
-  function canMoveToStrict(uint64[] memory moves) internal view {
-    for (uint256 i = 1; i < moves.length; i++) {
-      (uint32 x, uint32 y) = split(moves[i]);
-      MapLogic.canMoveToStrict(x, y);
+  function canMoveToPositionsStrict(bytes32 host, uint64[] memory positions) internal view {
+    for (uint256 i = 1; i < positions.length - 1; i++) {
+      (uint32 _x, uint32 _y) = split(positions[i]);
+      canMoveAcrossStrict(host, _x, _y);
     }
+    (uint32 x, uint32 y) = split(positions[positions.length - 1]);
+    canMoveToStrict(host, x, y);
+  }
+
+  function canMoveAcrossStrict(bytes32 host, uint32 tileX, uint32 tileY) internal view {
+    if (!TerrainLogic.canMoveToTerrain(host, tileX, tileY)) revert Errors.CannotMoveToTerrain();
+    bytes32 tileId = MapLogic.getCoordId(tileX, tileY);
+    bytes32 tileEntity = TileEntity.get(tileId);
+    // role can be moved across
+    if (EntityLogic.isRole(tileEntity)) return;
+    // some building can move to
+    if (BuildingLogic.canMoveTo(tileEntity)) return;
+    revert Errors.CannotMoveAcrossBuilding();
+  }
+
+  // Rn, cannot move to a tile coord that has an entity on, building or role
+  function canMoveToStrict(bytes32 host, uint32 tileX, uint32 tileY) internal view {
+    if (!TerrainLogic.canMoveToTerrain(host, tileX, tileY)) revert Errors.CannotMoveToTerrain();
+    bytes32 tileId = MapLogic.getCoordId(tileX, tileY);
+    bytes32 tileEntity = TileEntity.get(tileId);
+    if (tileEntity != 0) revert Errors.CannotMoveOnEntity(tileId);
   }
 
   function movesToPositions(uint8[] memory moves, uint32 fromX, uint32 fromY) internal pure returns (uint64[] memory) {
@@ -72,31 +148,6 @@ library MoveLogic {
     } else {
       revert Errors.InvalidMove();
     }
-  }
-
-  function isIncrementalMoves(uint64[] memory moves) internal pure returns (bool) {
-    for (uint256 i = 0; i < moves.length - 1; i++) {
-      if (!isIncremental(moves[i], moves[i + 1])) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function isIncremental(uint64 from, uint64 to) internal pure returns (bool) {
-    (uint32 fromX, uint32 fromY) = split(from);
-    (uint32 toX, uint32 toY) = split(to);
-    if (fromX == toX) {
-      return diffEqualTo1(fromY, toY);
-    } else if (fromY == toY) {
-      return diffEqualTo1(fromX, toX);
-    } else {
-      return false;
-    }
-  }
-
-  function diffEqualTo1(uint32 x1, uint32 x2) internal pure returns (bool) {
-    return x1 > x2 ? x1 - x2 == 1 : x2 - x1 == 1;
   }
 
   // combine two uint32 into one uint64

@@ -4,19 +4,108 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { Vector } from "matter";
+import { Vector, getRectangleCoords } from "../utils/vector";
 import { SOURCE } from "../constants";
 import { ClientComponents } from "../mud/createClientComponents";
-import { canMoveTo, getEntityOnCoord, getTerrainFromTerrainValue } from "./map";
+import { canMoveTo, getEntityOnCoord } from "./map";
+import {
+  getGridTerrains,
+  getTerrainFromTerrainValue,
+  GRID_SIZE,
+  TileTerrainMap,
+} from "./terrain";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { MAX_MOVES } from "../contract/constants";
+import { getReadyPosition } from "./path";
+import { dijkstraPathfinding } from "../utils/pathFinding";
 
 export enum Direction {
-  UP = 0,
-  DOWN = 1,
-  LEFT = 2,
-  RIGHT = 3,
+  NONE = 0,
+  UP = 1,
+  DOWN = 2,
+  LEFT = 3,
+  RIGHT = 4,
 }
+
+// TODO: temp for fromPosition
+export function getPositionFromPath(
+  components: ClientComponents,
+  role: Entity
+) {
+  const { Path } = components;
+  const path = getComponentValue(Path, role);
+  if (!path) return;
+  return { x: path.toTileX, y: path.toTileY };
+}
+
+export const calculatePathCoords = (
+  components: ClientComponents,
+  role: Entity
+) => {
+  const { TargetTile, Path } = components;
+  const targetCoordId = getComponentValue(TargetTile, role)?.value;
+  if (!targetCoordId) return;
+  const targetCoord = splitFromEntity(targetCoordId);
+  const sourceCoord = getPositionFromPath(components, role);
+  if (!sourceCoord) return;
+  // available coords need to go through several grids' terrainValues
+  const targetGridCoord = {
+    x: Math.floor(targetCoord.x / GRID_SIZE),
+    y: Math.floor(targetCoord.y / GRID_SIZE),
+  };
+  const sourceGridCoord = {
+    x: Math.floor(sourceCoord.x / GRID_SIZE),
+    y: Math.floor(sourceCoord.y / GRID_SIZE),
+  };
+  // calculate gridCoords as any coords between source and target
+  const gridCoords = getRectangleCoords(sourceGridCoord, targetGridCoord);
+  let terrains: TileTerrainMap[] = [];
+  gridCoords.forEach((coord) => {
+    const gridId = combineToEntity(coord.x, coord.y);
+    terrains = terrains.concat(getGridTerrains(components, gridId));
+  });
+  const pathCoords = dijkstraPathfinding(sourceCoord, targetCoord, terrains);
+  console.log("pathCoords", pathCoords);
+
+  return pathCoords;
+};
+
+// set new target coord from direction
+export const setNewTargetTile = (
+  components: ClientComponents,
+  role: Entity,
+  direction: Direction
+) => {
+  const coord = getNewTargetTile(components, role, direction);
+  if (!coord) return;
+  setComponent(components.TargetTile, role, {
+    value: combineToEntity(coord.x, coord.y),
+  });
+};
+
+// get new target coord from direction
+export const getNewTargetTile = (
+  components: ClientComponents,
+  role: Entity,
+  direction: Direction
+) => {
+  const position = getPositionFromPath(components, role);
+  if (!position) return;
+  const tileId = getComponentValue(components.TargetTile, role)?.value;
+  if (!tileId) return position;
+  const coord = splitFromEntity(tileId);
+  // TODO: check if on map
+  switch (direction) {
+    case Direction.UP:
+      return { x: coord.x, y: coord.y - 1 };
+    case Direction.DOWN:
+      return { x: coord.x, y: coord.y + 1 };
+    case Direction.LEFT:
+      return { x: coord.x - 1, y: coord.y };
+    case Direction.RIGHT:
+      return { x: coord.x + 1, y: coord.y };
+  }
+};
 
 export function hasPendingMoves(components: ClientComponents, role: Entity) {
   // check if unresolved moves
@@ -80,6 +169,7 @@ export const updateMoves = (
   if (!source) return;
   const moves = getComponentValue(Moves, source)?.value ?? [];
   let newMoves = [...moves];
+  // console.log("updateMoves", direction, moves);
   if (moves.length === 0) {
     newMoves = [direction as number];
   } else {
@@ -96,6 +186,7 @@ export const updateMoves = (
     source,
     newMoves
   );
+  // console.log("validMoves", newMoves, validMoves);
   if (!validMoves || validMoves.length === 0)
     return removeComponent(Moves, source);
   setComponent(Moves, source, { value: validMoves });
@@ -123,15 +214,17 @@ export function validMovesForHost(
   host: Entity,
   moves: Direction[]
 ) {
-  const from = getComponentValue(components.Position, host);
-  if (!from) return;
-  const { x, y } = from;
-  return validMovesFrom(components, systemCalls, { x, y }, moves);
+  const position = getReadyPosition(components, host);
+  // console.log("position", position);
+
+  if (!position) return;
+  return validMovesFrom(components, systemCalls, host, position, moves);
 }
 
 export function validMovesFrom(
   components: ClientComponents,
   systemCalls: SystemCalls,
+  host: Entity,
   from: Vector,
   moves: Direction[]
 ): Direction[] {
@@ -146,7 +239,7 @@ export function validMovesFrom(
     if (index !== -1) return moves.slice(0, index);
     // check validity
     toPositions.push(to);
-    if (!validMoveTo(components, systemCalls, to)) {
+    if (!validMoveTo(components, systemCalls, host, to)) {
       return i === 0 ? [] : moves.slice(0, i);
     }
   }
@@ -156,10 +249,11 @@ export function validMovesFrom(
 export function validMoveTo(
   components: ClientComponents,
   systemCalls: SystemCalls,
+  host: Entity,
   to: Vector
 ) {
   const onMap = isOnMap(to);
-  const canMove = canMoveTo(components, systemCalls, to);
+  const canMove = canMoveTo(components, systemCalls, host, to);
   return onMap && canMove;
 }
 // export function moveToPositionStrict(move: Direction, from: Vector): Vector {
@@ -187,9 +281,17 @@ export function combine(x: number, y: number) {
   return ((BigInt(x) << 128n) | BigInt(y)).toString();
 }
 
+export function combineToEntity(x: number, y: number) {
+  return combine(x, y) as Entity;
+}
+
 // split one bigint into two number
 export function split(xy: bigint) {
   const x = Number(xy >> 128n);
   const y = Number(xy & 0xffffffffn);
   return { x, y };
+}
+
+export function splitFromEntity(entity: Entity) {
+  return split(BigInt(entity));
 }

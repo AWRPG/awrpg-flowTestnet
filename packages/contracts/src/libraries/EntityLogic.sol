@@ -33,4 +33,9 @@ library EntityLogic {
   function isBuildingType(bytes16 buildingType) internal view returns (bool) {
     return BuildingSpecs.getTerrainType(buildingType) != 0;
   }
+
+  function isRole(bytes32 role) internal view returns (bool) {
+    // TODO: add role check
+    return true;
+  }
 }

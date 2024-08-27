@@ -9,10 +9,19 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { SetupResult } from "./setup";
-import { combine, movesToPositions, split } from "../logics/move";
+import {
+  combine,
+  combineToEntity,
+  movesToPositions,
+  split,
+} from "../logics/move";
 import { ClientComponents } from "./createClientComponents";
 import { SOURCE, TerrainType } from "../constants";
-import { getTerrain, noiseToTerrain } from "../logics/map";
+import {
+  compileGridTerrainValues,
+  getTerrainType,
+  GRID_SIZE,
+} from "../logics/terrain";
 import { selectFirstHost } from "../logics/entity";
 
 // note: there is an optimzation issue here. When TerrainValue gets updated,
@@ -23,44 +32,59 @@ export function syncComputedComponents({
   systemCalls,
   network,
 }: SetupResult) {
-  const { TerrainValue, SelectedHost, Position } = components;
+  const { TerrainValues, SelectedHost, Path } = components;
 
   // const space = pad(network.worldContract.address) as Hex;
 
-  const width = 40;
-  const height = 40;
+  const width = 4;
+  const height = 4;
 
   const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
   if (!role) {
     selectFirstHost(components, network.playerEntity);
   }
 
-  const position = getComponentValue(Position, role) ?? { x: 0, y: 0 };
+  const initX = 2 ** 16; // 32 * 10;
+  const initY = 2 ** 16; // 32 * 10;
+  const path = getComponentValue(Path, role);
   // const moves = getComponentValue(components.Moves, role)?.value ?? [];
   // const positions = movesToPositions(moves, position);
   // const from = positions[positions.length - 1];
-  const x = position.x; //?? width;
-  const y = position.y; // ?? height;
-
-  const currCoordIds: Entity[] = [];
-  for (let i = Math.max(0, x - width); i < x + width; i++) {
-    for (let j = Math.max(0, y - height); j < y + height; j++) {
-      currCoordIds.push(combine(i, j) as Entity);
+  const x = (path?.toTileX as number) ?? initX; //?? width;
+  const y = (path?.toTileY as number) ?? initY; // ?? height;
+  console.log("syncComputedComponents", x, y);
+  const gridCoord = {
+    x: Math.floor(x / GRID_SIZE),
+    y: Math.floor(y / GRID_SIZE),
+  };
+  const currGridIds: Entity[] = [];
+  for (let i = Math.max(0, gridCoord.x - width); i < gridCoord.x + width; i++) {
+    for (
+      let j = Math.max(0, gridCoord.y - height);
+      j < gridCoord.y + height;
+      j++
+    ) {
+      currGridIds.push(combine(i, j) as Entity);
     }
   }
 
-  const prevCoordIds = [...runQuery([Has(TerrainValue)])];
-  prevCoordIds.forEach((prev) => {
-    if (!currCoordIds.includes(prev)) removeComponent(TerrainValue, prev);
+  const prevGridIds = [...runQuery([Has(TerrainValues)])];
+  prevGridIds.forEach((prev) => {
+    if (!currGridIds.includes(prev)) removeComponent(TerrainValues, prev);
   });
-
-  currCoordIds.forEach((curr) => {
-    if (!getComponentValue(TerrainValue, curr)?.value) {
-      const { x, y } = split(BigInt(curr));
-      const terrainValue = getTerrain(components, systemCalls, { x, y });
-      setComponent(TerrainValue, curr, {
-        value: terrainValue as number,
-      });
+  currGridIds.forEach((curr) => {
+    if (!getComponentValue(TerrainValues, curr)?.value) {
+      const terrainValues = compileGridTerrainValues(
+        components,
+        systemCalls,
+        curr
+      );
+      setComponent(TerrainValues, curr, { value: terrainValues });
+      // const terrainValue = getTerrainType(components, systemCalls, { x, y });
+      // localStorage.setItem(curr, JSON.stringify({ terrainValue }));
+      // setComponent(TerrainValues, curr, {
+      //   value: terrainValue as number,
+      // });
     }
   });
 

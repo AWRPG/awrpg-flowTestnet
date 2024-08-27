@@ -8,8 +8,9 @@ import { HeroLogic } from "@/libraries/HeroLogic.sol";
 contract PlayerSystem is System {
   using TypeCast for address;
 
-  function spawnHero() public {
+  function spawnHero() public returns (uint32, uint32) {
     bytes32 player = _msgSender().toBytes32();
-    HeroLogic._spawn(player);
+    (uint32 x, uint32 y) = HeroLogic._spawn(player);
+    return (x, y);
   }
 }

@@ -49,9 +49,9 @@ export class Role {
     this.incrementY = this.tileSize / 4;
 
     this.entity = entity;
-    const position = getComponentValue(components.Position, entity)!;
-    this.x = position.x;
-    this.y = position.y;
+    const path = getComponentValue(components.Path, entity)!;
+    this.x = path.toTileX as number;
+    this.y = path.toTileY as number;
     this.positions = [{ x: this.x, y: this.y }];
     this.direction =
       getComponentValue(components.RoleDirection, entity)?.value ??

@@ -1,5 +1,6 @@
 import { Entity } from "@latticexyz/recs";
-import { toHex } from "viem";
+import { Hex, Hex, toHex } from "viem";
+import { OCEAN, FOREST, PLAIN, MOUNTAIN } from "./contract/constants";
 import {
   BERRY,
   BLOOD,
@@ -25,40 +26,23 @@ import {
 } from "./contract/constants";
 
 export enum TerrainType {
-  Grass = 0,
-  Water = 1,
-  Bush = 2,
-  Rock = 3,
-  Tree = 4,
-  Gravel = 5,
-  Sand = 6,
-  Stump = 7,
-  RED_MINE = 8,
+  // new (& only) terrain type
+  NONE = 0,
+  OCEAN = 1,
+  FOREST = 2,
+  PLAIN = 3,
+  MOUNTAIN = 4,
 }
 
 // to display sprites
-export const terrainMapping = [
-  "grass",
-  "water",
-  "bush",
-  "rock",
-  "tree",
-  "gravel",
-  "sand",
-  "stump",
-  "redmine",
-];
+export const terrainMapping = ["none", "ocean", "forest", "plain", "mountain"];
 
 export const terrainTypeMapping = {
-  [TerrainType.Grass]: GRASS,
-  [TerrainType.Water]: WATER,
-  [TerrainType.Bush]: BUSH,
-  [TerrainType.Rock]: ROCK,
-  [TerrainType.Tree]: TREE,
-  [TerrainType.Gravel]: GRAVEL,
-  [TerrainType.Sand]: SAND,
-  [TerrainType.Stump]: STUMP,
-  [TerrainType.RED_MINE]: RED_MINE,
+  [TerrainType.OCEAN]: OCEAN,
+  [TerrainType.FOREST]: FOREST,
+  [TerrainType.PLAIN]: PLAIN,
+  [TerrainType.MOUNTAIN]: MOUNTAIN,
+  [TerrainType.NONE]: "0" as Hex,
 };
 
 export const POOL_TYPES = [SOUL, STAMINA, BLOOD];

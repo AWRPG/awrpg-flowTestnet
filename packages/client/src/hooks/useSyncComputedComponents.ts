@@ -5,15 +5,16 @@ import { useEffect, useState } from "react";
 import { useMUD } from "../MUDContext";
 import { syncComputedComponents } from "../mud/syncComputedComponents";
 import { SOURCE } from "../constants";
+import { Entity } from "@latticexyz/recs";
 
 export default function useSyncComputedComponents() {
   const mud = useMUD();
   const {
-    components: { SyncProgress, SelectedHost, Position },
+    components: { SyncProgress, SelectedHost, Path },
   } = mud;
 
-  const role = useComponentValue(SelectedHost, SOURCE)?.value;
-  const position = useComponentValue(Position, role);
+  const role = useComponentValue(SelectedHost, SOURCE)?.value as Entity;
+  const path = useComponentValue(Path, role);
   // const moves = useComponentValue(Moves, role);
 
   const syncProgress = useComponentValue(SyncProgress, singletonEntity);
@@ -23,7 +24,7 @@ export default function useSyncComputedComponents() {
       syncComputedComponents(mud);
       setReady(true);
     }
-  }, [syncProgress?.step, role, position]);
+  }, [syncProgress?.step, role, path]);
 
   return ready;
 }
