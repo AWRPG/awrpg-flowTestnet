@@ -23,6 +23,7 @@ const terrainCosts: { [key: number]: number } = {
   [TerrainType.OCEAN]: Infinity, // TerrainType 1 is impassable
   [TerrainType.FOREST]: Infinity,
   [TerrainType.PLAIN]: 1,
+  [TerrainType.MUD]: 1,
   [TerrainType.MOUNTAIN]: Infinity,
 };
 
