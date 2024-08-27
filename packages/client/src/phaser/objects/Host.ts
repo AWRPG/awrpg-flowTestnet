@@ -73,7 +73,6 @@ export class Host extends SceneObject {
       toTileX: 0,
       toTileY: 0,
     };
-    console.log("Host path:", path);
     this.tileX = path.toTileX;
     this.tileY = path.toTileY;
 

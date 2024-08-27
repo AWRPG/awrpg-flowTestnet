@@ -112,7 +112,6 @@ export class Tile extends SceneObject {
 
   silentSelect() {
     this.cursor?.stop();
-    console.log("stop!");
   }
 
   unselect() {
