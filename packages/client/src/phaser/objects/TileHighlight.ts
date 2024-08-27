@@ -101,6 +101,7 @@ export class TileHighlight extends SceneObject {
     for (const i in terrains) {
       if (
         terrains[i].terrainType !== TerrainType.PLAIN &&
+        terrains[i].terrainType !== TerrainType.MUD &&
         this.legalTiles[terrains[i].x] &&
         this.legalTiles[terrains[i].x][terrains[i].y]
       ) {

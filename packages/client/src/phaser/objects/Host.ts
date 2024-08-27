@@ -82,7 +82,7 @@ export class Host extends SceneObject {
         (this.tileX + 0.5) * this.tileSize,
         (this.tileY + 0.5) * this.tileSize
       )
-      .setDepth(3);
+      .setDepth(13);
     // draw avatar & set animation
     this.direction =
       getComponentValue(components.RoleDirection, entity)?.value ??
@@ -92,7 +92,7 @@ export class Host extends SceneObject {
       0,
       0,
       "host-farmer1"
-    ).setOrigin(0.5, 0.75);
+    ).setOrigin(0.46, 0.7);
     this.root.add(this.avatar);
     this.doIdleAnimation();
 
