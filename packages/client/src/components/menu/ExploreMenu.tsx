@@ -20,6 +20,7 @@ import { useState } from "react";
 import useMenuKeys from "../../hooks/useMenuKeys";
 import ItemContainer from "../ItemContainer";
 import {
+  calculatePathMoves,
   getEntityOnDirection,
   getTerrainOnDirection,
   hasPendingMoves,
@@ -52,7 +53,8 @@ export default function ExploreMenu() {
       ? TARGET_MENU
       : TERRAIN_MENU;
 
-  const hasMoves = hasPendingMoves(components, host);
+  const moves = calculatePathMoves(components, host);
+  console.log("ExploreMenu, moves", moves);
 
   const selections = [
     {
@@ -63,12 +65,10 @@ export default function ExploreMenu() {
     },
     {
       name: "$Move To",
-      disabled: !host || !hasMoves,
+      disabled: !host || !moves,
       onClick: async () => {
         console.log("Move To");
-        if (!host || !hasMoves) return;
-        const moves = getComponentValue(Moves, host as Entity)?.value;
-        if (!moves || moves.length === 0) return;
+        if (!host || !moves) return;
         await move(host as Hex, moves);
         removeComponent(SelectedEntity, MENU);
       },
