@@ -38,6 +38,38 @@ export function getPositionFromPath(
   return { x: path.toTileX, y: path.toTileY };
 }
 
+// calc moves to move from role's curr position -> target tile coord
+export const calculatePathMoves = (
+  components: ClientComponents,
+  role: Entity
+) => {
+  const pathCoords = calculatePathCoords(components, role);
+  if (!pathCoords) return;
+  const moves = coordsToMoves(pathCoords);
+  if (!moves) return;
+  return moves;
+};
+
+export const coordsToMoves = (coords: Vector[]) => {
+  if (coords.length === 0) return;
+  const moves = coords
+    .slice(1)
+    .map((coord, index) => pathToMove(coords[index], coord));
+  if (moves.includes(Direction.NONE)) return;
+  return moves;
+};
+
+// determine one path direction
+export const pathToMove = (from: Vector, to: Vector): Direction => {
+  if (from.x === to.x && from.y - 1 === to.y) return Direction.UP;
+  if (from.x === to.x && from.y + 1 === to.y) return Direction.DOWN;
+  if (from.x - 1 === to.x && from.y === to.y) return Direction.LEFT;
+  if (from.x + 1 === to.x && from.y === to.y) return Direction.RIGHT;
+  console.log("direction none", from, to);
+  return Direction.NONE;
+};
+
+// calc coords to move from role's curr position -> target tile coord
 export const calculatePathCoords = (
   components: ClientComponents,
   role: Entity
