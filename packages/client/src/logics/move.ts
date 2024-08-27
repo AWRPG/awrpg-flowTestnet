@@ -35,7 +35,7 @@ export function getPositionFromPath(
   const { Path } = components;
   const path = getComponentValue(Path, role);
   if (!path) return;
-  return { x: path.toTileX, y: path.toTileY };
+  return { x: path.toX, y: path.toY };
 }
 
 // calc moves to move from role's curr position -> target tile coord

@@ -56,8 +56,8 @@ export function syncComputedComponents({
   // const moves = getComponentValue(components.Moves, role)?.value ?? [];
   // const positions = movesToPositions(moves, position);
   // const from = positions[positions.length - 1];
-  const x = (path?.toTileX as number) ?? initX; //?? width;
-  const y = (path?.toTileY as number) ?? initY; // ?? height;
+  const x = (path?.toX as number) ?? initX; //?? width;
+  const y = (path?.toY as number) ?? initY; // ?? height;
   console.log("syncComputedComponents", x, y);
   const gridCoord = {
     x: Math.floor(x / GRID_SIZE),

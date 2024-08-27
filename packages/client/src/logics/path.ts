@@ -13,5 +13,5 @@ export const getReadyPosition = (
   if (!path) return;
   if (path.lastUpdated + path.duration > unixTimeSecond()) return;
   // if (path!.lastUpdated ?? 0 > unixTimeSecond()) return;
-  return { x: path?.toTileX, y: path?.toTileY };
+  return { x: path?.toX, y: path?.toY };
 };

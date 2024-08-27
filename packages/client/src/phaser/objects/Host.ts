@@ -70,12 +70,12 @@ export class Host extends SceneObject {
 
     // TDOO: different obj has different position calc
     const path = getComponentValue(components.Path, entity) ?? {
-      toTileX: 0,
-      toTileY: 0,
+      toX: 0,
+      toY: 0,
     };
     console.log("Host path:", path);
-    this.tileX = path.toTileX;
-    this.tileY = path.toTileY;
+    this.tileX = path.toX;
+    this.tileY = path.toY;
 
     this.root
       .setPosition(
