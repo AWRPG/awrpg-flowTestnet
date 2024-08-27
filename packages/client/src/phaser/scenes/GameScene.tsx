@@ -243,6 +243,10 @@ export class GameScene extends Phaser.Scene {
           this.network.playerEntity,
         onClick: () => this.sourceSelectHandler(entity),
       });
+      if (this.tileHighlights[entity]) {
+        this.tileHighlights[entity].destroy();
+        delete this.tileHighlights[entity];
+      }
     });
 
     // // render buildings
