@@ -55,10 +55,10 @@ export default defineWorld({
     Path: {
       schema: {
         entityId: "bytes32",
-        fromTileX: "uint32",
-        fromTileY: "uint32",
-        toTileX: "uint32",
-        toTileY: "uint32",
+        fromX: "uint32",
+        fromY: "uint32",
+        toX: "uint32",
+        toY: "uint32",
         lastUpdated: "uint40",
         duration: "uint40",
       },
@@ -96,7 +96,11 @@ export default defineWorld({
     BuildingSpecs: {
       schema: {
         buildingType: "bytes16",
+        // width: "uint8",
+        // height: "uint8",
+        // player can move on
         canMove: "bool",
+        // terrain type to build on
         terrainType: "bytes16",
       },
       key: ["buildingType"],

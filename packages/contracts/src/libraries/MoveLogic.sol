@@ -27,23 +27,16 @@ library MoveLogic {
   function _move(bytes32 host, uint8[] memory moves) internal {
     // TODO: burn stamina
     // uint32 staminaCost = uint32(moves.length) * STAMINA_COST;
-    (uint32 fromTileX, uint32 fromTileY) = getMoveFromCoordStrict(host);
+    (uint32 fromX, uint32 fromY) = getMoveFromCoordStrict(host);
 
-    (uint32 toTileX, uint32 toTileY) = getMoveToCoordStrict(host, fromTileX, fromTileY, moves);
+    (uint32 toX, uint32 toY) = getMoveToCoordStrict(host, fromX, fromY, moves);
 
-    TileEntity.deleteRecord(MapLogic.getCoordId(fromTileX, fromTileY));
-    TileEntity.set(MapLogic.getCoordId(toTileX, toTileY), host);
+    TileEntity.deleteRecord(MapLogic.getCoordId(fromX, fromY));
+    TileEntity.set(MapLogic.getCoordId(toX, toY), host);
 
     Path.set(
       host,
-      PathData(
-        fromTileX,
-        fromTileY,
-        toTileX,
-        toTileY,
-        uint40(block.timestamp),
-        uint40((moves.length * MOVE_DURATION) / 1000)
-      )
+      PathData(fromX, fromY, toX, toY, uint40(block.timestamp), uint40((moves.length * MOVE_DURATION) / 1000))
     );
     Moves.set(host, combineMoves(moves));
   }
@@ -51,8 +44,8 @@ library MoveLogic {
   // for host to move from, host must be on ground & arrived
   function getMoveFromCoordStrict(bytes32 host) internal view returns (uint32 tileX, uint32 tileY) {
     if (!PathLogic.arrived(host)) revert Errors.NotArrived();
-    tileX = Path.getToTileX(host);
-    tileY = Path.getToTileY(host);
+    tileX = Path.getToX(host);
+    tileY = Path.getToY(host);
     if (!onGround(host, tileX, tileY)) revert Errors.NotOnGround();
   }
 
@@ -70,27 +63,33 @@ library MoveLogic {
     return TileEntity.get(MapLogic.getCoordId(tileX, tileY)) == host;
   }
 
-  // // return moves with length = 20
-  // function splitMoves(uint256 _moves) internal pure returns (uint8[] memory moves) {
-  //   moves = new uint8[](MAX_MOVES);
-  //   for (uint256 i = 0; i < MAX_MOVES; i++) {
-  //     uint8 move = uint8(_moves >> (4 * i));
-  //     if (move == 0) return moves;
-
-  //     moves[i] = uint8(move);
-  //   }
-  //   return moves;
-  // }
+  // return none zero moves with length <= 20
+  function splitMoves(uint256 _moves) internal pure returns (uint8[] memory) {
+    uint8[] memory tempMoves = new uint8[](MAX_MOVES);
+    uint256 count = 0;
+    for (uint256 i = 0; i < MAX_MOVES; i++) {
+      uint8 move = uint8(_moves >> (4 * i));
+      if (move != 0) {
+        tempMoves[count] = move;
+        count++;
+      }
+    }
+    uint8[] memory moves = new uint8[](count);
+    for (uint256 j = 0; j < count; j++) {
+      moves[j] = tempMoves[j];
+    }
+    return moves;
+  }
 
   // for host to move to, moves & terrain must be valid
   function getMoveToCoordStrict(
     bytes32 host,
-    uint32 fromTileX,
-    uint32 fromTileY,
+    uint32 fromX,
+    uint32 fromY,
     uint8[] memory moves
   ) internal view returns (uint32 toX, uint32 toY) {
     if (moves.length > MAX_MOVES) revert Errors.ExceedMaxMoves();
-    uint64[] memory toTiles = moves2Tiles(moves, fromTileX, fromTileY);
+    uint64[] memory toTiles = moves2Tiles(moves, fromX, fromY);
     canArriveOnTileStrict(host, toTiles);
     return split(toTiles[toTiles.length - 1]);
   }

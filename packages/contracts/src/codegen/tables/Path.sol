@@ -17,10 +17,10 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct PathData {
-  uint32 fromTileX;
-  uint32 fromTileY;
-  uint32 toTileX;
-  uint32 toTileY;
+  uint32 fromX;
+  uint32 fromY;
+  uint32 toX;
+  uint32 toY;
   uint40 lastUpdated;
   uint40 duration;
 }
@@ -52,10 +52,10 @@ library Path {
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
     fieldNames = new string[](6);
-    fieldNames[0] = "fromTileX";
-    fieldNames[1] = "fromTileY";
-    fieldNames[2] = "toTileX";
-    fieldNames[3] = "toTileY";
+    fieldNames[0] = "fromX";
+    fieldNames[1] = "fromY";
+    fieldNames[2] = "toX";
+    fieldNames[3] = "toY";
     fieldNames[4] = "lastUpdated";
     fieldNames[5] = "duration";
   }
@@ -75,9 +75,9 @@ library Path {
   }
 
   /**
-   * @notice Get fromTileX.
+   * @notice Get fromX.
    */
-  function getFromTileX(bytes32 entityId) internal view returns (uint32 fromTileX) {
+  function getFromX(bytes32 entityId) internal view returns (uint32 fromX) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -86,9 +86,9 @@ library Path {
   }
 
   /**
-   * @notice Get fromTileX.
+   * @notice Get fromX.
    */
-  function _getFromTileX(bytes32 entityId) internal view returns (uint32 fromTileX) {
+  function _getFromX(bytes32 entityId) internal view returns (uint32 fromX) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -97,29 +97,29 @@ library Path {
   }
 
   /**
-   * @notice Set fromTileX.
+   * @notice Set fromX.
    */
-  function setFromTileX(bytes32 entityId, uint32 fromTileX) internal {
+  function setFromX(bytes32 entityId, uint32 fromX) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((fromTileX)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((fromX)), _fieldLayout);
   }
 
   /**
-   * @notice Set fromTileX.
+   * @notice Set fromX.
    */
-  function _setFromTileX(bytes32 entityId, uint32 fromTileX) internal {
+  function _setFromX(bytes32 entityId, uint32 fromX) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((fromTileX)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((fromX)), _fieldLayout);
   }
 
   /**
-   * @notice Get fromTileY.
+   * @notice Get fromY.
    */
-  function getFromTileY(bytes32 entityId) internal view returns (uint32 fromTileY) {
+  function getFromY(bytes32 entityId) internal view returns (uint32 fromY) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -128,9 +128,9 @@ library Path {
   }
 
   /**
-   * @notice Get fromTileY.
+   * @notice Get fromY.
    */
-  function _getFromTileY(bytes32 entityId) internal view returns (uint32 fromTileY) {
+  function _getFromY(bytes32 entityId) internal view returns (uint32 fromY) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -139,29 +139,29 @@ library Path {
   }
 
   /**
-   * @notice Set fromTileY.
+   * @notice Set fromY.
    */
-  function setFromTileY(bytes32 entityId, uint32 fromTileY) internal {
+  function setFromY(bytes32 entityId, uint32 fromY) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((fromTileY)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((fromY)), _fieldLayout);
   }
 
   /**
-   * @notice Set fromTileY.
+   * @notice Set fromY.
    */
-  function _setFromTileY(bytes32 entityId, uint32 fromTileY) internal {
+  function _setFromY(bytes32 entityId, uint32 fromY) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((fromTileY)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((fromY)), _fieldLayout);
   }
 
   /**
-   * @notice Get toTileX.
+   * @notice Get toX.
    */
-  function getToTileX(bytes32 entityId) internal view returns (uint32 toTileX) {
+  function getToX(bytes32 entityId) internal view returns (uint32 toX) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -170,9 +170,9 @@ library Path {
   }
 
   /**
-   * @notice Get toTileX.
+   * @notice Get toX.
    */
-  function _getToTileX(bytes32 entityId) internal view returns (uint32 toTileX) {
+  function _getToX(bytes32 entityId) internal view returns (uint32 toX) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -181,29 +181,29 @@ library Path {
   }
 
   /**
-   * @notice Set toTileX.
+   * @notice Set toX.
    */
-  function setToTileX(bytes32 entityId, uint32 toTileX) internal {
+  function setToX(bytes32 entityId, uint32 toX) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((toTileX)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((toX)), _fieldLayout);
   }
 
   /**
-   * @notice Set toTileX.
+   * @notice Set toX.
    */
-  function _setToTileX(bytes32 entityId, uint32 toTileX) internal {
+  function _setToX(bytes32 entityId, uint32 toX) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((toTileX)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((toX)), _fieldLayout);
   }
 
   /**
-   * @notice Get toTileY.
+   * @notice Get toY.
    */
-  function getToTileY(bytes32 entityId) internal view returns (uint32 toTileY) {
+  function getToY(bytes32 entityId) internal view returns (uint32 toY) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -212,9 +212,9 @@ library Path {
   }
 
   /**
-   * @notice Get toTileY.
+   * @notice Get toY.
    */
-  function _getToTileY(bytes32 entityId) internal view returns (uint32 toTileY) {
+  function _getToY(bytes32 entityId) internal view returns (uint32 toY) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
@@ -223,23 +223,23 @@ library Path {
   }
 
   /**
-   * @notice Set toTileY.
+   * @notice Set toY.
    */
-  function setToTileY(bytes32 entityId, uint32 toTileY) internal {
+  function setToY(bytes32 entityId, uint32 toY) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((toTileY)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((toY)), _fieldLayout);
   }
 
   /**
-   * @notice Set toTileY.
+   * @notice Set toY.
    */
-  function _setToTileY(bytes32 entityId, uint32 toTileY) internal {
+  function _setToY(bytes32 entityId, uint32 toY) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = entityId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((toTileY)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((toY)), _fieldLayout);
   }
 
   /**
@@ -361,14 +361,14 @@ library Path {
    */
   function set(
     bytes32 entityId,
-    uint32 fromTileX,
-    uint32 fromTileY,
-    uint32 toTileX,
-    uint32 toTileY,
+    uint32 fromX,
+    uint32 fromY,
+    uint32 toX,
+    uint32 toY,
     uint40 lastUpdated,
     uint40 duration
   ) internal {
-    bytes memory _staticData = encodeStatic(fromTileX, fromTileY, toTileX, toTileY, lastUpdated, duration);
+    bytes memory _staticData = encodeStatic(fromX, fromY, toX, toY, lastUpdated, duration);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -384,14 +384,14 @@ library Path {
    */
   function _set(
     bytes32 entityId,
-    uint32 fromTileX,
-    uint32 fromTileY,
-    uint32 toTileX,
-    uint32 toTileY,
+    uint32 fromX,
+    uint32 fromY,
+    uint32 toX,
+    uint32 toY,
     uint40 lastUpdated,
     uint40 duration
   ) internal {
-    bytes memory _staticData = encodeStatic(fromTileX, fromTileY, toTileX, toTileY, lastUpdated, duration);
+    bytes memory _staticData = encodeStatic(fromX, fromY, toX, toY, lastUpdated, duration);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -407,10 +407,10 @@ library Path {
    */
   function set(bytes32 entityId, PathData memory _table) internal {
     bytes memory _staticData = encodeStatic(
-      _table.fromTileX,
-      _table.fromTileY,
-      _table.toTileX,
-      _table.toTileY,
+      _table.fromX,
+      _table.fromY,
+      _table.toX,
+      _table.toY,
       _table.lastUpdated,
       _table.duration
     );
@@ -429,10 +429,10 @@ library Path {
    */
   function _set(bytes32 entityId, PathData memory _table) internal {
     bytes memory _staticData = encodeStatic(
-      _table.fromTileX,
-      _table.fromTileY,
-      _table.toTileX,
-      _table.toTileY,
+      _table.fromX,
+      _table.fromY,
+      _table.toX,
+      _table.toY,
       _table.lastUpdated,
       _table.duration
     );
@@ -451,18 +451,14 @@ library Path {
    */
   function decodeStatic(
     bytes memory _blob
-  )
-    internal
-    pure
-    returns (uint32 fromTileX, uint32 fromTileY, uint32 toTileX, uint32 toTileY, uint40 lastUpdated, uint40 duration)
-  {
-    fromTileX = (uint32(Bytes.getBytes4(_blob, 0)));
+  ) internal pure returns (uint32 fromX, uint32 fromY, uint32 toX, uint32 toY, uint40 lastUpdated, uint40 duration) {
+    fromX = (uint32(Bytes.getBytes4(_blob, 0)));
 
-    fromTileY = (uint32(Bytes.getBytes4(_blob, 4)));
+    fromY = (uint32(Bytes.getBytes4(_blob, 4)));
 
-    toTileX = (uint32(Bytes.getBytes4(_blob, 8)));
+    toX = (uint32(Bytes.getBytes4(_blob, 8)));
 
-    toTileY = (uint32(Bytes.getBytes4(_blob, 12)));
+    toY = (uint32(Bytes.getBytes4(_blob, 12)));
 
     lastUpdated = (uint40(Bytes.getBytes5(_blob, 16)));
 
@@ -480,14 +476,9 @@ library Path {
     EncodedLengths,
     bytes memory
   ) internal pure returns (PathData memory _table) {
-    (
-      _table.fromTileX,
-      _table.fromTileY,
-      _table.toTileX,
-      _table.toTileY,
-      _table.lastUpdated,
-      _table.duration
-    ) = decodeStatic(_staticData);
+    (_table.fromX, _table.fromY, _table.toX, _table.toY, _table.lastUpdated, _table.duration) = decodeStatic(
+      _staticData
+    );
   }
 
   /**
@@ -515,14 +506,14 @@ library Path {
    * @return The static data, encoded into a sequence of bytes.
    */
   function encodeStatic(
-    uint32 fromTileX,
-    uint32 fromTileY,
-    uint32 toTileX,
-    uint32 toTileY,
+    uint32 fromX,
+    uint32 fromY,
+    uint32 toX,
+    uint32 toY,
     uint40 lastUpdated,
     uint40 duration
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(fromTileX, fromTileY, toTileX, toTileY, lastUpdated, duration);
+    return abi.encodePacked(fromX, fromY, toX, toY, lastUpdated, duration);
   }
 
   /**
@@ -532,14 +523,14 @@ library Path {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
-    uint32 fromTileX,
-    uint32 fromTileY,
-    uint32 toTileX,
-    uint32 toTileY,
+    uint32 fromX,
+    uint32 fromY,
+    uint32 toX,
+    uint32 toY,
     uint40 lastUpdated,
     uint40 duration
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(fromTileX, fromTileY, toTileX, toTileY, lastUpdated, duration);
+    bytes memory _staticData = encodeStatic(fromX, fromY, toX, toY, lastUpdated, duration);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

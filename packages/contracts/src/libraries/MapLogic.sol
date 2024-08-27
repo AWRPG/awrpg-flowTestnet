@@ -22,9 +22,9 @@ library MapLogic {
     y = uint32(uint256(coordId));
   }
 
-  function _initGroundPath(bytes32 host, uint32 toTileX, uint32 toTileY) internal {
-    Path.set(host, toTileX, toTileY, toTileX, toTileY, uint40(block.timestamp), 0);
-    TileEntity.set(getCoordId(toTileX, toTileY), host);
+  function _initGroundPath(bytes32 host, uint32 toX, uint32 toY) internal {
+    Path.set(host, toX, toY, toX, toY, uint40(block.timestamp), 0);
+    TileEntity.set(getCoordId(toX, toY), host);
   }
 
   function getRandomEmptyPosition(
