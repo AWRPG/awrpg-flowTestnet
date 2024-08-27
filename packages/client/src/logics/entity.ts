@@ -60,4 +60,6 @@ export function selectNextHost(
   const index = hosts.findIndex((host) => host === selectedHost);
   const nextIndex = (index + 1) % hosts.length;
   setComponent(SelectedHost, SOURCE, { value: hosts[nextIndex] });
+
+  // Change the state of cursor to silent of host before
 }

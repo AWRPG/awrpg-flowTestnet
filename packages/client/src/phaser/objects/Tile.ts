@@ -27,6 +27,8 @@ export class Tile extends SceneObject {
   tileValue: string[];
   terrain: number = 0;
 
+  cursor: Phaser.GameObjects.Sprite | undefined;
+
   constructor(
     scene: GameScene,
     components: ClientComponents,
@@ -45,19 +47,24 @@ export class Tile extends SceneObject {
     super(entity, components, scene);
     this.tileValue = tileValue;
     const tileCoord = splitFromEntity(entity);
-    const x = this.tileSize * tileCoord.x + this.tileSize / 2;
-    const y = this.tileSize * tileCoord.y + this.tileSize / 2;
-    // if (terrainMapping[terrain] === "forest") {
-    //   this.tile = scene.add.tileSprite(x, y, 16, 16, "grass_0_2");
-    // } else {
+    this.tileX = tileCoord.x;
+    this.tileY = tileCoord.y;
+    const x = (this.tileX + 0.5) * this.tileSize;
+    const y = (this.tileY + 0.5) * this.tileSize;
+    this.root
+      .setPosition(
+        (this.tileX + 0.5) * this.tileSize,
+        (this.tileY + 0.5) * this.tileSize
+      )
+      .setDepth(1);
 
     tileValue.forEach((tile, index) => {
       const [texture, frame] = tile.split("&");
       if (texture === "pine_12") {
-        const tileSprite = scene.add
+        const tileSprite = this.scene.add
           .tileSprite(
-            x + (this.tileSize * Math.random()) / 2,
-            y + (this.tileSize * Math.random()) / 2,
+            x + (this.tileSize * (Math.random() - 0.5)) / 2,
+            y + (this.tileSize * (Math.random() - 0.5)) / 2,
             0,
             0,
             "pine_12"
@@ -66,14 +73,22 @@ export class Tile extends SceneObject {
           .setDepth(index + 5);
         this.tileSrpites[index] = tileSprite;
       } else {
-        const tileSprite = scene.add
-          .tileSprite(x, y, 0, 0, texture, frame ?? "")
-          .setDepth(index)
+        const tileSprite = new Phaser.GameObjects.TileSprite(
+          this.scene,
+          0,
+          0,
+          0,
+          0,
+          texture,
+          frame ?? ""
+        )
+          // .setDepth(index)
           .setInteractive()
           .on("pointerdown", () => {
             console.log(texture, frame);
           });
         this.tileSrpites[index] = tileSprite;
+        this.root.add(tileSprite);
       }
     });
 
@@ -84,11 +99,24 @@ export class Tile extends SceneObject {
   //
 
   select() {
-    this.tileSrpites[0].setTint(0xff0000);
+    this.cursor = this.scene.add
+      .sprite(
+        (this.tileX + 0.5) * this.tileSize,
+        (this.tileY + 0.5) * this.tileSize,
+        "ui-cursor"
+      )
+      .setDepth(5)
+      .setScale(0.5)
+      .play("ui-cursor-active");
+  }
+
+  silentSelect() {
+    this.cursor?.stop();
+    console.log("stop!");
   }
 
   unselect() {
-    this.tileSrpites[0].clearTint();
+    this.cursor?.destroy();
   }
 
   destroy() {

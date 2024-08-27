@@ -141,7 +141,7 @@ export const handleBoundary = (
     return ["grass_boundary&down-right", layer1];
   } else if (terrainType === TerrainType.MUD) {
     const layer1 = "grass_2&" + neighborType;
-    console.log("mud", neighborType);
+    // console.log("mud", neighborType);
     return ["grass_boundary&down-right", layer1];
   }
   return;

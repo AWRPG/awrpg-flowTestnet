@@ -18,6 +18,7 @@ import {
   combine,
   movesToPositions,
   setNewTargetTile,
+  getNewTargetTile,
   split,
   splitFromEntity,
   updateMoves,
@@ -28,13 +29,14 @@ import {
   MAIN_MENU,
   MENU,
   SOURCE,
+  OBSERVER,
   TerrainType,
   buildingMapping,
   terrainMapping,
 } from "../../constants";
 import { Host } from "../objects/Host";
 import { POOL } from "../../contract/constants";
-import { Hex } from "viem";
+import { Hex, toHex } from "viem";
 import { selectFirstHost, selectNextHost } from "../../logics/entity";
 import { GRID_SIZE } from "../../logics/terrain";
 import { Tile } from "../objects/Tile";
@@ -49,6 +51,8 @@ import boundary_json from "../../assets/tiles/terrains/boundary.json";
 import boundary_reverse_json from "../../assets/tiles/terrains/boundary_reverse.json";
 import ocean_png from "../../assets/tiles/terrains/ocean.png";
 import pine_12_png from "../../assets/tiles/props/trees/pine_12.png";
+import { castToBytes32 } from "../../utils/encode";
+import { TileHighlight } from "../objects/TileHighlight";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -63,6 +67,7 @@ export class GameScene extends Phaser.Scene {
   tiles: Record<Entity, Tile> = {};
   // source entityId -> tileCoordId
   selectedTiles: Record<Entity, Entity> = {};
+  tileHighlights: Record<Entity, TileHighlight> = {};
   buildings: Record<Entity, Phaser.GameObjects.Sprite> = {};
 
   hosts: Record<Entity, Host> = {};
@@ -77,6 +82,8 @@ export class GameScene extends Phaser.Scene {
   tapDuration = 60;
   keyDownTime: number | null = null;
 
+  keyboardFocus: string = "Scene"; // [TODO]
+
   constructor(
     setupResult: SetupResult,
     config?: Phaser.Types.Scenes.SettingsConfig
@@ -89,12 +96,8 @@ export class GameScene extends Phaser.Scene {
 
   preload() {
     // tiles texture
-    // this.load.image("bush", "src/assets/tiles/Bush.png");
-    // this.load.image("grass", "src/assets/tiles/Grass.png");
     this.load.image("plain", "src/assets/tiles/Grass.png");
-    // this.load.image("rock", "src/assets/tiles/Rock.png");
     this.load.image("mountain", "src/assets/tiles/Rock.png");
-    // this.load.image("tree", "src/assets/tiles/Tree.png");
     this.load.image("forest", "src/assets/tiles/Tree.png");
     // this.load.image("ocean", "src/assets/tiles/Water.png");
     this.load.atlas("grass_boundary", grass_0_png, boundary_json);
@@ -112,11 +115,6 @@ export class GameScene extends Phaser.Scene {
     // this.load.image("safe", "src/assets/tiles/Safe.png");
 
     // player texture
-    this.load.atlas(
-      "host1",
-      "src/assets/hosts/sprites/host1.png",
-      "src/assets/hosts/sprites/host1.json"
-    );
     this.hostTextures = [
       { key: "host-farmer1", url: "src/assets/hosts/sprites/farmer_1_1.png" },
       { key: "host-farmer2", url: "src/assets/hosts/sprites/farmer_1_2.png" },
@@ -134,9 +132,17 @@ export class GameScene extends Phaser.Scene {
         }
       );
     }
-    this.load.spritesheet("farmer", "src/assets/hosts/sprites/farmer_1_1.png", {
-      frameWidth: 64,
-      frameHeight: 64,
+
+    // cursor
+    this.load.spritesheet("ui-cursor", "src/assets/ui/cursor.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
+    // ui
+    this.load.spritesheet("ui-highlight", "src/assets/ui/highlight.png", {
+      frameWidth: 32,
+      frameHeight: 32,
     });
   }
 
@@ -200,6 +206,11 @@ export class GameScene extends Phaser.Scene {
       this.selectedTiles[entity] = currTileId;
       this.tiles[currTileId]?.select();
       const pathCoords = calculatePathCoords(this.components, entity);
+
+      Object.keys(this.selectedTiles).forEach((entity) => {
+        const tileId = this.selectedTiles[entity as Entity];
+        if (tileId !== currTileId) this.tiles[tileId]?.silentSelect();
+      });
     });
 
     // defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {
@@ -267,10 +278,40 @@ export class GameScene extends Phaser.Scene {
       }
       const source = getComponentValue(SelectedHost, SOURCE)?.value;
       const menu = getComponentValue(SelectedEntity, MENU)?.value;
+
+      if (event.key === "Enter") {
+        const target: Entity = source || OBSERVER;
+        const targetCoordId = getComponentValue(TargetTile, target)?.value;
+        if (targetCoordId) {
+          const entityId = getComponentValue(
+            this.components.TileEntity,
+            castToBytes32(BigInt(targetCoordId)) as Entity
+          )?.value;
+          if (entityId === source) {
+            // Focus on the hosts can be controlled by this player
+
+            if (this.tileHighlights[target]) {
+              this.tileHighlights[target].destroy();
+              delete this.tileHighlights[target];
+            } else {
+              this.tileHighlights[target] = new TileHighlight(
+                target,
+                this.components,
+                this,
+                {
+                  canControl: true,
+                  systemCalls: this.systemCalls,
+                }
+              );
+            }
+          }
+        }
+      }
+
       if (event.key === "j") {
         if (menu || !source) return;
         setComponent(SelectedEntity, MENU, { value: EXPLORE_MENU });
-      } else if (event.key === "Enter") {
+      } else if (event.key === "Escape") {
         if (!source) {
           selectFirstHost(this.components, this.network.playerEntity);
         }
@@ -284,6 +325,39 @@ export class GameScene extends Phaser.Scene {
         removeComponent(Moves, source);
         return removeComponent(ConsoleMessage, SOURCE);
       }
+
+      let isTap = false;
+      if (this.keyDownTime) {
+        const duration = Date.now() - this.keyDownTime;
+        if (duration < this.tapDuration) {
+          isTap = true;
+        }
+        this.keyDownTime = null;
+      }
+
+      if (event.key === "w") {
+        if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.UP);
+        // if (!isTap)
+        // updateMoves(this.components, this.systemCalls, Direction.UP);
+      } else if (event.key === "s") {
+        if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.DOWN);
+        // if (!isTap)
+        // updateMoves(this.components, this.systemCalls, Direction.DOWN);
+      } else if (event.key === "a") {
+        if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.LEFT);
+        // setComponent(RoleDirection, source, { value: Direction.LEFT });
+        // if (!isTap)
+        // updateMoves(this.components, this.systemCalls, Direction.LEFT);
+      } else if (event.key === "d") {
+        if (menu || !source) return;
+        setNewTargetTile(this.components, source, Direction.RIGHT);
+        // setComponent(RoleDirection, source, { value: Direction.RIGHT });
+        // if (!isTap)
+        // updateMoves(this.components, this.systemCalls, Direction.RIGHT);
+      }
     });
 
     defineSystem(world, [Has(SelectedHost)], ({ entity, type }) => {
@@ -293,45 +367,6 @@ export class GameScene extends Phaser.Scene {
         return this.hosts[role]?.unfollow();
       }
       return this.hosts[role]?.follow();
-    });
-
-    this.input.keyboard?.on("keyup", (event: KeyboardEvent) => {
-      let isTap = false;
-      if (this.keyDownTime) {
-        const duration = Date.now() - this.keyDownTime;
-        if (duration < this.tapDuration) {
-          isTap = true;
-        }
-        this.keyDownTime = null;
-      }
-      const source = getComponentValue(SelectedHost, SOURCE)?.value;
-      // TODO: find better way to make exception?
-      const menu = getComponentValue(SelectedEntity, MENU)?.value;
-      if (event.key === "w") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.UP);
-        setComponent(RoleDirection, source, { value: Direction.UP });
-        if (!isTap)
-          updateMoves(this.components, this.systemCalls, Direction.UP);
-      } else if (event.key === "s") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.DOWN);
-        setComponent(RoleDirection, source, { value: Direction.DOWN });
-        if (!isTap)
-          updateMoves(this.components, this.systemCalls, Direction.DOWN);
-      } else if (event.key === "a") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.LEFT);
-        setComponent(RoleDirection, source, { value: Direction.LEFT });
-        if (!isTap)
-          updateMoves(this.components, this.systemCalls, Direction.LEFT);
-      } else if (event.key === "d") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.RIGHT);
-        setComponent(RoleDirection, source, { value: Direction.RIGHT });
-        if (!isTap)
-          updateMoves(this.components, this.systemCalls, Direction.RIGHT);
-      }
     });
 
     // panning
@@ -456,6 +491,7 @@ export class GameScene extends Phaser.Scene {
   update() {}
 
   createAnimations() {
+    // host
     for (let i = 0; i < this.hostTextures.length; i++) {
       this.anims.create({
         key: this.hostTextures[i].key + "-idle-right",
@@ -477,85 +513,21 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
+    // cursor
     this.anims.create({
-      key: "host1-walk-down",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
+      key: "ui-cursor-active",
+      frames: this.anims.generateFrameNumbers("ui-cursor", {
         start: 0,
-        end: 2,
-        suffix: ".png",
-      }),
-      frameRate: 8,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: "host1-idle-down",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 0,
-        end: 0,
-        suffix: ".png",
-      }),
-    });
-    this.anims.create({
-      key: "host1-walk-left",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 3,
-        end: 5,
-        suffix: ".png",
-      }),
-      frameRate: 8,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: "host1-idle-left",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 3,
         end: 3,
-        suffix: ".png",
-      }),
-    });
-    this.anims.create({
-      key: "host1-walk-right",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 6,
-        end: 8,
-        suffix: ".png",
       }),
       frameRate: 8,
       repeat: -1,
     });
+
+    // ui-highlight
     this.anims.create({
-      key: "host1-idle-right",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 6,
-        end: 6,
-        suffix: ".png",
-      }),
-    });
-    this.anims.create({
-      key: "host1-walk-up",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 9,
-        end: 11,
-        suffix: ".png",
-      }),
-      frameRate: 8,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: "host1-idle-up",
-      frames: this.anims.generateFrameNames("host1", {
-        prefix: "0",
-        start: 9,
-        end: 9,
-        suffix: ".png",
-      }),
+      key: "ui-highlight-active",
+      frames: [{ key: "ui-highlight", frame: 5 }],
     });
   }
 

@@ -16,7 +16,7 @@ import {
   split,
 } from "../logics/move";
 import { ClientComponents } from "./createClientComponents";
-import { SOURCE, TerrainType } from "../constants";
+import { SOURCE, OBSERVER, TerrainType } from "../constants";
 import {
   compileGridTerrainValues,
   getTerrainType,
@@ -48,6 +48,11 @@ export function syncComputedComponents({
   const initX = 2 ** 16; // 32 * 10;
   const initY = 2 ** 16; // 32 * 10;
   const path = getComponentValue(Path, role);
+  if (!path) {
+    setComponent(components.TargetTile, OBSERVER, {
+      value: combineToEntity(initX, initY),
+    });
+  }
   // const moves = getComponentValue(components.Moves, role)?.value ?? [];
   // const positions = movesToPositions(moves, position);
   // const from = positions[positions.length - 1];
