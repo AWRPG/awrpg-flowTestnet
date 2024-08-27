@@ -5,6 +5,7 @@ import { MUDProvider } from "./MUDContext";
 import mudConfig from "contracts/mud.config";
 import "./index.css";
 import { GameScene } from "./phaser/scenes/GameScene";
+import { UIScene } from "./phaser/scenes/UIScene";
 import config from "./phaser/phaser.config";
 // import { syncPools } from "./mud/syncPools";
 
@@ -18,7 +19,7 @@ setup().then(async (result) => {
 
   new Phaser.Game({
     ...config,
-    scene: [new GameScene(result)],
+    scene: [new GameScene(result), new UIScene(result, config)],
   });
 
   root.render(
