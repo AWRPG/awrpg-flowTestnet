@@ -64,7 +64,7 @@ export class Tile extends SceneObject {
         const tileSprite = this.scene.add
           .tileSprite(
             x + (this.tileSize * (Math.random() - 0.5)) / 2,
-            y + (this.tileSize * (Math.random() - 0.5)) / 2,
+            y + (this.tileSize * (Math.random() + 0.5)) / 2,
             0,
             0,
             "pine_12"
