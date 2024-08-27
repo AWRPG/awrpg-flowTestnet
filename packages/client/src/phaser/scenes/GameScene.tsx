@@ -88,7 +88,7 @@ export class GameScene extends Phaser.Scene {
     setupResult: SetupResult,
     config?: Phaser.Types.Scenes.SettingsConfig
   ) {
-    super(config);
+    super({ ...config, key: "GameScene", active: true });
     this.network = setupResult.network;
     this.components = setupResult.components;
     this.systemCalls = setupResult.systemCalls;

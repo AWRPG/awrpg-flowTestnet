@@ -107,3 +107,9 @@ export const BUILDING_MENU = toHex("BUILDING_MENU", { size: 32 }) as Entity;
 export const TRANSFER_MENU = toHex("TRANSFER_MENU", { size: 32 }) as Entity;
 
 export const TARGET_MENU = toHex("TARGET_MENU", { size: 32 }) as Entity;
+
+export const ALIGNMODES = {
+  NONE: "none",
+  LEFT_TOP: "leftTop",
+  LEFT_BOTTOM: "leftBottom",
+};

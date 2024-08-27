@@ -62,7 +62,7 @@ export class TileHighlight extends SceneObject {
         (this.tileY + 0.5) * this.tileSize
       )
       .setAlpha(1)
-      .setDepth(2);
+      .setDepth(12);
     // Get the type of highlight
     if (canControl) {
       this.type = 0;
@@ -101,6 +101,7 @@ export class TileHighlight extends SceneObject {
     for (const i in terrains) {
       if (
         terrains[i].terrainType !== TerrainType.PLAIN &&
+        terrains[i].terrainType !== TerrainType.MUD &&
         this.legalTiles[terrains[i].x] &&
         this.legalTiles[terrains[i].x][terrains[i].y]
       ) {
@@ -121,7 +122,7 @@ export class TileHighlight extends SceneObject {
             j * this.tileSize,
             "ui-highlight"
           )
-            .setScale(0.9)
+            .setScale(0.45)
             .play("ui-highlight-active");
           this.highlights.push(highlight);
           this.root.add(highlight);
