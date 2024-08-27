@@ -5,6 +5,7 @@ import { TileEntity, Moves, Path, PathData } from "@/codegen/index.sol";
 import { MapLogic } from "@/libraries/MapLogic.sol";
 import { TerrainLogic } from "@/libraries/TerrainLogic.sol";
 import { EntityLogic } from "@/libraries/EntityLogic.sol";
+import { PathLogic } from "@/libraries/PathLogic.sol";
 import { BuildingLogic } from "@/libraries/BuildingLogic.sol";
 import { MapLogic } from "@/libraries/MapLogic.sol";
 import { Errors } from "@/Errors.sol";
@@ -26,9 +27,9 @@ library MoveLogic {
   function _move(bytes32 host, uint8[] memory moves) internal {
     // TODO: burn stamina
     // uint32 staminaCost = uint32(moves.length) * STAMINA_COST;
+    (uint32 fromTileX, uint32 fromTileY) = getMoveFromCoordStrict(host);
 
-    (uint32 fromTileX, uint32 fromTileY) = getTileCoordStrict(host);
-    (uint32 toTileX, uint32 toTileY) = canMovesStrict(host, fromTileX, fromTileY, moves);
+    (uint32 toTileX, uint32 toTileY) = getMoveToCoordStrict(host, fromTileX, fromTileY, moves);
 
     TileEntity.deleteRecord(MapLogic.getCoordId(fromTileX, fromTileY));
     TileEntity.set(MapLogic.getCoordId(toTileX, toTileY), host);
@@ -47,25 +48,21 @@ library MoveLogic {
     Moves.set(host, combineMoves(moves));
   }
 
+  // for host to move from, host must be on ground & arrived
+  function getMoveFromCoordStrict(bytes32 host) internal view returns (uint32 tileX, uint32 tileY) {
+    if (!PathLogic.arrived(host)) revert Errors.NotArrived();
+    tileX = Path.getToTileX(host);
+    tileY = Path.getToTileY(host);
+    if (!onGround(host, tileX, tileY)) revert Errors.NotOnGround();
+  }
+
+  // combine moves into one uint256; each move is 4 bits; 20 moves = 80 bits;
   function combineMoves(uint8[] memory moves) internal pure returns (uint256) {
     uint256 result = 0;
     for (uint256 i = 0; i < moves.length; i++) {
       result |= uint256(moves[i]) << (4 * i);
     }
     return result;
-  }
-
-  function getTileCoordStrict(bytes32 host) internal view returns (uint32 tileX, uint32 tileY) {
-    if (!arrived(host)) revert Errors.NotArrived();
-    tileX = Path.getToTileX(host);
-    tileY = Path.getToTileY(host);
-    if (!onGround(host, tileX, tileY)) revert Errors.NotOnGround();
-  }
-
-  function arrived(bytes32 host) internal view returns (bool) {
-    uint40 lastUpdated = Path.getLastUpdated(host);
-    uint40 duration = Path.getDuration(host);
-    return lastUpdated != 0 && lastUpdated + duration <= block.timestamp;
   }
 
   // check if the host is on ground
@@ -85,28 +82,31 @@ library MoveLogic {
   //   return moves;
   // }
 
-  function canMovesStrict(
+  // for host to move to, moves & terrain must be valid
+  function getMoveToCoordStrict(
     bytes32 host,
     uint32 fromTileX,
     uint32 fromTileY,
     uint8[] memory moves
   ) internal view returns (uint32 toX, uint32 toY) {
     if (moves.length > MAX_MOVES) revert Errors.ExceedMaxMoves();
-    uint64[] memory toPositions = movesToPositions(moves, fromTileX, fromTileY);
-    canMoveToPositionsStrict(host, toPositions);
-    return split(toPositions[toPositions.length - 1]);
+    uint64[] memory toTiles = moves2Tiles(moves, fromTileX, fromTileY);
+    canArriveOnTileStrict(host, toTiles);
+    return split(toTiles[toTiles.length - 1]);
   }
 
-  function canMoveToPositionsStrict(bytes32 host, uint64[] memory positions) internal view {
-    for (uint256 i = 1; i < positions.length - 1; i++) {
-      (uint32 _x, uint32 _y) = split(positions[i]);
-      canMoveAcrossStrict(host, _x, _y);
+  // check if host can move across a series of toTile coords & arrive on the last one
+  function canArriveOnTileStrict(bytes32 host, uint64[] memory toTiles) internal view {
+    for (uint256 i = 1; i < toTiles.length - 1; i++) {
+      (uint32 _x, uint32 _y) = split(toTiles[i]);
+      canMoveAcrossTileStrict(host, _x, _y);
     }
-    (uint32 x, uint32 y) = split(positions[positions.length - 1]);
-    canMoveToStrict(host, x, y);
+    (uint32 x, uint32 y) = split(toTiles[toTiles.length - 1]);
+    canMoveToTileStrict(host, x, y);
   }
 
-  function canMoveAcrossStrict(bytes32 host, uint32 tileX, uint32 tileY) internal view {
+  // check if host can move across a tile coord, which is not the destination
+  function canMoveAcrossTileStrict(bytes32 host, uint32 tileX, uint32 tileY) internal view {
     if (!TerrainLogic.canMoveToTerrain(host, tileX, tileY)) revert Errors.CannotMoveToTerrain();
     bytes32 tileId = MapLogic.getCoordId(tileX, tileY);
     bytes32 tileEntity = TileEntity.get(tileId);
@@ -117,26 +117,29 @@ library MoveLogic {
     revert Errors.CannotMoveAcrossBuilding();
   }
 
+  // check if host can move to a tile coord
   // Rn, cannot move to a tile coord that has an entity on, building or role
-  function canMoveToStrict(bytes32 host, uint32 tileX, uint32 tileY) internal view {
+  function canMoveToTileStrict(bytes32 host, uint32 tileX, uint32 tileY) internal view {
     if (!TerrainLogic.canMoveToTerrain(host, tileX, tileY)) revert Errors.CannotMoveToTerrain();
     bytes32 tileId = MapLogic.getCoordId(tileX, tileY);
     bytes32 tileEntity = TileEntity.get(tileId);
     if (tileEntity != 0) revert Errors.CannotMoveOnEntity(tileId);
   }
 
-  function movesToPositions(uint8[] memory moves, uint32 fromX, uint32 fromY) internal pure returns (uint64[] memory) {
-    uint64[] memory positions = new uint64[](moves.length);
+  // convert moves fromX&Y to toTile coords
+  function moves2Tiles(uint8[] memory moves, uint32 fromX, uint32 fromY) internal pure returns (uint64[] memory) {
+    uint64[] memory toTiles = new uint64[](moves.length);
     uint32 newX = fromX;
     uint32 newY = fromY;
     for (uint256 i = 0; i < moves.length; i++) {
-      positions[i] = moveToPosition(moves[i], newX, newY);
-      (newX, newY) = split(positions[i]);
+      toTiles[i] = move2Tile(moves[i], newX, newY);
+      (newX, newY) = split(toTiles[i]);
     }
-    return positions;
+    return toTiles;
   }
 
-  function moveToPosition(uint8 move, uint32 fromX, uint32 fromY) internal pure returns (uint64) {
+  // convert 1 move fromX&Y to 1 toTile coord
+  function move2Tile(uint8 move, uint32 fromX, uint32 fromY) internal pure returns (uint64) {
     if (move == uint8(Direction.UP)) {
       return combine(fromX, fromY - 1);
     } else if (move == uint8(Direction.DOWN)) {
