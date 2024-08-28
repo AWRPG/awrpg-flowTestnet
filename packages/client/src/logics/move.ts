@@ -5,7 +5,7 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { Vector, getRectangleCoords } from "../utils/vector";
-import { SOURCE } from "../constants";
+import { SOURCE, TerrainType } from "../constants";
 import { ClientComponents } from "../mud/createClientComponents";
 import { canMoveTo, getEntityOnCoord } from "./map";
 import {
@@ -18,6 +18,9 @@ import { SystemCalls } from "../mud/createSystemCalls";
 import { MAX_MOVES } from "../contract/constants";
 import { getReadyPosition } from "./path";
 import { dijkstraPathfinding } from "../utils/pathFinding";
+import { isRole } from "./entity";
+import { canMoveToBuilding } from "./building";
+import { castToBytes32 } from "../utils/encode";
 
 export enum Direction {
   NONE = 0,
@@ -37,6 +40,25 @@ export function getPositionFromPath(
   if (!path) return;
   return { x: path.toX, y: path.toY };
 }
+
+// check if tile has building that host can move accross
+export const canMoveAcrossTile = (
+  components: ClientComponents,
+  tileId: Entity,
+  host?: Entity
+) => {
+  // TODO: check if terrain type is passable
+  const { TileEntity } = components;
+  const tileEntity = getComponentValue(
+    TileEntity,
+    castToBytes32(BigInt(tileId)) as Entity
+  )?.value as Entity;
+  if (!tileEntity) return true;
+  if (isRole(components, tileEntity)) return true;
+  const canBuilding = canMoveToBuilding(components, tileEntity, host);
+  console.log("canMoveAcrossTile", tileId, tileEntity, canBuilding);
+  return canBuilding;
+};
 
 // calc moves to move from role's curr position -> target tile coord
 export const calculatePathMoves = (
@@ -96,7 +118,20 @@ export const calculatePathCoords = (
     const gridId = combineToEntity(coord.x, coord.y);
     terrains = terrains.concat(getGridTerrains(components, gridId));
   });
-  const pathCoords = dijkstraPathfinding(sourceCoord, targetCoord, terrains);
+  // check if terrain has a building to walk on
+  const terrains_building = terrains.map((terrain) => {
+    const tileId = combineToEntity(terrain.x, terrain.y);
+    if (canMoveAcrossTile(components, tileId, role)) return terrain;
+    return {
+      ...terrain,
+      terrainType: TerrainType.BUILDING,
+    };
+  });
+  const pathCoords = dijkstraPathfinding(
+    sourceCoord,
+    targetCoord,
+    terrains_building
+  );
   console.log("pathCoords", pathCoords);
 
   return pathCoords;
@@ -113,6 +148,7 @@ export const setNewTargetTile = (
   setComponent(components.TargetTile, role, {
     value: combineToEntity(coord.x, coord.y),
   });
+  return coord;
 };
 
 // get new target coord from direction

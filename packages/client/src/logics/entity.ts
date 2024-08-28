@@ -47,7 +47,9 @@ export function selectFirstHost(
 ) {
   const { Commander, SelectedHost } = components;
   const hosts = [...runQuery([HasValue(Commander, { value: playerEntity })])];
+  if (!hosts[0]) return false;
   setComponent(SelectedHost, SOURCE, { value: hosts[0] });
+  return hosts[0];
 }
 
 export function selectNextHost(
