@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { Position, PositionData } from "@/codegen/index.sol";
+import { PathLogic } from "./PathLogic.sol";
 
 library PositionLogic {
   function withinRange(bytes32 host1, bytes32 host2, uint32 range) internal view returns (bool) {
-    (uint32 x1, uint32 y1) = getPosition(host1);
-    (uint32 x2, uint32 y2) = getPosition(host2);
+    (uint32 x1, uint32 y1) = PathLogic.getPositionStrict(host1);
+    (uint32 x2, uint32 y2) = PathLogic.getPositionStrict(host2);
     return withinRange(x1, y1, x2, y2, range);
   }
 
   function withinRange(bytes32 host, uint32 x, uint32 y, uint32 range) internal view returns (bool) {
-    (uint32 x1, uint32 y1) = getPosition(host);
+    (uint32 x1, uint32 y1) = PathLogic.getPositionStrict(host);
     return withinRange(x1, y1, x, y, range);
   }
 
@@ -31,11 +31,5 @@ library PositionLogic {
 
   function getDelta(uint32 from, uint32 to) internal pure returns (uint32) {
     return from > to ? from - to : to - from;
-  }
-
-  // building & role have positions
-  function getPosition(bytes32 host) internal view returns (uint32 x, uint32 y) {
-    x = Position.getX(host);
-    y = Position.getY(host);
   }
 }

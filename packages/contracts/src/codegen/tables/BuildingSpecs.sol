@@ -17,6 +17,8 @@ import { EncodedLengths, EncodedLengthsLib } from "@latticexyz/store/src/Encoded
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 struct BuildingSpecsData {
+  uint8 width;
+  uint8 height;
   bool canMove;
   bytes16 terrainType;
 }
@@ -26,12 +28,12 @@ library BuildingSpecs {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000004275696c64696e675370656373000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0011020001100000000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0013040001010110000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes16)
   Schema constant _keySchema = Schema.wrap(0x001001004f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bool, bytes16)
-  Schema constant _valueSchema = Schema.wrap(0x00110200604f0000000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (uint8, uint8, bool, bytes16)
+  Schema constant _valueSchema = Schema.wrap(0x001304000000604f000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -47,9 +49,11 @@ library BuildingSpecs {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](2);
-    fieldNames[0] = "canMove";
-    fieldNames[1] = "terrainType";
+    fieldNames = new string[](4);
+    fieldNames[0] = "width";
+    fieldNames[1] = "height";
+    fieldNames[2] = "canMove";
+    fieldNames[3] = "terrainType";
   }
 
   /**
@@ -67,13 +71,97 @@ library BuildingSpecs {
   }
 
   /**
+   * @notice Get width.
+   */
+  function getWidth(bytes16 buildingType) internal view returns (uint8 width) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(buildingType);
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Get width.
+   */
+  function _getWidth(bytes16 buildingType) internal view returns (uint8 width) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(buildingType);
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Set width.
+   */
+  function setWidth(bytes16 buildingType, uint8 width) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(buildingType);
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((width)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set width.
+   */
+  function _setWidth(bytes16 buildingType, uint8 width) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(buildingType);
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((width)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get height.
+   */
+  function getHeight(bytes16 buildingType) internal view returns (uint8 height) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(buildingType);
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Get height.
+   */
+  function _getHeight(bytes16 buildingType) internal view returns (uint8 height) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(buildingType);
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (uint8(bytes1(_blob)));
+  }
+
+  /**
+   * @notice Set height.
+   */
+  function setHeight(bytes16 buildingType, uint8 height) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(buildingType);
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((height)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set height.
+   */
+  function _setHeight(bytes16 buildingType, uint8 height) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(buildingType);
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((height)), _fieldLayout);
+  }
+
+  /**
    * @notice Get canMove.
    */
   function getCanMove(bytes16 buildingType) internal view returns (bool canMove) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(buildingType);
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
@@ -84,7 +172,7 @@ library BuildingSpecs {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(buildingType);
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
     return (_toBool(uint8(bytes1(_blob))));
   }
 
@@ -95,7 +183,7 @@ library BuildingSpecs {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(buildingType);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((canMove)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((canMove)), _fieldLayout);
   }
 
   /**
@@ -105,7 +193,7 @@ library BuildingSpecs {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(buildingType);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 0, abi.encodePacked((canMove)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((canMove)), _fieldLayout);
   }
 
   /**
@@ -115,7 +203,7 @@ library BuildingSpecs {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(buildingType);
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (bytes16(_blob));
   }
 
@@ -126,7 +214,7 @@ library BuildingSpecs {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(buildingType);
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (bytes16(_blob));
   }
 
@@ -137,7 +225,7 @@ library BuildingSpecs {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(buildingType);
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((terrainType)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((terrainType)), _fieldLayout);
   }
 
   /**
@@ -147,7 +235,7 @@ library BuildingSpecs {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(buildingType);
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((terrainType)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((terrainType)), _fieldLayout);
   }
 
   /**
@@ -183,8 +271,8 @@ library BuildingSpecs {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes16 buildingType, bool canMove, bytes16 terrainType) internal {
-    bytes memory _staticData = encodeStatic(canMove, terrainType);
+  function set(bytes16 buildingType, uint8 width, uint8 height, bool canMove, bytes16 terrainType) internal {
+    bytes memory _staticData = encodeStatic(width, height, canMove, terrainType);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -198,8 +286,8 @@ library BuildingSpecs {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes16 buildingType, bool canMove, bytes16 terrainType) internal {
-    bytes memory _staticData = encodeStatic(canMove, terrainType);
+  function _set(bytes16 buildingType, uint8 width, uint8 height, bool canMove, bytes16 terrainType) internal {
+    bytes memory _staticData = encodeStatic(width, height, canMove, terrainType);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -214,7 +302,7 @@ library BuildingSpecs {
    * @notice Set the full data using the data struct.
    */
   function set(bytes16 buildingType, BuildingSpecsData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.canMove, _table.terrainType);
+    bytes memory _staticData = encodeStatic(_table.width, _table.height, _table.canMove, _table.terrainType);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -229,7 +317,7 @@ library BuildingSpecs {
    * @notice Set the full data using the data struct.
    */
   function _set(bytes16 buildingType, BuildingSpecsData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.canMove, _table.terrainType);
+    bytes memory _staticData = encodeStatic(_table.width, _table.height, _table.canMove, _table.terrainType);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -243,10 +331,16 @@ library BuildingSpecs {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (bool canMove, bytes16 terrainType) {
-    canMove = (_toBool(uint8(Bytes.getBytes1(_blob, 0))));
+  function decodeStatic(
+    bytes memory _blob
+  ) internal pure returns (uint8 width, uint8 height, bool canMove, bytes16 terrainType) {
+    width = (uint8(Bytes.getBytes1(_blob, 0)));
 
-    terrainType = (Bytes.getBytes16(_blob, 1));
+    height = (uint8(Bytes.getBytes1(_blob, 1)));
+
+    canMove = (_toBool(uint8(Bytes.getBytes1(_blob, 2))));
+
+    terrainType = (Bytes.getBytes16(_blob, 3));
   }
 
   /**
@@ -260,7 +354,7 @@ library BuildingSpecs {
     EncodedLengths,
     bytes memory
   ) internal pure returns (BuildingSpecsData memory _table) {
-    (_table.canMove, _table.terrainType) = decodeStatic(_staticData);
+    (_table.width, _table.height, _table.canMove, _table.terrainType) = decodeStatic(_staticData);
   }
 
   /**
@@ -287,8 +381,13 @@ library BuildingSpecs {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bool canMove, bytes16 terrainType) internal pure returns (bytes memory) {
-    return abi.encodePacked(canMove, terrainType);
+  function encodeStatic(
+    uint8 width,
+    uint8 height,
+    bool canMove,
+    bytes16 terrainType
+  ) internal pure returns (bytes memory) {
+    return abi.encodePacked(width, height, canMove, terrainType);
   }
 
   /**
@@ -298,10 +397,12 @@ library BuildingSpecs {
    * @return The dynamic (variable length) data, encoded into a sequence of bytes.
    */
   function encode(
+    uint8 width,
+    uint8 height,
     bool canMove,
     bytes16 terrainType
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(canMove, terrainType);
+    bytes memory _staticData = encodeStatic(width, height, canMove, terrainType);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

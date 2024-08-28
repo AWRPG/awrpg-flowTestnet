@@ -9,6 +9,9 @@ contract Errors is System {
   error NotApproved();
   error NotController();
 
+  // path error
+  error PathNotExist();
+
   // position error
   error NotAdjacent();
 
@@ -42,6 +45,7 @@ contract Errors is System {
   error NestedContainer();
 
   // building errors
+  error NotWithinRectangle();
   error HasNoEntityOnCoord();
   error HasEntityOnCoord();
   error WrongTerrainToBuildOn();

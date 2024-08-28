@@ -96,8 +96,8 @@ export default defineWorld({
     BuildingSpecs: {
       schema: {
         buildingType: "bytes16",
-        // width: "uint8",
-        // height: "uint8",
+        width: "uint8",
+        height: "uint8",
         // player can move on
         canMove: "bool",
         // terrain type to build on

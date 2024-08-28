@@ -36,6 +36,6 @@ library EntityLogic {
 
   function isRole(bytes32 role) internal view returns (bool) {
     // TODO: add role check
-    return true;
+    return !isBuilding(role);
   }
 }
