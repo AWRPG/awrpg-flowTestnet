@@ -128,6 +128,7 @@ library MoveLogic {
     if (!TerrainLogic.canMoveToTerrain(host, tileX, tileY)) revert Errors.CannotMoveToTerrain();
     bytes32 tileId = MapLogic.getCoordId(tileX, tileY);
     bytes32 tileEntity = TileEntity.get(tileId);
+    if (tileEntity == 0) return;
     // role can be moved across
     if (EntityLogic.isRole(tileEntity)) return;
     // some building can move to
