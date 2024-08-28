@@ -61,6 +61,13 @@ function initTerrainTypes() {
 
 function initBuildingTypes() {
   DefineTypes.defineBuilding(
+    BRIDGE,
+    BuildingSpecsData({ width: 1, height: 1, canMove: true, terrainType: OCEAN }),
+    compileTwoTypes(STAMINA, BLOOD, 0, 0),
+    compileOneType(STAMINA, 100),
+    compileOneType(BLOOD, 1)
+  );
+  DefineTypes.defineBuilding(
     SAFE,
     BuildingSpecsData({ width: 2, height: 2, canMove: false, terrainType: PLAIN }),
     compileTwoTypes(STAMINA, WOOD, 0, 0),

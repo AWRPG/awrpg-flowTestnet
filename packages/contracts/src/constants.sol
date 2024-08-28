@@ -21,6 +21,7 @@ bytes16 constant YELLOW_MINE = bytes16("YELLOW_MINE");
 // 2) obtained via crafting
 // 3) placed on map
 bytes16 constant SAFE = bytes16("SAFE");
+bytes16 constant BRIDGE = bytes16("BRIDGE");
 bytes16 constant FENCE = bytes16("FENCE");
 bytes16 constant NODE = bytes16("NODE");
 bytes16 constant FOUNDRY = bytes16("FOUNDRY");
