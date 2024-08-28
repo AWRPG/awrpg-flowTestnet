@@ -8,6 +8,7 @@ import { EntityLogic } from "@/libraries/EntityLogic.sol";
 import { PathLogic } from "@/libraries/PathLogic.sol";
 import { BuildingLogic } from "@/libraries/BuildingLogic.sol";
 import { MapLogic } from "@/libraries/MapLogic.sol";
+import { SafeCastLib } from "@/utils/SafeCastLib.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 
@@ -16,12 +17,30 @@ uint32 constant STAMINA_COST = 10;
 uint32 constant MOVE_DURATION = 300;
 
 library MoveLogic {
+  using SafeCastLib for uint256;
+
   enum Direction {
     NONE,
     UP,
     DOWN,
     LEFT,
     RIGHT
+  }
+
+  // get host's current tile coord; use toX&Y to check if on ground
+  // mainly to do range check when being attacked;
+  function getTileCoord(bytes32 host) internal view returns (uint32 tileX, uint32 tileY) {
+    PathData memory path = Path.get(host);
+    // if (!PathLogic.isPathExist(host)) revert Errors.PathNotExist();
+    if (!onGround(host, path.toX, path.toY)) revert Errors.NotOnGround();
+    // if (PathLogic.arrived(host)) return (path.toX, path.toY);
+    // TODO: finish this up
+    // uint256 moves = Moves.get(host);
+    // uint8[] memory _moves = splitMoves(moves);
+    // uint32 moveIndex = ((block.timestamp - Path.getLastUpdated(host)) % ((_moves.length * MOVE_DURATION) / 1000)).safeCastTo32();
+    // ...
+
+    return PathLogic.getPositionStrict(host);
   }
 
   function _move(bytes32 host, uint8[] memory moves) internal {
