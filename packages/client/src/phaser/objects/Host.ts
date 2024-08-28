@@ -103,9 +103,9 @@ export class Host extends SceneObject {
     });
     this.updatePoolBar();
 
-    // let camera follow the selected role
-    const role = getComponentValue(components.SelectedHost, SOURCE)?.value;
-    if (role) this.follow();
+    // // let camera follow the selected role
+    // const role = getComponentValue(components.SelectedHost, SOURCE)?.value;
+    // if (role) this.follow();
   }
 
   // triggered whenever Moves component is updated

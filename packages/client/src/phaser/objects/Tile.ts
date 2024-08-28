@@ -104,6 +104,7 @@ export class Tile extends SceneObject {
       .setDepth(14)
       .setScale(0.5)
       .play("ui-cursor-active");
+    this.follow();
   }
 
   silentSelect() {
@@ -112,6 +113,7 @@ export class Tile extends SceneObject {
 
   unselect() {
     this.cursor?.destroy();
+    this.unfollow();
   }
 
   destroy() {
