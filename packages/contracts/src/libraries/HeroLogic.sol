@@ -10,7 +10,7 @@ import "@/hashes.sol";
 
 // TODO: change name to RoleLogic?
 library HeroLogic {
-  function _spawn(bytes32 player) internal returns (uint32, uint32) {
+  function _spawn(bytes32 player) internal returns (uint32, uint32, bytes32) {
     bytes32 hero = ContainerLogic._mint(HOST, space());
     Commander.set(hero, player);
 
@@ -34,7 +34,7 @@ library HeroLogic {
 
     (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 2 ** 16 - 32, 2 ** 16 - 32, 2 ** 16, 2 ** 16);
     MapLogic._initGroundPath(hero, x, y);
-    return (x, y);
+    return (x, y, hero);
   }
 
   function _delete(bytes32 hero) internal {

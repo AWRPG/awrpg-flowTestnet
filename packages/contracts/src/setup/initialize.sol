@@ -62,29 +62,29 @@ function initTerrainTypes() {
 function initBuildingTypes() {
   DefineTypes.defineBuilding(
     SAFE,
-    BuildingSpecsData({ canMove: false, terrainType: GRASS }),
-    compileTwoTypes(STAMINA, WOOD, 50, 10),
+    BuildingSpecsData({ width: 2, height: 2, canMove: false, terrainType: PLAIN }),
+    compileTwoTypes(STAMINA, WOOD, 0, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
   );
   ContainerSpecs.set(SAFE, 200);
   DefineTypes.defineBuilding(
     FENCE,
-    BuildingSpecsData({ canMove: false, terrainType: GRASS }),
+    BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
     compileTwoTypes(STAMINA, WOOD, 20, 5),
     compileOneType(STAMINA, 50),
     compileOneType(WOOD, 1)
   );
   DefineTypes.defineBuilding(
     NODE,
-    BuildingSpecsData({ canMove: false, terrainType: GRASS }),
+    BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
     compileTwoTypes(STAMINA, WOOD, 60, 8),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
   );
   DefineTypes.defineBuilding(
     FOUNDRY,
-    BuildingSpecsData({ canMove: false, terrainType: GRASS }),
+    BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
     compileTwoTypes(STAMINA, WOOD, 80, 9),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
