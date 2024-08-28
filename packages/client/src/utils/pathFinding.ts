@@ -25,6 +25,7 @@ const terrainCosts: { [key: number]: number } = {
   [TerrainType.PLAIN]: 1,
   [TerrainType.MUD]: 1,
   [TerrainType.MOUNTAIN]: Infinity,
+  [TerrainType.BUILDING]: Infinity,
 };
 
 // Get neighboring coordinates that are within bounds

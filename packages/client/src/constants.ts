@@ -34,6 +34,7 @@ export enum TerrainType {
   MOUNTAIN = 4,
   // this is client terrain, equal to PLAIN
   MUD = 5,
+  BUILDING = 6,
 }
 
 // to display sprites

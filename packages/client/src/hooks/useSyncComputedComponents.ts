@@ -10,12 +10,12 @@ import { Entity } from "@latticexyz/recs";
 export default function useSyncComputedComponents() {
   const mud = useMUD();
   const {
-    components: { SyncProgress, SelectedHost, Path },
+    components: { SyncProgress, SelectedHost, Path, TargetTile },
   } = mud;
 
   const role = useComponentValue(SelectedHost, SOURCE)?.value as Entity;
   const path = useComponentValue(Path, role);
-  // const moves = useComponentValue(Moves, role);
+  const targetCoordId = useComponentValue(TargetTile, role)?.value as Entity;
 
   const syncProgress = useComponentValue(SyncProgress, singletonEntity);
   const [ready, setReady] = useState(false);
@@ -24,7 +24,7 @@ export default function useSyncComputedComponents() {
       syncComputedComponents(mud);
       setReady(true);
     }
-  }, [syncProgress?.step, role, path]);
+  }, [syncProgress?.step, role, path, targetCoordId]);
 
   return ready;
 }
