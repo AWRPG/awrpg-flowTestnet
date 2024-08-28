@@ -2,7 +2,6 @@ import { Vector, getRectangleCoords } from "../../utils/vector";
 import { SceneObject } from "./SceneObject";
 import { Entity, getComponentValue } from "@latticexyz/recs";
 import { ClientComponents } from "../../mud/createClientComponents";
-import { SystemCalls } from "../../mud/createSystemCalls";
 import { GameScene } from "../scenes/GameScene";
 import {
   getGridTerrains,
@@ -11,6 +10,7 @@ import {
 } from "../../logics/terrain";
 import { combineToEntity } from "../../logics/move";
 import { TerrainType } from "../../constants";
+import { dijkstraPathfinding } from "../../utils/pathFinding";
 
 export class TileHighlight extends SceneObject {
   /**
@@ -44,12 +44,11 @@ export class TileHighlight extends SceneObject {
     entity: Entity,
     components: ClientComponents,
     scene: GameScene,
-    {
-      canControl,
-      systemCalls,
-    }: { canControl: boolean; systemCalls: SystemCalls }
+    { canControl }: { canControl: boolean }
   ) {
     super(entity, components, scene);
+
+    // Set the center position to root
     const path = getComponentValue(components.Path, entity) ?? {
       toX: 0,
       toY: 0,
@@ -63,13 +62,15 @@ export class TileHighlight extends SceneObject {
       )
       .setAlpha(1)
       .setDepth(12);
+
     // Get the type of highlight
     if (canControl) {
       this.type = 0;
     }
     // Get the distance from entity
-    this.distance = 5;
-    // Get the data from grids
+    this.distance = 7;
+
+    // Get the datas of square area by left-top & right-bottom points
     const leftTopGridCoord = {
       x: Math.floor((this.tileX - this.distance) / GRID_SIZE),
       y: Math.floor((this.tileY - this.distance) / GRID_SIZE),
@@ -87,46 +88,45 @@ export class TileHighlight extends SceneObject {
       const gridId = combineToEntity(coord.x, coord.y);
       terrains = terrains.concat(getGridTerrains(components, gridId));
     });
-    // Calc the tiles to highlight
-    for (let i = -this.distance; i <= this.distance; i++) {
-      this.legalTiles[this.tileX + i] = [];
-      for (
-        let j = -this.distance + Math.abs(i);
-        j <= this.distance - Math.abs(i);
-        j++
-      ) {
-        this.legalTiles[this.tileX + i][this.tileY + j] = true;
-      }
-    }
+
+    // Get the reachable area
     for (const i in terrains) {
-      if (
-        terrains[i].terrainType !== TerrainType.PLAIN &&
-        terrains[i].terrainType !== TerrainType.MUD &&
-        this.legalTiles[terrains[i].x] &&
-        this.legalTiles[terrains[i].x][terrains[i].y]
-      ) {
-        this.legalTiles[terrains[i].x][terrains[i].y] = false;
-      }
+      // Check the terrain type
+      if (terrains[i].terrainType === TerrainType.NONE) continue;
+      if (terrains[i].terrainType === TerrainType.OCEAN) continue;
+      if (terrains[i].terrainType === TerrainType.FOREST) continue;
+      if (terrains[i].terrainType === TerrainType.MOUNTAIN) continue;
+      // Check the distance
+      const xTemp = terrains[i].x - this.tileX;
+      const yTemp = terrains[i].y - this.tileY;
+      const distanceTemp = Math.abs(xTemp) + Math.abs(yTemp);
+      if (distanceTemp > this.distance) continue;
+      // Check the path legal
+      const pathCoords = dijkstraPathfinding(
+        { x: this.tileX, y: this.tileY },
+        { x: terrains[i].x, y: terrains[i].y },
+        terrains
+      );
+      if (pathCoords === null) continue;
+      if (!this.legalTiles[xTemp])
+        // Add
+        this.legalTiles[xTemp] = [];
+      this.legalTiles[xTemp][yTemp] = true;
     }
 
-    for (let i = -this.distance; i <= this.distance; i++) {
-      for (
-        let j = -this.distance + Math.abs(i);
-        j <= this.distance - Math.abs(i);
-        j++
-      ) {
-        if (this.legalTiles[this.tileX + i][this.tileY + j]) {
-          const highlight = new Phaser.GameObjects.Sprite(
-            this.scene,
-            i * this.tileSize,
-            j * this.tileSize,
-            "ui-highlight"
-          )
-            .setScale(0.45)
-            .play("ui-highlight-active");
-          this.highlights.push(highlight);
-          this.root.add(highlight);
-        }
+    // Show
+    for (const i in this.legalTiles) {
+      for (const j in this.legalTiles[i]) {
+        const highlight = new Phaser.GameObjects.Sprite(
+          this.scene,
+          Number(i) * this.tileSize,
+          Number(j) * this.tileSize,
+          "ui-highlight"
+        )
+          .setScale(0.45)
+          .play("ui-highlight-active");
+        this.highlights.push(highlight);
+        this.root.add(highlight);
       }
     }
   }

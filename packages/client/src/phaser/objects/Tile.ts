@@ -105,14 +105,13 @@ export class Tile extends SceneObject {
         (this.tileY + 0.5) * this.tileSize,
         "ui-cursor"
       )
-      .setDepth(5)
+      .setDepth(14)
       .setScale(0.5)
       .play("ui-cursor-active");
   }
 
   silentSelect() {
     this.cursor?.stop();
-    console.log("stop!");
   }
 
   unselect() {

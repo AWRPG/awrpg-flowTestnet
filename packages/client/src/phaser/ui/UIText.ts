@@ -24,8 +24,6 @@ export class UIText extends UIBase {
     this.fontSize = fontSize;
     this.fontColor = fontColor;
     this.fontFamily = fontFamily;
-    console.log(parent?.x, parent?.y);
-    console.log(parent?.root.originX, parent?.root.originY);
     this.text = new Phaser.GameObjects.Text(scene, 0, 0, content, {
       font: fontSize + "px " + fontFamily,
       color: fontColor,
