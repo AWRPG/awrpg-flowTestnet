@@ -53,7 +53,9 @@ export const terrainTypeMapping = {
   [TerrainType.PLAIN]: PLAIN,
   [TerrainType.MOUNTAIN]: MOUNTAIN,
   [TerrainType.NONE]: "0" as Hex,
-  [TerrainType.MUD]: "0" as Hex,
+  // client getPerlin returns MUD, but is PLAIN
+  [TerrainType.MUD]: PLAIN,
+  [TerrainType.BUILDING]: "0" as Hex,
 };
 
 export const POOL_TYPES = [SOUL, STAMINA, BLOOD];

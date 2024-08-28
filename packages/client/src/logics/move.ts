@@ -30,6 +30,16 @@ export enum Direction {
   RIGHT = 4,
 }
 
+export const getFourCoords = (position: Vector) => {
+  const { x, y } = position;
+  return [
+    { x, y: y > 0 ? y - 1 : y },
+    { x, y: y + 1 },
+    { x: x > 0 ? x - 1 : x, y },
+    { x: x + 1, y },
+  ];
+};
+
 // TODO: temp for fromPosition
 export function getPositionFromPath(
   components: ClientComponents,

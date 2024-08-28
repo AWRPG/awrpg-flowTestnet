@@ -7,7 +7,11 @@ import {
   getComponentValue,
   runQuery,
 } from "@latticexyz/recs";
-import { decodeTypeEntity, encodeTypeEntity } from "../utils/encode";
+import {
+  decodeTypeEntity,
+  encodeTypeEntity,
+  fromEntity,
+} from "../utils/encode";
 import { SOURCE, terrainTypeMapping, TerrainType } from "../constants";
 import {
   combine,
@@ -17,7 +21,7 @@ import {
 } from "./move";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { Vector } from "../utils/vector";
-import { getCoordId } from "./map";
+import { getCoordId, getEntityOnCoord } from "./map";
 
 export const GRID_SIZE = 8;
 
@@ -73,6 +77,18 @@ export const getTerrainFromTable = (
   // const terrain = noiseToTerrainType(noise) as number;
   // localStorage.setItem(coordId, JSON.stringify({ terrain }));
   // return terrain;
+};
+
+export const enumToEntityType = (terrainType: TerrainType) => {
+  return terrainTypeMapping[terrainType];
+};
+
+export const getTerrainEntityType = (
+  components: ClientComponents,
+  systemCalls: SystemCalls,
+  coord: Vector
+) => {
+  return enumToEntityType(getTerrainType(components, systemCalls, coord));
 };
 
 // ----------------- localStorage & clientComponent -----------------
@@ -158,8 +174,40 @@ export const compileGridTerrainTypes = (
   return tileTerrains;
 };
 
+// get source host's target tile terrain data
+export const getTargetTerrainData = (
+  components: ClientComponents,
+  systemCalls: SystemCalls,
+  source: Entity
+) => {
+  const tileId = getComponentValue(components.TargetTile, source)?.value;
+  if (!tileId) return;
+  const targetCoord = splitFromEntity(tileId);
+  return {
+    ...getTerrainData(components, systemCalls, targetCoord),
+    targetCoord,
+  };
+};
+
+// get terrain data from tables instead of clientside table TerrainValues; thus, no MUD or BUILDING type
+export const getTerrainData = (
+  components: ClientComponents,
+  systemCalls: SystemCalls,
+  coord: Vector
+) => {
+  const terrainType = getTerrainType(components, systemCalls, coord);
+  const coordEntity = getEntityOnCoord(components, coord);
+  // const { type, id } = fromEntity(coordEntity as Hex);
+  const commander = getComponentValue(components.Commander, coordEntity)
+    ?.value as Entity;
+  const creator = getComponentValue(components.Creator, coordEntity)
+    ?.value as Entity;
+  return { terrainType, coordEntity, commander, creator };
+};
+
 // ----------------------------------
 
+// depreciated
 // assumes host's direction is the selected terrain
 export const getSelectedTerrainData = (components: ClientComponents) => {
   const { SelectedHost, Moves } = components;
