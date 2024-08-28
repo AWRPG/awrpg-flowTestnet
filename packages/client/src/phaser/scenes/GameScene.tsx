@@ -112,7 +112,7 @@ export class GameScene extends Phaser.Scene {
     // this.load.image("fence", "src/assets/tiles/Fence.png");
     // this.load.image("node", "src/assets/tiles/Node.png");
     // this.load.image("foundry", "src/assets/tiles/Foundry.png");
-    // this.load.image("safe", "src/assets/tiles/Safe.png");
+    this.load.image("safe", "src/assets/tiles/Safe.png");
 
     // player texture
     this.hostTextures = [
@@ -152,7 +152,7 @@ export class GameScene extends Phaser.Scene {
       TerrainValues,
       TargetTile,
       Path,
-      Position,
+      TileEntity,
       EntityType,
       StoredSize,
       Owner,
@@ -212,6 +212,24 @@ export class GameScene extends Phaser.Scene {
           this.tiles[tileId]?.silentSelect();
         }
       }
+    });
+
+    defineSystem(world, [Has(TileEntity)], ({ entity, type }) => {
+      if (type === UpdateType.Exit) {
+        return console.log("removing tile");
+      }
+      const tileCoord = splitFromEntity(entity);
+      const entityId = getComponentValue(TileEntity, entity)!.value;
+      this.add
+        .tileSprite(
+          (tileCoord.x + 0.5) * this.tileSize,
+          (tileCoord.y + 0.3) * this.tileSize,
+          0,
+          0,
+          "safe"
+        )
+        .setScale(0.4)
+        .setDepth(12);
     });
 
     // defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {

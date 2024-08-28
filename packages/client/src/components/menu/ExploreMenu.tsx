@@ -24,17 +24,21 @@ import {
   getEntityOnDirection,
   getTerrainOnDirection,
   hasPendingMoves,
+  splitFromEntity,
 } from "../../logics/move";
 import { getEntityOnCoord } from "../../logics/map";
 import { isBuilding, isRole } from "../../logics/entity";
+import { getReadyPosition } from "../../logics/path";
+import { SAFE } from "../../contract/constants";
 
 export default function ExploreMenu() {
   const {
     components,
-    systemCalls: { move, spawnHero },
+    systemCalls,
     network: { playerEntity },
   } = useMUD();
   const { Commander, Moves, SelectedHost, SelectedEntity } = components;
+  const { move, spawnHero } = systemCalls;
 
   const hosts = useEntityQuery([
     HasValue(components.Commander, { value: playerEntity }),
@@ -71,6 +75,27 @@ export default function ExploreMenu() {
         if (!host || !moves) return;
         await move(host as Hex, moves);
         removeComponent(SelectedEntity, MENU);
+      },
+    },
+    {
+      name: "Build SAFE",
+      onClick: async () => {
+        if (!host) return;
+        const coord = getReadyPosition(components, host as Entity);
+        if (!coord) return;
+        const tempCoord = { x: coord.x - 1, y: coord.y };
+        const targetCoordId = getComponentValue(
+          components.TargetTile,
+          host as Entity
+        )?.value;
+        if (!targetCoordId) return;
+        const targetCoord = splitFromEntity(targetCoordId);
+        await systemCalls.buildBuilding(
+          host as Hex,
+          SAFE,
+          tempCoord,
+          targetCoord
+        );
       },
     },
     // {
