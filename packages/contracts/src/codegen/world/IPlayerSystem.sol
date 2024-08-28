@@ -9,5 +9,5 @@ pragma solidity >=0.8.24;
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IPlayerSystem {
-  function spawnHero() external returns (uint32, uint32);
+  function spawnHero() external returns (uint32, uint32, bytes32);
 }

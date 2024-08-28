@@ -12,6 +12,7 @@ interface IErrors {
   error NotCommander();
   error NotApproved();
   error NotController();
+  error PathNotExist();
   error NotAdjacent();
   error NotOnGround();
   error NotArrived();
@@ -36,6 +37,7 @@ interface IErrors {
   error InsufficientStorage();
   error StorageUnderflow();
   error NestedContainer();
+  error NotWithinRectangle();
   error HasNoEntityOnCoord();
   error HasEntityOnCoord();
   error WrongTerrainToBuildOn();
