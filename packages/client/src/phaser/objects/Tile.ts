@@ -23,7 +23,7 @@ import { Vector } from "../../utils/vector";
  */
 export class Tile extends SceneObject {
   // tile: Phaser.GameObjects.Sprite;
-  tileSrpites: Record<number, Phaser.GameObjects.TileSprite> = {};
+  tileSrpites: Record<number, Phaser.GameObjects.GameObject> = {};
   tileValue: string[];
   terrain: number = 0;
 
@@ -62,21 +62,17 @@ export class Tile extends SceneObject {
       const [texture, frame] = tile.split("&");
       if (texture === "pine_12") {
         const tileSprite = this.scene.add
-          .tileSprite(
+          .image(
             x + (this.tileSize * (Math.random() - 0.5)) / 2,
             y + (this.tileSize * (Math.random() + 0.5)) / 2,
-            0,
-            0,
             "pine_12"
           )
           .setOrigin(0.5, 1)
           .setDepth(index + 5);
         this.tileSrpites[index] = tileSprite;
       } else {
-        const tileSprite = new Phaser.GameObjects.TileSprite(
+        const tileSprite = new Phaser.GameObjects.Image(
           this.scene,
-          0,
-          0,
           0,
           0,
           texture,
