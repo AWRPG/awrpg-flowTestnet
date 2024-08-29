@@ -15,6 +15,7 @@ import {
 import { SOURCE, terrainTypeMapping, TerrainType } from "../constants";
 import {
   combine,
+  combineToEntity,
   getDirectionCoord,
   getTerrainOnDirection,
   splitFromEntity,
@@ -97,6 +98,42 @@ export type TileTerrain = { i: number; j: number; terrainType: number };
 // x, y are tile's position in the whole map
 export type TileTerrainMap = { x: number; y: number; terrainType: number };
 
+/**
+ * get tile's terrain from TerrainValues table; might not be accurate when Terrain table changes value, use getTerrainType() instead
+ */
+export const getTileTerrain = (
+  components: ClientComponents,
+  tileCoord: Vector
+) => {
+  const gridCoord = {
+    x: Math.floor(tileCoord.x / GRID_SIZE),
+    y: Math.floor(tileCoord.y / GRID_SIZE),
+  };
+  const gridId = combineToEntity(gridCoord.x, gridCoord.y);
+  const terrainValues =
+    getComponentValue(components.TerrainValues, gridId)?.value ?? 0n;
+  const offsetX = tileCoord.x % GRID_SIZE;
+  const offsetY = tileCoord.y % GRID_SIZE;
+  const shift = offsetX + offsetY * GRID_SIZE;
+  const terrainValue = ((terrainValues as bigint) >> BigInt(shift * 4)) & 15n;
+  return Number(terrainValue);
+};
+
+export const getGridTileIds = (gridCoord: Vector) => {
+  const tileIds: Entity[] = [];
+  for (let i = 0; i < GRID_SIZE; i++) {
+    for (let j = 0; j < GRID_SIZE; j++) {
+      tileIds.push(
+        combineToEntity(
+          gridCoord.x * GRID_SIZE + i,
+          gridCoord.y * GRID_SIZE + j
+        )
+      );
+    }
+  }
+  return tileIds;
+};
+
 // decode terrainValues to terrain maps for 1 grid
 export const getGridTerrains = (
   components: ClientComponents,
@@ -148,6 +185,7 @@ export const compileGridTerrainTypes = (
   gridId: Entity
 ) => {
   const terrainValues = getComponentValue(components.Terrain, gridId)?.value;
+  // console.log("terrainValues", gridId, terrainValues);
   const gridCoord = splitFromEntity(gridId);
   const tileTerrains: TileTerrain[] = [];
   for (let i = 0; i < GRID_SIZE; i++) {
@@ -160,6 +198,10 @@ export const compileGridTerrainTypes = (
       const terrain = Number(
         ((terrainValues ?? 0n) >> BigInt(shift * 4)) & 15n
       );
+      // terrain !== Number(TerrainType.NONE) &&
+      //   console.log("terrain", terrain, tileCoord);
+      // terrainValues !== undefined &&
+      //   console.log("terrainValues", terrainValues, tileCoord);
       const terrainType =
         terrain === Number(TerrainType.NONE)
           ? noiseToTerrainType(getPerlin(systemCalls, tileCoord))

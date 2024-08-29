@@ -2,25 +2,29 @@ import { Entity } from "@latticexyz/recs";
 import { Vector } from "matter";
 import { terrainMapping, TerrainType } from "../constants";
 import { combineToEntity } from "./move";
+import { ClientComponents } from "../mud/createClientComponents";
+import { SystemCalls } from "../mud/createSystemCalls";
 
 // neighours are ordered as [left, down, right, up, up-left, down-left, down-right, up-right]
 export const getNeighborTerrains = (
   terrains: Record<Entity, TerrainType>,
   position: Vector
 ) => {
+  const coordIds = getNeighborCoordIds(position);
+  const neighbors = coordIds.map((id) => terrains[id] ?? TerrainType.NONE);
+  return neighbors;
+};
+
+export const getNeighborCoordIds = (position: Vector) => {
   const neighbors = [
-    terrains[combineToEntity(position.x - 1, position.y)] ?? TerrainType.NONE,
-    terrains[combineToEntity(position.x, position.y + 1)] ?? TerrainType.NONE,
-    terrains[combineToEntity(position.x + 1, position.y)] ?? TerrainType.NONE,
-    terrains[combineToEntity(position.x, position.y - 1)] ?? TerrainType.NONE,
-    terrains[combineToEntity(position.x - 1, position.y - 1)] ??
-      TerrainType.NONE,
-    terrains[combineToEntity(position.x - 1, position.y + 1)] ??
-      TerrainType.NONE,
-    terrains[combineToEntity(position.x + 1, position.y + 1)] ??
-      TerrainType.NONE,
-    terrains[combineToEntity(position.x + 1, position.y - 1)] ??
-      TerrainType.NONE,
+    combineToEntity(position.x - 1, position.y),
+    combineToEntity(position.x, position.y + 1),
+    combineToEntity(position.x + 1, position.y),
+    combineToEntity(position.x, position.y - 1),
+    combineToEntity(position.x - 1, position.y - 1),
+    combineToEntity(position.x - 1, position.y + 1),
+    combineToEntity(position.x + 1, position.y + 1),
+    combineToEntity(position.x + 1, position.y - 1),
   ];
   return neighbors;
 };

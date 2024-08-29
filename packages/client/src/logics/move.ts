@@ -360,7 +360,7 @@ export function combine(x: number, y: number) {
 }
 
 export function combineToEntity(x: number, y: number) {
-  return combine(x, y) as Entity;
+  return castToBytes32(BigInt(combine(x, y))) as Entity;
 }
 
 // split one bigint into two number
