@@ -200,7 +200,7 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
-    defineUpdateSystem(world, [Has(Terrain)], ({ entity }) => {
+    defineSystem(world, [Has(Terrain)], ({ entity }) => {
       const gridCoord = splitFromEntity(entity);
       const worldView = this.cameras.main.worldView;
       const position = {

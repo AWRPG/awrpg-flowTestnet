@@ -152,7 +152,15 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
-  const setTerrainValues = async (gridCoord: Vector, values: number[]) => {};
+  const setTerrainValues = async (gridCoord: Vector, values: bigint) => {
+    console.log("setTerrainValues", gridCoord, values);
+    const tx = await worldContract.write.setTerrainValues([
+      gridCoord.x,
+      gridCoord.y,
+      values,
+    ]);
+    await waitForTransaction(tx);
+  };
 
   const setTerrainValue = async (tileCoord: Vector, value: number) => {
     const tx = await worldContract.write.setTerrainValue([

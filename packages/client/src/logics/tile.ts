@@ -65,8 +65,6 @@ export const getNeighborType = (
   const [left, down, right, up, upLeft, downLeft, downRight, upRight] =
     neighbors;
   if (neighbors.every((neighbor) => neighbor === terrain)) return "same";
-  if (terrain !== upRight && terrain !== downLeft) return "up-right-cross";
-  if (terrain !== upLeft && terrain !== downRight) return "up-left-cross";
   if (terrain != left && terrain != up) return "up-left";
   if (terrain != left && terrain != down) return "down-left";
   if (terrain != right && terrain != down) return "down-right";
@@ -75,6 +73,8 @@ export const getNeighborType = (
   if (terrain != down) return "down";
   if (terrain != right) return "right";
   if (terrain != up) return "up";
+  if (terrain !== upRight && terrain !== downLeft) return "up-right-cross";
+  if (terrain !== upLeft && terrain !== downRight) return "up-left-cross";
   if (terrain !== upLeft) return "up-left-corner";
   if (terrain !== downLeft) return "down-left-corner";
   if (terrain !== downRight) return "down-right-corner";

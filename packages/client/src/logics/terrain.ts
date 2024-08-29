@@ -170,6 +170,10 @@ export const compileGridTerrainValues = (
   gridId: Entity
 ): bigint => {
   const terrainTypes = compileGridTerrainTypes(components, systemCalls, gridId);
+  return convertTerrainTypesToValues(terrainTypes);
+};
+
+export const convertTerrainTypesToValues = (terrainTypes: TileTerrain[]) => {
   let terrainValues: bigint = 0n;
   terrainTypes.forEach(({ i, j, terrainType }) => {
     const shift = i + j * GRID_SIZE;

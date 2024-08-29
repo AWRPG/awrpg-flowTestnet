@@ -29,9 +29,19 @@ import {
 import { getEntityOnCoord } from "../../logics/map";
 import { isBuilding, isRole } from "../../logics/entity";
 import { getReadyPosition } from "../../logics/path";
-import { SAFE } from "../../contract/constants";
-import { getTargetTerrainData } from "../../logics/terrain";
-import { canBuildFromHost, canBuildOnTile } from "../../logics/building";
+import { BRIDGE, SAFE } from "../../contract/constants";
+import {
+  convertTerrainTypesToValues,
+  getTargetTerrainData,
+  GRID_SIZE,
+  TileTerrain,
+} from "../../logics/terrain";
+import {
+  canBuildFromHost,
+  canBuildOnTile,
+  getAllBuildingTypes,
+  getHasCostBuildingTypes,
+} from "../../logics/building";
 
 export default function ExploreMenu() {
   const {
@@ -39,7 +49,7 @@ export default function ExploreMenu() {
     systemCalls,
     network: { playerEntity },
   } = useMUD();
-  const { Commander, Moves, SelectedHost, SelectedEntity } = components;
+  const { SelectedHost, SelectedEntity } = components;
   const { move, spawnHero } = systemCalls;
 
   const [selected, setSelected] = useState(0);
@@ -113,7 +123,7 @@ export default function ExploreMenu() {
       name: "$Move To",
       disabled: !host || !moves,
       onClick: async () => {
-        console.log("Move To");
+        console.log("Move To", moves);
         if (!host || !moves) return;
         await move(host as Hex, moves);
         removeComponent(SelectedEntity, MENU);
@@ -133,9 +143,40 @@ export default function ExploreMenu() {
       },
     },
     {
-      name: "Change Terrain to OCEAN",
+      name: "Change Terrain to PLAIN",
       onClick: async () => {
-        await systemCalls.setTerrainValue(tileCoord, Number(TerrainType.OCEAN));
+        await systemCalls.setTerrainValue(tileCoord, Number(TerrainType.PLAIN));
+      },
+    },
+    {
+      name: "Change Terrains to ALL PLAINs",
+      onClick: async () => {
+        const terrainMatrix = [
+          [2, 1, 1, 1, 1, 1, 1, 1],
+          [1, 2, 1, 1, 1, 1, 1, 1],
+          [1, 1, 1, 1, 1, 1, 1, 1],
+          [1, 1, 1, 1, 1, 1, 1, 1],
+          [1, 1, 1, 1, 1, 1, 1, 1],
+          [1, 1, 1, 1, 1, 1, 1, 1],
+          [1, 1, 1, 1, 1, 1, 1, 1],
+          [1, 1, 1, 1, 1, 1, 1, 2],
+        ];
+        const terrainTypes: TileTerrain[] = [];
+        terrainMatrix.forEach((row, i) => {
+          row.forEach((terrain, j) => {
+            terrainTypes.push({
+              i,
+              j,
+              terrainType: terrainMatrix[j][i],
+            });
+          });
+        });
+        const terrainValues = convertTerrainTypesToValues(terrainTypes);
+        const gridCoord = {
+          x: Math.floor(tileCoord.x / GRID_SIZE),
+          y: Math.floor(tileCoord.y / GRID_SIZE),
+        };
+        await systemCalls.setTerrainValues(gridCoord, terrainValues);
       },
     },
     // {
