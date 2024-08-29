@@ -1,8 +1,8 @@
 import { Hex } from "viem";
 import { ClientComponents } from "../mud/createClientComponents";
 import { getBurnData, getCraftData } from "./convert";
-import { Entity, getComponentValue } from "@latticexyz/recs";
-import { encodeTypeEntity } from "../utils/encode";
+import { Entity, getComponentValue, Has, runQuery } from "@latticexyz/recs";
+import { decodeTypeEntity, encodeTypeEntity } from "../utils/encode";
 import { Vector } from "../utils/vector";
 import { getEntitySpecs } from "./entity";
 import { SystemCalls } from "../mud/createSystemCalls";
@@ -11,6 +11,25 @@ import { getCoordId } from "./map";
 import { getHostPosition } from "./path";
 import { getFourCoords } from "./move";
 
+export const getAllBuildingTypes = (components: ClientComponents) => {
+  const buildingTypes = runQuery([Has(components.BuildingSpecs)]);
+  return [...buildingTypes].map(
+    (entity) => decodeTypeEntity(entity as Hex) as Hex
+  );
+};
+
+export const getHasCostBuildingTypes = (
+  components: ClientComponents,
+  role: Hex
+) => {
+  const allBuildingTypes = getAllBuildingTypes(components);
+  return allBuildingTypes.filter((buildingType) => {
+    const data = getBuildingTypeData(components, role, buildingType);
+    return data.craftData.hasCosts;
+  });
+};
+
+// this return building info like burnData, craftData
 export const getBuildingTypeData = (
   components: ClientComponents,
   role: Hex = "" as Hex,
@@ -22,7 +41,7 @@ export const getBuildingTypeData = (
   return { craftData, burnData };
 };
 
-// return which host's direction tile coord player can build building
+// return which host's adjacent tile coord player can build building
 // if cannot, return undefined
 export const canBuildFromHost = (
   components: ClientComponents,

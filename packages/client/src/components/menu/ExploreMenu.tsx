@@ -77,6 +77,10 @@ export default function ExploreMenu() {
   console.log("ExploreMenu, terrainData", terrainData);
   if (!terrainData) return null;
   const tileCoord = terrainData.targetCoord;
+  const allBuildingTypes = getAllBuildingTypes(components);
+  const canBuildTypes = getHasCostBuildingTypes(components, host as Hex);
+  console.log("ExploreMenu, building types", allBuildingTypes, canBuildTypes);
+  // take SAFE as an example
   const hostDirectionCoord = canBuildFromHost(
     components,
     systemCalls,
