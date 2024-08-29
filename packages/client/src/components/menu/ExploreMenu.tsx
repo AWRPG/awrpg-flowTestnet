@@ -128,6 +128,12 @@ export default function ExploreMenu() {
         );
       },
     },
+    {
+      name: "Change Terrain to OCEAN",
+      onClick: async () => {
+        await systemCalls.setTerrainValue(tileCoord, Number(TerrainType.OCEAN));
+      },
+    },
     // {
     //   name: "Cancel Moves",
     //   disabled: false,
