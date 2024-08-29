@@ -118,5 +118,6 @@ export class Tile extends SceneObject {
 
   destroy() {
     Object.values(this.tileSrpites).forEach((sprite) => sprite.destroy());
+    this.cursor?.destroy();
   }
 }

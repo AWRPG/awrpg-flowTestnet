@@ -6,7 +6,7 @@ import {
   getComponentValue,
   setComponent,
 } from "@latticexyz/recs";
-import { combine } from "../logics/move";
+import { combine, combineToEntity } from "../logics/move";
 import { GRID_SIZE, compileGridTerrainValues } from "../logics/terrain";
 import { Vector } from "../utils/vector";
 import { ClientComponents } from "./createClientComponents";
@@ -36,7 +36,7 @@ export function setupTerrains(
       j < gridCoord.y + height;
       j++
     ) {
-      currGridIds.push(combine(i, j) as Entity);
+      currGridIds.push(combineToEntity(i, j));
     }
   }
 

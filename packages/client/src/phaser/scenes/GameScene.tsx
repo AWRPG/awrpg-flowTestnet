@@ -5,12 +5,13 @@ import {
   Not,
   UpdateType,
   defineSystem,
+  defineUpdateSystem,
   getComponentValue,
   removeComponent,
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
-import { SetupResult } from "../../mud/setup";
+import { setup, SetupResult } from "../../mud/setup";
 import Phaser from "phaser";
 import {
   Direction,
@@ -38,7 +39,7 @@ import { Host } from "../objects/Host";
 import { POOL } from "../../contract/constants";
 import { Hex, toHex } from "viem";
 import { selectFirstHost, selectNextHost } from "../../logics/entity";
-import { GRID_SIZE } from "../../logics/terrain";
+import { compileGridTerrainValues, GRID_SIZE } from "../../logics/terrain";
 import { Tile } from "../objects/Tile";
 import grass_0_png from "../../assets/tiles/terrains/grass_0.png";
 import grass_2_png from "../../assets/tiles/terrains/grass_2.png";
@@ -53,6 +54,8 @@ import ocean_png from "../../assets/tiles/terrains/ocean.png";
 import pine_12_png from "../../assets/tiles/props/trees/pine_12.png";
 import { castToBytes32 } from "../../utils/encode";
 import { TileHighlight } from "../objects/TileHighlight";
+import { updateNeighborGrids } from "../../mud/setupTiles";
+import { syncComputedComponents } from "../../mud/syncComputedComponents";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -149,6 +152,7 @@ export class GameScene extends Phaser.Scene {
   create() {
     const {
       TileValue,
+      Terrain,
       TerrainValues,
       TargetTile,
       Path,
@@ -189,10 +193,29 @@ export class GameScene extends Phaser.Scene {
     defineSystem(world, [Has(TileValue)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
         return this.unloadTile(entity);
-      } else if (type === UpdateType.Enter) {
+      } else {
+        // (type === UpdateType.Enter)
         const value = getComponentValue(TileValue, entity)!.value;
         this.loadTile(entity, value);
       }
+    });
+
+    defineUpdateSystem(world, [Has(Terrain)], ({ entity }) => {
+      const gridCoord = splitFromEntity(entity);
+      const worldView = this.cameras.main.worldView;
+      const position = {
+        x: gridCoord.x * GRID_SIZE * this.tileSize,
+        y: gridCoord.y * GRID_SIZE * this.tileSize,
+      };
+      if (!worldView.contains(position.x, position.y)) return;
+      // const prevValues = getComponentValue(TerrainValues, entity)?.value;
+      const terrainValues = compileGridTerrainValues(
+        this.components,
+        this.systemCalls,
+        entity
+      );
+      setComponent(TerrainValues, entity, { value: terrainValues });
+      updateNeighborGrids(this.components, entity);
     });
 
     defineSystem(world, [Has(TargetTile)], ({ entity, type }) => {
@@ -486,6 +509,7 @@ export class GameScene extends Phaser.Scene {
 
   loadTile(entity: Entity, tileValue: string[]) {
     this.tiles[entity]?.destroy();
+    // console.log("loadTile", entity, tileValue);
     this.tiles[entity] = new Tile(this, this.components, {
       entity,
       tileValue,
