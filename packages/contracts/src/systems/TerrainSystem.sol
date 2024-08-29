@@ -10,6 +10,16 @@ import { PositionControl } from "@/extensions/PositionControl.sol";
 contract TerrainSystem is System, AccessControl, PositionControl {
   using TypeCast for address;
 
+  // TODO: access control this function
+  function setTerrainValues(uint32 gridX, uint32 gridY, uint256 terrainValues) public {
+    TerrainLogic._setTerrainValues(gridX, gridY, terrainValues);
+  }
+
+  // TODO: access control this function
+  function setTerrainValue(uint32 tileX, uint32 tileY, uint8 terrainValue) public {
+    TerrainLogic._setTerrainValue(tileX, tileY, terrainValue);
+  }
+
   function burnTerrain(bytes32 role, uint32 x, uint32 y) public onlyCommander(role) onlyAdjacentCoord(role, x, y) {
     TerrainLogic._burnTerrain(role, x, y);
   }

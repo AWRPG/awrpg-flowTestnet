@@ -9,6 +9,10 @@ pragma solidity >=0.8.24;
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface ITerrainSystem {
+  function setTerrainValues(uint32 gridX, uint32 gridY, uint256 terrainValues) external;
+
+  function setTerrainValue(uint32 tileX, uint32 tileY, uint8 terrainValue) external;
+
   function burnTerrain(bytes32 role, uint32 x, uint32 y) external;
 
   function interactTerrain(bytes32 role, uint32 x, uint32 y) external;
