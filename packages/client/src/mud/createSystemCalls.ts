@@ -152,6 +152,17 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const setTerrainValues = async (gridCoord: Vector, values: number[]) => {};
+
+  const setTerrainValue = async (tileCoord: Vector, value: number) => {
+    const tx = await worldContract.write.setTerrainValue([
+      tileCoord.x,
+      tileCoord.y,
+      value,
+    ]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
@@ -163,5 +174,7 @@ export function createSystemCalls(
     transferERC20,
     setSwapRatio,
     swapERC20,
+    setTerrainValues,
+    setTerrainValue,
   };
 }
