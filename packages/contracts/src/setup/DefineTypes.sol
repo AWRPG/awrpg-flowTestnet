@@ -28,11 +28,13 @@ library DefineTypes {
   function defineBuilding(
     bytes16 buildingType,
     BuildingSpecsData memory buildingSpecs,
+    uint256 capacity,
     bytes32[] memory mintCosts,
     bytes32[] memory burnCosts,
     bytes32[] memory burnAwards
   ) internal {
     BuildingSpecs.set(buildingType, buildingSpecs);
+    ContainerSpecs.set(buildingType, capacity);
     MintCosts.set(buildingType, mintCosts);
     BurnCosts.set(buildingType, burnCosts);
     BurnAwards.set(buildingType, burnAwards);

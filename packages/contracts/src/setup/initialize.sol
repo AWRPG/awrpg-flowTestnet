@@ -61,8 +61,17 @@ function initTerrainTypes() {
 
 function initBuildingTypes() {
   DefineTypes.defineBuilding(
+    MINER,
+    BuildingSpecsData({ width: 2, height: 2, canMove: true, terrainType: PLAIN }),
+    1000 * 5,
+    compileTwoTypes(STAMINA, WOOD, 0, 0),
+    compileOneType(STAMINA, 100),
+    compileOneType(WOOD, 4)
+  );
+  DefineTypes.defineBuilding(
     BRIDGE,
     BuildingSpecsData({ width: 1, height: 1, canMove: true, terrainType: OCEAN }),
+    0,
     compileTwoTypes(STAMINA, BLOOD, 0, 0),
     compileOneType(STAMINA, 100),
     compileOneType(BLOOD, 1)
@@ -70,6 +79,7 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     SAFE,
     BuildingSpecsData({ width: 2, height: 2, canMove: false, terrainType: PLAIN }),
+    1 ether,
     compileTwoTypes(STAMINA, WOOD, 0, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
@@ -78,6 +88,7 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     FENCE,
     BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
+    0,
     compileTwoTypes(STAMINA, WOOD, 20, 5),
     compileOneType(STAMINA, 50),
     compileOneType(WOOD, 1)
@@ -85,6 +96,7 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     NODE,
     BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
+    0,
     compileTwoTypes(STAMINA, WOOD, 60, 8),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
@@ -92,6 +104,7 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     FOUNDRY,
     BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
+    1000,
     compileTwoTypes(STAMINA, WOOD, 80, 9),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
