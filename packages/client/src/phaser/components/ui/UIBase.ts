@@ -1,6 +1,6 @@
-import { Vector } from "../../utils/vector";
-import { ALIGNMODES } from "../../constants";
-import { UIScene } from "../scenes/UIScene";
+import { Vector } from "../../../utils/vector";
+import { ALIGNMODES } from "../../../constants";
+import { UIScene } from "../../scenes/UIScene";
 
 export class UIBase {
   root: Phaser.GameObjects.Container;
@@ -47,11 +47,6 @@ export class UIBase {
     this.parent = parent;
 
     switch (alignModeName) {
-      case ALIGNMODES.NONE:
-        this.alignMode = { x: 0, y: 0 };
-        this.x = this.marginX;
-        this.y = this.marginY;
-        break;
       case ALIGNMODES.LEFT_TOP:
         this.alignMode = { x: 0, y: 0 };
         this.x = this.marginX;
@@ -64,12 +59,25 @@ export class UIBase {
         this.x = this.marginX;
         this.y = this.alignMode.y - this.marginY - this.height;
         break;
+      default:
+        this.alignMode = { x: 0, y: 0 };
+        this.x = this.marginX;
+        this.y = this.marginY;
+        break;
     }
     this.root = new Phaser.GameObjects.Container(scene, this.x, this.y);
     if (parent) {
       parent.root.add(this.root);
     } else {
       scene.add.existing(this.root);
+    }
+  }
+
+  add(children: UIBase | UIBase[]) {
+    if (Array.isArray(children)) {
+      for (const i in children) this.root.add(children[i].root);
+    } else {
+      this.root.add(children.root);
     }
   }
 }

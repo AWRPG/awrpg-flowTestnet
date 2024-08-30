@@ -1,4 +1,4 @@
-import { UIScene } from "../scenes/UIScene";
+import { UIScene } from "../../scenes/UIScene";
 import { UIBase } from "./UIBase";
 
 export class UIAvatar extends UIBase {

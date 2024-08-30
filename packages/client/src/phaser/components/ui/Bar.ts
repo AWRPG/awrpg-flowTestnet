@@ -1,4 +1,4 @@
-import { UIScene } from "../scenes/UIScene";
+import { UIScene } from "../../scenes/UIScene";
 import { UIBase } from "./UIBase";
 
 export class Bar extends UIBase {
@@ -32,7 +32,7 @@ export class Bar extends UIBase {
     this.textureEmpty = textureEmpty;
     this.bar = new Phaser.GameObjects.Sprite(scene, 0, 0, texture).setOrigin(
       0,
-      1
+      0
     );
     const scaleValueX = this.width / this.bar.width;
     const scaleValueY = this.height / this.bar.height;
