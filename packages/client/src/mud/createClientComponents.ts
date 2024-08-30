@@ -29,6 +29,10 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     TileValue: defineComponent(world, {
       value: Type.StringArray,
     }),
+    // gridId (_mine) -> hasMine
+    MineValue: defineComponent(world, {
+      value: Type.Boolean,
+    }),
     // // pool -> player
     // PoolOf: defineComponent(world, {
     //   value: Type.Entity,

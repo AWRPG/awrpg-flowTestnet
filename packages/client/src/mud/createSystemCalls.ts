@@ -45,8 +45,9 @@ export function createSystemCalls(
 ) {
   const { Moves } = components;
 
-  const getNoise = (x: number, y: number) => {
-    const noise = perlin(x, y, 0, PERLIN_DENOM);
+  const getNoise = (x: number, y: number, perlin_denom?: number) => {
+    perlin_denom = perlin_denom ?? PERLIN_DENOM;
+    const noise = perlin(x, y, 0, perlin_denom);
     return Math.floor(noise * 100);
   };
 

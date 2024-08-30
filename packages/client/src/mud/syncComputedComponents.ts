@@ -7,6 +7,7 @@ import { setupTileValues } from "./setupTiles";
 import { getHostPosition } from "../logics/path";
 import { Vector } from "../utils/vector";
 import { setupTerrains } from "./setupTerrains";
+import { setupMines } from "./setupMines";
 
 // note: there is an optimzation issue here. When TerrainValue gets updated,
 // phaser going to render new tile sprites, and the delay is noticable when
@@ -36,6 +37,7 @@ export function syncComputedComponents({
 
   setupTerrains(components, systemCalls, tileCoord);
   setupTileValues(components);
+  setupMines(components, systemCalls, tileCoord);
 
   // set target tile when all tiles are rendered
   if (!targetCoordId)

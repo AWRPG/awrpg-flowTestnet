@@ -23,11 +23,12 @@ import {
 import { SystemCalls } from "../mud/createSystemCalls";
 import { Vector } from "../utils/vector";
 import { getCoordId, getEntityOnCoord } from "./map";
+import { PERLIN_DENOM } from "../contract/constants";
 
 export const GRID_SIZE = 8;
 
 export const getPerlin = (systemCalls: SystemCalls, position: Vector) => {
-  return systemCalls.getNoise(position.x, position.y);
+  return systemCalls.getNoise(position.x, position.y, PERLIN_DENOM);
 };
 
 export const noiseToTerrainType = (noise: number) => {
