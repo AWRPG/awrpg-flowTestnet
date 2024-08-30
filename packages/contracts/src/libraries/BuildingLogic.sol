@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Position, BuildingSpecs, TileEntity, EntityType, TerrainSpecs, RemovedCoord, UpgradeCosts, SizeSpecs, Creator } from "@/codegen/index.sol";
+import { Path, BuildingSpecs, TileEntity, EntityType, TerrainSpecs, RemovedCoord, UpgradeCosts, SizeSpecs, Creator } from "@/codegen/index.sol";
 import { LibUtils } from "@/utils/LibUtils.sol";
 import { ContainerLogic } from "./ContainerLogic.sol";
 import { AwardLogic } from "./AwardLogic.sol";
 import { MapLogic } from "./MapLogic.sol";
+import { TileLogic } from "./TileLogic.sol";
+import { PathLogic } from "./PathLogic.sol";
+import { MoveLogic } from "./MoveLogic.sol";
 import { TerrainLogic } from "./TerrainLogic.sol";
 import { CostLogic } from "./CostLogic.sol";
 import { EntityLogic } from "./EntityLogic.sol";
@@ -40,9 +43,36 @@ library BuildingLogic {
 
     // mint building
     bytes32 building = ContainerLogic._mint(buildingType, space());
-    _setTileEntitiesStrict(building, tileIds);
+    TileLogic._setTileEntitiesStrict(building, tileIds);
+    // TODO?: set building path on lowerX, lowerY?
     // Position.set(building, x, y);
     Creator.set(building, player);
+  }
+
+  // because building has no path since building can be 2x2
+  function _enterBuilding(bytes32 role, uint32 x, uint32 y) internal {
+    bytes32 tileId = MapLogic.getCoordId(x, y);
+    bytes32 building = TileEntity.get(tileId);
+    ContainerLogic._transfer(space(), role, building);
+
+    (uint32 roleX, uint32 roleY) = PathLogic.getPositionStrict(role);
+    TileEntity.deleteRecord(MapLogic.getCoordId(roleX, roleY));
+    Path.deleteRecord(role);
+
+    // bytes16 buildingType = EntityType.get(building);
+    // CostLogic._burnEnterCosts(buildingType, role);
+    // AwardLogic._mintEnterAwards(buildingType, role);
+  }
+
+  // x, y is building's coord, newX, newY is exit coord
+  function _exitBuilding(bytes32 role, uint32 x, uint32 y, uint32 newX, uint32 newY) internal {
+    bytes32 tileId = MapLogic.getCoordId(x, y);
+    bytes32 newTildId = MapLogic.getCoordId(newX, newY);
+    bytes32 building = TileEntity.get(tileId);
+    ContainerLogic._transfer(building, space(), role);
+    MoveLogic.canMoveToTileStrict(role, newX, newY);
+    PathLogic._initPath(role, newX, newY);
+    TileLogic._setTileEntityStrict(role, newTildId);
   }
 
   function canBuildOnTilesStrict(bytes16 buildingType, bytes32[] memory coordIds) internal view {
@@ -56,17 +86,6 @@ library BuildingLogic {
     (uint32 x, uint32 y) = MapLogic.splitCoordId(tileId);
     bytes16 terrainType = TerrainLogic.getTerrainEntityType(x, y);
     if (terrainType != buildOnTerrainType) revert Errors.WrongTerrainToBuildOn();
-  }
-
-  function _setTileEntitiesStrict(bytes32 entity, bytes32[] memory tileIds) internal {
-    for (uint256 i = 0; i < tileIds.length; i++) {
-      _setTileEntityStrict(entity, tileIds[i]);
-    }
-  }
-
-  function _setTileEntityStrict(bytes32 entity, bytes32 tileId) internal {
-    if (TileEntity.get(tileId) != 0) revert Errors.HasEntityOnCoord();
-    TileEntity.set(tileId, entity);
   }
 
   function getRectangleCoordIdsStrict(
@@ -107,7 +126,7 @@ library BuildingLogic {
 
     ContainerLogic._burn(entity);
     TileEntity.deleteRecord(coordId);
-    Position.deleteRecord(entity);
+    // Position.deleteRecord(entity);
     Creator.deleteRecord(entity);
   }
 

@@ -11,6 +11,11 @@ import "@/constants.sol";
 // uint32 constant MAP_SIZE = 2 ** 20;
 
 library PathLogic {
+  function _initPath(bytes32 host, uint32 x, uint32 y) internal {
+    Path.set(host, x, y, x, y, uint40(block.timestamp), 0);
+    // MapLogic.setTileEntity(x, y, host);
+  }
+
   function isPathExist(bytes32 entity) internal view returns (bool) {
     return Path.getLastUpdated(entity) != 0;
   }

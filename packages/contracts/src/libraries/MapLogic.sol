@@ -5,6 +5,8 @@ import { TerrainSpecs, RemovedCoord, TileEntity, EntityType, Path } from "@/code
 import { TerrainLogic } from "@/libraries/TerrainLogic.sol";
 import { EntityLogic } from "@/libraries/EntityLogic.sol";
 import { BuildingLogic } from "@/libraries/BuildingLogic.sol";
+import { PathLogic } from "@/libraries/PathLogic.sol";
+import { MoveLogic } from "@/libraries/MoveLogic.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 
@@ -23,7 +25,7 @@ library MapLogic {
   }
 
   function _initGroundPath(bytes32 host, uint32 toX, uint32 toY) internal {
-    Path.set(host, toX, toY, toX, toY, uint40(block.timestamp), 0);
+    PathLogic._initPath(host, toX, toY);
     TileEntity.set(getCoordId(toX, toY), host);
   }
 
@@ -35,7 +37,7 @@ library MapLogic {
     uint32 maxY
   ) internal view returns (uint32 x, uint32 y) {
     (x, y) = getRandomPosition(seed, minX, minY, maxX, maxY);
-    while (TileEntity.get(getCoordId(x, y)) != 0 || !TerrainLogic.canMoveToTerrain(bytes32(seed), x, y)) {
+    while (!MoveLogic.canMoveToTile(bytes32(seed), x, y)) {
       seed += 1;
       (x, y) = getRandomPosition(seed, minX, minY, maxX, maxY);
     }

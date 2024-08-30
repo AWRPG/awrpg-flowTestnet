@@ -145,6 +145,10 @@ library MoveLogic {
     if (tileEntity != 0) revert Errors.CannotMoveOnEntity(tileId);
   }
 
+  function canMoveToTile(bytes32 host, uint32 tileX, uint32 tileY) internal view returns (bool) {
+    return TileEntity.get(MapLogic.getCoordId(tileX, tileY)) == 0 && TerrainLogic.canMoveToTerrain(host, tileX, tileY);
+  }
+
   // convert moves fromX&Y to toTile coords
   function moves2Tiles(uint8[] memory moves, uint32 fromX, uint32 fromY) internal pure returns (uint64[] memory) {
     uint64[] memory toTiles = new uint64[](moves.length);
