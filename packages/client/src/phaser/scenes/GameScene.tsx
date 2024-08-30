@@ -61,6 +61,7 @@ import { TileHighlight } from "../objects/TileHighlight";
 import { updateNeighborGrids } from "../../mud/setupTiles";
 import { syncComputedComponents } from "../../mud/syncComputedComponents";
 import { Building } from "../objects/Building";
+import { Mine } from "../objects/Mine";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -78,6 +79,8 @@ export class GameScene extends Phaser.Scene {
   tileHighlights: Record<Entity, TileHighlight> = {};
   // tileId -> Building class
   buildings: Record<Entity, Building> = {};
+  // gridId -> Mine class
+  mines: Record<Entity, Mine> = {};
 
   hosts: Record<Entity, Host> = {};
 
@@ -119,7 +122,7 @@ export class GameScene extends Phaser.Scene {
     this.load.image("pine_12", pine_12_png);
     // this.load.image("stump", "src/assets/tiles/Stump.png");
     // this.load.image("fence", "src/assets/tiles/Fence.png");
-    // this.load.image("node", "src/assets/tiles/Node.png");
+    this.load.image("node", "src/assets/tiles/Node.png");
     // this.load.image("foundry", "src/assets/tiles/Foundry.png");
     this.load.image("safe", "src/assets/tiles/Safe.png");
 
@@ -158,6 +161,7 @@ export class GameScene extends Phaser.Scene {
   create() {
     const {
       TileValue,
+      MineValue,
       Terrain,
       TerrainValues,
       TargetTile,
@@ -240,6 +244,19 @@ export class GameScene extends Phaser.Scene {
         return this.unloadTileEntity(entity);
       }
       this.loadTileEntity(entity);
+    });
+
+    defineSystem(world, [Has(MineValue)], ({ entity, type }) => {
+      if (type === UpdateType.Exit) {
+        this.mines[entity]?.destroy();
+        return delete this.mines[entity];
+      }
+      console.log("mine", entity);
+      this.mines[entity]?.destroy();
+      this.mines[entity] = new Mine(this, this.components, {
+        entity,
+        onClick: () => this.sourceSelectHandler(entity),
+      });
     });
 
     // defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {
