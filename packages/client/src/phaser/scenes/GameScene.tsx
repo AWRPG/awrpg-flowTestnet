@@ -38,7 +38,11 @@ import {
 import { Host } from "../objects/Host";
 import { POOL } from "../../contract/constants";
 import { Hex, toHex } from "viem";
-import { selectFirstHost, selectNextHost } from "../../logics/entity";
+import {
+  isBuilding,
+  selectFirstHost,
+  selectNextHost,
+} from "../../logics/entity";
 import { compileGridTerrainValues, GRID_SIZE } from "../../logics/terrain";
 import { Tile } from "../objects/Tile";
 import grass_0_png from "../../assets/tiles/terrains/grass_0.png";
@@ -56,6 +60,7 @@ import { castToBytes32 } from "../../utils/encode";
 import { TileHighlight } from "../objects/TileHighlight";
 import { updateNeighborGrids } from "../../mud/setupTiles";
 import { syncComputedComponents } from "../../mud/syncComputedComponents";
+import { Building } from "../objects/Building";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -71,7 +76,8 @@ export class GameScene extends Phaser.Scene {
   // source entityId -> tileCoordId
   selectedTiles: Record<Entity, Entity> = {};
   tileHighlights: Record<Entity, TileHighlight> = {};
-  buildings: Record<Entity, Phaser.GameObjects.Sprite> = {};
+  // tileId -> Building class
+  buildings: Record<Entity, Building> = {};
 
   hosts: Record<Entity, Host> = {};
 
@@ -171,25 +177,9 @@ export class GameScene extends Phaser.Scene {
     const camera = this.cameras.main;
     this.createAnimations();
 
-    // this.anims.create({
-    //   key: "grass_0_2",
-    //   frames: this.anims.generateFrameNames("grass_0", {
-    //     start: 2,
-    //     end: 2,
-    //     prefix: "grass_0_",
-    //   }),
-    // frameRate: 12,
-    // repeat: -1,
-    // });
-
-    // render map terrain
-    // defineSystem(world, [Has(TerrainValues)], ({ entity, type }) => {
-    //   if (type === UpdateType.Exit) {
-    //     return this.unloadGrid(entity);
-    //   }
-    //   const value = getComponentValue(TerrainValues, entity)!.value;
-    //   this.loadGrid(entity, value);
-    // });
+    /**
+     * load/unload tile sprites on map; TileValue is a client component that is updated when character moves, which is handled by useSyncComputedComponents
+     */
     defineSystem(world, [Has(TileValue)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
         return this.unloadTile(entity);
@@ -200,6 +190,10 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
+    /**
+     * update curr grid's TerrainValues & tile values on curr & neighbor grids, which will recalc TileValue and trigger loadTile.
+     * call it in phaser scene so as to only render worldView.contains
+     */
     defineSystem(world, [Has(Terrain)], ({ entity }) => {
       const gridCoord = splitFromEntity(entity);
       const worldView = this.cameras.main.worldView;
@@ -237,22 +231,15 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
+    /**
+     * rn, load/unload building because role is handled by Path
+     * note: entity is tileId
+     */
     defineSystem(world, [Has(TileEntity)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
-        return console.log("removing tile");
+        return this.unloadTileEntity(entity);
       }
-      const tileCoord = splitFromEntity(entity);
-      const entityId = getComponentValue(TileEntity, entity)!.value;
-      this.add
-        .tileSprite(
-          (tileCoord.x + 0.5) * this.tileSize,
-          (tileCoord.y + 0.3) * this.tileSize,
-          0,
-          0,
-          "safe"
-        )
-        .setScale(0.4)
-        .setDepth(12);
+      this.loadTileEntity(entity);
     });
 
     // defineSystem(world, [Has(TerrainValue)], ({ entity, type }) => {
@@ -265,12 +252,8 @@ export class GameScene extends Phaser.Scene {
     //   console.log("terrain", x, y, value);
     // });
 
-    // defineSystem(world, [Has(RemovedCoord)], ({ entity }) => {
-    //   removeComponent(TerrainValue, entity);
-    //   setComponent(TerrainValue, entity, { value: TerrainType.Grass });
-    // });
-
     // render roles ~ hosts
+    // TODO: add loadRole & unloadRole to handle role's enter & exit; therefore, when tile is loaded/unloaded, call loadRole/unloadRole on it
     defineSystem(world, [Has(Path), Has(Commander)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
         this.hosts[entity]?.destroy();
@@ -290,15 +273,6 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
-    // // render buildings
-    // defineSystem(world, [Has(Position), Not(Commander)], ({ entity, type }) => {
-    //   if (type === UpdateType.Exit) {
-    //     return this.unloadBuilding(entity);
-    //   }
-    //   this.buildings[entity]?.destroy();
-    //   this.loadBuilding(entity);
-    // });
-
     defineSystem(
       world,
       [HasValue(EntityType, { value: POOL }), Has(StoredSize)],
@@ -309,14 +283,14 @@ export class GameScene extends Phaser.Scene {
       }
     );
 
-    // render moves assuming they are all valid
-    defineSystem(world, [Has(Moves)], ({ entity, type }) => {
-      this.hosts[entity]?.movesUpdate();
-    });
+    // // render moves assuming they are all valid
+    // defineSystem(world, [Has(Moves)], ({ entity, type }) => {
+    //   this.hosts[entity]?.movesUpdate();
+    // });
 
-    defineSystem(world, [Has(RoleDirection)], ({ entity, type }) => {
-      this.hosts[entity]?.directionUpdate();
-    });
+    // defineSystem(world, [Has(RoleDirection)], ({ entity, type }) => {
+    //   this.hosts[entity]?.directionUpdate();
+    // });
 
     this.input.keyboard?.on("keydown", (event: KeyboardEvent) => {
       if (!this.keyDownTime) {
@@ -455,57 +429,31 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  loadBuilding(building: Entity) {
-    const position = getComponentValue(this.components.Position, building);
-    const buildingType = getComponentValue(
-      this.components.EntityType,
-      building
-    )?.value;
-    if (!position || !buildingType) return;
-    const { x, y } = position;
-    const mapX = x * this.tileSize + this.tileSize / 2;
-    const mapY = y * this.tileSize + this.tileSize / 2;
-    const buildingNumber = BUILDING_TYPES.indexOf(buildingType as Hex);
-    const sprite = this.add
-      .sprite(mapX, mapY, buildingMapping[buildingNumber])
-      .setDepth(1)
-      .setScale(0.5);
-    this.buildings[building] = sprite;
+  // rn, used to render building because role is handled by Path
+  loadTileEntity(tileId: Entity) {
+    const building = getComponentValue(this.components.TileEntity, tileId)
+      ?.value as Entity;
+    if (!isBuilding(this.components, building)) return;
+    this.loadBuilding(tileId, building);
   }
 
-  unloadBuilding(building: Entity) {
-    const sprite = this.buildings[building];
-    sprite?.destroy();
-    delete this.buildings[building];
+  unloadTileEntity(tileId: Entity) {
+    this.unloadBuilding(tileId);
   }
 
-  // loadGrid(gridId: Entity, terrainValues: bigint) {
-  //   const gridCoord = splitFromEntity(gridId);
-  //   for (let i = 0; i < GRID_SIZE; i++) {
-  //     for (let j = 0; j < GRID_SIZE; j++) {
-  //       const shift = i + j * GRID_SIZE;
-  //       const tileCoord = {
-  //         x: gridCoord.x * GRID_SIZE + i,
-  //         y: gridCoord.y * GRID_SIZE + j,
-  //       };
-  //       const terrain = Number((terrainValues >> BigInt(shift * 4)) & 15n);
-  //       this.loadTile(tileCoord.x, tileCoord.y, terrain);
-  //     }
-  //   }
-  // }
+  loadBuilding(tileId: Entity, building: Entity) {
+    this.buildings[tileId]?.destroy();
+    this.buildings[tileId] = new Building(this, this.components, {
+      tileId,
+      entity: building,
+      onClick: () => this.sourceSelectHandler(building),
+    });
+  }
 
-  // unloadGrid(gridId: Entity) {
-  //   const gridCoord = splitFromEntity(gridId);
-  //   for (let i = 0; i < GRID_SIZE; i++) {
-  //     for (let j = 0; j < GRID_SIZE; j++) {
-  //       const tileCoord = {
-  //         x: gridCoord.x * GRID_SIZE + i,
-  //         y: gridCoord.y * GRID_SIZE + j,
-  //       };
-  //       this.unloadTile(tileCoord.x, tileCoord.y);
-  //     }
-  //   }
-  // }
+  unloadBuilding(tileId: Entity) {
+    this.buildings[tileId]?.destroy();
+    delete this.buildings[tileId];
+  }
 
   loadTile(entity: Entity, tileValue: string[]) {
     this.tiles[entity]?.destroy();
@@ -515,23 +463,13 @@ export class GameScene extends Phaser.Scene {
       tileValue,
       onClick: () => this.sourceSelectHandler(entity),
     });
-    // handle 0 layer
-    // if (terrain === TerrainType.Rock) {
-    //   this.tilesLayer0[entity]?.destroy();
-    //   const tile0 = this.add.sprite(tileX, tileY, "water").setDepth(-1);
-    //   this.tilesLayer0[entity] = tile0;
-    // } else if (terrain !== TerrainType.Water && terrain !== TerrainType.Grass) {
-    //   this.tilesLayer0[entity]?.destroy();
-    //   const tile0 = this.add.sprite(tileX, tileY, "grass").setDepth(-1);
-    //   this.tilesLayer0[entity] = tile0;
-    // }
+    this.loadTileEntity(entity);
   }
 
   unloadTile(entity: Entity) {
     this.tiles[entity]?.destroy();
     delete this.tiles[entity];
-    // this.tilesLayer0[entity]?.destroy();
-    // delete this.tilesLayer0[entity];
+    this.unloadTileEntity(entity);
   }
 
   update() {}
