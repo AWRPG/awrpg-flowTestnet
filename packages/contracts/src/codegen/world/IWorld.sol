@@ -9,6 +9,7 @@ import { IErrors } from "./IErrors.sol";
 import { IBuildingSystem } from "./IBuildingSystem.sol";
 import { ICombatSystem } from "./ICombatSystem.sol";
 import { IItemSystem } from "./IItemSystem.sol";
+import { IMiningSystem } from "./IMiningSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
 import { IStorageSystem } from "./IStorageSystem.sol";
@@ -28,6 +29,7 @@ interface IWorld is
   IBuildingSystem,
   ICombatSystem,
   IItemSystem,
+  IMiningSystem,
   IMoveSystem,
   IPlayerSystem,
   IStorageSystem,

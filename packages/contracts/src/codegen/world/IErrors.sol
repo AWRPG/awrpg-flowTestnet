@@ -37,6 +37,9 @@ interface IErrors {
   error InsufficientStorage();
   error StorageUnderflow();
   error NestedContainer();
+  error NoMine();
+  error BuildingNotMiner();
+  error BuildingNotOnCoord();
   error NotWithinRectangle();
   error HasNoEntityOnCoord();
   error HasEntityOnCoord();
