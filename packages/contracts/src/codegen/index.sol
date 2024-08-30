@@ -13,6 +13,7 @@ import { Creator } from "./tables/Creator.sol";
 import { Commander } from "./tables/Commander.sol";
 import { Owner } from "./tables/Owner.sol";
 import { EntityType } from "./tables/EntityType.sol";
+import { MiningInfo, MiningInfoData } from "./tables/MiningInfo.sol";
 import { Path, PathData } from "./tables/Path.sol";
 import { Moves } from "./tables/Moves.sol";
 import { Terrain } from "./tables/Terrain.sol";

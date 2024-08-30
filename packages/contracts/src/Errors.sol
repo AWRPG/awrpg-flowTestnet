@@ -44,7 +44,12 @@ contract Errors is System {
   error StorageUnderflow();
   error NestedContainer();
 
+  // miner errors
+  error NoMine();
+  error BuildingNotMiner();
+
   // building errors
+  error BuildingNotOnCoord();
   error NotWithinRectangle();
   error HasNoEntityOnCoord();
   error HasEntityOnCoord();

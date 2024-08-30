@@ -62,6 +62,10 @@ bytes16 constant FOREST = bytes16("FOREST");
 bytes16 constant PLAIN = bytes16("PLAIN");
 bytes16 constant MOUNTAIN = bytes16("MOUNTAIN");
 
+// building
+bytes16 constant MINER = bytes16("MINER");
+bytes16 constant CUSTODIAN = bytes16("CUSTODIAN");
+
 function space() view returns (bytes32) {
   return TypeCast.toBytes32(StoreSwitch.getStoreAddress());
 }

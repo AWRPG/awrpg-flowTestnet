@@ -28,4 +28,16 @@ abstract contract PositionControl is WorldContextConsumer {
     }
     _;
   }
+
+  modifier onlyAdjacentCoords(
+    uint32 x1,
+    uint32 y1,
+    uint32 x2,
+    uint32 y2
+  ) {
+    {
+      if (!PositionLogic.adjacent(x1, y1, x2, y2)) revert Errors.NotAdjacent();
+    }
+    _;
+  }
 }

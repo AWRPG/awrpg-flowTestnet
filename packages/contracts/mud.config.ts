@@ -51,6 +51,14 @@ export default defineWorld({
     // -> building & host
     Owner: "bytes32",
     EntityType: "bytes16",
+    MiningInfo: {
+      schema: {
+        roleId: "bytes32",
+        buildingId: "bytes32",
+        lastUpdated: "uint40",
+      },
+      key: ["roleId"],
+    },
     // building & host
     Path: {
       schema: {

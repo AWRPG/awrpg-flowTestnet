@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 import { PathLogic } from "./PathLogic.sol";
+import { MapLogic } from "./MapLogic.sol";
+import { TileEntity } from "@/codegen/index.sol";
 
 library PositionLogic {
   function withinRange(bytes32 host1, bytes32 host2, uint32 range) internal view returns (bool) {
@@ -27,6 +29,10 @@ library PositionLogic {
 
   function adjacent(bytes32 host1, bytes32 host2) internal view returns (bool) {
     return withinRange(host1, host2, 1);
+  }
+
+  function adjacent(uint32 x1, uint32 y1, uint32 x2, uint32 y2) internal pure returns (bool) {
+    return withinRange(x1, y1, x2, y2, 1);
   }
 
   function getDelta(uint32 from, uint32 to) internal pure returns (uint32) {
