@@ -29,7 +29,7 @@ import {
 import { getEntityOnCoord } from "../../logics/map";
 import { isBuilding, isRole } from "../../logics/entity";
 import { getReadyPosition } from "../../logics/path";
-import { BRIDGE, SAFE } from "../../contract/constants";
+import { BRIDGE, SAFE, MINER } from "../../contract/constants";
 import {
   convertTerrainTypesToValues,
   getTargetTerrainData,
@@ -130,16 +130,23 @@ export default function ExploreMenu() {
       },
     },
     {
-      name: "Build SAFE",
+      name: "Build Miner",
       onClick: async () => {
         if (!host) return;
         if (!hostDirectionCoord) return;
         await systemCalls.buildBuilding(
           host as Hex,
-          SAFE,
+          MINER,
           hostDirectionCoord,
           tileCoord
         );
+      },
+    },
+    {
+      name: "Enter Building",
+      onClick: async () => {
+        if (!host) return;
+        await systemCalls.enterBuilding(host as Hex, tileCoord);
       },
     },
     {
@@ -152,14 +159,14 @@ export default function ExploreMenu() {
       name: "Change Terrains to ALL PLAINs",
       onClick: async () => {
         const terrainMatrix = [
-          [2, 1, 1, 1, 1, 1, 1, 1],
-          [1, 2, 1, 1, 1, 1, 1, 1],
-          [1, 1, 1, 1, 1, 1, 1, 1],
-          [1, 1, 1, 1, 1, 1, 1, 1],
-          [1, 1, 1, 1, 1, 1, 1, 1],
-          [1, 1, 1, 1, 1, 1, 1, 1],
-          [1, 1, 1, 1, 1, 1, 1, 1],
-          [1, 1, 1, 1, 1, 1, 1, 2],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
         ];
         const terrainTypes: TileTerrain[] = [];
         terrainMatrix.forEach((row, i) => {

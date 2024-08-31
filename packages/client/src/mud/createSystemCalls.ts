@@ -172,6 +172,44 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const enterBuilding = async (role: Hex, enterCoord: Vector) => {
+    const tx = await worldContract.write.enterBuilding([
+      role,
+      enterCoord.x,
+      enterCoord.y,
+    ]);
+    await waitForTransaction(tx);
+  };
+
+  const exitBuilding = async (
+    role: Hex,
+    exitCoord: Vector,
+    buildingCoord: Vector
+  ) => {
+    const tx = await worldContract.write.exitBuilding([
+      role,
+      exitCoord.x,
+      exitCoord.y,
+      buildingCoord.x,
+      buildingCoord.y,
+    ]);
+    await waitForTransaction(tx);
+  };
+
+  const startMining = async (role: Hex, buildingCoord: Vector) => {
+    const tx = await worldContract.write.startMining([
+      role,
+      buildingCoord.x,
+      buildingCoord.y,
+    ]);
+    await waitForTransaction(tx);
+  };
+
+  const stopMining = async (role: Hex) => {
+    const tx = await worldContract.write.stopMining([role]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
@@ -185,5 +223,9 @@ export function createSystemCalls(
     swapERC20,
     setTerrainValues,
     setTerrainValue,
+    enterBuilding,
+    exitBuilding,
+    startMining,
+    stopMining,
   };
 }
