@@ -2,37 +2,52 @@ import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
 import { SetupResult } from "./setup";
 import { combineToEntity, splitFromEntity } from "../logics/move";
 import { SOURCE, OBSERVER, TerrainType } from "../constants";
-import { selectFirstHost } from "../logics/entity";
+import { getFirstHost, selectFirstHost } from "../logics/entity";
 import { setupTileValues } from "./setupTiles";
-import { getHostPosition } from "../logics/path";
+import { getHostPosition, getPathEntityPosition } from "../logics/path";
 import { Vector } from "../utils/vector";
 import { setupTerrains } from "./setupTerrains";
 import { setupMines } from "./setupMines";
+import { mockPath } from "../logics/mock";
 
-// note: there is an optimzation issue here. When TerrainValue gets updated,
-// phaser going to render new tile sprites, and the delay is noticable when
-// switching character position
+// issue is to initialize & update tileCoord and to update other terrains & tiles when tileCoord is changed
+// tileCoord depends on which source is selected, what current targetTile is, and etc.
 export function syncComputedComponents({
   components,
   systemCalls,
   network,
 }: SetupResult) {
-  const { TerrainValues, SelectedHost, Path, TargetTile } = components;
+  const { TileEntity, SelectedHost, Path, TargetTile, Owner, MiningInfo } =
+    components;
 
   const initX = 2 ** 16; // 32 * 10;
   const initY = 2 ** 16; // 32 * 10;
 
-  // return if player has no role
-  const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
-  const source = role ?? selectFirstHost(components, network.playerEntity);
-  const sourceCoord = getHostPosition(components, source);
+  // there are several scenarios, in the end, we need to get source & tileCoord to center it & set TargetTile
+  const selectedSource = getComponentValue(SelectedHost, SOURCE)
+    ?.value as Entity;
+  let source = selectedSource ?? getFirstHost(components, network.playerEntity);
+  if (!source) {
+    source = OBSERVER;
+    mockPath(components, source, { x: initX, y: initY });
+  }
+  setComponent(SelectedHost, SOURCE, { value: source });
+  const sourceCoord = getPathEntityPosition(components, source);
   const targetCoordId = getComponentValue(TargetTile, source)?.value as Entity;
 
+  // if source exists, but has no path, then it is either in building, is mining
+  // or, set tileCoord to be initX, initY
+  // initialize its path for clientside by mockPath()
+  // else if no target tile, initialize tileCoord to be sourceCoord
+  // else set tileCoord to be targetCoord (as it is updated)
   let tileCoord: Vector;
-  // if no source or source has no path, set tileCoord to be initX, initY
-  // else, get the target tile coord; if no target tile, path is tile coord
-  if (!sourceCoord) tileCoord = { x: initX, y: initY };
-  else if (!targetCoordId) tileCoord = sourceCoord;
+  if (!sourceCoord) {
+    tileCoord = getHostPosition(components, network, source) ?? {
+      x: initX,
+      y: initY,
+    };
+    mockPath(components, source, tileCoord);
+  } else if (!targetCoordId) tileCoord = sourceCoord;
   else tileCoord = splitFromEntity(targetCoordId);
 
   setupTerrains(components, systemCalls, tileCoord);
@@ -41,7 +56,7 @@ export function syncComputedComponents({
 
   // set target tile when all tiles are rendered
   if (!targetCoordId)
-    setComponent(TargetTile, source ?? OBSERVER, {
+    setComponent(TargetTile, source, {
       value: combineToEntity(tileCoord.x, tileCoord.y),
     });
 }
