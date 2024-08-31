@@ -6,6 +6,7 @@ pragma solidity >=0.8.24;
 import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.sol";
 
 import { IErrors } from "./IErrors.sol";
+import { IBuilding2System } from "./IBuilding2System.sol";
 import { IBuildingSystem } from "./IBuildingSystem.sol";
 import { ICombatSystem } from "./ICombatSystem.sol";
 import { IItemSystem } from "./IItemSystem.sol";
@@ -26,6 +27,7 @@ import { ITerrainSystem } from "./ITerrainSystem.sol";
 interface IWorld is
   IBaseWorld,
   IErrors,
+  IBuilding2System,
   IBuildingSystem,
   ICombatSystem,
   IItemSystem,
