@@ -15,13 +15,6 @@ import { Errors } from "@/Errors.sol";
 import "@/hashes.sol";
 import "@/constants.sol";
 
-// larger PERLIN_DENOM means more sparsely distributed
-uint8 constant PERLIN_DENOM_MINE = 70;
-uint8 constant GRID_SIZE_MINE = 2;
-uint8 constant UP_LIMIT_MINE = 75;
-uint8 constant DOWN_LIMIT_MINE = 74;
-uint8 constant PERCENTAGE_MINE = 10;
-
 library MiningLogic {
   function getPerlin(uint32 x, uint32 y) internal pure returns (uint8) {
     int128 noise = Perlin.noise2d(int40(uint40(x)), int40(uint40(y)), int8(PERLIN_DENOM_MINE), 64);

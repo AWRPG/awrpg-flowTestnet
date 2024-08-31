@@ -66,6 +66,14 @@ bytes16 constant MOUNTAIN = bytes16("MOUNTAIN");
 bytes16 constant MINER = bytes16("MINER");
 bytes16 constant CUSTODIAN = bytes16("CUSTODIAN");
 
+// mining
+// larger PERLIN_DENOM means more sparsely distributed
+uint8 constant PERLIN_DENOM_MINE = 30;
+uint8 constant GRID_SIZE_MINE = 2;
+uint8 constant UP_LIMIT_MINE = 75;
+uint8 constant DOWN_LIMIT_MINE = 70;
+uint8 constant PERCENTAGE_MINE = 10;
+
 function space() view returns (bytes32) {
   return TypeCast.toBytes32(StoreSwitch.getStoreAddress());
 }

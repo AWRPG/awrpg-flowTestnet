@@ -45,11 +45,12 @@ export const FOREST = toHex("FOREST", { size: 16 });
 export const PLAIN = toHex("PLAIN", { size: 16 });
 export const MOUNTAIN = toHex("MOUNTAIN", { size: 16 });
 
-export const CUSTODIAN = toHex("CUSTODIAN", { size: 16 });
-
 // mining
-export const PERLIN_DENOM_MINE = 70;
+export const PERLIN_DENOM_MINE = 30;
 export const GRID_SIZE_MINE = 2;
 export const UP_LIMIT_MINE = 75;
-export const DOWN_LIMIT_MINE = 74;
+export const DOWN_LIMIT_MINE = 70;
 export const PERCENTAGE_MINE = 10;
+
+export const MINER = toHex("MINER", { size: 16 });
+export const CUSTODIAN = toHex("CUSTODIAN", { size: 16 });
