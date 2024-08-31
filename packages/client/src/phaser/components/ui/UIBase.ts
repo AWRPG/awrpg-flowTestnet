@@ -59,6 +59,13 @@ export class UIBase {
         this.x = this.marginX;
         this.y = this.alignMode.y - this.marginY - this.height;
         break;
+      case ALIGNMODES.RIGHT_TOP:
+        this.alignMode = parent
+          ? { x: parent.width, y: 0 }
+          : { x: scene.height, y: 0 };
+        this.x = this.alignMode.x - this.marginX - this.width;
+        this.y = this.marginY;
+        break;
       default:
         this.alignMode = { x: 0, y: 0 };
         this.x = this.marginX;

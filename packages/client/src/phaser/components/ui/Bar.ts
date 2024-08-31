@@ -17,6 +17,13 @@ export class Bar extends UIBase {
     height: number = 20,
     marginX: number = 0,
     marginY: number = 0,
+    {
+      value = 1,
+      maxValue = 1,
+    }: {
+      value?: number;
+      maxValue?: number;
+    },
     parent?: UIBase
   ) {
     super(
@@ -34,9 +41,14 @@ export class Bar extends UIBase {
       0,
       0
     );
+    // this.bar.setData("value", value);
+    // this.bar.setData("maxValue", maxValue);
     const scaleValueX = this.width / this.bar.width;
     const scaleValueY = this.height / this.bar.height;
     this.bar.setScale(scaleValueX, scaleValueY);
     this.root.add(this.bar);
+
+    // this.bar.on("changedata", this.onDataChanged);
   }
+
 }

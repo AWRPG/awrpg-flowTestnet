@@ -11,7 +11,20 @@ export class CharacterInfo {
   characterBox: Box;
   avatar: UIAvatar;
   characterName: UIText;
+
   hpBar: Bar;
+  hpName: UIText;
+  hpNum: UIText;
+
+  hp: number = 1;
+  maxHp: number = 1;
+
+  spBar: Bar;
+  spName: UIText;
+  spNum: UIText;
+
+  sp: number = 1;
+  maxSp: number = 1;
 
   constructor(scene: UIScene) {
     this.scene = scene;
@@ -42,10 +55,10 @@ export class CharacterInfo {
       "Brief Kandle",
       ALIGNMODES.LEFT_TOP,
       268,
-      24,
-      32,
-      undefined,
-      "ToaHI",
+      12,
+      {
+        fontSize: 36,
+      },
       this.characterBox
     );
 
@@ -57,20 +70,80 @@ export class CharacterInfo {
       358,
       30,
       268,
-      40,
+      48,
+      {
+        value: this.hp,
+        maxValue: this.maxHp,
+      },
       this.characterBox
     );
 
-    new UIText(
+    this.hpName = new UIText(
       this.scene,
       "HP",
       ALIGNMODES.LEFT_TOP,
-      18,
-      7,
-      16,
-      undefined,
-      undefined,
+      4,
+      -20,
+      {
+        fontSize: 16,
+        fontFamily: "'Roboto Mono'",
+      },
       this.hpBar
+    );
+
+    this.hpNum = new UIText(
+      this.scene,
+      this.hp + " / " + this.maxHp,
+      ALIGNMODES.RIGHT_TOP,
+      4,
+      -20,
+      {
+        fontSize: 16,
+        fontFamily: "'Roboto Mono'",
+      },
+      this.hpBar
+    );
+
+    this.spBar = new Bar(
+      this.scene,
+      "bar_yellow",
+      "bar_empty",
+      ALIGNMODES.LEFT_TOP,
+      358,
+      30,
+      268,
+      110,
+      {
+        value: this.sp,
+        maxValue: this.maxSp,
+      },
+      this.characterBox
+    );
+
+    this.spName = new UIText(
+      this.scene,
+      "SP",
+      ALIGNMODES.LEFT_TOP,
+      4,
+      -20,
+      {
+        fontSize: 16,
+        fontFamily: "'Roboto Mono'",
+      },
+      this.spBar
+    );
+
+    this.spNum = new UIText(
+      this.scene,
+      this.sp + " / " + this.maxSp,
+      ALIGNMODES.RIGHT_TOP,
+      4,
+      -20,
+      {
+        fontSize: 16,
+        fontFamily: "'Roboto Mono'",
+      },
+      this.spBar
     );
   }
 }

@@ -1,12 +1,14 @@
 import { ClientComponents } from "../../mud/createClientComponents";
 import { Direction, movesToPositions } from "../../logics/move";
 import { Entity, ComponentValue, getComponentValue } from "@latticexyz/recs";
-import { Hex } from "viem";
+import { Hex, hexToString } from "viem";
 import { getPool } from "../../contract/hashes";
 import { getPoolAmount, getPoolCapacity } from "../../logics/pool";
 import { POOL_COLORS, POOL_TYPES, SOURCE } from "../../constants";
 import { GameScene } from "../scenes/GameScene";
 import { SceneObject } from "./SceneObject";
+import { fromEntity } from "../../utils/encode";
+import { UIScene } from "../scenes/UIScene";
 
 /**
  * About the scene object with avatar such as character or building
@@ -28,14 +30,9 @@ export class Host extends SceneObject {
   shadow: Phaser.GameObjects.Shape | undefined = undefined;
 
   /**
-   * the object of properties pools such as HP
+   * the value of properties such as HP
    */
-  pools: Record<Hex, Phaser.GameObjects.Graphics> = {};
-
-  /**
-   * the pools which can show beside the avatar
-   */
-  isPoolShow: Record<Hex, boolean> = {};
+  properties: Hex[] = [];
 
   /**
    * tilesToMove
@@ -68,12 +65,11 @@ export class Host extends SceneObject {
     super(entity, components, scene);
     this.isPlayer = isPlayer;
 
-    // TDOO: different obj has different position calc
+    // TODO: different obj has different position calc
     const path = getComponentValue(components.Path, entity) ?? {
       toX: 0,
       toY: 0,
     };
-    console.log("Host path:", path);
     this.tileX = path.toX;
     this.tileY = path.toY;
 
@@ -96,12 +92,13 @@ export class Host extends SceneObject {
     this.root.add(this.avatar);
     this.doIdleAnimation();
 
-    // add the bars of pools on the host
-    POOL_TYPES.forEach((poolType, index) => {
-      this.pools[poolType] = this.makePoolBar(poolType, index);
-      this.isPoolShow[poolType] = true;
-    });
-    this.updatePoolBar();
+    // add the bars of properties on the host
+    // POOL_TYPES.forEach((type, index) => {
+    //   this.properties[type] = this.makePoolBar(type, index);
+    // });
+    // const uiScene = this.scene.scene.get("UIScene") as UIScene;
+    // this.root.on("changedata", uiScene.onDataChanged, uiScene);
+    this.updateProperties();
 
     // // let camera follow the selected role
     // const role = getComponentValue(components.SelectedHost, SOURCE)?.value;
@@ -173,46 +170,35 @@ export class Host extends SceneObject {
   destroy() {
     this.avatar.destroy();
     // this.movesObj?.clear(true, true);
-    POOL_TYPES.forEach((poolType) => {
-      this.pools[poolType].destroy();
-    });
   }
 
-  makePoolBar(poolType: Hex, index: number) {
-    const bar = new Phaser.GameObjects.Graphics(this.scene);
-    bar.fillStyle(POOL_COLORS[poolType], 1);
-    bar.fillRect(0, 0, 30, 3);
-    bar.alpha = 0.5;
-    this.root.add(bar);
-    return bar;
-  }
-
-  updatePoolBarPosition(poolType: Hex, index: number) {
-    this.pools[poolType].setPosition(-0.5 * this.tileSize, 2);
-    this.pools[poolType].visible = this.isPoolShow[poolType];
-  }
-
-  setPoolBarValue(poolType: Hex) {
-    const poolAmount = getPoolAmount(
-      this.components,
-      this.entity as Hex,
-      poolType
+  setPropertyValue(type: Hex, entityId: number) {
+    const amount = getPoolAmount(this.components, this.entity as Hex, type);
+    const capacity = getPoolCapacity(this.components, this.entity as Hex, type);
+    this.root.setData(hexToString(type, { size: 32 }), Number(amount) / 3);
+    this.root.setData(
+      "max" + hexToString(type, { size: 32 }),
+      Number(capacity)
     );
-    const poolCapacity = getPoolCapacity(
-      this.components,
-      this.entity as Hex,
-      poolType
-    );
-    this.pools[poolType].scaleX = Number(poolAmount) / Number(poolCapacity);
+    // console.log(
+    //   entityId +
+    //     " " +
+    //     hexToString(type, { size: 32 }) +
+    //     ": " +
+    //     amount +
+    //     " / " +
+    //     capacity
+    // );
   }
 
   /**
-   * update the pool bar
+   * update the properties
    */
-  updatePoolBar() {
-    POOL_TYPES.forEach((poolType, index) => {
-      this.setPoolBarValue(poolType);
-      this.updatePoolBarPosition(poolType, index);
+  updateProperties() {
+    const entityId = Number(fromEntity(this.entity as Hex).id);
+    // if (this.isPlayer === true)
+    POOL_TYPES.forEach((type, index) => {
+      this.setPropertyValue(type, entityId);
     });
   }
 }
