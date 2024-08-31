@@ -40,6 +40,7 @@ import {
   canBuildFromHost,
   canBuildOnTile,
   getAllBuildingTypes,
+  getBuildingCoordToExit,
   getHasCostBuildingTypes,
 } from "../../logics/building";
 
@@ -146,7 +147,39 @@ export default function ExploreMenu() {
       name: "Enter Building",
       onClick: async () => {
         if (!host) return;
+        console.log("enter building", host, tileCoord);
         await systemCalls.enterBuilding(host as Hex, tileCoord);
+      },
+    },
+    {
+      name: "Exit Building",
+      onClick: async () => {
+        if (!host) return;
+        const building = getComponentValue(components.Owner, host)
+          ?.value as Hex;
+        if (!building) return;
+        const buildingCoord = getBuildingCoordToExit(
+          components,
+          building,
+          tileCoord
+        );
+        if (!buildingCoord) return;
+        console.log("Exit Building", host, building, buildingCoord, tileCoord);
+        await systemCalls.exitBuilding(host as Hex, buildingCoord, tileCoord);
+      },
+    },
+    {
+      name: "Start Mining",
+      onClick: async () => {
+        if (!host) return;
+        return systemCalls.startMining(host as Hex, tileCoord);
+      },
+    },
+    {
+      name: "Stop Mining",
+      onClick: async () => {
+        if (!host) return;
+        return systemCalls.stopMining(host as Hex);
       },
     },
     {
