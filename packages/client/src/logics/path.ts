@@ -9,6 +9,10 @@ import {
 } from "@latticexyz/recs";
 import { unixTime, unixTimeSecond } from "../utils/time";
 import { splitFromEntity } from "./move";
+import { SetupNetworkResult } from "../mud/setupNetwork";
+import { getTopHost } from "./entity";
+import { getNestedHostPosition } from "./building";
+import { getMiningHostPosition } from "./mining";
 
 //
 export const getReadyPosition = (
@@ -40,12 +44,25 @@ export const getRemainingArrivalTime = (
   return time >= arrivalTime ? 0 : arrivalTime - time;
 };
 
+// host to be on map, in building, is mining
 export const getHostPosition = (
   components: ClientComponents,
-  host: Entity,
+  network: SetupNetworkResult,
+  host: Entity
+) => {
+  const position = getNestedHostPosition(components, network, host);
+  if (position) return position;
+  const position2 = getMiningHostPosition(components, host);
+  if (position2) return position2;
+  return;
+};
+
+export const getPathEntityPosition = (
+  components: ClientComponents,
+  entity: Entity,
   time?: number
 ) => {
-  const path = getComponentValue(components.Path, host);
+  const path = getComponentValue(components.Path, entity);
   if (!path) return;
   return getPositionFromPath(path, time);
 };
@@ -83,5 +100,20 @@ export const getTileEntityPosition = (
   const tileId = [
     ...runQuery([HasValue(components.TileEntity, { value: tileEntity })]),
   ][0];
+  if (!tileId) return;
   return splitFromEntity(tileId);
 };
+
+// // only top host can be tile entity
+// export const getTopTileEntity = (
+//   components: ClientComponents,
+//   network: SetupNetworkResult,
+//   entity: Entity
+// ) => {
+//   const topHost = getTopHost(components, network, entity);
+//   if (!topHost) return;
+//   const tileId = [
+//     ...runQuery([HasValue(components.TileEntity, { value: topHost })]),
+//   ][0];
+//   return tileId;
+// };

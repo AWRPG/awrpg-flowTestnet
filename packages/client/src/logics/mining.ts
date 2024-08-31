@@ -12,6 +12,8 @@ import {
 import { Vector } from "../utils/vector";
 import { getCoordId } from "./map";
 import { random } from "../utils/random";
+import { getAllBuildingTileIds } from "./building";
+import { splitFromEntity } from "./move";
 
 // checks if a role is mining, i.e., if its mininginfo's buildingId matches its owner custodian
 export const isMining = (components: ClientComponents, role: Hex): boolean => {
@@ -42,4 +44,16 @@ export const hasMineFromGrid = (
     perlin <= UP_LIMIT_MINE &&
     randomInt < PERCENTAGE_MINE
   );
+};
+
+// return one of the tile coords of the building
+export const getMiningHostPosition = (
+  components: ClientComponents,
+  host: Entity
+) => {
+  const building = getComponentValue(components.MiningInfo, host)
+    ?.buildingId as Hex;
+  const coordIds = getAllBuildingTileIds(components, building);
+  if (!coordIds.length) return;
+  return splitFromEntity(coordIds[0]);
 };

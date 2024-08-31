@@ -6,11 +6,12 @@ import {
   HasValue,
   runQuery,
 } from "@latticexyz/recs";
-import { Hex } from "viem";
+import { Hex, pad } from "viem";
 import { ClientComponents } from "../mud/createClientComponents";
 import { encodeTypeEntity } from "../utils/encode";
 import { BLOOD, HOST, STAMINA } from "../contract/constants";
 import { POOL_TYPES, SOURCE } from "../constants";
+import { SetupNetworkResult } from "../mud/setupNetwork";
 
 export function getEntitySpecs<
   S extends ClientComponents[keyof ClientComponents]["schema"],
@@ -41,15 +42,23 @@ export function isRole(components: ClientComponents, entity: Entity) {
   return entityType === HOST;
 }
 
+export function getFirstHost(
+  components: ClientComponents,
+  playerEntity: Entity
+) {
+  const { Commander } = components;
+  const hosts = [...runQuery([HasValue(Commander, { value: playerEntity })])];
+  return hosts[0];
+}
+
 export function selectFirstHost(
   components: ClientComponents,
   playerEntity: Entity
 ) {
-  const { Commander, SelectedHost } = components;
-  const hosts = [...runQuery([HasValue(Commander, { value: playerEntity })])];
-  if (!hosts[0]) return false;
-  setComponent(SelectedHost, SOURCE, { value: hosts[0] });
-  return hosts[0];
+  const host = getFirstHost(components, playerEntity);
+  if (!host) return;
+  setComponent(components.SelectedHost, SOURCE, { value: host });
+  return host;
 }
 
 export function selectNextHost(
@@ -64,4 +73,22 @@ export function selectNextHost(
   setComponent(SelectedHost, SOURCE, { value: hosts[nextIndex] });
 
   // Change the state of cursor to silent of host before
+}
+
+export function getTopHost(
+  components: ClientComponents,
+  network: SetupNetworkResult,
+  entity: Entity
+) {
+  let curr = entity as Hex;
+  while (curr) {
+    const next = getComponentValue(components.Owner, curr as Entity)
+      ?.value as Hex;
+    if (next === (pad(network.worldContract.address) as Hex)) {
+      return curr;
+    } else if (!next) {
+      return undefined;
+    }
+    curr = next;
+  }
 }

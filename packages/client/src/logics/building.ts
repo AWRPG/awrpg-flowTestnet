@@ -1,15 +1,61 @@
 import { Hex } from "viem";
 import { ClientComponents } from "../mud/createClientComponents";
 import { getBurnData, getCraftData } from "./convert";
-import { Entity, getComponentValue, Has, runQuery } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  Has,
+  HasValue,
+  runQuery,
+} from "@latticexyz/recs";
 import { decodeTypeEntity, encodeTypeEntity } from "../utils/encode";
 import { Vector } from "../utils/vector";
-import { getEntitySpecs } from "./entity";
+import { getEntitySpecs, getTopHost } from "./entity";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { getTerrainEntityType, getTerrainType } from "./terrain";
 import { getCoordId } from "./map";
-import { getHostPosition } from "./path";
-import { getFourCoords } from "./move";
+import { getHostPosition, getPathEntityPosition } from "./path";
+import { getFourCoords, splitFromEntity } from "./move";
+import { adjacent } from "./position";
+import { SetupNetworkResult } from "../mud/setupNetwork";
+
+// return an building coord that is adjacent (range=1) to a tile coord;
+// so that player can call exitBuilding()
+// for example, building is at (2,2) & (2,3), tile is at (3,2), return (2,2)
+export const getBuildingCoordToExit = (
+  components: ClientComponents,
+  building: Hex,
+  exitCoord: Vector
+) => {
+  const tileIds = getAllBuildingTileIds(components, building);
+  const tileCoords = tileIds.map((tileId) => splitFromEntity(tileId));
+  const adjacentCoord = tileCoords.find((coord) => adjacent(coord, exitCoord));
+  if (!adjacentCoord) return;
+  return adjacentCoord;
+};
+
+export const getAllBuildingTileIds = (
+  components: ClientComponents,
+  building: Hex
+) => {
+  const { TileEntity } = components;
+  return [...runQuery([HasValue(TileEntity, { value: building })])];
+};
+
+// if top host is role, it has path; it top host is building, it has no path
+export const getNestedHostPosition = (
+  components: ClientComponents,
+  network: SetupNetworkResult,
+  host: Entity
+) => {
+  const topHost = getTopHost(components, network, host) as Entity;
+  if (!topHost) return;
+  const position = getPathEntityPosition(components, topHost);
+  if (position) return position;
+  const coordIds = getAllBuildingTileIds(components, topHost as Hex);
+  if (!coordIds.length) return;
+  return splitFromEntity(coordIds[0]);
+};
 
 export const getAllBuildingTypes = (components: ClientComponents) => {
   const buildingTypes = runQuery([Has(components.BuildingSpecs)]);
@@ -50,7 +96,7 @@ export const canBuildFromHost = (
   lowerCoord: Vector,
   buildingType: Hex
 ) => {
-  const coord = getHostPosition(components, role);
+  const coord = getPathEntityPosition(components, role);
   if (!coord) return;
   const fourCoords = getFourCoords(coord);
   return fourCoords.find((coord) =>
