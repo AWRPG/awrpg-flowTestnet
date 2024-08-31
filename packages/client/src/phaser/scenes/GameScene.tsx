@@ -30,7 +30,6 @@ import {
   MAIN_MENU,
   MENU,
   SOURCE,
-  OBSERVER,
   TerrainType,
   buildingMapping,
   terrainMapping,
@@ -313,33 +312,31 @@ export class GameScene extends Phaser.Scene {
       if (!this.keyDownTime) {
         this.keyDownTime = Date.now();
       }
-      const source = getComponentValue(SelectedHost, SOURCE)?.value;
+      const source = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
       const menu = getComponentValue(SelectedEntity, MENU)?.value;
 
       if (event.key === "Enter") {
-        const target: Entity = source || OBSERVER;
-        const targetCoordId = getComponentValue(TargetTile, target)?.value;
-        if (targetCoordId) {
-          const entityId = getComponentValue(
-            this.components.TileEntity,
-            castToBytes32(BigInt(targetCoordId)) as Entity
-          )?.value;
-          if (entityId === source) {
-            // Focus on the hosts can be controlled by this player
+        if (!menu)
+          return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
+        if (!source) return;
+        const targetCoordId = getComponentValue(TargetTile, source)?.value;
+        if (!targetCoordId) return;
+        const entity = getComponentValue(TileEntity, targetCoordId)?.value;
+        if (entity === source) {
+          // Focus on the hosts can be controlled by this player
 
-            if (this.tileHighlights[target]) {
-              this.tileHighlights[target].destroy();
-              delete this.tileHighlights[target];
-            } else {
-              this.tileHighlights[target] = new TileHighlight(
-                target,
-                this.components,
-                this,
-                {
-                  canControl: true,
-                }
-              );
-            }
+          if (this.tileHighlights[source]) {
+            this.tileHighlights[source].destroy();
+            delete this.tileHighlights[source];
+          } else {
+            this.tileHighlights[source] = new TileHighlight(
+              source,
+              this.components,
+              this,
+              {
+                canControl: true,
+              }
+            );
           }
         }
       }
@@ -372,6 +369,7 @@ export class GameScene extends Phaser.Scene {
       }
 
       if (event.key === "w") {
+        console.log("w", menu, source);
         if (menu || !source) return;
         setNewTargetTile(this.components, source, Direction.UP);
         // if (!isTap)
