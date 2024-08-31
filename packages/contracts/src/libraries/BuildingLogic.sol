@@ -53,7 +53,7 @@ library BuildingLogic {
   function _enterBuilding(bytes32 role, uint32 x, uint32 y) internal {
     bytes32 tileId = MapLogic.getCoordId(x, y);
     bytes32 building = TileEntity.get(tileId);
-    ContainerLogic._transfer(space(), role, building);
+    ContainerLogic._transfer(space(), building, role);
 
     (uint32 roleX, uint32 roleY) = PathLogic.getPositionStrict(role);
     TileEntity.deleteRecord(MapLogic.getCoordId(roleX, roleY));
