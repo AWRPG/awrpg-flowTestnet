@@ -33,11 +33,13 @@ export class CharacterInfo {
       this.scene,
       "ui-box",
       ALIGNMODES.LEFT_BOTTOM,
-      1024,
+      680,
       192,
       8,
       8
     );
+
+    this.hidden();
 
     this.avatar = new UIAvatar(
       this.scene,
@@ -145,5 +147,13 @@ export class CharacterInfo {
       },
       this.spBar
     );
+  }
+
+  show() {
+    this.characterBox.root.setVisible(true);
+  }
+
+  hidden() {
+    this.characterBox.root.setVisible(false);
   }
 }

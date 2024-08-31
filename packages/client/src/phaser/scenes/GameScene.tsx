@@ -64,6 +64,8 @@ export class GameScene extends Phaser.Scene {
   components: SetupResult["components"];
   systemCalls: SetupResult["systemCalls"];
 
+  uiScene: UIScene;
+
   tileSize = 16;
   minZoomLevel = 1 / 2;
   maxZoomLevel = 4;
@@ -97,6 +99,7 @@ export class GameScene extends Phaser.Scene {
     this.network = setupResult.network;
     this.components = setupResult.components;
     this.systemCalls = setupResult.systemCalls;
+    
   }
 
   preload() {
@@ -171,6 +174,7 @@ export class GameScene extends Phaser.Scene {
     } = this.components;
     const world = this.network.world;
     const camera = this.cameras.main;
+    this.uiScene = this.scene.get("UIScene") as UIScene;
     this.createAnimations();
 
     // this.anims.create({
@@ -341,6 +345,7 @@ export class GameScene extends Phaser.Scene {
             if (this.tileHighlights[target]) {
               this.tileHighlights[target].destroy();
               delete this.tileHighlights[target];
+              this.uiScene.characterInfo.hidden();
               this.hosts[target]?.root.off("changedata");
             } else {
               this.tileHighlights[target] = new TileHighlight(
@@ -367,6 +372,7 @@ export class GameScene extends Phaser.Scene {
                   "max" + hexToString(STAMINA, { size: 32 })
                 ) as number;
                 uiScene.characterInfo.spNum.setText(sp + " / " + maxSp);
+                uiScene.characterInfo.show();
                 this.hosts[target]?.root.on(
                   "changedata",
                   uiScene.onDataChanged,
