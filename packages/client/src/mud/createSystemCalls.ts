@@ -183,15 +183,15 @@ export function createSystemCalls(
 
   const exitBuilding = async (
     role: Hex,
-    exitCoord: Vector,
-    buildingCoord: Vector
+    buildingCoord: Vector,
+    exitCoord: Vector
   ) => {
     const tx = await worldContract.write.exitBuilding([
       role,
-      exitCoord.x,
-      exitCoord.y,
       buildingCoord.x,
       buildingCoord.y,
+      exitCoord.x,
+      exitCoord.y,
     ]);
     await waitForTransaction(tx);
   };
