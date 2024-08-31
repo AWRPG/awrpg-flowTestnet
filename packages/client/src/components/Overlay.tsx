@@ -57,7 +57,7 @@ export default function Overlay() {
     <div className="absolute h-full w-full pointer-events-none">
       {/* {sourceHost && <PoolBars host={sourceHost} />} */}
       <div className="relative h-full">
-        <div className="absolute pointer-events-auto top-2 right-2">
+        <div className="absolute pointer-events-auto top-2 right-2 font-['Press_Start_2P']">
           {menu === MAIN_MENU && <MainMenu player={playerEntity} />}
           {menu === ROLE_MENU && <RoleMenu />}
           {menu === BAG_MENU && <BagMenu />}

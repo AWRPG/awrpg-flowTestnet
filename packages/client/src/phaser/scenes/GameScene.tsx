@@ -33,15 +33,16 @@ import {
   TerrainType,
   buildingMapping,
   terrainMapping,
+  POOL_TYPES,
 } from "../../constants";
 import { Host } from "../objects/Host";
-import { POOL } from "../../contract/constants";
-import { Hex, toHex } from "viem";
 import {
   isBuilding,
   selectFirstHost,
   selectNextHost,
 } from "../../logics/entity";
+import { POOL, STAMINA, BLOOD } from "../../contract/constants";
+import { Hex, toHex, hexToString } from "viem";
 import { compileGridTerrainValues, GRID_SIZE } from "../../logics/terrain";
 import { Tile } from "../objects/Tile";
 import grass_0_png from "../../assets/tiles/terrains/grass_0.png";
@@ -61,11 +62,14 @@ import { updateNeighborGrids } from "../../mud/setupTiles";
 import { syncComputedComponents } from "../../mud/syncComputedComponents";
 import { Building } from "../objects/Building";
 import { Mine } from "../objects/Mine";
+import { UIScene } from "./UIScene";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
   components: SetupResult["components"];
   systemCalls: SetupResult["systemCalls"];
+
+  uiScene: UIScene;
 
   tileSize = 16;
   minZoomLevel = 1 / 2;
@@ -178,6 +182,7 @@ export class GameScene extends Phaser.Scene {
     } = this.components;
     const world = this.network.world;
     const camera = this.cameras.main;
+    this.uiScene = this.scene.get("UIScene") as UIScene;
     this.createAnimations();
 
     /**
@@ -295,7 +300,7 @@ export class GameScene extends Phaser.Scene {
       ({ entity, type }) => {
         const role = getComponentValue(Owner, entity)?.value as Entity;
         if (!role) return;
-        this.hosts[role]?.updatePoolBar();
+        this.hosts[role]?.updateProperties();
       }
     );
 
@@ -321,22 +326,47 @@ export class GameScene extends Phaser.Scene {
         if (!source) return;
         const targetCoordId = getComponentValue(TargetTile, source)?.value;
         if (!targetCoordId) return;
-        const entity = getComponentValue(TileEntity, targetCoordId)?.value;
-        if (entity === source) {
+        const target = getComponentValue(TileEntity, targetCoordId)
+          ?.value as Entity;
+        if (target === source) {
           // Focus on the hosts can be controlled by this player
-
-          if (this.tileHighlights[source]) {
-            this.tileHighlights[source].destroy();
-            delete this.tileHighlights[source];
+          if (this.tileHighlights[target]) {
+            this.tileHighlights[target].destroy();
+            delete this.tileHighlights[target];
+            this.uiScene.characterInfo.hidden();
+            this.hosts[target]?.root.off("changedata");
           } else {
-            this.tileHighlights[source] = new TileHighlight(
-              source,
+            this.tileHighlights[target] = new TileHighlight(
+              target,
               this.components,
               this,
               {
                 canControl: true,
               }
             );
+            const uiScene = this.scene.get("UIScene") as UIScene;
+            if (uiScene && uiScene.characterInfo) {
+              const hp = this.hosts[target]?.root.getData(
+                hexToString(BLOOD, { size: 32 })
+              ) as number;
+              const maxHp = this.hosts[target]?.root.getData(
+                "max" + hexToString(BLOOD, { size: 32 })
+              ) as number;
+              uiScene.characterInfo.hpNum.setText(hp + " / " + maxHp);
+              const sp = this.hosts[target]?.root.getData(
+                hexToString(BLOOD, { size: 32 })
+              ) as number;
+              const maxSp = this.hosts[target]?.root.getData(
+                "max" + hexToString(STAMINA, { size: 32 })
+              ) as number;
+              uiScene.characterInfo.spNum.setText(sp + " / " + maxSp);
+              uiScene.characterInfo.show();
+              this.hosts[target]?.root.on(
+                "changedata",
+                uiScene.onDataChanged,
+                uiScene
+              );
+            }
           }
         }
       }
@@ -531,6 +561,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   sourceSelectHandler(entity: Entity) {
+    console.log("未使用！！！！！！！！！！！！！！！！！！！！！1");
     const { SelectedHost } = this.components;
     if (getComponentValue(SelectedHost, SOURCE)?.value === entity) {
       removeComponent(SelectedHost, SOURCE);

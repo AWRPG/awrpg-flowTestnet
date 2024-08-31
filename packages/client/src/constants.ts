@@ -115,4 +115,5 @@ export const ALIGNMODES = {
   NONE: "none",
   LEFT_TOP: "leftTop",
   LEFT_BOTTOM: "leftBottom",
+  RIGHT_TOP: "rightTop",
 };

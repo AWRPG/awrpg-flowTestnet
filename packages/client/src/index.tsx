@@ -24,6 +24,8 @@ setup().then(async (result) => {
 
   root.render(
     <MUDProvider value={result}>
+      <span className="font-['Macondo'] opacity-0"></span>
+      <span className="font-['Roboto_Mono'] opacity-0"></span>
       <App />
     </MUDProvider>
   );

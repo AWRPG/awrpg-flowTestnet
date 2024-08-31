@@ -1,10 +1,8 @@
 import { SetupResult } from "../../mud/setup";
 import { Vector } from "../../utils/vector";
-import { UIAvatar } from "../ui/UIAvatar";
-import { Box } from "../ui/Box";
-import { UIText } from "../ui/UIText";
-import { Bar } from "../ui/Bar";
-import { ALIGNMODES } from "../../constants";
+import { CharacterInfo } from "../ui/CharacterInfo";
+import { getComponentValue } from "@latticexyz/recs";
+import { SOURCE } from "../../constants";
 
 export class UIScene extends Phaser.Scene {
   /**
@@ -17,20 +15,11 @@ export class UIScene extends Phaser.Scene {
    */
   height: number = 720;
 
-  /**
-   * align mode to window
-   */
-  alignModes: {
-    none: Vector;
-    leftTop: Vector;
-    leftBottom: Vector;
-  };
+  characterInfo: CharacterInfo | undefined;
 
-  /**
-   *
-   */
-  avatarBox: Box | undefined;
-  avatar: UIAvatar | undefined;
+  network: SetupResult["network"];
+  components: SetupResult["components"];
+  systemCalls: SetupResult["systemCalls"];
 
   /**
    * @param setupResult
@@ -41,11 +30,10 @@ export class UIScene extends Phaser.Scene {
     this.width = Number(config.scale?.width);
     this.height = Number(config.scale?.height);
 
-    this.alignModes = {
-      none: { x: 0, y: 0 },
-      leftTop: { x: 0, y: 0 },
-      leftBottom: { x: 0, y: this.height },
-    };
+    this.network = setupResult.network;
+    this.components = setupResult.components;
+    this.systemCalls = setupResult.systemCalls;
+    // console.log(this.components);
   }
 
   preload() {
@@ -53,50 +41,20 @@ export class UIScene extends Phaser.Scene {
     this.load.image("avatar-farmer-1-1", "src/assets/avatars/farmer_1_1.png");
     this.load.image("bar_empty", "src/assets/ui/bar_empty.png");
     this.load.image("bar_red", "src/assets/ui/bar_red.png");
+    this.load.image("bar_blue", "src/assets/ui/bar_blue.png");
+    this.load.image("bar_yellow", "src/assets/ui/bar_yellow.png");
   }
 
   create() {
-    this.avatarBox = new Box(
-      this,
-      "ui-box",
-      ALIGNMODES.LEFT_BOTTOM,
-      1024,
-      192,
-      8,
-      8
-    );
-    this.avatar = new UIAvatar(
-      this,
-      "avatar-farmer-1-1",
-      ALIGNMODES.LEFT_BOTTOM,
-      256,
-      256,
-      1,
-      1,
-      this.avatarBox
-    );
-    new UIText(
-      this,
-      "Brief Kandle",
-      ALIGNMODES.LEFT_TOP,
-      268,
-      24,
-      32,
-      "#111111",
-      "ToaHI",
-      this.avatarBox
-    );
+    this.characterInfo = new CharacterInfo(this);
+  }
 
-    new Bar(
-      this,
-      "bar_red",
-      "bar_empty",
-      ALIGNMODES.LEFT_TOP,
-      358,
-      30,
-      268,
-      70,
-      this.avatarBox
-    );
+  onDataChanged(parent: unknown, key: string, data: unknown) {
+    const { SelectedHost, Commander } = this.components;
+    const selectedHost = getComponentValue(SelectedHost, SOURCE)?.value;
+    console.log(selectedHost);
+    // console.log(parent);
+    console.log(key);
+    console.log(data);
   }
 }
