@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { MiningInfo, TileEntity, EntityType, Owner } from "@/codegen/index.sol";
+import { MiningInfo, TileEntity, EntityType, Owner, SizeSpecs } from "@/codegen/index.sol";
 import { AwardLogic } from "./AwardLogic.sol";
 import { MapLogic } from "./MapLogic.sol";
 import { Perlin } from "../utils/Perlin.sol";
@@ -11,11 +11,18 @@ import { ContainerLogic } from "./ContainerLogic.sol";
 import { ERC721Logic } from "./ERC721Logic.sol";
 import { CostLogic } from "./CostLogic.sol";
 import { MapLogic } from "./MapLogic.sol";
+import { LibUtils } from "../utils/LibUtils.sol";
+import { SafeCastLib } from "../utils/SafeCastLib.sol";
 import { Errors } from "@/Errors.sol";
 import "@/hashes.sol";
 import "@/constants.sol";
 
+uint256 constant MINING_RATE = 10 ** 18; //divided by DECIMALS
+uint256 constant DECIMALS = 18;
+
 library MiningLogic {
+  using SafeCastLib for uint256;
+
   function getPerlin(uint32 x, uint32 y) internal pure returns (uint8) {
     int128 noise = Perlin.noise2d(int40(uint40(x)), int40(uint40(y)), int8(PERLIN_DENOM_MINE), 64);
 
@@ -53,11 +60,30 @@ library MiningLogic {
 
   function _stopMining(bytes32 role) internal {
     bytes32 building = MiningInfo.getBuildingId(role);
-    uint40 lastUpdated = MiningInfo.getLastUpdated(role);
-    // no need to delete mining info because custodian ensures no double mining
-    // do some calculation
-    uint128 amount = 20;
+    // no need to delete mining info because custodian ensures no re-enter mining
+
+    // require mint amount to be within uint128
+    uint128 amount = getAcutalMinedAmount(role).safeCastTo128();
     ContainerLogic._mint(BERRY, role, amount);
     ERC721Logic._transfer(getCustodian(building), building, role);
+  }
+
+  function getMinedAmount(bytes32 role) internal view returns (uint256) {
+    uint256 miningRate = MINING_RATE;
+    uint256 decimals = DECIMALS;
+    uint40 lastUpdated = MiningInfo.getLastUpdated(role);
+    uint40 duration = uint40(block.timestamp) - lastUpdated;
+    return (miningRate * duration) / 10 ** decimals;
+  }
+
+  // rn only mine BERRY
+  function getAcutalMinedAmount(bytes32 role) internal view returns (uint256) {
+    bytes16 minedType = BERRY;
+    uint128 size = SizeSpecs.get(minedType);
+    uint256 storeSize = ContainerLogic.getRemainedSize(role);
+    uint256 storeAmount = storeSize / size;
+
+    uint256 minedAmount = getMinedAmount(role);
+    return LibUtils.min(storeAmount, minedAmount);
   }
 }

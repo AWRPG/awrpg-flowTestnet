@@ -22,4 +22,10 @@ library SafeCastLib {
 
     y = int40(x);
   }
+
+  function safeCastTo128(uint256 x) internal pure returns (uint128 y) {
+    if (x > type(uint128).max) revert("OverflowUint128");
+
+    y = uint128(x);
+  }
 }
