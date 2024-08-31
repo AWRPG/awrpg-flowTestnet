@@ -55,20 +55,36 @@ abstract contract AccessControl is WorldContextConsumer {
     }
   }
 
+  // this new _isCommander() check the first commander following the owner chain
   function _isCommander(bytes32 entity, bytes32 account) internal view returns (bool) {
     bytes32 curr = entity;
     while (true) {
       bytes32 next = Owner.get(curr);
-      if (next == space()) {
-        // an entity only has a commander if the owner is the world
-        bytes32 currCommander = Commander.get(curr);
-        return currCommander == account || currCommander == space();
-      } else if (next == 0) {
+      bytes32 currCommander = Commander.get(curr);
+      if (currCommander != 0) {
+        return currCommander == account;
+      }
+      if (next == space() || next == 0) {
         return false;
       }
       curr = next;
     }
   }
+
+  // function _isCommander(bytes32 entity, bytes32 account) internal view returns (bool) {
+  //   bytes32 curr = entity;
+  //   while (true) {
+  //     bytes32 next = Owner.get(curr);
+  //     if (next == space()) {
+  //       // an entity only has a commander if the owner is the world
+  //       bytes32 currCommander = Commander.get(curr);
+  //       return currCommander == account || currCommander == space();
+  //     } else if (next == 0) {
+  //       return false;
+  //     }
+  //     curr = next;
+  //   }
+  // }
 
   function _isApproved(bytes32 entity, bytes32 account) internal view returns (bool) {
     bytes32 curr = entity;
