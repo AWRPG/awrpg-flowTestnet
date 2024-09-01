@@ -69,7 +69,7 @@ export class GameScene extends Phaser.Scene {
   components: SetupResult["components"];
   systemCalls: SetupResult["systemCalls"];
 
-  uiScene: UIScene;
+  uiScene: UIScene | undefined;
 
   tileSize = 16;
   minZoomLevel = 1 / 2;
@@ -333,7 +333,7 @@ export class GameScene extends Phaser.Scene {
           if (this.tileHighlights[target]) {
             this.tileHighlights[target].destroy();
             delete this.tileHighlights[target];
-            this.uiScene.characterInfo.hidden();
+            this.uiScene?.characterInfo?.hidden();
             this.hosts[target]?.root.off("changedata");
           } else {
             this.tileHighlights[target] = new TileHighlight(
