@@ -24,7 +24,6 @@ export function setupTerrains(
   const { TerrainValues, TileValue } = components;
   const x = tileCoord.x; //?? width;
   const y = tileCoord.y; // ?? height;
-  console.log("syncComputedComponents", x, y);
   const gridCoord = {
     x: Math.floor(x / GRID_SIZE),
     y: Math.floor(y / GRID_SIZE),
@@ -52,11 +51,15 @@ export function setupTerrains(
         curr
       );
       setComponent(TerrainValues, curr, { value: terrainValues });
-      // const terrainValue = getTerrainType(components, systemCalls, { x, y });
-      // localStorage.setItem(curr, JSON.stringify({ terrainValue }));
-      // setComponent(TerrainValues, curr, {
-      //   value: terrainValue as number,
-      // });
+      // if (!getComponentValue(TerrainValues, curr)?.value) {
+      //   const string = localStorage.getItem(curr);
+      //   console.log("terrainValues", string);
+      //   const terrainValues = string
+      //     ? BigInt(string)
+      //     : compileGridTerrainValues(components, systemCalls, curr);
+      //   setComponent(TerrainValues, curr, { value: terrainValues });
+      //   string || localStorage.setItem(curr, terrainValues.toString());
+      // }
     }
   });
 }

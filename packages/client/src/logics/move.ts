@@ -5,7 +5,7 @@ import {
   setComponent,
 } from "@latticexyz/recs";
 import { Vector, getRectangleCoords } from "../utils/vector";
-import { SOURCE, TerrainType } from "../constants";
+import { SOURCE, TARGET, TerrainType } from "../constants";
 import { ClientComponents } from "../mud/createClientComponents";
 import { canMoveTo, getEntityOnCoord } from "./map";
 import {
@@ -107,7 +107,7 @@ export const calculatePathCoords = (
   role: Entity
 ) => {
   const { TargetTile, Path } = components;
-  const targetCoordId = getComponentValue(TargetTile, role)?.value;
+  const targetCoordId = getComponentValue(TargetTile, TARGET)?.value;
   if (!targetCoordId) return;
   const targetCoord = splitFromEntity(targetCoordId);
   const sourceCoord = getPositionFromPath(components, role);
@@ -150,12 +150,11 @@ export const calculatePathCoords = (
 // set new target coord from direction
 export const setNewTargetTile = (
   components: ClientComponents,
-  role: Entity,
   direction: Direction
 ) => {
-  const coord = getNewTargetTile(components, role, direction);
+  const coord = getNewTargetTile(components, direction);
   if (!coord) return;
-  setComponent(components.TargetTile, role, {
+  setComponent(components.TargetTile, TARGET, {
     value: combineToEntity(coord.x, coord.y),
   });
   return coord;
@@ -164,13 +163,11 @@ export const setNewTargetTile = (
 // get new target coord from direction
 export const getNewTargetTile = (
   components: ClientComponents,
-  role: Entity,
   direction: Direction
 ) => {
-  const position = getPositionFromPath(components, role);
-  if (!position) return;
-  const tileId = getComponentValue(components.TargetTile, role)?.value;
-  if (!tileId) return position;
+  const tileId = getComponentValue(components.TargetTile, TARGET)?.value;
+  // TODO?: could check if any selected host, any player host, then return default?
+  if (!tileId) return;
   const coord = splitFromEntity(tileId);
   // TODO: check if on map
   switch (direction) {

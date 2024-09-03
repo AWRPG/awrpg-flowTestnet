@@ -12,7 +12,7 @@ import {
   encodeTypeEntity,
   fromEntity,
 } from "../utils/encode";
-import { SOURCE, terrainTypeMapping, TerrainType } from "../constants";
+import { SOURCE, terrainTypeMapping, TerrainType, TARGET } from "../constants";
 import {
   combine,
   combineToEntity,
@@ -224,10 +224,9 @@ export const compileGridTerrainTypes = (
 // get source host's target tile terrain data
 export const getTargetTerrainData = (
   components: ClientComponents,
-  systemCalls: SystemCalls,
-  source: Entity
+  systemCalls: SystemCalls
 ) => {
-  const tileId = getComponentValue(components.TargetTile, source)?.value;
+  const tileId = getComponentValue(components.TargetTile, TARGET)?.value;
   if (!tileId) return;
   const targetCoord = splitFromEntity(tileId);
   return {

@@ -23,6 +23,7 @@ import {
   split,
   splitFromEntity,
   updateMoves,
+  combineToEntity,
 } from "../../logics/move";
 import {
   BUILDING_TYPES,
@@ -34,6 +35,7 @@ import {
   buildingMapping,
   terrainMapping,
   POOL_TYPES,
+  TARGET,
 } from "../../constants";
 import { Host } from "../objects/Host";
 import {
@@ -63,6 +65,7 @@ import { syncComputedComponents } from "../../mud/syncComputedComponents";
 import { Building } from "../objects/Building";
 import { Mine } from "../objects/Mine";
 import { UIScene } from "./UIScene";
+import { getHostPosition } from "../../logics/path";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -383,9 +386,16 @@ export class GameScene extends Phaser.Scene {
       } else if (event.key === "q") {
         selectNextHost(this.components, this.network.playerEntity);
       } else if (event.key === "k") {
-        if (menu || !source) return;
-        removeComponent(Moves, source);
-        return removeComponent(ConsoleMessage, SOURCE);
+        if (menu) return;
+        // removeComponent(Moves, source);
+        // return removeComponent(ConsoleMessage, SOURCE);
+        if (source) {
+          const coord = getHostPosition(this.components, this.network, source);
+          if (!coord) return;
+          setComponent(TargetTile, TARGET, {
+            value: combineToEntity(coord.x, coord.y),
+          });
+        }
       }
 
       let isTap = false;
@@ -399,24 +409,24 @@ export class GameScene extends Phaser.Scene {
 
       if (event.key === "w") {
         console.log("w", menu, source);
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.UP);
+        if (menu) return;
+        setNewTargetTile(this.components, Direction.UP);
         // if (!isTap)
         // updateMoves(this.components, this.systemCalls, Direction.UP);
       } else if (event.key === "s") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.DOWN);
+        if (menu) return;
+        setNewTargetTile(this.components, Direction.DOWN);
         // if (!isTap)
         // updateMoves(this.components, this.systemCalls, Direction.DOWN);
       } else if (event.key === "a") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.LEFT);
+        if (menu) return;
+        setNewTargetTile(this.components, Direction.LEFT);
         // setComponent(RoleDirection, source, { value: Direction.LEFT });
         // if (!isTap)
         // updateMoves(this.components, this.systemCalls, Direction.LEFT);
       } else if (event.key === "d") {
-        if (menu || !source) return;
-        setNewTargetTile(this.components, source, Direction.RIGHT);
+        if (menu) return;
+        setNewTargetTile(this.components, Direction.RIGHT);
         // setComponent(RoleDirection, source, { value: Direction.RIGHT });
         // if (!isTap)
         // updateMoves(this.components, this.systemCalls, Direction.RIGHT);
