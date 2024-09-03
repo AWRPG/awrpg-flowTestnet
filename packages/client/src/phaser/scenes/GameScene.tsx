@@ -424,14 +424,14 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
-    defineSystem(world, [Has(SelectedHost)], ({ entity, type }) => {
-      const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
-      if (!role) return;
-      if (type === UpdateType.Exit) {
-        return this.hosts[role]?.unfollow();
-      }
-      return this.hosts[role]?.follow();
-    });
+    // defineSystem(world, [Has(SelectedHost)], ({ entity, type }) => {
+    //   const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
+    //   if (!role) return;
+    //   if (type === UpdateType.Exit) {
+    //     return this.hosts[role]?.unfollow();
+    //   }
+    //   return this.hosts[role]?.follow();
+    // });
 
     // panning
     this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
