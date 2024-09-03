@@ -72,7 +72,7 @@ export class GameScene extends Phaser.Scene {
   uiScene: UIScene | undefined;
 
   tileSize = 16;
-  minZoomLevel = 1 / 2;
+  minZoomLevel = 1.5;
   maxZoomLevel = 4;
 
   tilesLayer0: Record<Entity, Phaser.GameObjects.Sprite> = {};
@@ -182,6 +182,7 @@ export class GameScene extends Phaser.Scene {
     } = this.components;
     const world = this.network.world;
     const camera = this.cameras.main;
+    camera.setZoom(3)
     this.uiScene = this.scene.get("UIScene") as UIScene;
     this.createAnimations();
 
