@@ -255,7 +255,6 @@ export class GameScene extends Phaser.Scene {
         this.mines[entity]?.destroy();
         return delete this.mines[entity];
       }
-      console.log("mine", entity);
       this.mines[entity]?.destroy();
       this.mines[entity] = new Mine(this, this.components, {
         entity,

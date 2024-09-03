@@ -26,6 +26,7 @@ export function syncComputedComponents({
   // there are several scenarios, in the end, we need to get source & tileCoord to center it & set TargetTile
   const selectedSource = getComponentValue(SelectedHost, SOURCE)
     ?.value as Entity;
+  console.log("selectedSource", selectedSource);
   let source = selectedSource ?? getFirstHost(components, network.playerEntity);
   if (!source) {
     source = OBSERVER;
@@ -49,6 +50,7 @@ export function syncComputedComponents({
     mockPath(components, source, tileCoord);
   } else if (!targetCoordId) tileCoord = sourceCoord;
   else tileCoord = splitFromEntity(targetCoordId);
+  console.log("sync", source, tileCoord);
 
   setupTerrains(components, systemCalls, tileCoord);
   setupTileValues(components);
