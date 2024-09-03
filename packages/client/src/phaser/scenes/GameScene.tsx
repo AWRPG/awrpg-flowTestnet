@@ -23,6 +23,7 @@ import {
   split,
   splitFromEntity,
   updateMoves,
+  combineToEntity,
 } from "../../logics/move";
 import {
   BUILDING_TYPES,
@@ -34,6 +35,7 @@ import {
   buildingMapping,
   terrainMapping,
   POOL_TYPES,
+  TARGET,
 } from "../../constants";
 import { Host } from "../objects/Host";
 import {
@@ -64,6 +66,7 @@ import { Building } from "../objects/Building";
 import { Mine } from "../objects/Mine";
 import { UIScene } from "./UIScene";
 import { PlayerController } from "../components/controllers/PlayerController";
+import { getHostPosition } from "../../logics/path";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];

@@ -77,14 +77,14 @@ export default function ExploreMenu() {
     selected,
   });
 
-  const hosts = useEntityQuery([
-    HasValue(components.Commander, { value: playerEntity }),
-  ]);
+  // const hosts = useEntityQuery([
+  //   HasValue(components.Commander, { value: playerEntity }),
+  // ]);
   const host = useComponentValue(SelectedHost, SOURCE)?.value as Entity;
 
   const moves = calculatePathMoves(components, host);
   console.log("ExploreMenu, moves", moves);
-  const terrainData = getTargetTerrainData(components, systemCalls, host);
+  const terrainData = getTargetTerrainData(components, systemCalls);
   console.log("ExploreMenu, terrainData", terrainData);
   if (!terrainData) return null;
   const tileCoord = terrainData.targetCoord;

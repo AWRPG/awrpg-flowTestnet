@@ -37,7 +37,7 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     // PoolOf: defineComponent(world, {
     //   value: Type.Entity,
     // }),
-    // entityId -> tileCoord
+    // TARGET -> tileCoord
     TargetTile: defineComponent(world, {
       value: Type.Entity,
     }),
