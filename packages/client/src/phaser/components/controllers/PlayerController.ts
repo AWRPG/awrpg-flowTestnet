@@ -7,12 +7,28 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { SOURCE, MENU, MAIN_MENU, EXPLORE_MENU } from "../../../constants";
-import { setNewTargetTile, KEY_TO_DIRECTION } from "../../../logics/move";
+import {
+  SOURCE,
+  MENU,
+  MAIN_MENU,
+  EXPLORE_MENU,
+  TARGET,
+} from "../../../constants";
+import {
+  setNewTargetTile,
+  KEY_TO_DIRECTION,
+  combineToEntity,
+} from "../../../logics/move";
 import { TileHighlight } from "../../objects/TileHighlight";
 import { hexToString } from "viem";
 import { BLOOD, STAMINA } from "../../../contract/constants";
-import { selectFirstHost, selectNextHost } from "../../../logics/entity";
+import {
+  isRole,
+  selectFirstHost,
+  selectNextHost,
+} from "../../../logics/entity";
+import { getHostPosition } from "../../../logics/path";
+import { getTargetTerrainData } from "../../../logics/terrain";
 
 /**
  * Handle user client interface
@@ -47,29 +63,33 @@ export class PlayerController {
       TargetTile,
       TileEntity,
       ConsoleMessage,
-      Moves,
     } = this.components;
+    const tileData = getTargetTerrainData(
+      this.components,
+      this.scene.systemCalls
+    );
+    const tileCoord = tileData ? tileData.targetCoord : null;
     const source = getComponentValue(SelectedHost, SOURCE)?.value;
     const menu = getComponentValue(SelectedEntity, MENU)?.value;
 
     // Move cursor
-    if (source && !menu && this.isArrowKeysDown(event.key)) {
+    if (!menu && this.isArrowKeysDown(event.key)) {
       if (Date.now() - this.cursorLastDate > this.cursorMoveInterval) {
         this.cursorLastDate = Date.now();
-        setNewTargetTile(this.components, source, KEY_TO_DIRECTION[event.key]);
+        setNewTargetTile(this.components, KEY_TO_DIRECTION[event.key]);
       }
     }
     // Select/unselect the host
-    else if (source && !menu && (event.key === "f" || event.key === "F")) {
-      const targetCoordId = getComponentValue(TargetTile, source)?.value;
-      if (!targetCoordId) return;
-      const target = getComponentValue(TileEntity, targetCoordId)
-        ?.value as Entity;
-      // Player
-      if (target === source) this.switchTileHighlight(target);
-      // Building
-      // Miner
-      // Terrain
+    else if (tileData && !menu && (event.key === "f" || event.key === "F")) {
+      const entity = tileData.coordEntity;
+      const isRoleType = isRole(this.components, entity as Entity);
+      if (isRoleType) {
+        // Player
+        this.switchTileHighlight(entity);
+        // Building
+        // Miner
+        // Terrain
+      }
     }
     // Show/hide tile highlight
     else if (!menu && (event.key === "r" || event.key === "R")) {
@@ -99,9 +119,18 @@ export class PlayerController {
       } else if (event.key === "q") {
         selectNextHost(this.components, this.scene.network.playerEntity);
       } else if (event.key === "k") {
-        if (menu || !source) return;
-        removeComponent(Moves, source);
-        return removeComponent(ConsoleMessage, SOURCE);
+        if (menu) return;
+        if (source) {
+          const coord = getHostPosition(
+            this.components,
+            this.scene.network,
+            source
+          );
+          if (!coord) return;
+          setComponent(TargetTile, TARGET, {
+            value: combineToEntity(coord.x, coord.y),
+          });
+        }
       }
     }
   }
