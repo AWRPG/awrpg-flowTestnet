@@ -65,6 +65,7 @@ import { syncComputedComponents } from "../../mud/syncComputedComponents";
 import { Building } from "../objects/Building";
 import { Mine } from "../objects/Mine";
 import { UIScene } from "./UIScene";
+import { PlayerController } from "../components/controllers/PlayerController";
 import { getHostPosition } from "../../logics/path";
 
 export class GameScene extends Phaser.Scene {
@@ -72,10 +73,8 @@ export class GameScene extends Phaser.Scene {
   components: SetupResult["components"];
   systemCalls: SetupResult["systemCalls"];
 
-  uiScene: UIScene | undefined;
-
   tileSize = 16;
-  minZoomLevel = 1 / 2;
+  minZoomLevel = 1.5;
   maxZoomLevel = 4;
 
   tilesLayer0: Record<Entity, Phaser.GameObjects.Sprite> = {};
@@ -97,10 +96,7 @@ export class GameScene extends Phaser.Scene {
     frameHeight?: number;
   }[] = [];
 
-  tapDuration = 60;
-  keyDownTime: number | null = null;
-
-  keyboardFocus: string = "Scene"; // [TODO]
+  playController: PlayerController | undefined;
 
   constructor(
     setupResult: SetupResult,
@@ -185,8 +181,9 @@ export class GameScene extends Phaser.Scene {
     } = this.components;
     const world = this.network.world;
     const camera = this.cameras.main;
-    this.uiScene = this.scene.get("UIScene") as UIScene;
+    camera.setZoom(3);
     this.createAnimations();
+    this.playController = new PlayerController(this, this.components);
 
     /**
      * load/unload tile sprites on map; TileValue is a client component that is updated when character moves, which is handled by useSyncComputedComponents
@@ -314,124 +311,6 @@ export class GameScene extends Phaser.Scene {
     // defineSystem(world, [Has(RoleDirection)], ({ entity, type }) => {
     //   this.hosts[entity]?.directionUpdate();
     // });
-
-    this.input.keyboard?.on("keydown", (event: KeyboardEvent) => {
-      if (!this.keyDownTime) {
-        this.keyDownTime = Date.now();
-      }
-      const source = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
-      const menu = getComponentValue(SelectedEntity, MENU)?.value;
-
-      if (event.key === "Enter") {
-        if (!menu)
-          return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
-        if (!source) return;
-        const targetCoordId = getComponentValue(TargetTile, source)?.value;
-        if (!targetCoordId) return;
-        const target = getComponentValue(TileEntity, targetCoordId)
-          ?.value as Entity;
-        if (target === source) {
-          // Focus on the hosts can be controlled by this player
-          if (this.tileHighlights[target]) {
-            this.tileHighlights[target].destroy();
-            delete this.tileHighlights[target];
-            this.uiScene?.characterInfo?.hidden();
-            this.hosts[target]?.root.off("changedata");
-          } else {
-            this.tileHighlights[target] = new TileHighlight(
-              target,
-              this.components,
-              this,
-              {
-                canControl: true,
-              }
-            );
-            const uiScene = this.scene.get("UIScene") as UIScene;
-            if (uiScene && uiScene.characterInfo) {
-              const hp = this.hosts[target]?.root.getData(
-                hexToString(BLOOD, { size: 32 })
-              ) as number;
-              const maxHp = this.hosts[target]?.root.getData(
-                "max" + hexToString(BLOOD, { size: 32 })
-              ) as number;
-              uiScene.characterInfo.hpNum.setText(hp + " / " + maxHp);
-              const sp = this.hosts[target]?.root.getData(
-                hexToString(BLOOD, { size: 32 })
-              ) as number;
-              const maxSp = this.hosts[target]?.root.getData(
-                "max" + hexToString(STAMINA, { size: 32 })
-              ) as number;
-              uiScene.characterInfo.spNum.setText(sp + " / " + maxSp);
-              uiScene.characterInfo.show();
-              this.hosts[target]?.root.on(
-                "changedata",
-                uiScene.onDataChanged,
-                uiScene
-              );
-            }
-          }
-        }
-      }
-
-      if (event.key === "j") {
-        if (menu || !source) return;
-        setComponent(SelectedEntity, MENU, { value: EXPLORE_MENU });
-      } else if (event.key === "Escape") {
-        if (!source) {
-          selectFirstHost(this.components, this.network.playerEntity);
-        }
-        removeComponent(ConsoleMessage, SOURCE);
-        if (menu) return removeComponent(SelectedEntity, MENU);
-        return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
-      } else if (event.key === "q") {
-        selectNextHost(this.components, this.network.playerEntity);
-      } else if (event.key === "k") {
-        if (menu) return;
-        // removeComponent(Moves, source);
-        // return removeComponent(ConsoleMessage, SOURCE);
-        if (source) {
-          const coord = getHostPosition(this.components, this.network, source);
-          if (!coord) return;
-          setComponent(TargetTile, TARGET, {
-            value: combineToEntity(coord.x, coord.y),
-          });
-        }
-      }
-
-      let isTap = false;
-      if (this.keyDownTime) {
-        const duration = Date.now() - this.keyDownTime;
-        if (duration < this.tapDuration) {
-          isTap = true;
-        }
-        this.keyDownTime = null;
-      }
-
-      if (event.key === "w") {
-        console.log("w", menu, source);
-        if (menu) return;
-        setNewTargetTile(this.components, Direction.UP);
-        // if (!isTap)
-        // updateMoves(this.components, this.systemCalls, Direction.UP);
-      } else if (event.key === "s") {
-        if (menu) return;
-        setNewTargetTile(this.components, Direction.DOWN);
-        // if (!isTap)
-        // updateMoves(this.components, this.systemCalls, Direction.DOWN);
-      } else if (event.key === "a") {
-        if (menu) return;
-        setNewTargetTile(this.components, Direction.LEFT);
-        // setComponent(RoleDirection, source, { value: Direction.LEFT });
-        // if (!isTap)
-        // updateMoves(this.components, this.systemCalls, Direction.LEFT);
-      } else if (event.key === "d") {
-        if (menu) return;
-        setNewTargetTile(this.components, Direction.RIGHT);
-        // setComponent(RoleDirection, source, { value: Direction.RIGHT });
-        // if (!isTap)
-        // updateMoves(this.components, this.systemCalls, Direction.RIGHT);
-      }
-    });
 
     // defineSystem(world, [Has(SelectedHost)], ({ entity, type }) => {
     //   const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
