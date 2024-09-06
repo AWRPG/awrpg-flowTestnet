@@ -85,6 +85,26 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
+    // ----- equipment -----
+    // host -> weapon
+    Weapon: "bytes32",
+    Armor: "bytes32",
+    Trinket: "bytes32",
+    WeaponSpecs: {
+      schema: {
+        weaponType: "bytes16",
+        attack: "uint16",
+        range: "uint16",
+      },
+      key: ["weaponType"],
+    },
+    ArmorSpecs: {
+      schema: {
+        armorType: "bytes16",
+        defense: "uint16",
+      },
+      key: ["armorType"],
+    },
     // ----- terrain & map -----
     // if true, not obstacle, can build, can move onto if no building
     // coordId ->
