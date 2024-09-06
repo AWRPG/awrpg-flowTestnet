@@ -55,8 +55,9 @@ library DefineTypes {
     BurnAwards.set(itemType, burnAwards);
   }
 
-  function defineHost(bytes16 hostType, uint256 capacity) internal {
+  function defineHost(bytes16 hostType, uint256 capacity, uint128 size) internal {
     ContainerSpecs.set(hostType, capacity);
+    SizeSpecs.set(hostType, size);
   }
 
   // function defineERC721Item(
