@@ -1,8 +1,8 @@
 import { SetupResult } from "../../mud/setup";
-import { Vector } from "../../utils/vector";
 import { CharacterInfo } from "../ui/CharacterInfo";
-import { getComponentValue } from "@latticexyz/recs";
-import { SOURCE } from "../../constants";
+import { TerrainUI } from "../ui/TerrainUI";
+import { ActionMenu } from "../ui/ActionMenu";
+import { UIManager } from "../ui/UIManager";
 
 export class UIScene extends Phaser.Scene {
   /**
@@ -16,6 +16,10 @@ export class UIScene extends Phaser.Scene {
   height: number = 720;
 
   characterInfo: CharacterInfo | undefined;
+  terrainUI: TerrainUI | undefined;
+  actionMenu: ActionMenu | undefined;
+
+  focusUI: UIManager | undefined;
 
   network: SetupResult["network"];
   components: SetupResult["components"];
@@ -33,28 +37,30 @@ export class UIScene extends Phaser.Scene {
     this.network = setupResult.network;
     this.components = setupResult.components;
     this.systemCalls = setupResult.systemCalls;
-    // console.log(this.components);
   }
 
   preload() {
-    this.load.image("ui-box", "src/assets/ui/UI_Paper_Frame_01_Standard.png");
+    this.load.image("ui-empty", "src/assets/ui/empty.png");
+    this.load.image("ui-box", "src/assets/ui/box_1.png");
     this.load.image("avatar-farmer-1-1", "src/assets/avatars/farmer_1_1.png");
     this.load.image("bar_empty", "src/assets/ui/bar_empty.png");
     this.load.image("bar_red", "src/assets/ui/bar_red.png");
     this.load.image("bar_blue", "src/assets/ui/bar_blue.png");
     this.load.image("bar_yellow", "src/assets/ui/bar_yellow.png");
+    this.load.image("btn_decor1", "src/assets/ui/btn_decor1.png");
+    this.load.image("btn_decor2", "src/assets/ui/btn_decor2.png");
+    this.load.image("btn_decor3", "src/assets/ui/btn_decor3.png");
+    this.load.image("btn_decor4", "src/assets/ui/btn_decor4.png");
+    this.load.image("btn_select_skin", "src/assets/ui/btn_select_skin.png");
   }
 
   create() {
     this.characterInfo = new CharacterInfo(this);
+    this.terrainUI = new TerrainUI(this);
+    this.actionMenu = new ActionMenu(this);
   }
 
-  onDataChanged(parent: unknown, key: string, data: unknown) {
-    const { SelectedHost, Commander } = this.components;
-    const selectedHost = getComponentValue(SelectedHost, SOURCE)?.value;
-    console.log(selectedHost);
-    // console.log(parent);
-    console.log(key);
-    console.log(data);
+  isFocusOn() {
+    if (this.actionMenu?.isVisible) return true;
   }
 }

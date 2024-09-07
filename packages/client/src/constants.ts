@@ -45,6 +45,7 @@ export const terrainMapping = [
   "plain",
   "mountain",
   "mud",
+  "building",
 ];
 
 export const terrainTypeMapping = {
@@ -114,6 +115,9 @@ export const TARGET_MENU = toHex("TARGET_MENU", { size: 32 }) as Entity;
 export const ALIGNMODES = {
   NONE: "none",
   LEFT_TOP: "leftTop",
+  LEFT_CENTER: "leftCenter",
   LEFT_BOTTOM: "leftBottom",
   RIGHT_TOP: "rightTop",
+  MIDDLE_TOP: "middleTop",
+  MIDDLE_CENTER: "middleCenter",
 };

@@ -49,10 +49,8 @@ export class TileHighlight extends SceneObject {
     super(entity, components, scene);
 
     // Set the center position to root
-    const path = getComponentValue(components.Path, entity) ?? {
-      toX: 0,
-      toY: 0,
-    };
+    const path = getComponentValue(components.Path, entity) ?? null;
+    if (!path) return;
     this.tileX = path.toX;
     this.tileY = path.toY;
     this.root

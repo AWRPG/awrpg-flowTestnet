@@ -50,7 +50,14 @@ export class UIBase {
       case ALIGNMODES.LEFT_TOP:
         this.alignMode = { x: 0, y: 0 };
         this.x = this.marginX;
-        this.y = this.marginY + this.height;
+        this.y = this.marginY;
+        break;
+      case ALIGNMODES.LEFT_CENTER:
+        this.alignMode = parent
+          ? { x: 0, y: parent.height / 2 }
+          : { x: 0, y: scene.height / 2 };
+        this.x = this.marginX;
+        this.y = this.alignMode.y + this.marginY - this.height / 2;
         break;
       case ALIGNMODES.LEFT_BOTTOM:
         this.alignMode = parent
@@ -62,9 +69,23 @@ export class UIBase {
       case ALIGNMODES.RIGHT_TOP:
         this.alignMode = parent
           ? { x: parent.width, y: 0 }
-          : { x: scene.height, y: 0 };
+          : { x: scene.width, y: 0 };
         this.x = this.alignMode.x - this.marginX - this.width;
         this.y = this.marginY;
+        break;
+      case ALIGNMODES.MIDDLE_TOP:
+        this.alignMode = parent
+          ? { x: parent.width / 2, y: 0 }
+          : { x: scene.width / 2, y: 0 };
+        this.x = this.alignMode.x + this.marginX - this.width / 2;
+        this.y = this.marginY;
+        break;
+      case ALIGNMODES.MIDDLE_CENTER:
+        this.alignMode = parent
+          ? { x: parent.width / 2, y: parent.height / 2 }
+          : { x: scene.width / 2, y: scene.height / 2 };
+        this.x = this.alignMode.x + this.marginX - this.width / 2;
+        this.y = this.alignMode.y + this.marginY - this.height / 2;
         break;
       default:
         this.alignMode = { x: 0, y: 0 };
@@ -86,5 +107,13 @@ export class UIBase {
     } else {
       this.root.add(children.root);
     }
+  }
+
+  show() {
+    this.root.setVisible(true);
+  }
+
+  hide() {
+    this.root.setVisible(false);
   }
 }

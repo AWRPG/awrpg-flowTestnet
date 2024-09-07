@@ -45,7 +45,7 @@ export function syncComputedComponents({
   if (hostCoord && !hostPath) {
     mockPath(components, host, hostCoord);
   }
-  console.log("syncComputedComponents", tileCoord, targetCoordId);
+  // console.log("syncComputedComponents", tileCoord, targetCoordId);
 
   setupTerrains(components, systemCalls, tileCoord);
   setupTileValues(components);

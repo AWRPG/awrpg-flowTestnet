@@ -32,7 +32,7 @@ export class Host extends SceneObject {
   /**
    * the value of properties such as HP
    */
-  properties: Hex[] = [];
+  properties: Map<string, number>;
 
   /**
    * tilesToMove
@@ -64,6 +64,7 @@ export class Host extends SceneObject {
   ) {
     super(entity, components, scene);
     this.isPlayer = isPlayer;
+    this.properties = new Map();
 
     // TODO: different obj has different position calc
     const path = getComponentValue(components.Path, entity) ?? {
@@ -175,20 +176,9 @@ export class Host extends SceneObject {
   setPropertyValue(type: Hex, entityId: number) {
     const amount = getPoolAmount(this.components, this.entity as Hex, type);
     const capacity = getPoolCapacity(this.components, this.entity as Hex, type);
-    this.root.setData(hexToString(type, { size: 32 }), Number(amount) / 3);
-    this.root.setData(
-      "max" + hexToString(type, { size: 32 }),
-      Number(capacity)
-    );
-    // console.log(
-    //   entityId +
-    //     " " +
-    //     hexToString(type, { size: 32 }) +
-    //     ": " +
-    //     amount +
-    //     " / " +
-    //     capacity
-    // );
+    const typeName = hexToString(type, { size: 32 });
+    this.properties.set(typeName, Number(amount));
+    this.properties.set("max" + typeName, Number(capacity));
   }
 
   /**
@@ -196,7 +186,6 @@ export class Host extends SceneObject {
    */
   updateProperties() {
     const entityId = Number(fromEntity(this.entity as Hex).id);
-    // if (this.isPlayer === true)
     POOL_TYPES.forEach((type, index) => {
       this.setPropertyValue(type, entityId);
     });

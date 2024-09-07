@@ -13,6 +13,9 @@ import {
   MAIN_MENU,
   EXPLORE_MENU,
   TARGET,
+  TerrainType,
+  terrainTypeMapping,
+  terrainMapping,
 } from "../../../constants";
 import {
   setNewTargetTile,
@@ -23,12 +26,14 @@ import { TileHighlight } from "../../objects/TileHighlight";
 import { hexToString } from "viem";
 import { BLOOD, STAMINA } from "../../../contract/constants";
 import {
+  isBuilding,
   isRole,
   selectFirstHost,
   selectNextHost,
 } from "../../../logics/entity";
 import { getHostPosition } from "../../../logics/path";
-import { getTargetTerrainData } from "../../../logics/terrain";
+import { getTargetTerrainData, TileData } from "../../../logics/terrain";
+import { Host } from "../../objects/Host";
 
 /**
  * Handle user client interface
@@ -38,8 +43,10 @@ export class PlayerController {
   uiScene: UIScene;
   components: ClientComponents;
   keyboardListener: Phaser.Input.Keyboard.KeyboardPlugin | undefined;
-  cursorMoveInterval = 45;
+  cursorMoveInterval = 125;
   cursorLastDate: number = 0;
+  tileData: TileData | undefined;
+  menu: Entity | undefined;
 
   constructor(scene: GameScene, components: ClientComponents) {
     this.scene = scene;
@@ -64,62 +71,116 @@ export class PlayerController {
       TileEntity,
       ConsoleMessage,
     } = this.components;
-    const tileData = getTargetTerrainData(
+    const tileData = (this.tileData = getTargetTerrainData(
       this.components,
       this.scene.systemCalls
-    );
-    const tileCoord = tileData ? tileData.targetCoord : null;
-    const source = getComponentValue(SelectedHost, SOURCE)?.value;
-    const menu = getComponentValue(SelectedEntity, MENU)?.value;
+    ));
+    const entity = tileData ? tileData.coordEntity : null;
+    const type = entity
+      ? isRole(this.components, entity)
+        ? "role"
+        : isBuilding(this.components, entity)
+          ? "building"
+          : null
+      : null;
 
-    // Move cursor
-    if (!menu && this.isArrowKeysDown(event.key)) {
-      if (Date.now() - this.cursorLastDate > this.cursorMoveInterval) {
-        this.cursorLastDate = Date.now();
-        setNewTargetTile(this.components, KEY_TO_DIRECTION[event.key]);
-      }
+    const source = getComponentValue(SelectedHost, SOURCE)?.value;
+
+    const menu = (this.menu = getComponentValue(SelectedEntity, MENU)?.value);
+    const onMenu = menu || this.uiScene.isFocusOn();
+
+    // Move cursor on tiles
+    if (!onMenu && this.isArrowKeysDown(event.key)) {
+      if (!tileData) return;
+      if (Date.now() - this.cursorLastDate < this.cursorMoveInterval)
+        // check time interval
+        return;
+      this.cursorLastDate = Date.now();
+      this.uiScene.terrainUI?.hidden();
+      // move to new tile
+      setNewTargetTile(this.components, KEY_TO_DIRECTION[event.key]);
     }
-    // Select/unselect the host
-    else if (tileData && !menu && (event.key === "f" || event.key === "F")) {
-      const entity = tileData.coordEntity;
-      const isRoleType = isRole(this.components, entity as Entity);
-      if (isRoleType) {
-        // Player
-        this.switchTileHighlight(entity);
-        // Building
-        // Miner
-        // Terrain
-      }
+
+    // Move on menu
+    else if (this.uiScene.isFocusOn() && this.isArrowKeysDown(event.key)) {
+      const ui = this.uiScene.focusUI;
+      if (!ui?.buttons) return;
+      if (["w", "W"].includes(event.key)) ui.prevButton();
+      if (["s", "S"].includes(event.key)) ui.nextButton();
+
     }
-    // Show/hide tile highlight
-    else if (!menu && (event.key === "r" || event.key === "R")) {
+
+    // Select the host & terrain
+    else if (!onMenu && ["f", "F"].includes(event.key)) {
+      if (!tileData || !entity) return;
+      const entityObj: Host = this.scene.hosts[entity];
+      // Select character
+      if (type === "role") {
+        this.setCharacterInfo(entityObj);
+        // Player role
+        if (entityObj.isPlayer) {
+          this.openTileHighlight(entity);
+          this.uiScene.actionMenu?.show();
+        }
+        // Other Role
+        else {
+          this.openTileHighlight(entity);
+        }
+      }
+      // Building
+      else if (type === "building") {
+        console.log("TODO:Building");
+      }
+      // Miner
+      // TODO: actions to miner?
+    }
+
+    // Select the action menu
+    else if (onMenu && ["f", "F"].includes(event.key)) {
       // [TODO]
     }
-    // Show/hide Menu
-    else if ((source && event.key === "Escape") || event.key === "Meta") {
-      if (!menu) {
+
+    // Show/hide terrain UI
+    else if (!onMenu && (event.key === "r" || event.key === "R")) {
+      if (!tileData) return;
+      // Show/hide terrain ui
+      if (this.uiScene.terrainUI?.isVisible === false) {
+        const terrainName = terrainMapping[tileData.terrainType];
+        this.uiScene.terrainUI.show();
+        this.uiScene.terrainUI.setData("terrainName", terrainName);
+      } else {
+        this.uiScene.terrainUI?.hidden();
+      }
+    }
+
+    // Hide Menu
+    else if (["Escape", "Meta", "x", "X"].includes(event.key)) {
+      if (!onMenu) {
         removeComponent(ConsoleMessage, SOURCE);
         setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       } else {
         removeComponent(SelectedEntity, MENU);
+        this.uiScene.actionMenu?.hidden();
+        if (entity) this.closeTileHighlight(entity);
       }
     }
+
     // [TODO] other actions
     else {
       if (event.key === "j") {
-        if (menu || !source) return;
+        if (onMenu || !source) return;
         setComponent(SelectedEntity, MENU, { value: EXPLORE_MENU });
       } else if (event.key === "Escape") {
         if (!source) {
           selectFirstHost(this.components, this.scene.network.playerEntity);
         }
         removeComponent(ConsoleMessage, SOURCE);
-        if (menu) return removeComponent(SelectedEntity, MENU);
+        if (onMenu) return removeComponent(SelectedEntity, MENU);
         return setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       } else if (event.key === "q") {
         selectNextHost(this.components, this.scene.network.playerEntity);
       } else if (event.key === "k") {
-        if (menu) return;
+        if (onMenu) return;
         if (source) {
           const coord = getHostPosition(
             this.components,
@@ -146,47 +207,37 @@ export class PlayerController {
       return true;
   }
 
-  switchTileHighlight(target: Entity) {
-    if (!this.scene.tileHighlights[target]) {
-      this.scene.tileHighlights[target] = new TileHighlight(
-        target,
-        this.components,
-        this.scene,
-        { canControl: true }
-      );
-      this.showCharacterInfo(target);
-    } else {
+  /**
+   * Open the tile highlight of a role
+   */
+  openTileHighlight(target: Entity) {
+    if (this.scene.tileHighlights[target]) this.closeTileHighlight;
+    this.scene.tileHighlights[target] = new TileHighlight(
+      target,
+      this.components,
+      this.scene,
+      { canControl: true }
+    );
+    this.uiScene.characterInfo?.show();
+  }
+
+  /**
+   * Close the tile highlight of a role
+   */
+  closeTileHighlight(target: Entity) {
+    if (this.scene.tileHighlights[target]) {
       this.scene.tileHighlights[target].destroy();
       delete this.scene.tileHighlights[target];
-      this.hideCharacterInfo(target);
+      this.uiScene.characterInfo?.hidden();
     }
   }
 
-  showCharacterInfo(target: Entity) {
-    const hp = this.scene.hosts[target]?.root.getData(
-      hexToString(BLOOD, { size: 32 })
-    ) as number;
-    const maxHp = this.scene.hosts[target]?.root.getData(
-      "max" + hexToString(BLOOD, { size: 32 })
-    ) as number;
-    this.uiScene.characterInfo?.hpNum.setText(hp + " / " + maxHp);
-    const sp = this.scene.hosts[target]?.root.getData(
-      hexToString(BLOOD, { size: 32 })
-    ) as number;
-    const maxSp = this.scene.hosts[target]?.root.getData(
-      "max" + hexToString(STAMINA, { size: 32 })
-    ) as number;
-    this.uiScene.characterInfo?.spNum.setText(sp + " / " + maxSp);
-    this.uiScene.characterInfo?.show();
-    this.scene.hosts[target]?.root.on(
-      "changedata",
-      this.uiScene.onDataChanged,
-      this.uiScene
-    );
-  }
-
-  hideCharacterInfo(target: Entity) {
-    this.uiScene?.characterInfo?.hidden();
-    this.scene.hosts[target]?.root.off("changedata");
+  setCharacterInfo(entityObj: Host) {
+    const hp = entityObj.properties.get("BLOOD");
+    const maxHp = entityObj.properties.get("maxBLOOD");
+    const sp = entityObj.properties.get("STAMINA");
+    const maxSp = entityObj.properties.get("maxSTAMINA");
+    this.uiScene.characterInfo?.setData("hp", hp + "/" + maxHp);
+    this.uiScene.characterInfo?.setData("sp", sp + "/" + maxSp);
   }
 }

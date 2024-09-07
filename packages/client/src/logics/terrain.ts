@@ -221,11 +221,22 @@ export const compileGridTerrainTypes = (
   return tileTerrains;
 };
 
+export interface TileData {
+  targetCoord: {
+    x: number;
+    y: number;
+  };
+  terrainType: TerrainType;
+  coordEntity: Entity;
+  commander: Entity;
+  creator: Entity;
+}
+
 // get source host's target tile terrain data
 export const getTargetTerrainData = (
   components: ClientComponents,
   systemCalls: SystemCalls
-) => {
+): TileData | undefined => {
   const tileId = getComponentValue(components.TargetTile, TARGET)?.value;
   if (!tileId) return;
   const targetCoord = splitFromEntity(tileId);

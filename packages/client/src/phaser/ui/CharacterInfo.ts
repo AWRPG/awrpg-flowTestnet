@@ -1,14 +1,12 @@
 import { UIScene } from "../scenes/UIScene";
+import { UIManager } from "./UIManager";
 import { Box } from "../components/ui/Box";
 import { UIAvatar } from "../components/ui/UIAvatar";
 import { UIText } from "../components/ui/UIText";
 import { Bar } from "../components/ui/Bar";
 import { ALIGNMODES } from "../../constants";
 
-export class CharacterInfo {
-  scene: UIScene;
-
-  characterBox: Box;
+export class CharacterInfo extends UIManager {
   avatar: UIAvatar;
   characterName: UIText;
 
@@ -27,19 +25,12 @@ export class CharacterInfo {
   maxSp: number = 1;
 
   constructor(scene: UIScene) {
-    this.scene = scene;
-
-    this.characterBox = new Box(
-      this.scene,
-      "ui-box",
-      ALIGNMODES.LEFT_BOTTOM,
-      680,
-      192,
-      8,
-      8
+    super(
+      scene,
+      new Box(scene, "ui-box", ALIGNMODES.LEFT_BOTTOM, 680, 192, 8, 8)
     );
-
-    this.hidden();
+    this.setData("hp", 1);
+    this.setData("sp", 1);
 
     this.avatar = new UIAvatar(
       this.scene,
@@ -49,7 +40,7 @@ export class CharacterInfo {
       256,
       1,
       1,
-      this.characterBox
+      this.rootUI
     );
 
     this.characterName = new UIText(
@@ -61,7 +52,7 @@ export class CharacterInfo {
       {
         fontSize: 36,
       },
-      this.characterBox
+      this.rootUI
     );
 
     this.hpBar = new Bar(
@@ -72,12 +63,12 @@ export class CharacterInfo {
       358,
       30,
       268,
-      48,
+      78,
       {
         value: this.hp,
         maxValue: this.maxHp,
       },
-      this.characterBox
+      this.rootUI
     );
 
     this.hpName = new UIText(
@@ -114,12 +105,12 @@ export class CharacterInfo {
       358,
       30,
       268,
-      110,
+      140,
       {
         value: this.sp,
         maxValue: this.maxSp,
       },
-      this.characterBox
+      this.rootUI
     );
 
     this.spName = new UIText(
@@ -149,11 +140,13 @@ export class CharacterInfo {
     );
   }
 
-  show() {
-    this.characterBox.root.setVisible(true);
-  }
-
-  hidden() {
-    this.characterBox.root.setVisible(false);
+  onDataChanged(parent: unknown, key: string, data: unknown) {
+    switch (key) {
+      case "hp":
+        this.hpNum.setText(data as string);
+        break;
+      case "sp":
+        this.spNum.setText(data as string);
+    }
   }
 }
