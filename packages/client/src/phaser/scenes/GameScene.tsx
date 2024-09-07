@@ -67,6 +67,8 @@ import { Mine } from "../objects/Mine";
 import { UIScene } from "./UIScene";
 import { PlayerController } from "../components/controllers/PlayerController";
 import { getHostPosition } from "../../logics/path";
+import { isDropContainer, splitDropContainer } from "../../logics/drop";
+import { Drop } from "../objects/Drop";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -86,6 +88,8 @@ export class GameScene extends Phaser.Scene {
   buildings: Record<Entity, Building> = {};
   // gridId -> Mine class
   mines: Record<Entity, Mine> = {};
+  // tileId -> drop
+  drops: Record<Entity, Drop> = {};
 
   hosts: Record<Entity, Host> = {};
 
@@ -274,6 +278,21 @@ export class GameScene extends Phaser.Scene {
 
     // render roles ~ hosts
     // TODO: add loadRole & unloadRole to handle role's enter & exit; therefore, when tile is loaded/unloaded, call loadRole/unloadRole on it
+
+    // drop container
+    defineSystem(world, [Has(Path), Not(Commander)], ({ entity, type }) => {
+      // TODO: add withinView check to render sprite
+      if (!isDropContainer(entity)) return;
+      this.drops[entity]?.destroy();
+      if (type === UpdateType.Exit) {
+        return delete this.drops[entity];
+      }
+      this.drops[entity] = new Drop(this, this.components, {
+        entity,
+      });
+    });
+
+    // role on map
     defineSystem(world, [Has(Path), Has(Commander)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
         this.hosts[entity]?.destroy();
