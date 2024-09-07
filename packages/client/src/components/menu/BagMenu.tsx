@@ -16,7 +16,7 @@ import { splitBytes32 } from "../../utils/encode";
 export default function BagMenu() {
   const {
     components,
-    systemCalls: { consumeERC20 },
+    systemCalls: { consumeERC20, dropERC20 },
   } = useMUD();
   const { SelectedHost, SelectedEntity, ConsoleMessage } = components;
   const sourceHost = useComponentValue(SelectedHost, SOURCE)?.value as Entity;
@@ -45,6 +45,15 @@ export default function BagMenu() {
   const [selected, setSelected] = useState(0);
   const [selected2, setSelected2] = useState<number | null>(null);
   const selections2 = [
+    {
+      content: " $Drop 1",
+      disabled: erc20sData[selected].balance === 0n,
+      onClick: async () => {
+        await dropERC20(sourceHost as Hex, ERC20_TYPES[selected], 1n);
+        removeComponent(SelectedEntity, MENU);
+        removeComponent(ConsoleMessage, SOURCE);
+      },
+    },
     {
       content: "$Consume",
       disabled:

@@ -43,6 +43,12 @@ import {
   getBuildingCoordToExit,
   getHasCostBuildingTypes,
 } from "../../logics/building";
+import {
+  getDropContainer,
+  getERC20Drops,
+  getERC721Drops,
+} from "../../logics/drop";
+import { getERC20Balances } from "../../logics/container";
 
 export default function ExploreMenu() {
   const {
@@ -113,7 +119,53 @@ export default function ExploreMenu() {
       ? TARGET_MENU
       : TERRAIN_MENU;
 
+  // drops & container
+  const dropContainer = getDropContainer(tileCoord.x, tileCoord.y);
+  const erc721Drops = getERC721Drops(components, tileCoord.x, tileCoord.y);
+  const erc20Drops = getERC20Drops(components, tileCoord.x, tileCoord.y);
+  console.log("ExploreMenu, drops", erc721Drops, erc20Drops);
+
   const selections = [
+    {
+      name: "Attack",
+      onClick: async () => {
+        if (!isRoleType) return;
+        console.log("Attack", host, entity);
+        systemCalls.attack(host as Hex, entity as Hex);
+      },
+    },
+    {
+      name: "pick up ERC20",
+      onClick: async () => {
+        if (!erc20Drops) return;
+        systemCalls.pickupERC20(
+          host as Hex,
+          dropContainer,
+          erc20Drops[0].erc20Type,
+          1n,
+          tileCoord.x,
+          tileCoord.y
+        );
+      },
+    },
+    {
+      name: "舔包",
+      onClick: async () => {
+        const body = erc721Drops[0] as Hex;
+        if (!body) return;
+        const erc20Data = getERC20Balances(components, body);
+        if (!erc20Data) return;
+        const { erc20Type, balance } = erc20Data[0];
+        systemCalls.pickupERC20(
+          host as Hex,
+          body,
+          erc20Type,
+          1n,
+          tileCoord.x,
+          tileCoord.y
+        );
+      },
+    },
     {
       name: `Check ${nameToCheck}`,
       onClick: () => {
