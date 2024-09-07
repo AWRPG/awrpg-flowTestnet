@@ -53,5 +53,5 @@ interface IErrors {
   error NotRoleType();
   error NotEquipped();
   error SwapRatioNotSet();
-  error NotInDropsContainer();
+  error NotInDropContainer();
 }
