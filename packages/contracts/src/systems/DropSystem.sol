@@ -14,6 +14,9 @@ contract DropSystem is System, AccessControl, PositionControl {
     DropLogic._dropERC20(role, itemType, amount);
   }
 
+  // note: triy to refactor it to be compatible with StorageSystem
+  // main issue is from has commander, thus, should we make the exception rule
+  // such as any host that is in a controllerless host is deemed as controllerless?
   function pickupERC20(
     bytes32 role,
     bytes32 from,
@@ -24,4 +27,8 @@ contract DropSystem is System, AccessControl, PositionControl {
   ) public onlyCommander(role) onlyAdjacentCoord(role, tileX, tileY) {
     DropLogic._pickupERC20(role, from, itemType, amount, tileX, tileY);
   }
+
+  // function dropERC721
+
+  // function pickupERC721
 }

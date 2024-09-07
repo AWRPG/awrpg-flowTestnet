@@ -8,6 +8,8 @@ import { EntityLogic } from "@/libraries/EntityLogic.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 
+// DropLogic is a wrapper around ContainerLogic with extra checks & mint drop
+// container. For example, dropERC20 is to transfer erc20 to drop container.
 library DropLogic {
   function _pickupERC20(
     bytes32 role,
@@ -18,6 +20,7 @@ library DropLogic {
     uint32 tileY
   ) internal {
     bytes32 dropContainer = getDropContainer(tileX, tileY);
+    // from can be nested within drop container; thus need to check topHost
     inDropContainerStrict(dropContainer, from);
     ContainerLogic._transfer(entityType, from, role, amount);
   }
