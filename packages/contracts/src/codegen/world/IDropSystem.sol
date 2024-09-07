@@ -19,4 +19,8 @@ interface IDropSystem {
     uint32 tileX,
     uint32 tileY
   ) external;
+
+  function dropERC721(bytes32 entity) external;
+
+  function pickupERC721(bytes32 role, bytes32 from, bytes32 entity, uint32 tileX, uint32 tileY) external;
 }
