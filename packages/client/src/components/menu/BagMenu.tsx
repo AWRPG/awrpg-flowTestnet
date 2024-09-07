@@ -1,7 +1,11 @@
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../../MUDContext";
 import { ERC20_TYPES, MAIN_MENU, MENU, SOURCE } from "../../constants";
-import { getBalanceEntity, getERC20Balance } from "../../logics/container";
+import {
+  getBalanceEntity,
+  getERC20Balance,
+  getERC721s,
+} from "../../logics/container";
 import { Hex, hexToString } from "viem";
 import { Entity, removeComponent, setComponent } from "@latticexyz/recs";
 import ItemContainer from "../ItemContainer";
@@ -28,6 +32,18 @@ export default function BagMenu() {
       balance,
     };
   });
+
+  const erc721s = getERC721s(components, sourceHost as Entity);
+  const erc721Selections = erc721s.map((erc721) => {
+    return {
+      content: (
+        <div className="flex flex-row justify-between">
+          <span>{hexToString(erc721 as Hex)}</span>
+        </div>
+      ),
+    };
+  });
+  console.log("erc721s", erc721s);
 
   const selections = erc20sData.map(({ erc20Type, balance }) => {
     return {
@@ -166,6 +182,11 @@ export default function BagMenu() {
             onClick={onClick}
             selected={selected === index}
           >
+            {content}
+          </ItemContainer>
+        ))}
+        {erc721Selections.map(({ content }, index) => (
+          <ItemContainer key={index} className="btn btn-success border">
             {content}
           </ItemContainer>
         ))}

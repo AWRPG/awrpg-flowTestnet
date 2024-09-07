@@ -239,6 +239,28 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const dropERC721 = async (entity: Hex) => {
+    const tx = await worldContract.write.dropERC721([entity]);
+    await waitForTransaction(tx);
+  };
+
+  const pickupERC721 = async (
+    role: Hex,
+    from: Hex,
+    entity: Hex,
+    tileX: number,
+    tileY: number
+  ) => {
+    const tx = await worldContract.write.pickupERC721([
+      role,
+      from,
+      entity,
+      tileX,
+      tileY,
+    ]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
@@ -259,5 +281,7 @@ export function createSystemCalls(
     attack,
     dropERC20,
     pickupERC20,
+    dropERC721,
+    pickupERC721,
   };
 }
