@@ -42,6 +42,14 @@ export class UIScene extends Phaser.Scene {
   preload() {
     this.load.image("ui-empty", "src/assets/ui/empty.png");
     this.load.image("ui-box", "src/assets/ui/box_1.png");
+    this.load.image(
+      "ui-box-title-in-side2",
+      "src/assets/ui/box_title_in_side2.png"
+    );
+    this.load.image(
+      "ui-box-title-out-side2",
+      "src/assets/ui/box_title_out_side2.png"
+    );
     this.load.image("avatar-farmer-1-1", "src/assets/avatars/farmer_1_1.png");
     this.load.image("bar_empty", "src/assets/ui/bar_empty.png");
     this.load.image("bar_red", "src/assets/ui/bar_red.png");

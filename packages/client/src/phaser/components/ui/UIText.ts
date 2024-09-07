@@ -47,13 +47,15 @@ export class UIText extends UIBase {
     this.text.setWordWrapWidth(wordWrap);
     switch (this.alignModeName) {
       case ALIGNMODES.LEFT_TOP:
-        this.text.x = this.text.y = 0;
         break;
       case ALIGNMODES.LEFT_CENTER:
         this.text.y -= this.text.height / 8;
         break;
       case ALIGNMODES.RIGHT_TOP:
         this.text.x -= this.text.width / 4;
+        break;
+      case ALIGNMODES.MIDDLE_TOP:
+        this.text.x -= this.text.width / 8;
         break;
       case ALIGNMODES.MIDDLE_CENTER:
         this.text.x -= this.text.width / 8;

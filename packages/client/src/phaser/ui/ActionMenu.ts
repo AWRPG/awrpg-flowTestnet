@@ -4,12 +4,52 @@ import { ALIGNMODES } from "../../constants";
 import { Box } from "../components/ui/Box";
 import { UIBase } from "../components/ui/UIBase";
 import { Button } from "../components/ui/Button";
+import { UIText } from "../components/ui/UIText";
+import { UIImage } from "../components/ui/UIImage";
 
 export class ActionMenu extends UIManager {
   constructor(scene: UIScene) {
+    // super(
+    //   scene,
+    //   new Box(scene, "ui-box", ALIGNMODES.MIDDLE_CENTER, 360, 264, 220, 0)
+    // );
+
+    // // Title
+    // new UIText(
+    //   scene,
+    //   "ACTIONS",
+    //   ALIGNMODES.MIDDLE_TOP,
+    //   0,
+    //   16,
+    //   { fontColor: "#2D3E51", fontSize: 36 },
+    //   this.rootUI
+    // );
+
     super(
       scene,
-      new Box(scene, "ui-box", ALIGNMODES.MIDDLE_CENTER, 360, 200, 220, 0)
+      new Box(scene, "ui-box", ALIGNMODES.MIDDLE_CENTER, 360, 210, 220, 0)
+    );
+
+    // Title
+    const titleBox = new Box(
+      scene,
+      "ui-box-title-out-side2",
+      ALIGNMODES.RIGHT_TOP,
+      178,
+      58,
+      8,
+      -36,
+      { leftWidth: 24, rightWidth: 24, topHeight: 24, bottomHeight: 24 },
+      this.rootUI
+    );
+    new UIText(
+      scene,
+      "ACTIONS",
+      ALIGNMODES.MIDDLE_CENTER,
+      0,
+      0,
+      { fontColor: "#2D3E51", fontSize: 32 },
+      titleBox
     );
 
     const buttons: { name: string; button: Button }[] = (this.buttons = []);
@@ -25,7 +65,7 @@ export class ActionMenu extends UIManager {
           260,
           48,
           0,
-          16 + index * 56,
+          28 + index * 56,
           {
             selectedTexture: "btn_select_skin",
             fontColor: "#2D3E51",
