@@ -3,15 +3,15 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { TypeCast } from "@/utils/TypeCast.sol";
-import { DropsLogic } from "@/libraries/DropsLogic.sol";
+import { DropLogic } from "@/libraries/DropLogic.sol";
 import { AccessControl } from "@/extensions/AccessControl.sol";
 import { PositionControl } from "@/extensions/PositionControl.sol";
 
-contract DropsSystem is System, AccessControl, PositionControl {
+contract DropSystem is System, AccessControl, PositionControl {
   using TypeCast for address;
 
   function dropERC20(bytes32 role, bytes16 itemType, uint128 amount) public onlyCommander(role) {
-    DropsLogic._dropERC20(role, itemType, amount);
+    DropLogic._dropERC20(role, itemType, amount);
   }
 
   function pickupERC20(
@@ -22,6 +22,6 @@ contract DropsSystem is System, AccessControl, PositionControl {
     uint32 tileX,
     uint32 tileY
   ) public onlyCommander(role) onlyAdjacentCoord(role, tileX, tileY) {
-    DropsLogic._pickupERC20(role, from, itemType, amount, tileX, tileY);
+    DropLogic._pickupERC20(role, from, itemType, amount, tileX, tileY);
   }
 }

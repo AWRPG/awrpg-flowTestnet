@@ -79,8 +79,8 @@ bytes16 constant WEAPON = bytes16("WEAPON");
 bytes16 constant ARMOR = bytes16("ARMOR");
 bytes16 constant TRINKET = bytes16("TRINKET");
 
-// drops
-bytes16 constant DROPS = bytes16("DROPS");
+// drop
+bytes16 constant DROP = bytes16("DROP");
 
 // NPC
 bytes16 constant NPC = bytes16("NPC");

@@ -142,7 +142,7 @@ function initPoolTypes() {
 
 function initHostTypes() {
   DefineTypes.defineHost(HOST, 1000, 1200);
-  DefineTypes.defineHost(DROPS, type(uint256).max, type(uint128).max);
+  DefineTypes.defineHost(DROP, type(uint256).max, type(uint128).max);
 }
 
 function initERC20Sizes() {

@@ -74,6 +74,6 @@ contract Errors is System {
   // swap errors
   error SwapRatioNotSet();
 
-  // drops errors
-  error NotInDropsContainer();
+  // drop errors
+  error NotInDropContainer();
 }
