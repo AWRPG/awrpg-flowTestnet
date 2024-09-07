@@ -55,8 +55,14 @@ library DefineTypes {
     BurnAwards.set(itemType, burnAwards);
   }
 
-  function defineHost(bytes16 hostType, uint256 capacity) internal {
+  function defineHost(bytes16 hostType, uint256 capacity, uint128 size) internal {
     ContainerSpecs.set(hostType, capacity);
+    SizeSpecs.set(hostType, size);
+  }
+
+  function defineWeapon(bytes16 weaponType, WeaponSpecsData memory weaponSpecs) internal {
+    WeaponSpecs.set(weaponType, weaponSpecs);
+    // MintCosts.set();
   }
 
   // function defineERC721Item(

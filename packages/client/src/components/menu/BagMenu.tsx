@@ -1,7 +1,11 @@
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../../MUDContext";
 import { ERC20_TYPES, MAIN_MENU, MENU, SOURCE } from "../../constants";
-import { getBalanceEntity, getERC20Balance } from "../../logics/container";
+import {
+  getBalanceEntity,
+  getERC20Balance,
+  getERC721s,
+} from "../../logics/container";
 import { Hex, hexToString } from "viem";
 import { Entity, removeComponent, setComponent } from "@latticexyz/recs";
 import ItemContainer from "../ItemContainer";
@@ -16,7 +20,7 @@ import { splitBytes32 } from "../../utils/encode";
 export default function BagMenu() {
   const {
     components,
-    systemCalls: { consumeERC20 },
+    systemCalls: { consumeERC20, dropERC20 },
   } = useMUD();
   const { SelectedHost, SelectedEntity, ConsoleMessage } = components;
   const sourceHost = useComponentValue(SelectedHost, SOURCE)?.value as Entity;
@@ -28,6 +32,18 @@ export default function BagMenu() {
       balance,
     };
   });
+
+  const erc721s = getERC721s(components, sourceHost as Entity);
+  const erc721Selections = erc721s.map((erc721) => {
+    return {
+      content: (
+        <div className="flex flex-row justify-between">
+          <span>{hexToString(erc721 as Hex)}</span>
+        </div>
+      ),
+    };
+  });
+  console.log("erc721s", erc721s);
 
   const selections = erc20sData.map(({ erc20Type, balance }) => {
     return {
@@ -45,6 +61,15 @@ export default function BagMenu() {
   const [selected, setSelected] = useState(0);
   const [selected2, setSelected2] = useState<number | null>(null);
   const selections2 = [
+    {
+      content: " $Drop 1",
+      disabled: erc20sData[selected].balance === 0n,
+      onClick: async () => {
+        await dropERC20(sourceHost as Hex, ERC20_TYPES[selected], 1n);
+        removeComponent(SelectedEntity, MENU);
+        removeComponent(ConsoleMessage, SOURCE);
+      },
+    },
     {
       content: "$Consume",
       disabled:
@@ -157,6 +182,11 @@ export default function BagMenu() {
             onClick={onClick}
             selected={selected === index}
           >
+            {content}
+          </ItemContainer>
+        ))}
+        {erc721Selections.map(({ content }, index) => (
+          <ItemContainer key={index} className="btn btn-success border">
             {content}
           </ItemContainer>
         ))}

@@ -4,10 +4,12 @@ pragma solidity >=0.8.24;
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
-import { Position } from "@/codegen/index.sol";
 import { initializeTypes } from "@/setup/initialize.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { TerrainLogic } from "@/libraries/TerrainLogic.sol";
+import { PathLogic } from "@/libraries/PathLogic.sol";
+import { ContainerLogic } from "@/libraries/ContainerLogic.sol";
+import { EquipmentLogic } from "@/libraries/EquipmentLogic.sol";
 import "@/constants.sol";
 
 contract PostDeploy is Script {
@@ -23,7 +25,13 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
     initializeTypes();
     (uint32 x, uint32 y, bytes32 hero) = world.spawnHero();
-    world.buildBuilding(hero, SAFE, x - 1, y, x - 2, y);
+    ContainerLogic._mint(BERRY, hero, 10);
+    bytes32 sword = ContainerLogic._mint(SWORD, hero);
+    ContainerLogic._mint(BOW, hero);
+    EquipmentLogic._equip(sword);
+    (, , bytes32 hero2) = world.spawnHero();
+    ContainerLogic._mint(BERRY, hero2, 10);
+    // world.buildBuilding(hero, SAFE, x - 1, y, x - 2, y);
     // TerrainLogic._setTerrainValue(x, y, uint8(TerrainLogic.TerrainType.PLAIN));
     // TerrainLogic._setTerrainValue(x + 1, y, uint8(TerrainLogic.TerrainType.PLAIN));
     // TerrainLogic._setTerrainValue(x + 2, y, uint8(TerrainLogic.TerrainType.PLAIN));

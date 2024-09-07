@@ -41,10 +41,10 @@ export function syncComputedComponents({
     tileCoord = hostCoord;
   }
 
-  // mock path if host has no path, but has coord
-  if (hostCoord && !hostPath) {
-    mockPath(components, host, hostCoord);
-  }
+  // // mock path if host has no path, but has coord
+  // if (hostCoord && !hostPath) {
+  //   mockPath(components, host, hostCoord);
+  // }
   // console.log("syncComputedComponents", tileCoord, targetCoordId);
 
   setupTerrains(components, systemCalls, tileCoord);

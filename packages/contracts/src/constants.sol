@@ -74,6 +74,22 @@ uint8 constant UP_LIMIT_MINE = 75;
 uint8 constant DOWN_LIMIT_MINE = 70;
 uint8 constant PERCENTAGE_MINE = 10;
 
+// equipment
+bytes16 constant WEAPON = bytes16("WEAPON");
+bytes16 constant ARMOR = bytes16("ARMOR");
+bytes16 constant TRINKET = bytes16("TRINKET");
+
+// drop
+bytes16 constant DROP = bytes16("DROP");
+
+// NPC
+bytes16 constant NPC = bytes16("NPC");
+
+// ERC721s
+bytes16 constant BOW = bytes16("BOW");
+bytes16 constant SWORD = bytes16("SWORD");
+bytes16 constant RING_MAIL = bytes16("RING_MAIL");
+
 function space() view returns (bytes32) {
   return TypeCast.toBytes32(StoreSwitch.getStoreAddress());
 }

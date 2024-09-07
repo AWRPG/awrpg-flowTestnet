@@ -1,4 +1,9 @@
-import { Entity, getComponentValue } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  HasValue,
+  runQuery,
+} from "@latticexyz/recs";
 import { ClientComponents } from "../mud/createClientComponents";
 import { getEntitySpecs, isPoolType } from "./entity";
 import { SetupNetworkResult } from "../mud/setupNetwork";
@@ -140,4 +145,9 @@ export function getBalanceEntity(entityType: Hex, owner: Hex) {
     }
   );
   return entity;
+}
+
+export function getERC721s(components: ClientComponents, store: Entity) {
+  const { Owner } = components;
+  return [...runQuery([HasValue(Owner, { value: store })])];
 }

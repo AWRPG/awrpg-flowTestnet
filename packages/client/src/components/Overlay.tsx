@@ -63,7 +63,7 @@ export default function Overlay() {
           {menu === BAG_MENU && <BagMenu />}
           {menu === SWAP_CONTROL_MENU && <SwapControlMenu />}
         </div>
-        <div className="absolute pointer-events-auto top-1/2 right-2">
+        <div className="absolute pointer-events-auto top-1/3 right-2">
           {menu === EXPLORE_MENU && <ExploreMenu />}
           {menu === TERRAIN_MENU && <TerrainMenu />}
           {menu === TERRAIN_BURN_MENU && <TerrainBurnMenu />}

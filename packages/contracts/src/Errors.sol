@@ -64,7 +64,16 @@ contract Errors is System {
 
   // entity errors
   error NotBuildingType();
+  error NotWeaponType();
+  error NotArmorType();
+  error NotRoleType();
+
+  // equipment errors
+  error NotEquipped();
 
   // swap errors
   error SwapRatioNotSet();
+
+  // drop errors
+  error NotInDropContainer();
 }

@@ -48,5 +48,10 @@ interface IErrors {
   error NoTerrainToBurn();
   error NoAvailableUpgrade();
   error NotBuildingType();
+  error NotWeaponType();
+  error NotArmorType();
+  error NotRoleType();
+  error NotEquipped();
   error SwapRatioNotSet();
+  error NotInDropContainer();
 }

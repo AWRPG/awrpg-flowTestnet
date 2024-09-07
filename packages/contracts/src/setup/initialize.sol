@@ -19,6 +19,12 @@ function initializeTypes() {
   initHostTypes();
   initERC20Sizes();
   initERC20BurnAwards();
+  initWeaponTypes();
+}
+
+function initWeaponTypes() {
+  DefineTypes.defineWeapon(SWORD, WeaponSpecsData({ attack: 100, range: 4 }));
+  DefineTypes.defineWeapon(BOW, WeaponSpecsData({ attack: 50, range: 8 }));
 }
 
 function initTerrainTypes() {
@@ -78,13 +84,12 @@ function initBuildingTypes() {
   );
   DefineTypes.defineBuilding(
     SAFE,
-    BuildingSpecsData({ width: 2, height: 2, canMove: false, terrainType: PLAIN }),
-    1 ether,
+    BuildingSpecsData({ width: 2, height: 2, canMove: true, terrainType: PLAIN }),
+    1000 * 5,
     compileTwoTypes(STAMINA, WOOD, 0, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
   );
-  ContainerSpecs.set(SAFE, 200);
   DefineTypes.defineBuilding(
     FENCE,
     BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
@@ -142,7 +147,8 @@ function initPoolTypes() {
 // }
 
 function initHostTypes() {
-  DefineTypes.defineHost(HOST, 1000);
+  DefineTypes.defineHost(HOST, 1000, 1200);
+  DefineTypes.defineHost(DROP, type(uint256).max, type(uint128).max);
 }
 
 function initERC20Sizes() {
