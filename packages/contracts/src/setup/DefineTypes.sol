@@ -60,6 +60,11 @@ library DefineTypes {
     SizeSpecs.set(hostType, size);
   }
 
+  function defineWeapon(bytes16 weaponType, WeaponSpecsData memory weaponSpecs) internal {
+    WeaponSpecs.set(weaponType, weaponSpecs);
+    // MintCosts.set();
+  }
+
   // function defineERC721Item(
   //   bytes16 itemType,
   //   SizeSpecsData memory sizeSpecs,

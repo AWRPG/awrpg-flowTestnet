@@ -19,6 +19,12 @@ function initializeTypes() {
   initHostTypes();
   initERC20Sizes();
   initERC20BurnAwards();
+  initWeaponTypes();
+}
+
+function initWeaponTypes() {
+  DefineTypes.defineWeapon(SWORD, WeaponSpecsData({ attack: 100, range: 4 }));
+  DefineTypes.defineWeapon(BOW, WeaponSpecsData({ attack: 50, range: 8 }));
 }
 
 function initTerrainTypes() {
