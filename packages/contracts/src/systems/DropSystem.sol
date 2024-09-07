@@ -2,6 +2,7 @@
 pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { Owner } from "@/codegen/index.sol";
 import { TypeCast } from "@/utils/TypeCast.sol";
 import { DropLogic } from "@/libraries/DropLogic.sol";
 import { AccessControl } from "@/extensions/AccessControl.sol";
@@ -28,7 +29,17 @@ contract DropSystem is System, AccessControl, PositionControl {
     DropLogic._pickupERC20(role, from, itemType, amount, tileX, tileY);
   }
 
-  // function dropERC721
+  function dropERC721(bytes32 entity) public onlyCommander(Owner.get(entity)) {
+    DropLogic._dropERC721(entity);
+  }
 
-  // function pickupERC721
+  function pickupERC721(
+    bytes32 role,
+    bytes32 from,
+    bytes32 entity,
+    uint32 tileX,
+    uint32 tileY
+  ) public onlyCommander(role) onlyAdjacentCoord(role, tileX, tileY) {
+    DropLogic._pickupERC721(role, from, entity, tileX, tileY);
+  }
 }
