@@ -210,6 +210,35 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const attack = async (attacker: Hex, target: Hex) => {
+    const tx = await worldContract.write.attack([attacker, target]);
+    await waitForTransaction(tx);
+  };
+
+  const dropERC20 = async (role: Hex, itemType: Hex, amount: bigint) => {
+    const tx = await worldContract.write.dropERC20([role, itemType, amount]);
+    await waitForTransaction(tx);
+  };
+
+  const pickupERC20 = async (
+    role: Hex,
+    from: Hex,
+    itemType: Hex,
+    amount: bigint,
+    tileX: number,
+    tileY: number
+  ) => {
+    const tx = await worldContract.write.pickupERC20([
+      role,
+      from,
+      itemType,
+      amount,
+      tileX,
+      tileY,
+    ]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
@@ -227,5 +256,8 @@ export function createSystemCalls(
     exitBuilding,
     startMining,
     stopMining,
+    attack,
+    dropERC20,
+    pickupERC20,
   };
 }
