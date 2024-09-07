@@ -51,8 +51,19 @@ export class UIText extends UIBase {
       case ALIGNMODES.LEFT_CENTER:
         this.text.y -= this.text.height / 8;
         break;
+      case ALIGNMODES.LEFT_BOTTOM:
+        this.text.y -= this.text.height / 4;
+        break;
       case ALIGNMODES.RIGHT_TOP:
         this.text.x -= this.text.width / 4;
+        break;
+      case ALIGNMODES.RIGHT_CENTER:
+        this.text.x -= this.text.width / 4;
+        this.text.y -= this.text.height / 8;
+        break;
+      case ALIGNMODES.RIGHT_BOTTOM:
+        this.text.x -= this.text.width / 4;
+        this.text.y -= this.text.height / 4;
         break;
       case ALIGNMODES.MIDDLE_TOP:
         this.text.x -= this.text.width / 8;
@@ -60,6 +71,10 @@ export class UIText extends UIBase {
       case ALIGNMODES.MIDDLE_CENTER:
         this.text.x -= this.text.width / 8;
         this.text.y -= this.text.height / 8;
+        break;
+      case ALIGNMODES.MIDDLE_BOTTOM:
+        this.text.x -= this.text.width / 8;
+        this.text.y -= this.text.height / 4;
         break;
     }
     if (fontFamily === "ThaleahFat") {

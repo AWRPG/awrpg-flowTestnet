@@ -118,7 +118,9 @@ export const ALIGNMODES = {
   LEFT_CENTER: "leftCenter",
   LEFT_BOTTOM: "leftBottom",
   RIGHT_TOP: "rightTop",
+  RIGHT_CENTER: "leftCenter",
   RIGHT_BOTTOM: "rightBottom",
   MIDDLE_TOP: "middleTop",
   MIDDLE_CENTER: "middleCenter",
+  MIDDLE_BOTTOM: "middleBottom",
 };

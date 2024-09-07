@@ -3,6 +3,7 @@ import { UIBase } from "../components/ui/UIBase";
 import { Button } from "../components/ui/Button";
 
 export class UIManager {
+  name: string;
   scene: UIScene;
   isVisible: boolean = false;
   rootUI: UIBase;
@@ -11,6 +12,7 @@ export class UIManager {
   onDataChanged(parent: unknown, key: string, data: unknown) {}
 
   constructor(scene: UIScene, rootUI: UIBase) {
+    this.name = "UIManager";
     this.scene = scene;
     this.rootUI = rootUI;
     this.hidden();

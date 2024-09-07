@@ -73,6 +73,13 @@ export class UIBase {
         this.x = this.alignMode.x - this.marginX - this.width;
         this.y = this.marginY;
         break;
+      case ALIGNMODES.RIGHT_CENTER:
+        this.alignMode = parent
+          ? { x: parent.width, y: parent.height / 2 }
+          : { x: scene.width, y: scene.height / 2 };
+        this.x = this.alignMode.x - this.marginX - this.width;
+        this.y = this.alignMode.y + this.marginY - this.height / 2;
+        break;
       case ALIGNMODES.RIGHT_BOTTOM:
         this.alignMode = parent
           ? { x: parent.width, y: parent.height }
@@ -93,6 +100,13 @@ export class UIBase {
           : { x: scene.width / 2, y: scene.height / 2 };
         this.x = this.alignMode.x + this.marginX - this.width / 2;
         this.y = this.alignMode.y + this.marginY - this.height / 2;
+        break;
+      case ALIGNMODES.MIDDLE_BOTTOM:
+        this.alignMode = parent
+          ? { x: parent.width / 2, y: parent.height}
+          : { x: scene.width / 2, y: scene.height };
+        this.x = this.alignMode.x + this.marginX - this.width / 2;
+        this.y = this.alignMode.y - this.marginY - this.height;
         break;
       default:
         this.alignMode = { x: 0, y: 0 };

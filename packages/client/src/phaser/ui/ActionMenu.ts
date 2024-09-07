@@ -9,26 +9,12 @@ import { UIImage } from "../components/ui/UIImage";
 
 export class ActionMenu extends UIManager {
   constructor(scene: UIScene) {
-    // super(
-    //   scene,
-    //   new Box(scene, "ui-box", ALIGNMODES.MIDDLE_CENTER, 360, 264, 220, 0)
-    // );
-
-    // // Title
-    // new UIText(
-    //   scene,
-    //   "ACTIONS",
-    //   ALIGNMODES.MIDDLE_TOP,
-    //   0,
-    //   16,
-    //   { fontColor: "#2D3E51", fontSize: 36 },
-    //   this.rootUI
-    // );
-
     super(
       scene,
       new Box(scene, "ui-box", ALIGNMODES.MIDDLE_CENTER, 360, 210, 220, 0)
     );
+
+    this.name = "ActionMenu";
 
     // Title
     const titleBox = new Box(
@@ -84,22 +70,4 @@ export class ActionMenu extends UIManager {
     this.currentButtonIndex = 0;
     this.selectButton();
   }
-
-  //   /**
-  //    *
-  //    */
-  //   setButtons() {
-  //     // Move to & Enter buildings
-  //     // Attack
-  //     // [TODO]
-  //     // 1. Selected a host
-  //     // 2. Select any tile
-  //     // Build
-  //     // Create NPC?
-  //     // [TODO]
-  //     // Change terrains
-  //     // [TODO]
-  //     // [In a miner] Start Mining
-  //     // [In a miner] Stop Mining
-  //   }
 }

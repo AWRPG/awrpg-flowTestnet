@@ -92,4 +92,15 @@ export class SceneObject {
   unfollow() {
     this.scene.cameras.main.startFollow(this.root, false);
   }
+
+  setTilePosition(x: number, y: number) {
+    this.tileX = x;
+    this.tileY = y;
+    console.log(this.tileX, this.tileY);
+    this.root.setPosition(
+      (this.tileX + 0.5) * this.tileSize,
+      (this.tileY + 0.5) * this.tileSize
+    );
+    console.log(this.tileSize, this.root.position);
+  }
 }

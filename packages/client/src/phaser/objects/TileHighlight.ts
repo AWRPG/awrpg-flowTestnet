@@ -44,7 +44,7 @@ export class TileHighlight extends SceneObject {
     entity: Entity,
     components: ClientComponents,
     scene: GameScene,
-    { canControl }: { canControl: boolean }
+    { canControl, alpha = 1 }: { canControl: boolean; alpha?: number }
   ) {
     super(entity, components, scene);
 
@@ -58,7 +58,7 @@ export class TileHighlight extends SceneObject {
         (this.tileX + 0.5) * this.tileSize,
         (this.tileY + 0.5) * this.tileSize
       )
-      .setAlpha(1)
+      .setAlpha(alpha)
       .setDepth(12);
 
     // Get the type of highlight

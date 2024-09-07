@@ -107,7 +107,6 @@ export class PlayerController {
       if (!ui?.buttons) return;
       if (["w", "W"].includes(event.key)) ui.prevButton();
       if (["s", "S"].includes(event.key)) ui.nextButton();
-
     }
 
     // Select the host & terrain
@@ -119,12 +118,12 @@ export class PlayerController {
         this.setCharacterInfo(entityObj);
         // Player role
         if (entityObj.isPlayer) {
-          this.openTileHighlight(entity);
+          this.openTileHighlight(entity, 0.75);
           this.uiScene.actionMenu?.show();
         }
         // Other Role
         else {
-          this.openTileHighlight(entity);
+          this.openTileHighlight(entity, 0.75);
         }
       }
       // Building
@@ -137,7 +136,46 @@ export class PlayerController {
 
     // Select the action menu
     else if (onMenu && ["f", "F"].includes(event.key)) {
-      // [TODO]
+      const ui = this.uiScene.focusUI;
+      if (!ui?.buttons) return;
+      if (ui.name === "ActionMenu") {
+        if (!tileData || !entity) return;
+        const actionName = ui.buttons[ui.currentButtonIndex]?.name;
+        // const forkHost: Host = new Host(this.scene, this.components, {
+        //   entity,
+        //   isPlayer: false,
+        //   onClick: () => {},
+        // });
+        switch (actionName) {
+          // Move to & Enter buildings
+          case "Move":
+            this.uiScene.actionMenu?.hidden();
+            this.openTileHighlight(entity);
+            // Bundle hostObj to cursor
+            // forkHost.setTilePosition(
+            //   tileData.targetCoord.x + 3,
+            //   tileData.targetCoord.y
+            // );
+            break;
+
+          // Attack
+          // 1. Selected a host
+          // 2. Select any tile
+          case "Attack":
+            break;
+
+          // Build or Create NPC
+          case "Build":
+            break;
+
+          // Change terrains
+          case "Change Terrain":
+            break;
+
+          // [In a miner] Start Mining
+          // [In a miner] Stop Mining
+        }
+      }
     }
 
     // Show/hide terrain UI
@@ -210,13 +248,13 @@ export class PlayerController {
   /**
    * Open the tile highlight of a role
    */
-  openTileHighlight(target: Entity) {
-    if (this.scene.tileHighlights[target]) this.closeTileHighlight;
+  openTileHighlight(target: Entity, alpha: number = 1) {
+    if (this.scene.tileHighlights[target]) this.closeTileHighlight(target);
     this.scene.tileHighlights[target] = new TileHighlight(
       target,
       this.components,
       this.scene,
-      { canControl: true }
+      { canControl: true, alpha }
     );
     this.uiScene.characterInfo?.show();
   }
