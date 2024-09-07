@@ -14,33 +14,33 @@ export class TerrainUI extends UIManager {
   constructor(scene: UIScene) {
     super(
       scene,
-      new Box(scene, "ui-box", ALIGNMODES.RIGHT_TOP, 280, 128, 8, 8)
+      new Box(scene, "ui-box", 280, 128, {
+        alignModeName: ALIGNMODES.RIGHT_TOP,
+        marginX: 8,
+        marginY: 8,
+      })
     );
     this.setData("terrainName", "");
 
-    this.terrainNameText = new UIText(
-      this.scene,
-      "",
-      ALIGNMODES.LEFT_TOP,
-      16,
-      8,
-      { fontSize: 32 },
-      this.rootUI
-    );
+    this.terrainNameText = new UIText(this.scene, "", {
+      alignModeName: ALIGNMODES.LEFT_TOP,
+      marginX: 16,
+      marginY: 12,
+      parent: this.rootUI,
+      fontSize: 28,
+    });
 
-    this.terrainInfoText = new UIText(
-      this.scene,
-      "",
-      ALIGNMODES.LEFT_TOP,
-      16,
-      56,
-      { wordWrap: 1024 },
-      this.rootUI
-    );
+    this.terrainInfoText = new UIText(this.scene, "", {
+      alignModeName: ALIGNMODES.LEFT_TOP,
+      marginX: 16,
+      marginY: 56,
+      parent: this.rootUI,
+      wordWrap: 1024,
+    });
   }
 
   onDataChanged(parent: unknown, key: string, data: string) {
-    this.terrainNameText.setText(data);
+    this.terrainNameText.setText(data.toLocaleUpperCase());
     switch (data) {
       case "mud":
         this.terrainInfoText.setText("Any creature can move on.");

@@ -1,41 +1,71 @@
-import { Vector } from "../../../utils/vector";
 import { ALIGNMODES } from "../../../constants";
 import { UIScene } from "../../scenes/UIScene";
 
 export class UIBase {
+  /**
+   * A empty gameObject as the root node
+   */
   root: Phaser.GameObjects.Container;
 
+  /**
+   * uiScene
+   */
   scene: UIScene;
 
-  texture: string | null;
+  /**
+   * The key, or instance of the Texture this Game Object will use to render with, as stored in the Texture Manager.
+   */
+  texture: string | undefined;
 
+  /**
+   * The alignments provided in “ALIGNMODES” include LEFT-MIDDLE-RIGHT, TOP-CENTER-BOTTOM.
+   * @readonly
+   */
   alignModeName: string;
-
-  alignMode: Vector = { x: 0, y: 0 };
 
   width: number;
 
   height: number;
 
+  parent: UIBase | undefined;
+
+  /**
+   * @readonly
+   */
   marginX: number;
 
+  /**
+   * @readonly
+   */
   marginY: number;
 
+  /**
+   * @readonly
+   */
   x: number;
 
+  /**
+   * @readonly
+   */
   y: number;
-
-  parent: UIBase | undefined;
 
   constructor(
     scene: UIScene,
-    texture: string | null,
-    alignModeName: string,
     width: number,
     height: number,
-    marginX: number,
-    marginY: number,
-    parent?: UIBase
+    {
+      texture,
+      alignModeName = ALIGNMODES.NONE,
+      marginX = 0,
+      marginY = 0,
+      parent,
+    }: {
+      texture?: string | undefined;
+      alignModeName?: string;
+      marginX?: number;
+      marginY?: number;
+      parent?: UIBase;
+    }
   ) {
     this.scene = scene;
     this.texture = texture;
@@ -46,74 +76,10 @@ export class UIBase {
     this.marginY = marginY;
     this.parent = parent;
 
-    switch (alignModeName) {
-      case ALIGNMODES.LEFT_TOP:
-        this.alignMode = { x: 0, y: 0 };
-        this.x = this.marginX;
-        this.y = this.marginY;
-        break;
-      case ALIGNMODES.LEFT_CENTER:
-        this.alignMode = parent
-          ? { x: 0, y: parent.height / 2 }
-          : { x: 0, y: scene.height / 2 };
-        this.x = this.marginX;
-        this.y = this.alignMode.y + this.marginY - this.height / 2;
-        break;
-      case ALIGNMODES.LEFT_BOTTOM:
-        this.alignMode = parent
-          ? { x: 0, y: parent.height }
-          : { x: 0, y: scene.height };
-        this.x = this.marginX;
-        this.y = this.alignMode.y - this.marginY - this.height;
-        break;
-      case ALIGNMODES.RIGHT_TOP:
-        this.alignMode = parent
-          ? { x: parent.width, y: 0 }
-          : { x: scene.width, y: 0 };
-        this.x = this.alignMode.x - this.marginX - this.width;
-        this.y = this.marginY;
-        break;
-      case ALIGNMODES.RIGHT_CENTER:
-        this.alignMode = parent
-          ? { x: parent.width, y: parent.height / 2 }
-          : { x: scene.width, y: scene.height / 2 };
-        this.x = this.alignMode.x - this.marginX - this.width;
-        this.y = this.alignMode.y + this.marginY - this.height / 2;
-        break;
-      case ALIGNMODES.RIGHT_BOTTOM:
-        this.alignMode = parent
-          ? { x: parent.width, y: parent.height }
-          : { x: scene.width, y: scene.height };
-        this.x = this.alignMode.x - this.marginX - this.width;
-        this.y = this.alignMode.y - this.marginY - this.height;
-        break;
-      case ALIGNMODES.MIDDLE_TOP:
-        this.alignMode = parent
-          ? { x: parent.width / 2, y: 0 }
-          : { x: scene.width / 2, y: 0 };
-        this.x = this.alignMode.x + this.marginX - this.width / 2;
-        this.y = this.marginY;
-        break;
-      case ALIGNMODES.MIDDLE_CENTER:
-        this.alignMode = parent
-          ? { x: parent.width / 2, y: parent.height / 2 }
-          : { x: scene.width / 2, y: scene.height / 2 };
-        this.x = this.alignMode.x + this.marginX - this.width / 2;
-        this.y = this.alignMode.y + this.marginY - this.height / 2;
-        break;
-      case ALIGNMODES.MIDDLE_BOTTOM:
-        this.alignMode = parent
-          ? { x: parent.width / 2, y: parent.height}
-          : { x: scene.width / 2, y: scene.height };
-        this.x = this.alignMode.x + this.marginX - this.width / 2;
-        this.y = this.alignMode.y - this.marginY - this.height;
-        break;
-      default:
-        this.alignMode = { x: 0, y: 0 };
-        this.x = this.marginX;
-        this.y = this.marginY;
-        break;
-    }
+    this.x = this.y = 0;
+    this.adjustPositon();
+
+    // Creates the root container and mounts it on the specified object
     this.root = new Phaser.GameObjects.Container(scene, this.x, this.y);
     if (parent) {
       parent.root.add(this.root);
@@ -122,6 +88,9 @@ export class UIBase {
     }
   }
 
+  /**
+   * Mount several basic UI components on the root container
+   */
   add(children: UIBase | UIBase[]) {
     if (Array.isArray(children)) {
       for (const i in children) this.root.add(children[i].root);
@@ -130,11 +99,98 @@ export class UIBase {
     }
   }
 
+  /**
+   * Show the root container
+   */
   show() {
     this.root.setVisible(true);
   }
 
+  /**
+   * Hide the root container
+   */
   hide() {
     this.root.setVisible(false);
+  }
+
+  /**
+   * Set coordinates according to alignment
+   */
+  adjustPositon() {
+    const referObj = this.parent ?? this.scene;
+    switch (this.alignModeName) {
+      case ALIGNMODES.LEFT_CENTER:
+        this.x = this.marginX;
+        this.y = referObj.height / 2 + this.marginY - this.height / 2;
+        break;
+      case ALIGNMODES.LEFT_BOTTOM:
+        this.x = this.marginX;
+        this.y = referObj.height - this.marginY - this.height;
+        break;
+      case ALIGNMODES.RIGHT_TOP:
+        this.x = referObj.width - this.marginX - this.width;
+        this.y = this.marginY;
+        break;
+      case ALIGNMODES.RIGHT_CENTER:
+        this.x = referObj.width - this.marginX - this.width;
+        this.y = referObj.height / 2 + this.marginY - this.height / 2;
+        break;
+      case ALIGNMODES.RIGHT_BOTTOM:
+        this.x = referObj.width - this.marginX - this.width;
+        this.y = referObj.height - this.marginY - this.height;
+        break;
+      case ALIGNMODES.MIDDLE_TOP:
+        this.x = referObj.width / 2 + this.marginX - this.width / 2;
+        this.y = this.marginY;
+        break;
+      case ALIGNMODES.MIDDLE_CENTER:
+        this.x = referObj.width / 2 + this.marginX - this.width / 2;
+        this.y = referObj.height / 2 + this.marginY - this.height / 2;
+        break;
+      case ALIGNMODES.MIDDLE_BOTTOM:
+        this.x = referObj.width / 2 + this.marginX - this.width / 2;
+        this.y = referObj.height - this.marginY - this.height;
+        break;
+      default:
+        this.x = this.marginX;
+        this.y = this.marginY;
+        break;
+    }
+  }
+
+  /**
+   * Change the position. Considered unchanged by default.
+   * Considering alignment and such, it's not recommended to use it directly
+   * unless you're pretty sure there's no problem with the location.
+   * @param x new x
+   * @param y new y
+   */
+  setPosition(x?: number, y?: number) {
+    if (x) this.root.x = this.x = x;
+    if (y) this.root.y = this.y = y;
+  }
+
+  /**
+   * Change the margin and synchronize position changes. Considered unchanged by default.
+   * @param x new marginX
+   * @param y new marginY
+   */
+  setMargin(x?: number, y?: number) {
+    if (x) this.marginX = x;
+    if (y) this.marginY = y;
+    this.adjustPositon();
+    this.root.x = this.x;
+    this.root.y = this.y;
+  }
+
+  /**
+   * Modify alignment mode and synchronize position changes
+   * @param name the name of alignMode you want to use
+   */
+  setAlignMode(name: string) {
+    this.alignModeName = name;
+    this.adjustPositon();
+    this.root.x = this.x;
+    this.root.y = this.y;
   }
 }

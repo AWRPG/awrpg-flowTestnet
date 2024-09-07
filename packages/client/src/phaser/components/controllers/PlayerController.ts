@@ -13,8 +13,6 @@ import {
   MAIN_MENU,
   EXPLORE_MENU,
   TARGET,
-  TerrainType,
-  terrainTypeMapping,
   terrainMapping,
 } from "../../../constants";
 import {
@@ -23,8 +21,6 @@ import {
   combineToEntity,
 } from "../../../logics/move";
 import { TileHighlight } from "../../objects/TileHighlight";
-import { hexToString } from "viem";
-import { BLOOD, STAMINA } from "../../../contract/constants";
 import {
   isBuilding,
   isRole,

@@ -6,6 +6,10 @@ import { UIManager } from "../ui/UIManager";
 
 export class UIScene extends Phaser.Scene {
   /**
+   * components
+   */
+  components: SetupResult["components"];
+  /**
    * width of the window
    */
   width: number = 1280;
@@ -15,15 +19,25 @@ export class UIScene extends Phaser.Scene {
    */
   height: number = 720;
 
-  characterInfo: CharacterInfo | undefined;
-  terrainUI: TerrainUI | undefined;
-  actionMenu: ActionMenu | undefined;
-
+  /**
+   * the UI Component which is focused on now
+   */
   focusUI: UIManager | undefined;
 
-  network: SetupResult["network"];
-  components: SetupResult["components"];
-  systemCalls: SetupResult["systemCalls"];
+  /**
+   * show the information of current host
+   */
+  characterInfo: CharacterInfo | undefined;
+
+  /**
+   * show the information of current terrain
+   */
+  terrainUI: TerrainUI | undefined;
+
+  /**
+   * show the action buttons player can do
+   */
+  actionMenu: ActionMenu | undefined;
 
   /**
    * @param setupResult
@@ -31,12 +45,11 @@ export class UIScene extends Phaser.Scene {
    */
   constructor(setupResult: SetupResult, config: Phaser.Types.Core.GameConfig) {
     super({ ...config, key: "UIScene", active: true });
+    this.components = setupResult.components;
+
+    // Get the size of game
     this.width = Number(config.scale?.width);
     this.height = Number(config.scale?.height);
-
-    this.network = setupResult.network;
-    this.components = setupResult.components;
-    this.systemCalls = setupResult.systemCalls;
   }
 
   preload() {
@@ -68,6 +81,10 @@ export class UIScene extends Phaser.Scene {
     this.actionMenu = new ActionMenu(this);
   }
 
+  /**
+   * Determines whether the current focus is on the UIScene based on whether each complex UI component is displayed or not.
+   * [Note] Display of some components like TerrainUI have no options or are not in the center of the screen does not affect the focus.
+   */
   isFocusOn() {
     if (this.actionMenu?.isVisible) return true;
   }

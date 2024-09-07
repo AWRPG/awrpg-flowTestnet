@@ -1,28 +1,34 @@
 import { UIScene } from "../../scenes/UIScene";
 import { UIBase } from "./UIBase";
+import { ALIGNMODES } from "../../../constants";
 
 export class UIImage extends UIBase {
   image: Phaser.GameObjects.Image;
   constructor(
     scene: UIScene,
     texture: string,
-    alignModeName: string,
     width: number = 96,
     height: number = 96,
-    marginX: number = 0,
-    marginY: number = 0,
-    parent?: UIBase
+    {
+      alignModeName = ALIGNMODES.NONE,
+      marginX = 0,
+      marginY = 0,
+      parent,
+    }: {
+      alignModeName?: string;
+      marginX?: number;
+      marginY?: number;
+      parent?: UIBase;
+    }
   ) {
-    super(
-      scene,
+    super(scene, width, height, {
       texture,
       alignModeName,
-      width,
-      height,
       marginX,
       marginY,
-      parent
-    );
+      parent,
+    });
+
     this.image = new Phaser.GameObjects.Image(
       scene,
       0,

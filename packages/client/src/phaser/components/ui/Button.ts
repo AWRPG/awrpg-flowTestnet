@@ -3,7 +3,6 @@ import { UIBase } from "./UIBase";
 import { Box } from "./Box";
 import { UIText } from "./UIText";
 import { ALIGNMODES } from "../../../constants";
-import { UIImage } from "./UIImage";
 
 export class Button extends UIBase {
   skin: Box;
@@ -14,163 +13,98 @@ export class Button extends UIBase {
 
   constructor(
     scene: UIScene,
-    texture: string,
+    texture: string | undefined,
+    selectedTexture: string | undefined,
     content: string,
-    alignModeName: string,
     width: number = 128,
     height: number = 48,
-    marginX: number = 0,
-    marginY: number = 0,
     {
+      alignModeName = ALIGNMODES.NONE,
+      marginX = 0,
+      marginY = 0,
+      parent,
+
       fontSize = 24,
       fontColor = "#111",
       fontFamily = "Macondo",
       fontWeight = 600,
       wordWrap = undefined,
+      fontAlignMode = ALIGNMODES.MIDDLE_CENTER,
+
       leftWidth = 32,
       rightWidth = 32,
       topHeight = 32,
       bottomHeight = 32,
-      leftWidth2 = 32,
-      rightWidth2 = 32,
-      topHeight2 = 32,
-      bottomHeight2 = 32,
-      selectedTexture = undefined,
-      fontAlignMode = undefined,
+
+      leftWidthSelected = 32,
+      rightWidthSelected = 32,
+      topHeightSelected = 32,
+      bottomHeightSelected = 32,
     }: {
+      alignModeName?: string;
+      marginX?: number;
+      marginY?: number;
+      parent?: UIBase;
+
       fontSize?: number;
       fontColor?: string;
       fontFamily?: string;
       fontWeight?: number;
       wordWrap?: number | undefined;
+      fontAlignMode?: string;
+
       leftWidth?: number;
       rightWidth?: number;
       topHeight?: number;
       bottomHeight?: number;
-      leftWidth2?: number;
-      rightWidth2?: number;
-      topHeight2?: number;
-      bottomHeight2?: number;
-      selectedTexture?: string | undefined;
-      fontAlignMode?: string | undefined;
-    },
-    parent?: UIBase
+
+      leftWidthSelected?: number;
+      rightWidthSelected?: number;
+      topHeightSelected?: number;
+      bottomHeightSelected?: number;
+    }
   ) {
-    super(
-      scene,
+    super(scene, width, height, {
       texture,
       alignModeName,
-      width,
-      height,
-      marginX + 40,
+      marginX,
       marginY,
-      parent
-    );
-    this.selectedTexture = selectedTexture ?? texture;
+      parent,
+    });
+
+    this.texture = texture ?? "ui-empty";
+    this.selectedTexture = selectedTexture ?? this.texture;
 
     // Background (Default Skin)
-    this.skin = new Box(
-      scene,
-      texture,
-      fontAlignMode ?? ALIGNMODES.MIDDLE_CENTER,
-      width,
-      height,
-      28,
-      0,
-      { leftWidth, rightWidth, topHeight, bottomHeight },
-      this
-    );
+    this.skin = new Box(scene, this.texture, width, height, {
+      alignModeName,
+      parent: this,
+      leftWidth,
+      rightWidth,
+      topHeight,
+      bottomHeight,
+    });
 
     // Background (Selected Skin)
-    this.selectedSkin = new Box(
-      scene,
-      this.selectedTexture,
-      fontAlignMode ?? ALIGNMODES.MIDDLE_CENTER,
-      width,
-      height,
-      28,
-      0,
-      {
-        leftWidth: leftWidth2,
-        rightWidth: rightWidth2,
-        topHeight: topHeight2,
-        bottomHeight: bottomHeight2,
-      },
-      this
-    );
+    this.selectedSkin = new Box(scene, this.selectedTexture, width, height, {
+      alignModeName,
+      parent: this,
+      leftWidth: leftWidthSelected,
+      rightWidth: rightWidthSelected,
+      topHeight: topHeightSelected,
+      bottomHeight: bottomHeightSelected,
+    });
     this.selectedSkin.hide();
 
     // Text
-    this.uiText = new UIText(
-      scene,
-      content,
-      fontAlignMode ?? ALIGNMODES.MIDDLE_CENTER,
-      42,
-      0,
-      {
-        fontSize,
-        fontColor,
-        fontFamily,
-        fontWeight,
-        wordWrap,
-      },
-      this
-    );
-
-    // Underline
-    new Box(
-      scene,
-      "btn_decor1",
-      ALIGNMODES.LEFT_BOTTOM,
-      this.uiText.text.width / 4,
-      2,
-      42,
-      0,
-      { leftWidth: 16, rightWidth: 16, topHeight: 0, bottomHeight: 0 },
-      this
-    );
-
-    // circle
-    new UIImage(
-      scene,
-      "btn_decor3",
-      ALIGNMODES.LEFT_CENTER,
-      24,
-      24,
-      0,
-      0,
-      this
-    );
-
-    // circle naka
-    new UIImage(
-      scene,
-      "btn_decor2",
-      ALIGNMODES.LEFT_CENTER,
-      12,
-      12,
-      -22,
-      0,
-      this.selectedSkin
-    );
-
-    // Arrow
-    const arrow = new UIImage(
-      scene,
-      "btn_decor4",
-      ALIGNMODES.LEFT_CENTER,
-      32,
-      32,
-      -58,
-      0,
-      this.selectedSkin
-    );
-    scene.tweens.add({
-      targets: arrow.root,
-      x: arrow.x - 6,
-      duration: 600,
-      repeat: -1,
-      yoyo: true,
+    this.uiText = new UIText(scene, content, {
+      alignModeName: fontAlignMode,
+      parent: this,
+      fontSize,
+      fontColor,
+      fontFamily,
+      fontWeight,
+      wordWrap,
     });
   }
 }

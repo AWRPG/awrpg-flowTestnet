@@ -449,7 +449,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   sourceSelectHandler(entity: Entity) {
-    console.log("未使用！！！！！！！！！！！！！！！！！！！！！1");
     const { SelectedHost } = this.components;
     if (getComponentValue(SelectedHost, SOURCE)?.value === entity) {
       removeComponent(SelectedHost, SOURCE);
