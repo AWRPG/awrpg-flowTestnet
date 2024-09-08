@@ -220,7 +220,27 @@ export default defineWorld({
       },
       key: ["interactType"],
     },
-
+    // buildingType ->
+    StakeSpecs: {
+      schema: {
+        buildingType: "bytes16",
+        timeCost: "uint40",
+        inputs: "bytes32[]",
+        outputs: "bytes32[]",
+      },
+      key: ["buildingType"],
+    },
+    // can use LastUpdated & custodian hash to ensure staking info
+    // but create this table to make clientside easier to query
+    StakingInfo: {
+      schema: {
+        stakingId: "bytes32",
+        role: "bytes32",
+        building: "bytes32",
+        lastUpdated: "uint40",
+      },
+      key: ["stakingId"],
+    },
     // destroyable: building, host, terrain
     // Destroy stuff, award erc20s or erc721
   },
