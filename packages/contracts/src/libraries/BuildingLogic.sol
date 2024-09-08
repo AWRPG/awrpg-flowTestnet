@@ -51,8 +51,7 @@ library BuildingLogic {
 
   // because building has no path since building can be 2x2
   function _enterBuilding(bytes32 role, uint32 x, uint32 y) internal {
-    bytes32 tileId = MapLogic.getCoordId(x, y);
-    bytes32 building = TileEntity.get(tileId);
+    bytes32 building = getBuildingFromCoord(x, y);
     ContainerLogic._transfer(space(), building, role);
 
     (uint32 roleX, uint32 roleY) = PathLogic.getPositionStrict(role);
@@ -66,13 +65,18 @@ library BuildingLogic {
 
   // x, y is building's coord, newX, newY is exit coord
   function _exitBuilding(bytes32 role, uint32 x, uint32 y, uint32 newX, uint32 newY) internal {
-    bytes32 tileId = MapLogic.getCoordId(x, y);
     bytes32 newTildId = MapLogic.getCoordId(newX, newY);
-    bytes32 building = TileEntity.get(tileId);
+    bytes32 building = getBuildingFromCoord(x, y);
     ContainerLogic._transfer(building, space(), role);
     MoveLogic.canMoveToTileStrict(role, newX, newY);
     PathLogic._initPath(role, newX, newY);
     TileLogic._setTileEntityStrict(role, newTildId);
+  }
+
+  // note: buildingId could be zero, or not a building type
+  function getBuildingFromCoord(uint32 x, uint32 y) internal view returns (bytes32) {
+    bytes32 tileId = MapLogic.getCoordId(x, y);
+    return TileEntity.get(tileId);
   }
 
   function canBuildOnTilesStrict(bytes16 buildingType, bytes32[] memory coordIds) internal view {

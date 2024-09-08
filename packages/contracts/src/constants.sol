@@ -90,6 +90,9 @@ bytes16 constant BOW = bytes16("BOW");
 bytes16 constant SWORD = bytes16("SWORD");
 bytes16 constant RING_MAIL = bytes16("RING_MAIL");
 
+// staking
+bytes16 constant STAKING = bytes16("STAKING");
+
 function space() view returns (bytes32) {
   return TypeCast.toBytes32(StoreSwitch.getStoreAddress());
 }
