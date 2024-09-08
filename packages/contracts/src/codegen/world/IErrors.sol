@@ -54,4 +54,6 @@ interface IErrors {
   error NotEquipped();
   error SwapRatioNotSet();
   error NotInDropContainer();
+  error WrongBuildingTypeToStake();
+  error HasNoStakeInBuilding();
 }
