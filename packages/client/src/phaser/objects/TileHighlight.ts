@@ -53,13 +53,9 @@ export class TileHighlight extends SceneObject {
     if (!path) return;
     this.tileX = path.toX;
     this.tileY = path.toY;
-    this.root
-      .setPosition(
-        (this.tileX + 0.5) * this.tileSize,
-        (this.tileY + 0.5) * this.tileSize
-      )
-      .setAlpha(alpha)
-      .setDepth(12);
+    this.x = (this.tileX + 0.5) * this.tileSize;
+    this.y = (this.tileY + 0.5) * this.tileSize;
+    this.root.setPosition(this.x, this.y).setAlpha(alpha).setDepth(12);
 
     // Get the type of highlight
     if (canControl) {

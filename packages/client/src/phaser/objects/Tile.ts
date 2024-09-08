@@ -49,22 +49,17 @@ export class Tile extends SceneObject {
     const tileCoord = splitFromEntity(entity);
     this.tileX = tileCoord.x;
     this.tileY = tileCoord.y;
-    const x = (this.tileX + 0.5) * this.tileSize;
-    const y = (this.tileY + 0.5) * this.tileSize;
-    this.root
-      .setPosition(
-        (this.tileX + 0.5) * this.tileSize,
-        (this.tileY + 0.5) * this.tileSize
-      )
-      .setDepth(1);
+    this.x = (this.tileX + 0.5) * this.tileSize;
+    this.y = (this.tileY + 0.5) * this.tileSize;
+    this.root.setPosition(this.x, this.y).setDepth(1);
 
     tileValue.forEach((tile, index) => {
       const [texture, frame] = tile.split("&");
       if (texture === "pine_12") {
         const tileSprite = this.scene.add
           .image(
-            x + (this.tileSize * (Math.random() - 0.5)) / 2,
-            y + (this.tileSize * (Math.random() + 0.5)) / 2,
+            this.x + (this.tileSize * (Math.random() - 0.5)) / 2,
+            this.y + (this.tileSize * (Math.random() + 0.5)) / 2,
             "pine_12"
           )
           .setOrigin(0.5, 1)
@@ -88,32 +83,25 @@ export class Tile extends SceneObject {
       }
     });
 
-    // console.log("tile", x, y, tileValue);
     // this.tile.anims.play("grass_0_2");
   }
 
-  //
-
   select() {
-    this.cursor = this.scene.add
-      .sprite(
-        (this.tileX + 0.5) * this.tileSize,
-        (this.tileY + 0.5) * this.tileSize,
-        "ui-cursor"
-      )
-      .setDepth(14)
-      .setScale(0.5)
-      .play("ui-cursor-active");
-    this.follow();
-  }
-
-  silentSelect() {
-    this.cursor?.stop();
+    // this.cursor = this.scene.add
+    //   .sprite(
+    //     (this.tileX + 0.5) * this.tileSize,
+    //     (this.tileY + 0.5) * this.tileSize,
+    //     "ui-cursor"
+    //   )
+    //   .setDepth(14)
+    //   .setScale(0.5)
+    //   .play("ui-cursor-active");
+    // this.follow();
   }
 
   unselect() {
-    this.cursor?.destroy();
-    this.unfollow();
+    // this.cursor?.destroy();
+    // this.unfollow();
   }
 
   destroy() {

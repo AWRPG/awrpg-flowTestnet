@@ -3,6 +3,7 @@ import { CharacterInfo } from "../ui/CharacterInfo";
 import { TerrainUI } from "../ui/TerrainUI";
 import { ActionMenu } from "../ui/ActionMenu";
 import { UIManager } from "../ui/UIManager";
+import { UIBase } from "../components/ui/UIBase";
 
 export class UIScene extends Phaser.Scene {
   /**
@@ -38,6 +39,8 @@ export class UIScene extends Phaser.Scene {
    * show the action buttons player can do
    */
   actionMenu: ActionMenu | undefined;
+
+  moveTips: UIManager | undefined;
 
   /**
    * @param setupResult
@@ -79,6 +82,8 @@ export class UIScene extends Phaser.Scene {
     this.characterInfo = new CharacterInfo(this);
     this.terrainUI = new TerrainUI(this);
     this.actionMenu = new ActionMenu(this);
+    this.moveTips = new UIManager(this, new UIBase(this, 0, 0, {}));
+    this.moveTips.name = "MoveTips";
   }
 
   /**
@@ -86,6 +91,6 @@ export class UIScene extends Phaser.Scene {
    * [Note] Display of some components like TerrainUI have no options or are not in the center of the screen does not affect the focus.
    */
   isFocusOn() {
-    if (this.actionMenu?.isVisible) return true;
+    if (this.actionMenu?.isVisible || this.moveTips?.isVisible) return true;
   }
 }

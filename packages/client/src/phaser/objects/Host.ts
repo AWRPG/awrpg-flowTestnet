@@ -73,13 +73,10 @@ export class Host extends SceneObject {
     };
     this.tileX = path.toX;
     this.tileY = path.toY;
+    this.x = (this.tileX + 0.5) * this.tileSize;
+    this.y = (this.tileY + 0.5) * this.tileSize;
 
-    this.root
-      .setPosition(
-        (this.tileX + 0.5) * this.tileSize,
-        (this.tileY + 0.5) * this.tileSize
-      )
-      .setDepth(13);
+    this.root.setPosition(this.x, this.y).setDepth(13);
     // draw avatar & set animation
     this.direction =
       getComponentValue(components.RoleDirection, entity)?.value ??
@@ -106,45 +103,59 @@ export class Host extends SceneObject {
     // if (role) this.follow();
   }
 
-  // triggered whenever Moves component is updated
-  movesUpdate() {
-    const moves =
-      getComponentValue(this.components.Moves, this.entity)?.value ?? [];
-    this.tilesToMove = movesToPositions(moves, {
-      x: this.tileX,
-      y: this.tileY,
+  /**
+   * Handles a series of movement animations with direction changes for
+   * the Host object until the movement is confirmed by the chain.
+   * @param moves A series of arrays representing directions
+   */
+  movesAnimation(moves: number[]) {
+    this.doWalkAnimation();
+    this.root.setAlpha(1);
+    const tweenConfig: unknown[] = [];
+    moves.forEach((move: number) => {
+      switch (move) {
+        case Direction.UP:
+          this.y -= this.tileSize;
+          break;
+        case Direction.DOWN:
+          this.y += this.tileSize;
+          break;
+        case Direction.LEFT:
+          this.x -= this.tileSize;
+          break;
+        case Direction.RIGHT:
+          this.x += this.tileSize;
+          break;
+      }
+      tweenConfig.push({
+        x: this.x,
+        y: this.y,
+        duration: 75,
+      });
     });
-    const to = this.tilesToMove[this.tilesToMove.length - 1];
-
-    // this.scene.tweens.add({
-    //   targets: this.root,
-    //   x: (to.x + 0.5) * this.tileSize,
-    //   y: (to.y + 0.5) * this.tileSize,
-    //   duration: 200,
-    //   repeat: 0,
-    // });
-
-    // this.doWalkAnimation();
-    // update movesObj
-    // this.movesObj?.clear(true, true);
-    // this.movesObj = this.scene.add.group();
-    // // for each move of moves, add a line into the moves group
-    // for (let i = 0; i < this.positions.length - 1; i++) {
-    //   const { x: x1, y: y1 } = this.positions[i];
-    //   const { x: x2, y: y2 } = this.positions[i + 1];
-    //   const line = this.scene.add.line(0, 0, 0, 0, 0, 0, 0xff0000).setDepth(10);
-    //   line.setLineWidth(3);
-    //   line.setPosition(
-    //     x1 * this.tileSize + this.avatar.displayOriginX,
-    //     y1 * this.tileSize + this.avatar.displayOriginY
-    //   );
-    // console.log(this.avatar.x, this.avatar.y);
-    // console.log(this.avatar.displayOriginX, this.avatar.displayOriginY);
-    //   line.geom.x2 = x2 * this.tileSize - x1 * this.tileSize;
-    //   line.geom.y2 = y2 * this.tileSize - y1 * this.tileSize;
-    //   this.movesObj.add(line);
-    // }
+    this.moveTween = this.scene.tweens.chain({
+      targets: this.root,
+      tweens: tweenConfig,
+      onComplete: () => {
+        this.doIdleAnimation();
+      },
+    });
   }
+
+  moveAnimation(toX: number, toY: number) {
+    this.doWalkAnimation();
+    const distance = Math.min(
+      (Math.abs(this.x - toX) + Math.abs(this.y - toY)) / this.tileSize,
+      10
+    );
+    console.log(distance);
+    super.moveAnimation(toX, toY, distance * 75, () => {
+      this.doIdleAnimation();
+    });
+  }
+
+  // triggered whenever Moves component is updated
+  movesUpdate(moves: number[]) {}
 
   directionUpdate() {
     this.doIdleAnimation();
@@ -169,8 +180,8 @@ export class Host extends SceneObject {
   }
 
   destroy() {
+    this.moveTween?.destroy();
     this.avatar.destroy();
-    // this.movesObj?.clear(true, true);
   }
 
   setPropertyValue(type: Hex, entityId: number) {

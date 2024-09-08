@@ -57,16 +57,17 @@ export class UIManager {
   /**
    * Show it
    */
-  show(...params: unknown[]) {
+  show(hasFocus: boolean = true, ...params: unknown[]) {
     this.rootUI.root.setVisible(true);
     this.isVisible = true;
-    this.scene.focusUI = this;
+    if (hasFocus) this.scene.focusUI = this;
   }
 
   /**
    * Hide it
    */
   hidden(...params: unknown[]) {
+    if (this.scene.focusUI === this) this.scene.focusUI = undefined;
     this.rootUI.root.setVisible(false);
     this.isVisible = false;
   }

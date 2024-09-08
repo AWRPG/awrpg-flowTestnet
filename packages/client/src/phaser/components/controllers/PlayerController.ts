@@ -19,6 +19,7 @@ import {
   setNewTargetTile,
   KEY_TO_DIRECTION,
   combineToEntity,
+  calculatePathMoves,
 } from "../../../logics/move";
 import { TileHighlight } from "../../objects/TileHighlight";
 import {
@@ -30,6 +31,7 @@ import {
 import { getHostPosition } from "../../../logics/path";
 import { getTargetTerrainData, TileData } from "../../../logics/terrain";
 import { Host } from "../../objects/Host";
+import { Hex } from "viem";
 
 /**
  * Handle user client interface
@@ -41,6 +43,8 @@ export class PlayerController {
   keyboardListener: Phaser.Input.Keyboard.KeyboardPlugin | undefined;
   cursorMoveInterval = 125;
   cursorLastDate: number = 0;
+  movable: boolean = true;
+  moveEntity: Entity | undefined;
   tileData: TileData | undefined;
   menu: Entity | undefined;
 
@@ -83,10 +87,11 @@ export class PlayerController {
     const source = getComponentValue(SelectedHost, SOURCE)?.value;
 
     const menu = (this.menu = getComponentValue(SelectedEntity, MENU)?.value);
+    if (menu) this.movable = false;
     const onMenu = menu || this.uiScene.isFocusOn();
 
     // Move cursor on tiles
-    if (!onMenu && this.isArrowKeysDown(event.key)) {
+    if (this.movable && this.isArrowKeysDown(event.key)) {
       if (!tileData) return;
       if (Date.now() - this.cursorLastDate < this.cursorMoveInterval)
         // check time interval
@@ -115,6 +120,7 @@ export class PlayerController {
         // Player role
         if (entityObj.isPlayer) {
           this.openTileHighlight(entity, 0.75);
+          this.movable = false;
           this.uiScene.actionMenu?.show();
         }
         // Other Role
@@ -133,25 +139,20 @@ export class PlayerController {
     // Select the action menu
     else if (onMenu && ["f", "F"].includes(event.key)) {
       const ui = this.uiScene.focusUI;
-      if (!ui?.buttons) return;
-      if (ui.name === "ActionMenu") {
+      if (!ui) return;
+      if (ui.name === "ActionMenu" && ui.buttons) {
         if (!tileData || !entity) return;
         const actionName = ui.buttons[ui.currentButtonIndex]?.name;
-        // const forkHost: Host = new Host(this.scene, this.components, {
-        //   entity,
-        //   isPlayer: false,
-        //   onClick: () => {},
-        // });
         switch (actionName) {
           // Move to & Enter buildings
           case "Move":
+            this.movable = true;
             this.uiScene.actionMenu?.hidden();
             this.openTileHighlight(entity);
-            // Bundle hostObj to cursor
-            // forkHost.setTilePosition(
-            //   tileData.targetCoord.x + 3,
-            //   tileData.targetCoord.y
-            // );
+            this.moveEntity = entity;
+            this.scene.hosts[entity].root.setAlpha(0.5);
+            this.scene.cursor?.setAccessory(entity, "role"); // Bundle hostObj to cursor
+            this.uiScene.moveTips?.show();
             break;
 
           // Attack
@@ -171,16 +172,26 @@ export class PlayerController {
           // [In a miner] Start Mining
           // [In a miner] Stop Mining
         }
+      } else if (ui.name === "MoveTips") {
+        const moveEntity = this.scene.cursor?.accessories;
+        if (!this.moveEntity || !this.scene.cursor) return;
+        const moves = calculatePathMoves(this.components, this.moveEntity);
+        if (!moves || moves.length === 0) return;
+        this.scene.systemCalls.move(this.moveEntity as Hex, moves as number[]);
+        this.closeTileHighlight(this.moveEntity);
+        this.scene.cursor.clearAccessory(this.moveEntity);
+        this.scene.hosts[this.moveEntity].movesAnimation(moves);
+        this.uiScene.moveTips?.hidden();
       }
     }
 
     // Show/hide terrain UI
-    else if (!onMenu && (event.key === "r" || event.key === "R")) {
+    else if (event.key === "r" || event.key === "R") {
       if (!tileData) return;
       // Show/hide terrain ui
       if (this.uiScene.terrainUI?.isVisible === false) {
         const terrainName = terrainMapping[tileData.terrainType];
-        this.uiScene.terrainUI.show();
+        this.uiScene.terrainUI.show(false);
         this.uiScene.terrainUI.setData("terrainName", terrainName);
       } else {
         this.uiScene.terrainUI?.hidden();
@@ -196,6 +207,7 @@ export class PlayerController {
         removeComponent(SelectedEntity, MENU);
         this.uiScene.actionMenu?.hidden();
         if (entity) this.closeTileHighlight(entity);
+        this.movable = false;
       }
     }
 
@@ -252,7 +264,7 @@ export class PlayerController {
       this.scene,
       { canControl: true, alpha }
     );
-    this.uiScene.characterInfo?.show();
+    this.uiScene.characterInfo?.show(false);
   }
 
   /**
