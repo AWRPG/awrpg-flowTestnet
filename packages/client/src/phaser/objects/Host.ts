@@ -138,6 +138,7 @@ export class Host extends SceneObject {
       tweens: tweenConfig,
       onComplete: () => {
         this.doIdleAnimation();
+        this.avatar.setTint(0x808080);
       },
     });
   }
