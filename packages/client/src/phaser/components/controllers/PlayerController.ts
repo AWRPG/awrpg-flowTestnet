@@ -104,7 +104,7 @@ export class PlayerController {
 
     // Move on menu
     else if (this.uiScene.isFocusOn() && this.isArrowKeysDown(event.key)) {
-      const ui = this.uiScene.focusUI;
+      const ui = this.uiScene.focusUI[this.uiScene.focusUI.length - 1];
       if (!ui?.buttons) return;
       if (["w", "W"].includes(event.key)) ui.prevButton();
       if (["s", "S"].includes(event.key)) ui.nextButton();
@@ -138,7 +138,7 @@ export class PlayerController {
 
     // Select the action menu
     else if (onMenu && ["f", "F"].includes(event.key)) {
-      const ui = this.uiScene.focusUI;
+      const ui = this.uiScene.focusUI[this.uiScene.focusUI.length - 1];
       if (!ui) return;
       if (ui.name === "ActionMenu" && ui.buttons) {
         if (!tileData || !entity) return;
@@ -205,9 +205,35 @@ export class PlayerController {
         setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       } else {
         removeComponent(SelectedEntity, MENU);
-        this.uiScene.actionMenu?.hidden();
-        if (entity) this.closeTileHighlight(entity);
-        this.movable = false;
+        switch (this.uiScene.focusUI.pop()) {
+          case this.uiScene.actionMenu:
+            if (entity) this.closeTileHighlight(entity);
+            this.movable = true;
+            this.uiScene.actionMenu?.hidden();
+            break;
+          case this.uiScene.moveTips:
+            this.uiScene.moveTips?.hidden();
+            this.uiScene.actionMenu?.show();
+            if (entity) {
+              // this.openTileHighlight(entity, 0.75);
+            }
+            this.movable = false;
+            if (this.moveEntity) {
+              this.openTileHighlight(this.moveEntity, 0.75);
+              this.scene.cursor?.clearAccessory(this.moveEntity);
+              this.scene.hosts[this.moveEntity].root.setAlpha(1);
+              const coord = getHostPosition(
+                this.components,
+                this.scene.network,
+                this.moveEntity
+              );
+              if (!coord) return;
+              setComponent(TargetTile, TARGET, {
+                value: combineToEntity(coord.x, coord.y),
+              });
+              this.moveEntity = undefined;
+            }
+        }
       }
     }
 
