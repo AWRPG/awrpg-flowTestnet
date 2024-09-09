@@ -1,5 +1,9 @@
 import { ClientComponents } from "../../mud/createClientComponents";
-import { Direction, movesToPositions } from "../../logics/move";
+import {
+  calculatePathMoves,
+  Direction,
+  movesToPositions,
+} from "../../logics/move";
 import { Entity, ComponentValue, getComponentValue } from "@latticexyz/recs";
 import { Hex, hexToString } from "viem";
 import { getPool } from "../../contract/hashes";
@@ -18,6 +22,11 @@ export class Host extends SceneObject {
    * is the main character of player
    */
   isPlayer: boolean;
+
+  /**
+   * Is moving on client
+   */
+  isMoving: boolean;
 
   /**
    * The display object for host
@@ -64,6 +73,7 @@ export class Host extends SceneObject {
   ) {
     super(entity, components, scene);
     this.isPlayer = isPlayer;
+    this.isMoving = false;
     this.properties = new Map();
 
     // TODO: different obj has different position calc
@@ -143,20 +153,15 @@ export class Host extends SceneObject {
     });
   }
 
-  moveAnimation(toX: number, toY: number) {
-    this.doWalkAnimation();
-    const distance = Math.min(
-      (Math.abs(this.x - toX) + Math.abs(this.y - toY)) / this.tileSize,
-      10
-    );
-    console.log(distance);
-    super.moveAnimation(toX, toY, distance * 75, () => {
-      this.doIdleAnimation();
-    });
-  }
-
   // triggered whenever Moves component is updated
-  movesUpdate(moves: number[]) {}
+  movesUpdate(): boolean {
+    const moves = calculatePathMoves(this.components, this.entity);
+    if (!moves || moves.length === 0) return false;
+    this.scene.systemCalls.move(this.entity as Hex, moves as number[]);
+    this.isMoving = true;
+    this.movesAnimation(moves);
+    return true;
+  }
 
   directionUpdate() {
     this.doIdleAnimation();

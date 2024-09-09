@@ -33,6 +33,7 @@ export class CharacterInfo extends UIManager {
         marginY: 8,
       })
     );
+    this.name = "CharacterInfo";
     this.setData("hp", 1);
     this.setData("sp", 1);
 

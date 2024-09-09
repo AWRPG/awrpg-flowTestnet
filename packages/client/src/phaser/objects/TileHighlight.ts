@@ -9,125 +9,154 @@ import {
   TileTerrainMap,
 } from "../../logics/terrain";
 import { combineToEntity } from "../../logics/move";
-import { TerrainType } from "../../constants";
+import { HIGHLIGHT_MODE, TerrainType } from "../../constants";
 import { dijkstraPathfinding } from "../../utils/pathFinding";
 
 export class TileHighlight extends SceneObject {
   /**
    * objects to show the highlight
    */
-  highlights: Phaser.GameObjects.Sprite[] = [];
+  highlightObjs: Phaser.GameObjects.Sprite[] = [];
 
-  /**
-   * the tiles really can interact
-   */
-  legalTiles: boolean[][] = [];
-
-  /**
-   * the distance of each sides
-   */
-  distance: number = 0;
+  highlightData: { x: number; y: number; distance: number }[] = [];
 
   /**
    * distinguish between different types of highlighting ranges
-   * 0: move, 1: attack, 2: move & attack
    */
-  type: number = 0;
+  mode: string = HIGHLIGHT_MODE.MOVE;
 
-  /**
-   * [TODO]
-   * @param entity
-   * @param components
-   * @param scene
-   */
+  /** */
   constructor(
     entity: Entity,
     components: ClientComponents,
     scene: GameScene,
-    { canControl, alpha = 1 }: { canControl: boolean; alpha?: number }
+    mode?: string
   ) {
     super(entity, components, scene);
-
-    // Set the center position to root
     const path = getComponentValue(components.Path, entity) ?? null;
     if (!path) return;
     this.tileX = path.toX;
     this.tileY = path.toY;
     this.x = (this.tileX + 0.5) * this.tileSize;
     this.y = (this.tileY + 0.5) * this.tileSize;
-    this.root.setPosition(this.x, this.y).setAlpha(alpha).setDepth(12);
+    this.root.setPosition(this.x, this.y).setDepth(12);
+    this.root.setVisible(false);
+  }
 
-    // Get the type of highlight
-    if (canControl) {
-      this.type = 0;
-    }
-    // Get the distance from entity
-    this.distance = 7;
-
-    // Get the datas of square area by left-top & right-bottom points
-    const leftTopGridCoord = {
-      x: Math.floor((this.tileX - this.distance) / GRID_SIZE),
-      y: Math.floor((this.tileY - this.distance) / GRID_SIZE),
-    };
-    const rightBottomGridCoord = {
-      x: Math.floor((this.tileX + this.distance) / GRID_SIZE),
-      y: Math.floor((this.tileY + this.distance) / GRID_SIZE),
-    };
-    const gridCoords = getRectangleCoords(
-      leftTopGridCoord,
-      rightBottomGridCoord
-    );
-    let terrains: TileTerrainMap[] = [];
-    gridCoords.forEach((coord) => {
-      const gridId = combineToEntity(coord.x, coord.y);
-      terrains = terrains.concat(getGridTerrains(components, gridId));
-    });
-
-    // Get the reachable area
-    for (const i in terrains) {
-      // Check the terrain type
-      if (terrains[i].terrainType === TerrainType.NONE) continue;
-      if (terrains[i].terrainType === TerrainType.OCEAN) continue;
-      if (terrains[i].terrainType === TerrainType.FOREST) continue;
-      if (terrains[i].terrainType === TerrainType.MOUNTAIN) continue;
-      // Check the distance
-      const xTemp = terrains[i].x - this.tileX;
-      const yTemp = terrains[i].y - this.tileY;
-      const distanceTemp = Math.abs(xTemp) + Math.abs(yTemp);
-      if (distanceTemp > this.distance) continue;
-      // Check the path legal
-      const pathCoords = dijkstraPathfinding(
-        { x: this.tileX, y: this.tileY },
-        { x: terrains[i].x, y: terrains[i].y },
-        terrains
+  async calcHighlight() {
+    if (this.highlightData && this.highlightData.length > 0) return;
+    console.log("calcHighlight");
+    if (this.mode === HIGHLIGHT_MODE.MOVE) {
+      const distance = 20; // Get the distance from entity
+      const leftTopGridCoord = {
+        x: Math.floor((this.tileX - distance) / GRID_SIZE),
+        y: Math.floor((this.tileY - distance) / GRID_SIZE),
+      }; // Get the datas of square area by left-top & right-bottom points
+      const rightBottomGridCoord = {
+        x: Math.floor((this.tileX + distance) / GRID_SIZE),
+        y: Math.floor((this.tileY + distance) / GRID_SIZE),
+      };
+      const gridCoords = getRectangleCoords(
+        leftTopGridCoord,
+        rightBottomGridCoord
       );
-      if (pathCoords === null) continue;
-      if (!this.legalTiles[xTemp])
-        // Add
-        this.legalTiles[xTemp] = [];
-      this.legalTiles[xTemp][yTemp] = true;
-    }
-
-    // Show
-    for (const i in this.legalTiles) {
-      for (const j in this.legalTiles[i]) {
-        const highlight = new Phaser.GameObjects.Sprite(
-          this.scene,
-          Number(i) * this.tileSize,
-          Number(j) * this.tileSize,
-          "ui-highlight"
-        )
-          .setScale(0.45)
-          .play("ui-highlight-active");
-        this.highlights.push(highlight);
-        this.root.add(highlight);
+      let terrains: TileTerrainMap[] = [];
+      gridCoords.forEach((coord) => {
+        const gridId = combineToEntity(coord.x, coord.y);
+        terrains = terrains.concat(getGridTerrains(this.components, gridId));
+      });
+      // Check the terrain type
+      const passableTiles: Set<string> = new Set();
+      for (const i in terrains) {
+        if (terrains[i].terrainType === TerrainType.NONE) continue;
+        if (terrains[i].terrainType === TerrainType.OCEAN) continue;
+        if (terrains[i].terrainType === TerrainType.FOREST) continue;
+        if (terrains[i].terrainType === TerrainType.MOUNTAIN) continue;
+        const xTemp = terrains[i].x - this.tileX;
+        const yTemp = terrains[i].y - this.tileY;
+        const distanceTemp = Math.abs(xTemp) + Math.abs(yTemp);
+        if (distanceTemp > distance) continue;
+        passableTiles.add(`${xTemp},${yTemp}`);
       }
+      // Get the reachable area
+      this.highlightData = this.floodFill(distance, passableTiles);
+    } else if (this.mode === HIGHLIGHT_MODE.BUILD) {
+      //
     }
   }
 
-  destroy() {
-    for (const i in this.highlights) {
-      this.highlights[i].destroy();
+  floodFill(maxDistance: number, passableTiles: Set<string>) {
+    const queue: { x: number; y: number; distance: number }[] = [
+      { x: 0, y: 0, distance: 0 },
+    ];
+    const visited = new Set([`${0},${0}`]);
+    const reachable = [];
+    while (queue.length > 0) {
+      const tile = queue.shift();
+      if (!tile) continue;
+      const { x, y, distance } = tile;
+      if (distance > maxDistance) continue;
+      reachable.push({ x, y, distance });
+      for (const [dx, dy] of [
+        [0, 1],
+        [1, 0],
+        [0, -1],
+        [-1, 0],
+      ]) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (!visited.has(`${nx},${ny}`) && passableTiles.has(`${nx},${ny}`)) {
+          queue.push({ x: nx, y: ny, distance: distance + 1 });
+          visited.add(`${nx},${ny}`);
+        }
+      }
     }
+    return reachable;
+  }
+
+  setHighlight() {
+    this.clearHighlight();
+    if (this.mode === HIGHLIGHT_MODE.MOVE) {
+      this.highlightData.forEach((data) => {
+        const highlight = new Phaser.GameObjects.Sprite(
+          this.scene,
+          data.x * this.tileSize,
+          data.y * this.tileSize,
+          "ui-highlight-move"
+        );
+        highlight.setScale(0);
+        this.highlightObjs.push(highlight);
+        this.root.add(highlight);
+        setTimeout(() => {
+          this.scene.tweens.add({
+            targets: highlight,
+            props: { ["scale"]: 1 },
+            duration: 120,
+          });
+        }, data.distance * 80);
+      });
+    } else if (this.mode === HIGHLIGHT_MODE.BUILD) {
+      //
+    }
+  }
+
+  clearHighlight() {
+    this.highlightObjs.forEach((obj) => {
+      obj.destroy();
+    });
+    this.highlightObjs = [];
+  }
+
+  show(alpha: number = 1) {
+    this.root.alpha = alpha;
+    if (this.root.visible !== true) {
+      this.setHighlight();
+      this.root.setVisible(true);
+    }
+  }
+
+  hide() {
+    this.root.setVisible(false);
+    this.clearHighlight();
   }
 }

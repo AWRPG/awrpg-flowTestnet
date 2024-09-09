@@ -141,6 +141,10 @@ export class SceneObject {
     this.root.setPosition(this.x, this.y);
   }
 
+  setDepth(depth: number) {
+    this.root.setDepth(depth);
+  }
+
   /**
    *
    * @param entity

@@ -24,6 +24,7 @@ import {
   WOOD,
   YELLOW,
 } from "./contract/constants";
+import { ActionMenu } from "./phaser/ui/ActionMenu";
 
 export enum TerrainType {
   // new (& only) terrain type
@@ -57,6 +58,17 @@ export const terrainTypeMapping = {
   // client getPerlin returns MUD, but is PLAIN
   [TerrainType.MUD]: PLAIN,
   [TerrainType.BUILDING]: "0" as Hex,
+};
+
+export const UI_NAME = {
+  ACTION_MENU: "ActionMenu",
+  MOVE_TIPS: "MoveTips",
+  BUILD_MENU: "BuildMenu",
+};
+
+export const HIGHLIGHT_MODE = {
+  MOVE: "Move",
+  BUILD: "Build",
 };
 
 export const POOL_TYPES = [SOUL, STAMINA, BLOOD];
