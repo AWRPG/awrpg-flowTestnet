@@ -19,6 +19,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 struct StakingInfoData {
   bytes32 role;
   bytes32 building;
+  bytes16 outputType;
   uint40 lastUpdated;
 }
 
@@ -27,12 +28,12 @@ library StakingInfo {
   ResourceId constant _tableId = ResourceId.wrap(0x746200000000000000000000000000005374616b696e67496e666f0000000000);
 
   FieldLayout constant _fieldLayout =
-    FieldLayout.wrap(0x0045030020200500000000000000000000000000000000000000000000000000);
+    FieldLayout.wrap(0x0055040020201005000000000000000000000000000000000000000000000000);
 
   // Hex-encoded key schema of (bytes32)
   Schema constant _keySchema = Schema.wrap(0x002001005f000000000000000000000000000000000000000000000000000000);
-  // Hex-encoded value schema of (bytes32, bytes32, uint40)
-  Schema constant _valueSchema = Schema.wrap(0x004503005f5f0400000000000000000000000000000000000000000000000000);
+  // Hex-encoded value schema of (bytes32, bytes32, bytes16, uint40)
+  Schema constant _valueSchema = Schema.wrap(0x005504005f5f4f04000000000000000000000000000000000000000000000000);
 
   /**
    * @notice Get the table's key field names.
@@ -48,10 +49,11 @@ library StakingInfo {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](3);
+    fieldNames = new string[](4);
     fieldNames[0] = "role";
     fieldNames[1] = "building";
-    fieldNames[2] = "lastUpdated";
+    fieldNames[2] = "outputType";
+    fieldNames[3] = "lastUpdated";
   }
 
   /**
@@ -153,13 +155,55 @@ library StakingInfo {
   }
 
   /**
+   * @notice Get outputType.
+   */
+  function getOutputType(bytes32 stakingId) internal view returns (bytes16 outputType) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = stakingId;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (bytes16(_blob));
+  }
+
+  /**
+   * @notice Get outputType.
+   */
+  function _getOutputType(bytes32 stakingId) internal view returns (bytes16 outputType) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = stakingId;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (bytes16(_blob));
+  }
+
+  /**
+   * @notice Set outputType.
+   */
+  function setOutputType(bytes32 stakingId, bytes16 outputType) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = stakingId;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((outputType)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set outputType.
+   */
+  function _setOutputType(bytes32 stakingId, bytes16 outputType) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = stakingId;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((outputType)), _fieldLayout);
+  }
+
+  /**
    * @notice Get lastUpdated.
    */
   function getLastUpdated(bytes32 stakingId) internal view returns (uint40 lastUpdated) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = stakingId;
 
-    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (uint40(bytes5(_blob)));
   }
 
@@ -170,7 +214,7 @@ library StakingInfo {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = stakingId;
 
-    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
     return (uint40(bytes5(_blob)));
   }
 
@@ -181,7 +225,7 @@ library StakingInfo {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = stakingId;
 
-    StoreSwitch.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((lastUpdated)), _fieldLayout);
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((lastUpdated)), _fieldLayout);
   }
 
   /**
@@ -191,7 +235,7 @@ library StakingInfo {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = stakingId;
 
-    StoreCore.setStaticField(_tableId, _keyTuple, 2, abi.encodePacked((lastUpdated)), _fieldLayout);
+    StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((lastUpdated)), _fieldLayout);
   }
 
   /**
@@ -227,8 +271,8 @@ library StakingInfo {
   /**
    * @notice Set the full data using individual values.
    */
-  function set(bytes32 stakingId, bytes32 role, bytes32 building, uint40 lastUpdated) internal {
-    bytes memory _staticData = encodeStatic(role, building, lastUpdated);
+  function set(bytes32 stakingId, bytes32 role, bytes32 building, bytes16 outputType, uint40 lastUpdated) internal {
+    bytes memory _staticData = encodeStatic(role, building, outputType, lastUpdated);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -242,8 +286,8 @@ library StakingInfo {
   /**
    * @notice Set the full data using individual values.
    */
-  function _set(bytes32 stakingId, bytes32 role, bytes32 building, uint40 lastUpdated) internal {
-    bytes memory _staticData = encodeStatic(role, building, lastUpdated);
+  function _set(bytes32 stakingId, bytes32 role, bytes32 building, bytes16 outputType, uint40 lastUpdated) internal {
+    bytes memory _staticData = encodeStatic(role, building, outputType, lastUpdated);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -258,7 +302,7 @@ library StakingInfo {
    * @notice Set the full data using the data struct.
    */
   function set(bytes32 stakingId, StakingInfoData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.role, _table.building, _table.lastUpdated);
+    bytes memory _staticData = encodeStatic(_table.role, _table.building, _table.outputType, _table.lastUpdated);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -273,7 +317,7 @@ library StakingInfo {
    * @notice Set the full data using the data struct.
    */
   function _set(bytes32 stakingId, StakingInfoData memory _table) internal {
-    bytes memory _staticData = encodeStatic(_table.role, _table.building, _table.lastUpdated);
+    bytes memory _staticData = encodeStatic(_table.role, _table.building, _table.outputType, _table.lastUpdated);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;
@@ -287,12 +331,16 @@ library StakingInfo {
   /**
    * @notice Decode the tightly packed blob of static data using this table's field layout.
    */
-  function decodeStatic(bytes memory _blob) internal pure returns (bytes32 role, bytes32 building, uint40 lastUpdated) {
+  function decodeStatic(
+    bytes memory _blob
+  ) internal pure returns (bytes32 role, bytes32 building, bytes16 outputType, uint40 lastUpdated) {
     role = (Bytes.getBytes32(_blob, 0));
 
     building = (Bytes.getBytes32(_blob, 32));
 
-    lastUpdated = (uint40(Bytes.getBytes5(_blob, 64)));
+    outputType = (Bytes.getBytes16(_blob, 64));
+
+    lastUpdated = (uint40(Bytes.getBytes5(_blob, 80)));
   }
 
   /**
@@ -306,7 +354,7 @@ library StakingInfo {
     EncodedLengths,
     bytes memory
   ) internal pure returns (StakingInfoData memory _table) {
-    (_table.role, _table.building, _table.lastUpdated) = decodeStatic(_staticData);
+    (_table.role, _table.building, _table.outputType, _table.lastUpdated) = decodeStatic(_staticData);
   }
 
   /**
@@ -333,8 +381,13 @@ library StakingInfo {
    * @notice Tightly pack static (fixed length) data using this table's schema.
    * @return The static data, encoded into a sequence of bytes.
    */
-  function encodeStatic(bytes32 role, bytes32 building, uint40 lastUpdated) internal pure returns (bytes memory) {
-    return abi.encodePacked(role, building, lastUpdated);
+  function encodeStatic(
+    bytes32 role,
+    bytes32 building,
+    bytes16 outputType,
+    uint40 lastUpdated
+  ) internal pure returns (bytes memory) {
+    return abi.encodePacked(role, building, outputType, lastUpdated);
   }
 
   /**
@@ -346,9 +399,10 @@ library StakingInfo {
   function encode(
     bytes32 role,
     bytes32 building,
+    bytes16 outputType,
     uint40 lastUpdated
   ) internal pure returns (bytes memory, EncodedLengths, bytes memory) {
-    bytes memory _staticData = encodeStatic(role, building, lastUpdated);
+    bytes memory _staticData = encodeStatic(role, building, outputType, lastUpdated);
 
     EncodedLengths _encodedLengths;
     bytes memory _dynamicData;

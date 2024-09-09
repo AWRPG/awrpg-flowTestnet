@@ -10,13 +10,23 @@ import { StakeLogic } from "@/libraries/StakeLogic.sol";
 import { BuildingLogic } from "@/libraries/BuildingLogic.sol";
 
 contract StakeSystem is System, AccessControl, PositionControl {
-  function stake(bytes32 role, uint32 x, uint32 y) public onlyCommander(role) onlyAdjacentCoord(role, x, y) {
+  function stake(
+    bytes32 role,
+    bytes16 outputType,
+    uint32 x,
+    uint32 y
+  ) public onlyCommander(role) onlyAdjacentCoord(role, x, y) {
     bytes32 building = BuildingLogic.getBuildingFromCoord(x, y);
-    StakeLogic._stake(role, building);
+    StakeLogic._stake(role, building, outputType);
   }
 
   function unstake(bytes32 role, uint32 x, uint32 y) public onlyCommander(role) onlyAdjacentCoord(role, x, y) {
     bytes32 building = BuildingLogic.getBuildingFromCoord(x, y);
     StakeLogic._unstake(role, building);
+  }
+
+  function claim(bytes32 role, uint32 x, uint32 y) public onlyCommander(role) onlyAdjacentCoord(role, x, y) {
+    bytes32 building = BuildingLogic.getBuildingFromCoord(x, y);
+    StakeLogic._claim(role, building);
   }
 }

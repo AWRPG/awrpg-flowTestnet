@@ -11,26 +11,31 @@ import { Errors } from "@/Errors.sol";
 import "@/hashes.sol";
 import "@/constants.sol";
 
-// need to make sure building creator cannot access what's staked in building
+// _stake: transfer inputs to building -> record staking
+// _claim: mint outputs to role when time is up
+// _unstake: transfer inputs back to host -> delete staking record
+// note: need to make sure building creator cannot access what's staked in building
 library StakeLogic {
-  function _stake(bytes32 host, bytes32 building) internal {
+  function _stake(bytes32 host, bytes32 building, bytes16 outputType) internal {
     bytes16 buildingType = EntityType.get(building);
-    if (StakeSpecs.getTimeCost(buildingType) == 0) revert Errors.WrongBuildingTypeToStake();
+    if (StakeSpecs.getBuildingType(outputType) != buildingType) revert Errors.WrongBuildingTypeToStake();
 
-    bytes32[] memory inputs = StakeSpecs.getInputs(buildingType);
+    bytes32[] memory inputs = StakeSpecs.getInputs(outputType);
     bytes32 stakingId = getStaking(host, building);
+    // fixed earning rate per player per building
+    if (StakingInfo.getLastUpdated(stakingId) != 0) revert Errors.AlreadyHasStaking();
     _stakeInputs(inputs, host, building);
 
-    StakingInfo.set(stakingId, host, building, uint40(block.timestamp));
+    StakingInfo.set(stakingId, host, building, outputType, uint40(block.timestamp));
   }
 
   function _unstake(bytes32 host, bytes32 building) internal {
     bytes32 stakingId = getStaking(host, building);
     if (StakingInfo.getBuilding(stakingId) != building) revert Errors.HasNoStakeInBuilding();
 
-    bytes16 buildingType = EntityType.get(building);
-    bytes32[] memory inputs = StakeSpecs.getInputs(buildingType);
-    _stakeInputs(inputs, building, host);
+    bytes16 outputType = StakingInfo.getOutputType(stakingId);
+    bytes32[] memory inputs = StakeSpecs.getInputs(outputType);
+    _unstakeInputs(inputs, building, host);
 
     StakingInfo.deleteRecord(host);
   }
@@ -39,9 +44,9 @@ library StakeLogic {
     bytes32 stakingId = getStaking(host, building);
     if (StakingInfo.getBuilding(stakingId) != building) revert Errors.HasNoStakeInBuilding();
 
+    bytes16 outputType = StakingInfo.getOutputType(stakingId);
     if (!canClaim(host, building)) return;
-    bytes16 buildingType = EntityType.get(building);
-    bytes32[] memory outputs = StakeSpecs.getOutputs(buildingType);
+    bytes32[] memory outputs = StakeSpecs.getOutputs(outputType);
 
     AwardLogic._mintAwards(outputs, host);
     StakingInfo.setLastUpdated(host, uint40(block.timestamp));
@@ -54,13 +59,13 @@ library StakeLogic {
     bytes32 stakingId = getStaking(host, building);
     if (StakingInfo.getBuilding(stakingId) != building) revert Errors.HasNoStakeInBuilding();
 
-    bytes16 buildingType = EntityType.get(building);
-    if (canClaim(host, building)) {
-      bytes32[] memory outputs = StakeSpecs.getOutputs(buildingType);
+    bytes16 outputType = StakingInfo.getOutputType(stakingId);
+    if (!canClaim(host, building)) {
+      bytes32[] memory outputs = StakeSpecs.getOutputs(outputType);
       AwardLogic._mintAwards(outputs, host);
     }
 
-    bytes32[] memory inputs = StakeSpecs.getInputs(buildingType);
+    bytes32[] memory inputs = StakeSpecs.getInputs(outputType);
     _unstakeInputs(inputs, building, host);
 
     StakingInfo.deleteRecord(host);
@@ -69,7 +74,8 @@ library StakeLogic {
   function canClaim(bytes32 host, bytes32 building) internal view returns (bool) {
     bytes32 stakingId = getStaking(host, building);
     uint40 lastUpdated = StakingInfo.getLastUpdated(stakingId);
-    return lastUpdated != 0 && lastUpdated + StakeSpecs.getTimeCost(EntityType.get(building)) <= block.timestamp;
+    bytes16 outputType = StakingInfo.getOutputType(stakingId);
+    return lastUpdated != 0 && lastUpdated + StakeSpecs.getTimeCost(outputType) <= block.timestamp;
   }
 
   /**

@@ -220,15 +220,16 @@ export default defineWorld({
       },
       key: ["interactType"],
     },
-    // buildingType ->
+    // outputType ->
     StakeSpecs: {
       schema: {
+        outputType: "bytes16",
         buildingType: "bytes16",
         timeCost: "uint40",
         inputs: "bytes32[]",
         outputs: "bytes32[]",
       },
-      key: ["buildingType"],
+      key: ["outputType"],
     },
     // can use LastUpdated & custodian hash to ensure staking info
     // but create this table to make clientside easier to query
@@ -237,6 +238,9 @@ export default defineWorld({
         stakingId: "bytes32",
         role: "bytes32",
         building: "bytes32",
+        // outputType is recorded so that we can check for its timeCost
+        // alternatively, player needs to put in outputType
+        outputType: "bytes16",
         lastUpdated: "uint40",
       },
       key: ["stakingId"],

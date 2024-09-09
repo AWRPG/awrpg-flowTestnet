@@ -80,4 +80,6 @@ contract Errors is System {
   // staking
   error WrongBuildingTypeToStake();
   error HasNoStakeInBuilding();
+  error AlreadyHasStaking();
+
 }
