@@ -82,4 +82,8 @@ contract Errors is System {
   error HasNoStakeInBuilding();
   error AlreadyHasStaking();
 
+  // cooking
+  error WrongBuildingTypeToCook();
+  error HasNoCookingInBuilding();
+  error AlreadyHasCooking();
 }

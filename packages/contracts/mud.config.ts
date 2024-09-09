@@ -245,6 +245,27 @@ export default defineWorld({
       },
       key: ["stakingId"],
     },
+    // outputType ->
+    CookSpecs: {
+      schema: {
+        outputType: "bytes16",
+        buildingType: "bytes16",
+        timeCost: "uint40",
+        inputs: "bytes32[]",
+        outputs: "bytes32[]",
+      },
+      key: ["outputType"],
+    },
+    CookingInfo: {
+      schema: {
+        cookingId: "bytes32",
+        role: "bytes32",
+        building: "bytes32",
+        outputType: "bytes16",
+        lastUpdated: "uint40",
+      },
+      key: ["cookingId"],
+    },
     // destroyable: building, host, terrain
     // Destroy stuff, award erc20s or erc721
   },

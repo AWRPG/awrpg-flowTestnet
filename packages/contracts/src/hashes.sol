@@ -18,6 +18,10 @@ function getStaking(bytes32 host, bytes32 building) pure returns (bytes32) {
   return keccak256(abi.encode(host, building, STAKING));
 }
 
+function getCooking(bytes32 host, bytes32 building) pure returns (bytes32) {
+  return keccak256(abi.encode(host, building, COOKING));
+}
+
 // // food, material, pool stuff
 // function getStorage(bytes32 host, bytes16 erc20Type) pure returns (bytes32) {
 // 	return keccak256(abi.encode(host, erc20Type));

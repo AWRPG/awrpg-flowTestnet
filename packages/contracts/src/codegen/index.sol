@@ -39,3 +39,5 @@ import { InteractCosts } from "./tables/InteractCosts.sol";
 import { InteractAwards } from "./tables/InteractAwards.sol";
 import { StakeSpecs, StakeSpecsData } from "./tables/StakeSpecs.sol";
 import { StakingInfo, StakingInfoData } from "./tables/StakingInfo.sol";
+import { CookSpecs, CookSpecsData } from "./tables/CookSpecs.sol";
+import { CookingInfo, CookingInfoData } from "./tables/CookingInfo.sol";
