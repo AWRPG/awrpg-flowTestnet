@@ -56,4 +56,8 @@ interface IErrors {
   error NotInDropContainer();
   error WrongBuildingTypeToStake();
   error HasNoStakeInBuilding();
+  error AlreadyHasStaking();
+  error WrongBuildingTypeToCook();
+  error HasNoCookingInBuilding();
+  error AlreadyHasCooking();
 }
