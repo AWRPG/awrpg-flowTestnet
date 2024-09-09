@@ -21,9 +21,9 @@ export class UIScene extends Phaser.Scene {
   height: number = 720;
 
   /**
-   * the UI Component which is focused on now
+   * the UI Components which is focused on
    */
-  focusUI: UIManager | undefined;
+  focusUI: UIManager[] = [];
 
   /**
    * show the information of current host
