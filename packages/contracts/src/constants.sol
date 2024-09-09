@@ -65,6 +65,8 @@ bytes16 constant MOUNTAIN = bytes16("MOUNTAIN");
 // building
 bytes16 constant MINER = bytes16("MINER");
 bytes16 constant CUSTODIAN = bytes16("CUSTODIAN");
+bytes16 constant CAULDRON = bytes16("CAULDRON");
+bytes16 constant FIELD = bytes16("FIELD");
 
 // mining
 // larger PERLIN_DENOM means more sparsely distributed
@@ -92,6 +94,9 @@ bytes16 constant RING_MAIL = bytes16("RING_MAIL");
 
 // staking
 bytes16 constant STAKING = bytes16("STAKING");
+
+// cooking
+bytes16 constant COOKING = bytes16("COOKING");
 
 function space() view returns (bytes32) {
   return TypeCast.toBytes32(StoreSwitch.getStoreAddress());
