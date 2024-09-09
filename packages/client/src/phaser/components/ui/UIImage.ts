@@ -2,13 +2,13 @@ import { UIScene } from "../../scenes/UIScene";
 import { UIBase } from "./UIBase";
 import { ALIGNMODES } from "../../../constants";
 
-export class UIAvatar extends UIBase {
-  avatar: Phaser.GameObjects.Sprite;
+export class UIImage extends UIBase {
+  image: Phaser.GameObjects.Image;
   constructor(
     scene: UIScene,
     texture: string,
-    width: number = 128,
-    height: number = 128,
+    width: number = 96,
+    height: number = 96,
     {
       alignModeName = ALIGNMODES.NONE,
       marginX = 0,
@@ -29,14 +29,13 @@ export class UIAvatar extends UIBase {
       parent,
     });
 
-    this.avatar = new Phaser.GameObjects.Sprite(scene, 0, 0, texture).setOrigin(
+    this.image = new Phaser.GameObjects.Image(
+      scene,
       0,
-      0
-    );
-    const scaleValueX = this.width / this.avatar.width;
-    const scaleValueY = this.height / this.avatar.height;
-    this.avatar.setScale(scaleValueX, scaleValueY);
-    this.avatar.setFlipX(true);
-    this.root.add(this.avatar);
+      0,
+      texture,
+      undefined
+    ).setOrigin(0, 0);
+    this.root.add(this.image);
   }
 }

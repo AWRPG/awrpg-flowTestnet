@@ -1,14 +1,12 @@
 import { UIScene } from "../scenes/UIScene";
+import { UIManager } from "./UIManager";
 import { Box } from "../components/ui/Box";
 import { UIAvatar } from "../components/ui/UIAvatar";
 import { UIText } from "../components/ui/UIText";
 import { Bar } from "../components/ui/Bar";
 import { ALIGNMODES } from "../../constants";
 
-export class CharacterInfo {
-  scene: UIScene;
-
-  characterBox: Box;
+export class CharacterInfo extends UIManager {
   avatar: UIAvatar;
   characterName: UIText;
 
@@ -27,133 +25,94 @@ export class CharacterInfo {
   maxSp: number = 1;
 
   constructor(scene: UIScene) {
-    this.scene = scene;
-
-    this.characterBox = new Box(
-      this.scene,
-      "ui-box",
-      ALIGNMODES.LEFT_BOTTOM,
-      680,
-      192,
-      8,
-      8
+    super(
+      scene,
+      new Box(scene, "ui-box", 680, 192, {
+        alignModeName: ALIGNMODES.LEFT_BOTTOM,
+        marginX: 8,
+        marginY: 8,
+      })
     );
+    this.setData("hp", 1);
+    this.setData("sp", 1);
 
-    this.hidden();
+    this.avatar = new UIAvatar(this.scene, "avatar-farmer-1-1", 256, 256, {
+      alignModeName: ALIGNMODES.LEFT_BOTTOM,
+      marginX: 1,
+      marginY: 1,
+      parent: this.rootUI,
+    });
 
-    this.avatar = new UIAvatar(
-      this.scene,
-      "avatar-farmer-1-1",
-      ALIGNMODES.LEFT_BOTTOM,
-      256,
-      256,
-      1,
-      1,
-      this.characterBox
-    );
+    this.characterName = new UIText(this.scene, "Brief Kandle", {
+      alignModeName: ALIGNMODES.LEFT_TOP,
+      marginX: 268,
+      marginY: 12,
+      fontSize: 36,
+      parent: this.rootUI,
+    });
 
-    this.characterName = new UIText(
-      this.scene,
-      "Brief Kandle",
-      ALIGNMODES.LEFT_TOP,
-      268,
-      12,
-      {
-        fontSize: 36,
-      },
-      this.characterBox
-    );
+    this.hpBar = new Bar(this.scene, "bar_red", "bar_empty", 358, 30, {
+      alignModeName: ALIGNMODES.LEFT_TOP,
+      marginX: 268,
+      marginY: 78,
+      parent: this.rootUI,
+      value: this.hp,
+      maxValue: this.maxHp,
+    });
 
-    this.hpBar = new Bar(
-      this.scene,
-      "bar_red",
-      "bar_empty",
-      ALIGNMODES.LEFT_TOP,
-      358,
-      30,
-      268,
-      48,
-      {
-        value: this.hp,
-        maxValue: this.maxHp,
-      },
-      this.characterBox
-    );
+    this.hpName = new UIText(this.scene, "HP", {
+      alignModeName: ALIGNMODES.LEFT_TOP,
+      marginX: 4,
+      marginY: -20,
+      parent: this.hpBar,
+      fontSize: 16,
+      fontFamily: "'Roboto Mono'",
+    });
 
-    this.hpName = new UIText(
-      this.scene,
-      "HP",
-      ALIGNMODES.LEFT_TOP,
-      4,
-      -20,
-      {
-        fontSize: 16,
-        fontFamily: "'Roboto Mono'",
-      },
-      this.hpBar
-    );
+    this.hpNum = new UIText(this.scene, this.hp + " / " + this.maxHp, {
+      alignModeName: ALIGNMODES.RIGHT_TOP,
+      marginX: 4,
+      marginY: -20,
+      parent: this.hpBar,
+      fontSize: 16,
+      fontFamily: "'Roboto Mono'",
+    });
 
-    this.hpNum = new UIText(
-      this.scene,
-      this.hp + " / " + this.maxHp,
-      ALIGNMODES.RIGHT_TOP,
-      4,
-      -20,
-      {
-        fontSize: 16,
-        fontFamily: "'Roboto Mono'",
-      },
-      this.hpBar
-    );
+    this.spBar = new Bar(this.scene, "bar_yellow", "bar_empty", 358, 30, {
+      alignModeName: ALIGNMODES.LEFT_TOP,
+      marginX: 268,
+      marginY: 140,
+      parent: this.rootUI,
+      value: this.sp,
+      maxValue: this.maxSp,
+    });
 
-    this.spBar = new Bar(
-      this.scene,
-      "bar_yellow",
-      "bar_empty",
-      ALIGNMODES.LEFT_TOP,
-      358,
-      30,
-      268,
-      110,
-      {
-        value: this.sp,
-        maxValue: this.maxSp,
-      },
-      this.characterBox
-    );
+    this.spName = new UIText(this.scene, "SP", {
+      alignModeName: ALIGNMODES.LEFT_TOP,
+      marginX: 4,
+      marginY: -20,
+      parent: this.spBar,
+      fontSize: 16,
+      fontFamily: "'Roboto Mono'",
+    });
 
-    this.spName = new UIText(
-      this.scene,
-      "SP",
-      ALIGNMODES.LEFT_TOP,
-      4,
-      -20,
-      {
-        fontSize: 16,
-        fontFamily: "'Roboto Mono'",
-      },
-      this.spBar
-    );
-
-    this.spNum = new UIText(
-      this.scene,
-      this.sp + " / " + this.maxSp,
-      ALIGNMODES.RIGHT_TOP,
-      4,
-      -20,
-      {
-        fontSize: 16,
-        fontFamily: "'Roboto Mono'",
-      },
-      this.spBar
-    );
+    this.spNum = new UIText(this.scene, this.sp + " / " + this.maxSp, {
+      alignModeName: ALIGNMODES.RIGHT_TOP,
+      marginX: 4,
+      marginY: -20,
+      parent: this.spBar,
+      fontSize: 16,
+      fontFamily: "'Roboto Mono'",
+    });
   }
 
-  show() {
-    this.characterBox.root.setVisible(true);
-  }
-
-  hidden() {
-    this.characterBox.root.setVisible(false);
+  onDataChanged(parent: unknown, key: string, data: unknown) {
+    switch (key) {
+      case "hp":
+        this.hpNum.setText(data as string);
+        break;
+      case "sp":
+        this.spNum.setText(data as string);
+    }
   }
 }

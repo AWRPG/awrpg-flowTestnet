@@ -44,24 +44,18 @@ export class TileHighlight extends SceneObject {
     entity: Entity,
     components: ClientComponents,
     scene: GameScene,
-    { canControl }: { canControl: boolean }
+    { canControl, alpha = 1 }: { canControl: boolean; alpha?: number }
   ) {
     super(entity, components, scene);
 
     // Set the center position to root
-    const path = getComponentValue(components.Path, entity) ?? {
-      toX: 0,
-      toY: 0,
-    };
+    const path = getComponentValue(components.Path, entity) ?? null;
+    if (!path) return;
     this.tileX = path.toX;
     this.tileY = path.toY;
-    this.root
-      .setPosition(
-        (this.tileX + 0.5) * this.tileSize,
-        (this.tileY + 0.5) * this.tileSize
-      )
-      .setAlpha(1)
-      .setDepth(12);
+    this.x = (this.tileX + 0.5) * this.tileSize;
+    this.y = (this.tileY + 0.5) * this.tileSize;
+    this.root.setPosition(this.x, this.y).setAlpha(alpha).setDepth(12);
 
     // Get the type of highlight
     if (canControl) {

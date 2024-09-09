@@ -73,6 +73,16 @@ export class SceneObject {
   root: Phaser.GameObjects.Container;
 
   /**
+   * Other scene objects can be added to the root of this object
+   */
+  accessories: Record<Entity, Phaser.GameObjects.Container> = {};
+
+  /**
+   * the tween of move to effect
+   */
+  moveTween: Phaser.Tweens.Tween | Phaser.Tweens.TweenChain | undefined;
+
+  /**
    * @param entity the scene object's entity
    * @param components the world's components
    * @param scene the scene belong
@@ -85,11 +95,77 @@ export class SceneObject {
     this.root = this.scene.add.container(0, 0);
   }
 
+  /**
+   * Tween effect to target coordinates
+   * @param toX
+   * @param toY
+   */
+  moveAnimation(
+    toX: number,
+    toY: number,
+    duration: number = 75,
+    onComplete?: () => void
+  ) {
+    if (this.moveTween) {
+      this.moveTween.destroy();
+      this.x = this.root.x;
+      this.y = this.root.y;
+      this.moveTween = undefined;
+    }
+    this.moveTween = this.scene.tweens.add({
+      targets: this.root,
+      x: toX,
+      y: toY,
+      duration: duration,
+      onComplete: () => {
+        this.x = toX;
+        this.y = toY;
+        if (onComplete) onComplete();
+      },
+    });
+  }
+
   follow() {
     this.scene.cameras.main.startFollow(this.root, true);
   }
 
   unfollow() {
     this.scene.cameras.main.startFollow(this.root, false);
+  }
+
+  setTilePosition(x: number, y: number) {
+    this.tileX = x;
+    this.tileY = y;
+    this.x = (this.tileX + 0.5) * this.tileSize;
+    this.y = (this.tileY + 0.5) * this.tileSize;
+    this.root.setPosition(this.x, this.y);
+  }
+
+  /**
+   *
+   * @param entity
+   * @param type
+   */
+  setAccessory(entity: Entity, type: string) {
+    if (this.accessories[entity]) {
+      this.root.remove(this.accessories[entity], true);
+    }
+    let sceneObj;
+    if (type === "role") {
+      sceneObj = this.scene.hosts[entity];
+      sceneObj.doWalkAnimation();
+    } else if (type === "building") sceneObj = this.scene.buildings[entity];
+    else return;
+    const forkObjRoot = Phaser.Utils.Objects.Clone(
+      sceneObj.root
+    ) as Phaser.GameObjects.Container;
+    this.accessories[entity] = forkObjRoot.setPosition(0, 0).setAlpha(1);
+    this.root.add(this.accessories[entity]);
+  }
+
+  clearAccessory(entity: Entity) {
+    if (this.accessories[entity]) {
+      this.root.remove(this.accessories[entity]);
+    }
   }
 }

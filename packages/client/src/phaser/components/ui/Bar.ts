@@ -1,42 +1,48 @@
 import { UIScene } from "../../scenes/UIScene";
 import { UIBase } from "./UIBase";
+import { ALIGNMODES } from "../../../constants";
 
+/**
+ * Graphical display of numerical percentages such as blood bars, stamina slots
+ */
 export class Bar extends UIBase {
-  textureEmpty: string;
+  emptyTexture: string;
 
   bar: Phaser.GameObjects.Sprite;
 
-  empty: Phaser.GameObjects.Sprite;
+  // empty: Phaser.GameObjects.Sprite; //[TODO]
 
   constructor(
     scene: UIScene,
     texture: string,
-    textureEmpty: string,
-    alignModeName: string,
+    emptyTexture: string,
     width: number = 192,
     height: number = 20,
-    marginX: number = 0,
-    marginY: number = 0,
     {
+      alignModeName = ALIGNMODES.NONE,
       value = 1,
       maxValue = 1,
+      marginX = 0,
+      marginY = 0,
+      parent,
     }: {
+      alignModeName?: string;
+      marginX?: number;
+      marginY?: number;
+      parent?: UIBase;
       value?: number;
       maxValue?: number;
-    },
-    parent?: UIBase
+    }
   ) {
-    super(
-      scene,
+    super(scene, width, height, {
       texture,
       alignModeName,
-      width,
-      height,
       marginX,
       marginY,
-      parent
-    );
-    this.textureEmpty = textureEmpty;
+      parent,
+    });
+
+    this.emptyTexture = emptyTexture;
     this.bar = new Phaser.GameObjects.Sprite(scene, 0, 0, texture).setOrigin(
       0,
       0
@@ -50,5 +56,4 @@ export class Bar extends UIBase {
 
     // this.bar.on("changedata", this.onDataChanged);
   }
-
 }

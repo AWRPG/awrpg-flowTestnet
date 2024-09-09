@@ -69,6 +69,7 @@ import { PlayerController } from "../components/controllers/PlayerController";
 import { getHostPosition } from "../../logics/path";
 import { isDropContainer, splitDropContainer } from "../../logics/drop";
 import { Drop } from "../objects/Drop";
+import { Cursor } from "../objects/Cursor";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -101,6 +102,8 @@ export class GameScene extends Phaser.Scene {
   }[] = [];
 
   playController: PlayerController | undefined;
+
+  cursor: Cursor | undefined;
 
   constructor(
     setupResult: SetupResult,
@@ -188,6 +191,7 @@ export class GameScene extends Phaser.Scene {
     camera.setZoom(3);
     this.createAnimations();
     this.playController = new PlayerController(this, this.components);
+    this.cursor = new Cursor(TARGET, this, this.components);
 
     /**
      * load/unload tile sprites on map; TileValue is a client component that is updated when character moves, which is handled by useSyncComputedComponents
@@ -233,14 +237,10 @@ export class GameScene extends Phaser.Scene {
       const currTileId = getComponentValue(TargetTile, entity)?.value;
       if (!currTileId) return;
       this.selectedTiles[entity] = currTileId;
-      this.tiles[currTileId]?.select();
+      const tile = this.tiles[currTileId];
+      this.cursor?.moveAnimation(tile.x, tile.y);
+      // this.tiles[currTileId]?.select();
       // const pathCoords = calculatePathCoords(this.components, entity);
-
-      for (const [entityId, tileId] of Object.entries(this.selectedTiles)) {
-        if (entityId !== entity) {
-          this.tiles[tileId]?.silentSelect();
-        }
-      }
     });
 
     /**
@@ -468,7 +468,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   sourceSelectHandler(entity: Entity) {
-    console.log("未使用！！！！！！！！！！！！！！！！！！！！！1");
     const { SelectedHost } = this.components;
     if (getComponentValue(SelectedHost, SOURCE)?.value === entity) {
       removeComponent(SelectedHost, SOURCE);
