@@ -21,6 +21,7 @@ function initializeTypes() {
   initERC20BurnAwards();
   initWeaponTypes();
   initCookTypes();
+  initStakeTypes();
 }
 
 function initCookTypes() {
@@ -43,6 +44,15 @@ function initStakeTypes() {
       timeCost: 60,
       inputs: compileTwoTypes(STAMINA, BERRY, 10, 1),
       outputs: compileTwoTypes(WOOD, BERRY, 10, 20)
+    })
+  );
+  DefineTypes.defineStake(
+    MEAT,
+    StakeSpecsData({
+      buildingType: FIELD,
+      timeCost: 60,
+      inputs: compileTwoTypes(STAMINA, RED, 10, 1),
+      outputs: compileTwoTypes(WOOD, MEAT, 10, 20)
     })
   );
 }
@@ -109,7 +119,7 @@ function initBuildingTypes() {
   );
   DefineTypes.defineBuilding(
     FIELD,
-    BuildingSpecsData({ width: 1, height: 3, canMove: true, terrainType: PLAIN }),
+    BuildingSpecsData({ width: 3, height: 1, canMove: true, terrainType: PLAIN }),
     1000 * 5,
     compileTwoTypes(STAMINA, WOOD, 0, 0),
     compileOneType(STAMINA, 100),
