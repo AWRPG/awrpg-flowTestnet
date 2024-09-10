@@ -14,10 +14,51 @@ import { getEntitySpecs, getTopHost } from "./entity";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { getTerrainEntityType, getTerrainType } from "./terrain";
 import { getCoordId } from "./map";
-import { getHostPosition, getPathEntityPosition } from "./path";
+import {
+  getHostPosition,
+  getPathEntityPosition,
+  getTileEntityPositions,
+} from "./path";
 import { getFourCoords, splitFromEntity } from "./move";
 import { adjacent } from "./position";
 import { SetupNetworkResult } from "../mud/setupNetwork";
+import { canStoreERC721 } from "./container";
+
+export const roleAndHostWithinRange = (
+  components: ClientComponents,
+  role: Entity,
+  host: Entity,
+  range?: number
+) => {
+  range = range ?? 1;
+  const coord = getRoleAndHostAdjacentCoord(components, role, host);
+  if (!coord) return false;
+  return true;
+};
+
+export const getRoleAndHostAdjacentCoord = (
+  components: ClientComponents,
+  role: Entity,
+  host: Entity
+) => {
+  const rolePosition = getPathEntityPosition(components, role);
+  const hostPositions = getTileEntityPositions(components, host);
+  if (!rolePosition || !hostPositions) return;
+  return hostPositions.find((hostPosition) =>
+    adjacent(rolePosition, hostPosition)
+  );
+};
+
+// check if building can store role, which means if role can enter building
+export const canRoleEnter = (
+  components: ClientComponents,
+  role: Entity,
+  building: Entity
+) => {
+  const roleType = getComponentValue(components.EntityType, role)?.value;
+  const entityType = encodeTypeEntity(roleType as Hex) as Entity;
+  return canStoreERC721(components, entityType, building);
+};
 
 // return an building coord that is adjacent (range=1) to a tile coord;
 // so that player can call exitBuilding()

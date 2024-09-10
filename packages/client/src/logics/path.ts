@@ -104,6 +104,17 @@ export const getTileEntityPosition = (
   return splitFromEntity(tileId);
 };
 
+export const getTileEntityPositions = (
+  components: ClientComponents,
+  tileEntity: Entity
+) => {
+  const tileIds = [
+    ...runQuery([HasValue(components.TileEntity, { value: tileEntity })]),
+  ];
+  if (!tileIds.length) return;
+  return tileIds.map((tileId) => splitFromEntity(tileId));
+};
+
 // // only top host can be tile entity
 // export const getTopTileEntity = (
 //   components: ClientComponents,

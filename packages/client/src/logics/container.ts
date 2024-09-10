@@ -49,7 +49,8 @@ export function canIncreaseStoredSize(
   const { ContainerSpecs, StoredSize } = components;
   const storedSize = getComponentValue(StoredSize, store)?.value ?? 0n;
   const capacity = getEntitySpecs(components, ContainerSpecs, store)?.capacity;
-  return capacity && capacity >= storedSize + increaseSize;
+  if (!capacity) return false;
+  return capacity >= storedSize + increaseSize;
 }
 
 // generalized (including pool) canStoreERC20Amount
