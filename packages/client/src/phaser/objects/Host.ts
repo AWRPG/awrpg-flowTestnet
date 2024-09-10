@@ -156,7 +156,7 @@ export class Host extends SceneObject {
   // triggered whenever Moves component is updated
   movesUpdate(): boolean {
     const moves = calculatePathMoves(this.components, this.entity);
-    if (!moves || moves.length === 0) return false;
+    if (!moves || moves.length === 0 || moves.length > 20) return false;
     this.scene.systemCalls.move(this.entity as Hex, moves as number[]);
     this.isMoving = true;
     this.movesAnimation(moves);
@@ -186,6 +186,8 @@ export class Host extends SceneObject {
   }
 
   destroy() {
+    this.scene.tileHighlights[this.entity]?.hide();
+    delete this.scene.tileHighlights[this.entity];
     this.moveTween?.destroy();
     this.avatar.destroy();
   }

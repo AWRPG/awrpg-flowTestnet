@@ -1,7 +1,9 @@
 import { ClientComponents } from "../../mud/createClientComponents";
-import { Entity, getComponentValue } from "@latticexyz/recs";
+import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
 import { GameScene } from "../scenes/GameScene";
-import { Direction } from "../../logics/move";
+import { combineToEntity, Direction } from "../../logics/move";
+import { getHostPosition } from "../../logics/path";
+import { TARGET } from "../../constants";
 
 /**
  * The object perpare to scene
@@ -171,5 +173,11 @@ export class SceneObject {
     if (this.accessories[entity]) {
       this.root.remove(this.accessories[entity]);
     }
+    this.scene.hosts[entity].root.setAlpha(1);
+    const coord = getHostPosition(this.components, this.scene.network, entity);
+    if (!coord) return;
+    setComponent(this.components.TargetTile, TARGET, {
+      value: combineToEntity(coord.x, coord.y),
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Vector, getRectangleCoords } from "../../utils/vector";
+import { getRectangleCoords } from "../../utils/vector";
 import { SceneObject } from "./SceneObject";
 import { Entity, getComponentValue } from "@latticexyz/recs";
 import { ClientComponents } from "../../mud/createClientComponents";
@@ -10,7 +10,6 @@ import {
 } from "../../logics/terrain";
 import { combineToEntity } from "../../logics/move";
 import { HIGHLIGHT_MODE, TerrainType } from "../../constants";
-import { dijkstraPathfinding } from "../../utils/pathFinding";
 
 export class TileHighlight extends SceneObject {
   /**
@@ -45,13 +44,14 @@ export class TileHighlight extends SceneObject {
 
   async calcHighlight() {
     if (this.highlightData && this.highlightData.length > 0) return;
-    console.log("calcHighlight");
     if (this.mode === HIGHLIGHT_MODE.MOVE) {
-      const distance = 20; // Get the distance from entity
+      // Get the distance from entity
+      const distance = 20;
+      // Get the datas of square area by left-top & right-bottom points
       const leftTopGridCoord = {
         x: Math.floor((this.tileX - distance) / GRID_SIZE),
         y: Math.floor((this.tileY - distance) / GRID_SIZE),
-      }; // Get the datas of square area by left-top & right-bottom points
+      };
       const rightBottomGridCoord = {
         x: Math.floor((this.tileX + distance) / GRID_SIZE),
         y: Math.floor((this.tileY + distance) / GRID_SIZE),

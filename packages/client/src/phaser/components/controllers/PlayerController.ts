@@ -117,14 +117,12 @@ export class PlayerController {
         // Player role
         if (entityObj.isPlayer) {
           if (entityObj.isMoving) return;
-          this.preloadTileHighlight(entity);
           this.uiScene.characterInfo?.show(false);
           this.movable = false;
           this.uiScene.actionMenu?.show();
         }
         // Other Role
         else {
-          this.preloadTileHighlight(entity);
           this.uiScene.characterInfo?.show(false);
         }
       }
@@ -230,16 +228,6 @@ export class PlayerController {
             if (this.moveEntity) {
               this.closeTileHighlight(this.moveEntity);
               this.scene.cursor?.clearAccessory(this.moveEntity);
-              this.scene.hosts[this.moveEntity].root.setAlpha(1);
-              const coord = getHostPosition(
-                this.components,
-                this.scene.network,
-                this.moveEntity
-              );
-              if (!coord) return;
-              setComponent(TargetTile, TARGET, {
-                value: combineToEntity(coord.x, coord.y),
-              });
               this.moveEntity = undefined;
             }
         }
@@ -288,23 +276,18 @@ export class PlayerController {
       return true;
   }
 
-  preloadTileHighlight(target: Entity) {
+  /**
+   * Open the tile highlight of a role
+   */
+  openTileHighlight(target: Entity, alpha: number = 1) {
     if (!this.scene.tileHighlights[target]) {
       this.scene.tileHighlights[target] = new TileHighlight(
         target,
         this.components,
         this.scene
       );
+      this.scene.tileHighlights[target].calcHighlight();
     }
-    this.scene.tileHighlights[target].calcHighlight();
-    console.log("kakaka");
-  }
-
-  /**
-   * Open the tile highlight of a role
-   */
-  openTileHighlight(target: Entity, alpha: number = 1) {
-    this.preloadTileHighlight(target);
     this.scene.tileHighlights[target].show(alpha);
   }
 
