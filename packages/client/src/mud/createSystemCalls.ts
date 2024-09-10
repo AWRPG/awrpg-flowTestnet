@@ -261,6 +261,26 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const stake = async (role: Hex, stakeType: Hex, coord: Vector) => {
+    const tx = await worldContract.write.stake([
+      role,
+      stakeType,
+      coord.x,
+      coord.y,
+    ]);
+    await waitForTransaction(tx);
+  };
+
+  const unstake = async (role: Hex, coord: Vector) => {
+    const tx = await worldContract.write.unstake([role, coord.x, coord.y]);
+    await waitForTransaction(tx);
+  };
+
+  const claim = async (role: Hex, coord: Vector) => {
+    const tx = await worldContract.write.claim([role, coord.x, coord.y]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
@@ -283,5 +303,8 @@ export function createSystemCalls(
     pickupERC20,
     dropERC721,
     pickupERC721,
+    stake,
+    unstake,
+    claim,
   };
 }
