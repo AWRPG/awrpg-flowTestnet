@@ -37,7 +37,7 @@ library StakeLogic {
     bytes32[] memory inputs = StakeSpecs.getInputs(outputType);
     _unstakeInputs(inputs, building, host);
 
-    StakingInfo.deleteRecord(host);
+    StakingInfo.deleteRecord(stakingId);
   }
 
   function _claim(bytes32 host, bytes32 building) internal {
@@ -49,7 +49,7 @@ library StakeLogic {
     bytes32[] memory outputs = StakeSpecs.getOutputs(outputType);
 
     AwardLogic._mintAwards(outputs, host);
-    StakingInfo.setLastUpdated(host, uint40(block.timestamp));
+    StakingInfo.setLastUpdated(stakingId, uint40(block.timestamp));
   }
 
   /**
@@ -68,7 +68,7 @@ library StakeLogic {
     bytes32[] memory inputs = StakeSpecs.getInputs(outputType);
     _unstakeInputs(inputs, building, host);
 
-    StakingInfo.deleteRecord(host);
+    StakingInfo.deleteRecord(stakingId);
   }
 
   function canClaim(bytes32 host, bytes32 building) internal view returns (bool) {
