@@ -131,13 +131,28 @@ export class PlayerController {
       // Building
       else if (type === "building") {
         console.log("TODO:Building");
+        this.uiScene.buildingMenu?.show();
+        this.movable = false;
+        this.uiScene.buildingMenu?.update();
       }
       // Miner
       // TODO: actions to miner?
     }
-
+    // else if (
+    //   onMenu &&
+    //   this.uiScene.buildingMenu?.isVisible &&
+    //   ["f", "F"].includes(event.key)
+    // ) {
+    //   console.log("press f");
+    // }
     // Select the action menu
-    else if (onMenu && ["f", "F"].includes(event.key)) {
+    else if (
+      onMenu &&
+      this.uiScene.actionMenu?.isVisible &&
+      ["f", "F"].includes(event.key)
+    ) {
+      console.log("press f, action menu");
+
       const ui = this.uiScene.focusUI[this.uiScene.focusUI.length - 1];
       if (!ui) return;
       if (ui.name === "ActionMenu" && ui.buttons) {
@@ -183,6 +198,13 @@ export class PlayerController {
         this.scene.hosts[this.moveEntity].movesAnimation(moves);
         this.uiScene.moveTips?.hidden();
       }
+    } else if (this.uiScene.isFocusOn() && ["f", "F"].includes(event.key)) {
+      const uiScene = this.uiScene;
+      const ui = this.uiScene.focusUI.at(-1);
+      if (!ui?.buttons) return;
+      ui.buttons[ui.currentButtonIndex]?.onClick();
+      // buttons; index
+      // buttons[index].onClick();
     }
 
     // Show/hide terrain UI
@@ -204,6 +226,8 @@ export class PlayerController {
         removeComponent(ConsoleMessage, SOURCE);
         setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       } else {
+        this.uiScene.focusUI[this.uiScene.focusUI.length - 1]?.backButton();
+        this.movable = true;
         removeComponent(SelectedEntity, MENU);
         switch (this.uiScene.focusUI.pop()) {
           case this.uiScene.actionMenu:
