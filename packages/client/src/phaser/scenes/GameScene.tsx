@@ -397,8 +397,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   loadBuilding(tileId: Entity, building: Entity) {
-    this.buildings[tileId]?.destroy();
-    this.buildings[tileId] = new Building(this, this.components, {
+    this.buildings[building]?.destroy();
+    this.buildings[building] = new Building(this, this.components, {
       tileId,
       entity: building,
       onClick: () => this.sourceSelectHandler(building),

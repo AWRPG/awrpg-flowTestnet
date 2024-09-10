@@ -15,12 +15,12 @@ import {
   TARGET,
   terrainMapping,
   UI_NAME,
+  HIGHLIGHT_MODE,
 } from "../../../constants";
 import {
   setNewTargetTile,
   KEY_TO_DIRECTION,
   combineToEntity,
-  calculatePathMoves,
 } from "../../../logics/move";
 import { TileHighlight } from "../../objects/TileHighlight";
 import {
@@ -147,7 +147,6 @@ export class PlayerController {
             this.movable = true;
             this.uiScene.actionMenu?.hidden(false);
             this.openTileHighlight(entity);
-            this.uiScene.characterInfo?.show(false);
             this.moveEntity = entity;
             this.scene.hosts[entity].root.setAlpha(0.5);
             this.scene.cursor?.setAccessory(entity, "role"); // Bundle hostObj to cursor
@@ -159,8 +158,6 @@ export class PlayerController {
             this.movable = false;
             this.moveEntity = undefined;
             this.uiScene.actionMenu?.hidden(false);
-            // [TODO: open build hightlight]
-            // [TODO: open buildMenu]
             this.uiScene.buildMenu?.show();
             break;
           case "Change Terrain": // Change terrains
@@ -182,13 +179,27 @@ export class PlayerController {
       }
       // Build Menu
       else if (ui.name === UI_NAME.BUILD_MENU) {
-        if (!ui.buttons) return;
+        if (!ui.buttons || !entity) return;
+        this.movable = true;
         this.uiScene.buildMenu?.hidden(false);
-
-        const actionName = ui.buttons[ui.currentButtonIndex].name;
-        switch (actionName) {
+        this.uiScene.buildTips?.show();
+        const buildName = ui.buttons[ui.currentButtonIndex].name;
+        switch (buildName) {
           case "Safe":
+            this.openTileHighlight(entity, 1, HIGHLIGHT_MODE.BUILD, 1, 2, 2);
+            this.moveEntity = entity;
             break;
+        }
+      }
+      // Build Tips
+      else if (ui.name === UI_NAME.BUILD_TIPS) {
+        if (!this.moveEntity || !this.scene.cursor) return;
+        if (this.scene.hosts[this.moveEntity]) {
+          this.closeTileHighlight(this.moveEntity);
+          this.uiScene.characterInfo?.hidden();
+          this.scene.cursor.clearAccessory(this.moveEntity);
+          this.uiScene.buildTips?.hidden();
+          console.log("Build Complete!");
         }
       }
     }
@@ -220,6 +231,10 @@ export class PlayerController {
             break;
           case this.uiScene.buildMenu: // Close Build Menu
             this.uiScene.buildMenu?.hidden();
+            this.openFocusUI();
+            break;
+          case this.uiScene.buildTips: // Close Build Tips
+            this.uiScene.buildTips?.hidden();
           /* falls through */
           case this.uiScene.moveTips: // Close Move Tips
             this.uiScene.moveTips?.hidden();
@@ -279,15 +294,30 @@ export class PlayerController {
   /**
    * Open the tile highlight of a role
    */
-  openTileHighlight(target: Entity, alpha: number = 1) {
-    if (!this.scene.tileHighlights[target]) {
-      this.scene.tileHighlights[target] = new TileHighlight(
-        target,
-        this.components,
-        this.scene
-      );
-      this.scene.tileHighlights[target].calcHighlight();
+  openTileHighlight(
+    target: Entity,
+    alpha: number = 1,
+    mode?: string,
+    distance?: number,
+    width?: number,
+    height?: number
+  ) {
+    if (this.scene.tileHighlights[target]) {
+      this.closeTileHighlight(target);
+      delete this.scene.tileHighlights[target];
     }
+    this.scene.tileHighlights[target] = new TileHighlight(
+      target,
+      this.components,
+      this.scene,
+      mode
+    );
+    this.scene.tileHighlights[target].calcHighlight({
+      distance,
+      width,
+      height,
+    });
+
     this.scene.tileHighlights[target].show(alpha);
   }
 

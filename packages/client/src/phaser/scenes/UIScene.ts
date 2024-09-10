@@ -42,6 +42,7 @@ export class UIScene extends Phaser.Scene {
   actionMenu: ActionMenu | undefined;
 
   moveTips: UIManager | undefined;
+  buildTips: UIManager | undefined;
 
   buildMenu: BuildMenu | undefined;
 
@@ -88,6 +89,8 @@ export class UIScene extends Phaser.Scene {
     this.moveTips = new UIManager(this, new UIBase(this, 0, 0, {}));
     this.moveTips.name = "MoveTips";
     this.buildMenu = new BuildMenu(this);
+    this.buildTips = new UIManager(this, new UIBase(this, 0, 0, {}));
+    this.buildTips.name = "BuildTips";
   }
 
   /**
@@ -98,7 +101,8 @@ export class UIScene extends Phaser.Scene {
     if (
       this.actionMenu?.isVisible ||
       this.moveTips?.isVisible ||
-      this.buildMenu?.isVisible
+      this.buildMenu?.isVisible ||
+      this.buildTips?.isVisible
     )
       return true;
   }

@@ -17,21 +17,23 @@ export class TileHighlight extends SceneObject {
    */
   highlightObjs: Phaser.GameObjects.Sprite[] = [];
 
-  highlightData: { x: number; y: number; distance: number }[] = [];
+  highlightData: { x: number; y: number; distance: number; type?: string }[] =
+    [];
 
   /**
    * distinguish between different types of highlighting ranges
    */
-  mode: string = HIGHLIGHT_MODE.MOVE;
+  mode: string;
 
   /** */
   constructor(
     entity: Entity,
     components: ClientComponents,
     scene: GameScene,
-    mode?: string
+    mode: string = HIGHLIGHT_MODE.MOVE
   ) {
     super(entity, components, scene);
+    this.mode = mode;
     const path = getComponentValue(components.Path, entity) ?? null;
     if (!path) return;
     this.tileX = path.toX;
@@ -42,47 +44,91 @@ export class TileHighlight extends SceneObject {
     this.root.setVisible(false);
   }
 
-  async calcHighlight() {
+  calcHighlight({
+    distance = 20,
+    width = 1,
+    height = 1,
+  }: {
+    distance?: number;
+    width?: number;
+    height?: number;
+  } = {}) {
     if (this.highlightData && this.highlightData.length > 0) return;
     if (this.mode === HIGHLIGHT_MODE.MOVE) {
-      // Get the distance from entity
-      const distance = 20;
-      // Get the datas of square area by left-top & right-bottom points
-      const leftTopGridCoord = {
-        x: Math.floor((this.tileX - distance) / GRID_SIZE),
-        y: Math.floor((this.tileY - distance) / GRID_SIZE),
-      };
-      const rightBottomGridCoord = {
-        x: Math.floor((this.tileX + distance) / GRID_SIZE),
-        y: Math.floor((this.tileY + distance) / GRID_SIZE),
-      };
-      const gridCoords = getRectangleCoords(
-        leftTopGridCoord,
-        rightBottomGridCoord
-      );
-      let terrains: TileTerrainMap[] = [];
-      gridCoords.forEach((coord) => {
-        const gridId = combineToEntity(coord.x, coord.y);
-        terrains = terrains.concat(getGridTerrains(this.components, gridId));
-      });
-      // Check the terrain type
-      const passableTiles: Set<string> = new Set();
-      for (const i in terrains) {
-        if (terrains[i].terrainType === TerrainType.NONE) continue;
-        if (terrains[i].terrainType === TerrainType.OCEAN) continue;
-        if (terrains[i].terrainType === TerrainType.FOREST) continue;
-        if (terrains[i].terrainType === TerrainType.MOUNTAIN) continue;
-        const xTemp = terrains[i].x - this.tileX;
-        const yTemp = terrains[i].y - this.tileY;
-        const distanceTemp = Math.abs(xTemp) + Math.abs(yTemp);
-        if (distanceTemp > distance) continue;
-        passableTiles.add(`${xTemp},${yTemp}`);
-      }
-      // Get the reachable area
-      this.highlightData = this.floodFill(distance, passableTiles);
+      const terrains = this.getTerrains(distance, width, height); // Get terrains by the distance
+      const passableTiles = this.getPassableTiles(terrains, distance);
+      this.highlightData = this.floodFill(distance, passableTiles); // Get the reachable area
     } else if (this.mode === HIGHLIGHT_MODE.BUILD) {
-      //
+      const terrains = this.getTerrains(distance, width, height); // Distance: the side
+      terrains.forEach((terrain) => {
+        const type =
+          terrain.terrainType === TerrainType.NONE ||
+          terrain.terrainType === TerrainType.OCEAN ||
+          terrain.terrainType === TerrainType.FOREST ||
+          terrain.terrainType === TerrainType.MOUNTAIN
+            ? "error"
+            : "build";
+        const xTemp = terrain.x - this.tileX;
+        const yTemp = terrain.y - this.tileY;
+        const distanceTemp = Math.abs(xTemp) + Math.abs(yTemp);
+        if (
+          distanceTemp === 0 ||
+          distance <
+            Math.max(Math.abs(xTemp) - width + 1, 0) +
+              Math.max(Math.abs(yTemp) - height + 1, 0)
+        )
+          return;
+        this.highlightData.push({
+          x: xTemp,
+          y: yTemp,
+          distance: distanceTemp,
+          type,
+        });
+      });
     }
+  }
+
+  getTerrains(
+    distance: number,
+    width: number,
+    height: number
+  ): TileTerrainMap[] {
+    // Get the datas of square area by left-top & right-bottom points
+    const leftTopGridCoord = {
+      x: Math.floor((this.tileX - distance - width + 1) / GRID_SIZE),
+      y: Math.floor((this.tileY - distance - height + 1) / GRID_SIZE),
+    };
+    const rightBottomGridCoord = {
+      x: Math.floor((this.tileX + distance + width - 1) / GRID_SIZE),
+      y: Math.floor((this.tileY + distance + height - 1) / GRID_SIZE),
+    };
+    const gridCoords = getRectangleCoords(
+      leftTopGridCoord,
+      rightBottomGridCoord
+    );
+    let terrains: TileTerrainMap[] = [];
+    gridCoords.forEach((coord) => {
+      const gridId = combineToEntity(coord.x, coord.y);
+      terrains = terrains.concat(getGridTerrains(this.components, gridId));
+    });
+    return terrains;
+  }
+
+  getPassableTiles(terrains: TileTerrainMap[], distance: number): Set<string> {
+    // Check the terrain type
+    const passableTiles: Set<string> = new Set();
+    for (const i in terrains) {
+      if (terrains[i].terrainType === TerrainType.NONE) continue;
+      if (terrains[i].terrainType === TerrainType.OCEAN) continue;
+      if (terrains[i].terrainType === TerrainType.FOREST) continue;
+      if (terrains[i].terrainType === TerrainType.MOUNTAIN) continue;
+      const xTemp = terrains[i].x - this.tileX;
+      const yTemp = terrains[i].y - this.tileY;
+      const distanceTemp = Math.abs(xTemp) + Math.abs(yTemp);
+      if (distanceTemp > distance) continue;
+      passableTiles.add(`${xTemp},${yTemp}`);
+    }
+    return passableTiles;
   }
 
   floodFill(maxDistance: number, passableTiles: Set<string>) {
@@ -116,28 +162,25 @@ export class TileHighlight extends SceneObject {
 
   setHighlight() {
     this.clearHighlight();
-    if (this.mode === HIGHLIGHT_MODE.MOVE) {
-      this.highlightData.forEach((data) => {
-        const highlight = new Phaser.GameObjects.Sprite(
-          this.scene,
-          data.x * this.tileSize,
-          data.y * this.tileSize,
-          "ui-highlight-move"
-        );
-        highlight.setScale(0);
-        this.highlightObjs.push(highlight);
-        this.root.add(highlight);
-        setTimeout(() => {
-          this.scene.tweens.add({
-            targets: highlight,
-            props: { ["scale"]: 1 },
-            duration: 120,
-          });
-        }, data.distance * 80);
-      });
-    } else if (this.mode === HIGHLIGHT_MODE.BUILD) {
-      //
-    }
+    this.highlightData.forEach((data) => {
+      console.log("data.type:", data.type);
+      const highlight = new Phaser.GameObjects.Sprite(
+        this.scene,
+        data.x * this.tileSize,
+        data.y * this.tileSize,
+        "ui-highlight-" + (data.type ?? "move")
+      );
+      highlight.setScale(0);
+      this.highlightObjs.push(highlight);
+      this.root.add(highlight);
+      setTimeout(() => {
+        this.scene.tweens.add({
+          targets: highlight,
+          props: { ["scale"]: 1 },
+          duration: 120,
+        });
+      }, data.distance * 80);
+    });
   }
 
   clearHighlight() {
