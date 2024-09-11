@@ -20,6 +20,41 @@ function initializeTypes() {
   initERC20Sizes();
   initERC20BurnAwards();
   initWeaponTypes();
+  initCookTypes();
+  initStakeTypes();
+}
+
+function initCookTypes() {
+  DefineTypes.defineCook(
+    SWORD,
+    CookSpecsData({
+      buildingType: CAULDRON,
+      timeCost: 60,
+      inputs: compileTwoTypes(STAMINA, BERRY, 10, 10),
+      outputs: compileOneType(SWORD, 0)
+    })
+  );
+}
+
+function initStakeTypes() {
+  DefineTypes.defineStake(
+    WOOD,
+    StakeSpecsData({
+      buildingType: FIELD,
+      timeCost: 60,
+      inputs: compileTwoTypes(STAMINA, BERRY, 10, 1),
+      outputs: compileTwoTypes(WOOD, BERRY, 10, 20)
+    })
+  );
+  DefineTypes.defineStake(
+    MEAT,
+    StakeSpecsData({
+      buildingType: FIELD,
+      timeCost: 60,
+      inputs: compileTwoTypes(STAMINA, RED, 10, 1),
+      outputs: compileTwoTypes(WOOD, MEAT, 10, 20)
+    })
+  );
 }
 
 function initWeaponTypes() {
@@ -69,6 +104,22 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     MINER,
     BuildingSpecsData({ width: 2, height: 2, canMove: true, terrainType: PLAIN }),
+    1000 * 5,
+    compileTwoTypes(STAMINA, WOOD, 0, 0),
+    compileOneType(STAMINA, 100),
+    compileOneType(WOOD, 4)
+  );
+  DefineTypes.defineBuilding(
+    CAULDRON,
+    BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: PLAIN }),
+    1000 * 5,
+    compileTwoTypes(STAMINA, WOOD, 0, 0),
+    compileOneType(STAMINA, 100),
+    compileOneType(WOOD, 4)
+  );
+  DefineTypes.defineBuilding(
+    FIELD,
+    BuildingSpecsData({ width: 3, height: 1, canMove: true, terrainType: PLAIN }),
     1000 * 5,
     compileTwoTypes(STAMINA, WOOD, 0, 0),
     compileOneType(STAMINA, 100),

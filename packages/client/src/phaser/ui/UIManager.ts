@@ -30,7 +30,7 @@ export class UIManager {
   /**
    * Controllers need to determine the current focus based on whether a button list exists.
    */
-  buttons: { name: string; button: Button }[] | undefined;
+  buttons: { name: string; button: Button; onClick: () => void }[] = [];
 
   /**
    * The index of button list
@@ -142,5 +142,13 @@ export class UIManager {
     const button = this.buttons[this.currentButtonIndex].button;
     button.skin.hide();
     button.selectedSkin.show();
+  }
+
+  backButton() {
+    this.buttons.forEach((button) => {
+      button.button.destroyChildren();
+    });
+    this.scene.focusUI.pop();
+    this.hidden();
   }
 }

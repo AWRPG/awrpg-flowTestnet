@@ -129,6 +129,9 @@ export class PlayerController {
       // Building
       else if (type === "building") {
         console.log("TODO:Building");
+        this.uiScene.buildingMenu?.show();
+        this.movable = false;
+        this.uiScene.buildingMenu?.update();
       }
       // Miner
       // [TODO]: actions to miner?
@@ -204,6 +207,15 @@ export class PlayerController {
       }
     }
 
+    // else if (this.uiScene.isFocusOn() && ["f", "F"].includes(event.key)) {
+    //   const uiScene = this.uiScene;
+    //   const ui = this.uiScene.focusUI.at(-1);
+    //   if (!ui?.buttons) return;
+    //   ui.buttons[ui.currentButtonIndex]?.onClick();
+    //   // buttons; index
+    //   // buttons[index].onClick();
+    // }
+
     // Show/hide terrain UI
     else if (tileData && ["r", "R"].includes(event.key)) {
       if (this.uiScene.terrainUI?.isVisible === false) {
@@ -221,6 +233,8 @@ export class PlayerController {
         removeComponent(ConsoleMessage, SOURCE);
         setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       } else {
+        // this.uiScene.focusUI[this.uiScene.focusUI.length - 1]?.backButton();
+        // this.movable = true;
         removeComponent(SelectedEntity, MENU);
         switch (this.uiScene.focusUI.at(-1)) {
           case this.uiScene.actionMenu: // Close Action Menu

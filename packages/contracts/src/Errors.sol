@@ -76,4 +76,14 @@ contract Errors is System {
 
   // drop errors
   error NotInDropContainer();
+
+  // staking
+  error WrongBuildingTypeToStake();
+  error HasNoStakeInBuilding();
+  error AlreadyHasStaking();
+
+  // cooking
+  error WrongBuildingTypeToCook();
+  error HasNoCookingInBuilding();
+  error AlreadyHasCooking();
 }

@@ -1,7 +1,7 @@
 import { Hex } from "viem";
 import { ClientComponents } from "../mud/createClientComponents";
 import { encodeTypeEntity, splitBytes32 } from "../utils/encode";
-import { hasBalance, hasERC20Balance } from "./container";
+import { getERC20Balance, hasBalance, hasERC20Balance } from "./container";
 import { isPoolType } from "./entity";
 import { getPoolAmount, hasPoolBalance } from "./pool";
 import { Entity, getComponentValue } from "@latticexyz/recs";
@@ -82,4 +82,19 @@ export const hasCosts = (
   return costsData.every(({ type, amount }) =>
     hasERC20Balance(components, role, type, BigInt(amount))
   );
+};
+
+export type CostInfoType = { type: Hex; amount: number; has: number };
+
+export const getCostsInfo = (
+  components: ClientComponents,
+  role: Hex,
+  costs: Hex[]
+): CostInfoType[] => {
+  const costsData = costs.map((cost) => splitBytes32(cost));
+  return costsData.map(({ type, amount }) => ({
+    type,
+    amount,
+    has: Number(getERC20Balance(components, role, type)),
+  }));
 };

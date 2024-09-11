@@ -5,12 +5,17 @@ import { ActionMenu } from "../ui/ActionMenu";
 import { UIManager } from "../ui/UIManager";
 import { UIBase } from "../components/ui/UIBase";
 import { BuildMenu } from "../ui/BuildMenu";
+import { BuildingMenu } from "../ui/BuildingMenu";
+import { StakeMenu } from "../ui/StakeMenu";
+import { StakingMenu } from "../ui/StakingMenu";
 
 export class UIScene extends Phaser.Scene {
   /**
    * components
    */
   components: SetupResult["components"];
+  systemCalls: SetupResult["systemCalls"];
+  network: SetupResult["network"];
   /**
    * width of the window
    */
@@ -41,6 +46,12 @@ export class UIScene extends Phaser.Scene {
    */
   actionMenu: ActionMenu | undefined;
 
+  buildingMenu: BuildingMenu | undefined;
+
+  stakeMenu: StakeMenu | undefined;
+
+  stakingMenu: StakingMenu | undefined;
+
   moveTips: UIManager | undefined;
   buildTips: UIManager | undefined;
 
@@ -53,6 +64,8 @@ export class UIScene extends Phaser.Scene {
   constructor(setupResult: SetupResult, config: Phaser.Types.Core.GameConfig) {
     super({ ...config, key: "UIScene", active: true });
     this.components = setupResult.components;
+    this.systemCalls = setupResult.systemCalls;
+    this.network = setupResult.network;
 
     // Get the size of game
     this.width = Number(config.scale?.width);
@@ -92,6 +105,9 @@ export class UIScene extends Phaser.Scene {
     this.buildMenu = new BuildMenu(this);
     this.buildTips = new UIManager(this, new UIBase(this, 0, 0, {}));
     this.buildTips.name = "BuildTips";
+    this.buildingMenu = new BuildingMenu(this);
+    this.stakeMenu = new StakeMenu(this);
+    this.stakingMenu = new StakingMenu(this);
   }
 
   /**
@@ -103,7 +119,10 @@ export class UIScene extends Phaser.Scene {
       this.actionMenu?.isVisible ||
       this.moveTips?.isVisible ||
       this.buildMenu?.isVisible ||
-      this.buildTips?.isVisible
+      this.buildTips?.isVisible ||
+      this.buildingMenu?.isVisible ||
+      this.stakeMenu?.isVisible ||
+      this.stakingMenu?.isVisible
     )
       return true;
   }

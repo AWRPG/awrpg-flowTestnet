@@ -193,4 +193,8 @@ export class UIBase {
     this.root.x = this.x;
     this.root.y = this.y;
   }
+
+  destroyChildren() {
+    this.root.removeAll(true);
+  }
 }

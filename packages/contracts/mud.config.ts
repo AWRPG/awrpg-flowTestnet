@@ -220,7 +220,52 @@ export default defineWorld({
       },
       key: ["interactType"],
     },
-
+    // outputType ->
+    StakeSpecs: {
+      schema: {
+        outputType: "bytes16",
+        buildingType: "bytes16",
+        timeCost: "uint40",
+        inputs: "bytes32[]",
+        outputs: "bytes32[]",
+      },
+      key: ["outputType"],
+    },
+    // can use LastUpdated & custodian hash to ensure staking info
+    // but create this table to make clientside easier to query
+    StakingInfo: {
+      schema: {
+        stakingId: "bytes32",
+        role: "bytes32",
+        building: "bytes32",
+        // outputType is recorded so that we can check for its timeCost
+        // alternatively, player needs to put in outputType
+        outputType: "bytes16",
+        lastUpdated: "uint40",
+      },
+      key: ["stakingId"],
+    },
+    // outputType ->
+    CookSpecs: {
+      schema: {
+        outputType: "bytes16",
+        buildingType: "bytes16",
+        timeCost: "uint40",
+        inputs: "bytes32[]",
+        outputs: "bytes32[]",
+      },
+      key: ["outputType"],
+    },
+    CookingInfo: {
+      schema: {
+        cookingId: "bytes32",
+        role: "bytes32",
+        building: "bytes32",
+        outputType: "bytes16",
+        lastUpdated: "uint40",
+      },
+      key: ["cookingId"],
+    },
     // destroyable: building, host, terrain
     // Destroy stuff, award erc20s or erc721
   },

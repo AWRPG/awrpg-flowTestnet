@@ -40,6 +40,15 @@ library DefineTypes {
     BurnAwards.set(buildingType, burnAwards);
   }
 
+  // defineStake with defineBuilding
+  function defineStake(bytes16 buildingType, StakeSpecsData memory stakeSpecs) internal {
+    StakeSpecs.set(buildingType, stakeSpecs);
+  }
+
+  function defineCook(bytes16 buildingType, CookSpecsData memory cookSpecs) internal {
+    CookSpecs.set(buildingType, cookSpecs);
+  }
+
   function defineConvertRatio(bytes16 fromType, bytes16 toType, uint8 num, uint8 denom) internal {
     ConvertRatio.set(fromType, toType, num, denom);
   }
