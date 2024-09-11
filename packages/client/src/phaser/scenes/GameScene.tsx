@@ -161,6 +161,9 @@ export class GameScene extends Phaser.Scene {
     });
 
     // ui
+    this.load.image("ui-highlight-move", "src/assets/ui/highlight_move.png");
+    this.load.image("ui-highlight-build", "src/assets/ui/highlight_build.png");
+    this.load.image("ui-highlight-error", "src/assets/ui/highlight_error.png");
     this.load.spritesheet("ui-highlight", "src/assets/ui/highlight.png", {
       frameWidth: 32,
       frameHeight: 32,
@@ -307,7 +310,7 @@ export class GameScene extends Phaser.Scene {
         onClick: () => this.sourceSelectHandler(entity),
       });
       if (this.tileHighlights[entity]) {
-        this.tileHighlights[entity].destroy();
+        this.tileHighlights[entity].clearHighlight();
         delete this.tileHighlights[entity];
       }
     });
@@ -394,8 +397,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   loadBuilding(tileId: Entity, building: Entity) {
-    this.buildings[tileId]?.destroy();
-    this.buildings[tileId] = new Building(this, this.components, {
+    this.buildings[building]?.destroy();
+    this.buildings[building] = new Building(this, this.components, {
       tileId,
       entity: building,
       onClick: () => this.sourceSelectHandler(building),

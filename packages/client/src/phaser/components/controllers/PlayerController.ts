@@ -14,12 +14,13 @@ import {
   EXPLORE_MENU,
   TARGET,
   terrainMapping,
+  UI_NAME,
+  HIGHLIGHT_MODE,
 } from "../../../constants";
 import {
   setNewTargetTile,
   KEY_TO_DIRECTION,
   combineToEntity,
-  calculatePathMoves,
 } from "../../../logics/move";
 import { TileHighlight } from "../../objects/TileHighlight";
 import {
@@ -31,7 +32,7 @@ import {
 import { getHostPosition } from "../../../logics/path";
 import { getTargetTerrainData, TileData } from "../../../logics/terrain";
 import { Host } from "../../objects/Host";
-import { Hex } from "viem";
+import { UIManager } from "../../ui/UIManager";
 
 /**
  * Handle user client interface
@@ -75,14 +76,14 @@ export class PlayerController {
       this.components,
       this.scene.systemCalls
     ));
-    const entity = tileData ? tileData.coordEntity : null;
+    const entity = tileData ? tileData.coordEntity : undefined;
     const type = entity
       ? isRole(this.components, entity)
         ? "role"
         : isBuilding(this.components, entity)
           ? "building"
-          : null
-      : null;
+          : undefined
+      : undefined;
 
     const source = getComponentValue(SelectedHost, SOURCE)?.value;
 
@@ -91,21 +92,17 @@ export class PlayerController {
     const onMenu = menu || this.uiScene.isFocusOn();
 
     // Move cursor on tiles
-    if (this.movable && this.isArrowKeysDown(event.key)) {
-      if (!tileData) return;
-      if (Date.now() - this.cursorLastDate < this.cursorMoveInterval)
-        // check time interval
-        return;
+    if (this.movable && this.isArrowKeysDown(event.key) && tileData) {
+      if (Date.now() - this.cursorLastDate < this.cursorMoveInterval) return; // check time interval
       this.cursorLastDate = Date.now();
       this.uiScene.terrainUI?.hidden();
-      // move to new tile
-      setNewTargetTile(this.components, KEY_TO_DIRECTION[event.key]);
+      setNewTargetTile(this.components, KEY_TO_DIRECTION[event.key]); // move to new tile
     }
 
-    // Move on menu
+    // Move cursor on menu
     else if (this.uiScene.isFocusOn() && this.isArrowKeysDown(event.key)) {
-      const ui = this.uiScene.focusUI[this.uiScene.focusUI.length - 1];
-      if (!ui?.buttons) return;
+      const ui = this.getFocusUI();
+      if (!ui || !this.isMenu(ui)) return;
       if (["w", "W"].includes(event.key)) ui.prevButton();
       if (["s", "S"].includes(event.key)) ui.nextButton();
     }
@@ -119,13 +116,14 @@ export class PlayerController {
         this.setCharacterInfo(entityObj);
         // Player role
         if (entityObj.isPlayer) {
-          this.openTileHighlight(entity, 0.75);
+          if (entityObj.isMoving) return;
+          this.uiScene.characterInfo?.show(false);
           this.movable = false;
           this.uiScene.actionMenu?.show();
         }
         // Other Role
         else {
-          this.openTileHighlight(entity, 0.75);
+          this.uiScene.characterInfo?.show(false);
         }
       }
       // Building
@@ -136,85 +134,94 @@ export class PlayerController {
         this.uiScene.buildingMenu?.update();
       }
       // Miner
-      // TODO: actions to miner?
+      // [TODO]: actions to miner?
     }
-    // else if (
-    //   onMenu &&
-    //   this.uiScene.buildingMenu?.isVisible &&
-    //   ["f", "F"].includes(event.key)
-    // ) {
-    //   console.log("press f");
-    // }
-    // Select the action menu
-    else if (
-      onMenu &&
-      this.uiScene.actionMenu?.isVisible &&
-      ["f", "F"].includes(event.key)
-    ) {
-      console.log("press f, action menu");
 
-      const ui = this.uiScene.focusUI[this.uiScene.focusUI.length - 1];
+    // Select items on menu
+    else if (onMenu && ["f", "F"].includes(event.key)) {
+      const ui = this.getFocusUI();
       if (!ui) return;
-      if (ui.name === "ActionMenu" && ui.buttons) {
-        if (!tileData || !entity) return;
-        const actionName = ui.buttons[ui.currentButtonIndex]?.name;
+      // Action Menu
+      if (ui.name === UI_NAME.ACTION_MENU) {
+        if (!tileData || !entity || !ui.buttons) return;
+        const actionName = ui.buttons[ui.currentButtonIndex].name;
         switch (actionName) {
-          // Move to & Enter buildings
-          case "Move":
+          case "Move": // Move to & Enter buildings
             this.movable = true;
-            this.uiScene.actionMenu?.hidden();
+            this.uiScene.actionMenu?.hidden(false);
             this.openTileHighlight(entity);
             this.moveEntity = entity;
             this.scene.hosts[entity].root.setAlpha(0.5);
             this.scene.cursor?.setAccessory(entity, "role"); // Bundle hostObj to cursor
             this.uiScene.moveTips?.show();
             break;
-
-          // Attack
-          // 1. Selected a host
-          // 2. Select any tile
-          case "Attack":
+          case "Attack": // Selected a host or Select a range tils
             break;
-
-          // Build or Create NPC
-          case "Build":
+          case "Build": // Build a buiding (or Create a NPC)
+            this.movable = false;
+            this.moveEntity = undefined;
+            this.uiScene.actionMenu?.hidden(false);
+            this.uiScene.buildMenu?.show();
             break;
-
-          // Change terrains
-          case "Change Terrain":
+          case "Change Terrain": // Change terrains
             break;
-
           // [In a miner] Start Mining
           // [In a miner] Stop Mining
         }
-      } else if (ui.name === "MoveTips") {
-        const moveEntity = this.scene.cursor?.accessories;
-        if (!this.moveEntity || !this.scene.cursor) return;
-        const moves = calculatePathMoves(this.components, this.moveEntity);
-        if (!moves || moves.length === 0) return;
-        this.scene.systemCalls.move(this.moveEntity as Hex, moves as number[]);
-        this.closeTileHighlight(this.moveEntity);
-        this.scene.cursor.clearAccessory(this.moveEntity);
-        this.scene.hosts[this.moveEntity].movesAnimation(moves);
-        this.uiScene.moveTips?.hidden();
       }
-    } else if (this.uiScene.isFocusOn() && ["f", "F"].includes(event.key)) {
-      const uiScene = this.uiScene;
-      const ui = this.uiScene.focusUI.at(-1);
-      if (!ui?.buttons) return;
-      ui.buttons[ui.currentButtonIndex]?.onClick();
-      // buttons; index
-      // buttons[index].onClick();
+      // Move Tips
+      else if (ui.name === UI_NAME.MOVE_TIPS) {
+        if (!this.moveEntity || !this.scene.cursor) return;
+        if (type === "role" || type === "building") return;
+        if (this.scene.hosts[this.moveEntity].movesUpdate()) {
+          this.closeTileHighlight(this.moveEntity);
+          this.uiScene.characterInfo?.hidden();
+          this.scene.cursor.clearAccessory(this.moveEntity);
+          this.uiScene.moveTips?.hidden();
+        }
+      }
+      // Build Menu
+      else if (ui.name === UI_NAME.BUILD_MENU) {
+        if (!ui.buttons || !entity) return;
+        this.movable = true;
+        this.uiScene.buildMenu?.hidden(false);
+        this.uiScene.buildTips?.show();
+        const buildName = ui.buttons[ui.currentButtonIndex].name;
+        switch (buildName) {
+          case "Safe":
+            this.openTileHighlight(entity, 1, HIGHLIGHT_MODE.BUILD, 1, 2, 2);
+            this.moveEntity = entity;
+            break;
+        }
+      }
+      // Build Tips
+      else if (ui.name === UI_NAME.BUILD_TIPS) {
+        if (!this.moveEntity || !this.scene.cursor) return;
+        if (this.scene.hosts[this.moveEntity]) {
+          this.closeTileHighlight(this.moveEntity);
+          this.uiScene.characterInfo?.hidden();
+          this.scene.cursor.clearAccessory(this.moveEntity);
+          this.uiScene.buildTips?.hidden();
+          console.log("Build Complete!");
+        }
+      }
     }
 
+    // else if (this.uiScene.isFocusOn() && ["f", "F"].includes(event.key)) {
+    //   const uiScene = this.uiScene;
+    //   const ui = this.uiScene.focusUI.at(-1);
+    //   if (!ui?.buttons) return;
+    //   ui.buttons[ui.currentButtonIndex]?.onClick();
+    //   // buttons; index
+    //   // buttons[index].onClick();
+    // }
+
     // Show/hide terrain UI
-    else if (event.key === "r" || event.key === "R") {
-      if (!tileData) return;
-      // Show/hide terrain ui
+    else if (tileData && ["r", "R"].includes(event.key)) {
       if (this.uiScene.terrainUI?.isVisible === false) {
         const terrainName = terrainMapping[tileData.terrainType];
-        this.uiScene.terrainUI.show(false);
         this.uiScene.terrainUI.setData("terrainName", terrainName);
+        this.uiScene.terrainUI.show(false);
       } else {
         this.uiScene.terrainUI?.hidden();
       }
@@ -226,35 +233,30 @@ export class PlayerController {
         removeComponent(ConsoleMessage, SOURCE);
         setComponent(SelectedEntity, MENU, { value: MAIN_MENU });
       } else {
-        this.uiScene.focusUI[this.uiScene.focusUI.length - 1]?.backButton();
-        this.movable = true;
+        // this.uiScene.focusUI[this.uiScene.focusUI.length - 1]?.backButton();
+        // this.movable = true;
         removeComponent(SelectedEntity, MENU);
-        switch (this.uiScene.focusUI.pop()) {
-          case this.uiScene.actionMenu:
-            if (entity) this.closeTileHighlight(entity);
-            this.movable = true;
+        switch (this.uiScene.focusUI.at(-1)) {
+          case this.uiScene.actionMenu: // Close Action Menu
             this.uiScene.actionMenu?.hidden();
+            this.closeTileHighlight(entity);
+            this.uiScene.characterInfo?.hidden();
+            this.movable = true;
             break;
-          case this.uiScene.moveTips:
+          case this.uiScene.buildMenu: // Close Build Menu
+            this.uiScene.buildMenu?.hidden();
+            this.openFocusUI();
+            break;
+          case this.uiScene.buildTips: // Close Build Tips
+            this.uiScene.buildTips?.hidden();
+          /* falls through */
+          case this.uiScene.moveTips: // Close Move Tips
             this.uiScene.moveTips?.hidden();
-            this.uiScene.actionMenu?.show();
-            if (entity) {
-              // this.openTileHighlight(entity, 0.75);
-            }
             this.movable = false;
+            this.openFocusUI();
             if (this.moveEntity) {
-              this.openTileHighlight(this.moveEntity, 0.75);
+              this.closeTileHighlight(this.moveEntity);
               this.scene.cursor?.clearAccessory(this.moveEntity);
-              this.scene.hosts[this.moveEntity].root.setAlpha(1);
-              const coord = getHostPosition(
-                this.components,
-                this.scene.network,
-                this.moveEntity
-              );
-              if (!coord) return;
-              setComponent(TargetTile, TARGET, {
-                value: combineToEntity(coord.x, coord.y),
-              });
               this.moveEntity = undefined;
             }
         }
@@ -306,25 +308,39 @@ export class PlayerController {
   /**
    * Open the tile highlight of a role
    */
-  openTileHighlight(target: Entity, alpha: number = 1) {
-    if (this.scene.tileHighlights[target]) this.closeTileHighlight(target);
+  openTileHighlight(
+    target: Entity,
+    alpha: number = 1,
+    mode?: string,
+    distance?: number,
+    width?: number,
+    height?: number
+  ) {
+    if (this.scene.tileHighlights[target]) {
+      this.closeTileHighlight(target);
+      delete this.scene.tileHighlights[target];
+    }
     this.scene.tileHighlights[target] = new TileHighlight(
       target,
       this.components,
       this.scene,
-      { canControl: true, alpha }
+      mode
     );
-    this.uiScene.characterInfo?.show(false);
+    this.scene.tileHighlights[target].calcHighlight({
+      distance,
+      width,
+      height,
+    });
+
+    this.scene.tileHighlights[target].show(alpha);
   }
 
   /**
    * Close the tile highlight of a role
    */
-  closeTileHighlight(target: Entity) {
-    if (this.scene.tileHighlights[target]) {
-      this.scene.tileHighlights[target].destroy();
-      delete this.scene.tileHighlights[target];
-      this.uiScene.characterInfo?.hidden();
+  closeTileHighlight(target: Entity | undefined) {
+    if (target && this.scene.tileHighlights[target]) {
+      this.scene.tileHighlights[target].hide();
     }
   }
 
@@ -335,5 +351,20 @@ export class PlayerController {
     const maxSp = entityObj.properties.get("maxSTAMINA");
     this.uiScene.characterInfo?.setData("hp", hp + "/" + maxHp);
     this.uiScene.characterInfo?.setData("sp", sp + "/" + maxSp);
+  }
+
+  getFocusUI(): UIManager | undefined {
+    return this.uiScene.focusUI?.length > 0
+      ? this.uiScene.focusUI[this.uiScene.focusUI.length - 1]
+      : undefined;
+  }
+
+  isMenu(ui: UIManager | undefined): boolean {
+    return !ui || !ui?.buttons ? false : true;
+  }
+
+  openFocusUI() {
+    const ui = this.uiScene.focusUI.at(-1);
+    if (ui) ui.show(false);
   }
 }

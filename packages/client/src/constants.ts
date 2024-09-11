@@ -24,6 +24,7 @@ import {
   WOOD,
   YELLOW,
 } from "./contract/constants";
+import { ActionMenu } from "./phaser/ui/ActionMenu";
 
 export enum TerrainType {
   // new (& only) terrain type
@@ -59,6 +60,18 @@ export const terrainTypeMapping = {
   [TerrainType.BUILDING]: "0" as Hex,
 };
 
+export const UI_NAME = {
+  ACTION_MENU: "ActionMenu",
+  MOVE_TIPS: "MoveTips",
+  BUILD_MENU: "BuildMenu",
+  BUILD_TIPS: "BuildTips",
+};
+
+export const HIGHLIGHT_MODE = {
+  MOVE: "Move",
+  BUILD: "Build",
+};
+
 export const POOL_TYPES = [SOUL, STAMINA, BLOOD];
 export const POOL_COLORS = {
   [SOUL]: 0xffff00,
@@ -80,6 +93,7 @@ export const SOURCE = toHex("SOURCE", { size: 32 }) as Entity;
 export const TARGET = toHex("TARGET", { size: 32 }) as Entity;
 export const SELECTED = toHex("SELECTED", { size: 32 }) as Entity;
 export const OBSERVER = toHex("OBSERVER", { size: 32 }) as Entity;
+export const TO_BUILD = toHex("TO_BUILD", { size: 32 } as Entity);
 
 export const MENU = toHex("MENU", { size: 32 }) as Entity;
 export const MAIN_MENU = toHex("MAIN_MENU", { size: 32 }) as Entity;

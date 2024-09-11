@@ -4,6 +4,7 @@ import { TerrainUI } from "../ui/TerrainUI";
 import { ActionMenu } from "../ui/ActionMenu";
 import { UIManager } from "../ui/UIManager";
 import { UIBase } from "../components/ui/UIBase";
+import { BuildMenu } from "../ui/BuildMenu";
 import { BuildingMenu } from "../ui/BuildingMenu";
 import { StakeMenu } from "../ui/StakeMenu";
 import { StakingMenu } from "../ui/StakingMenu";
@@ -52,6 +53,9 @@ export class UIScene extends Phaser.Scene {
   stakingMenu: StakingMenu | undefined;
 
   moveTips: UIManager | undefined;
+  buildTips: UIManager | undefined;
+
+  buildMenu: BuildMenu | undefined;
 
   /**
    * @param setupResult
@@ -89,6 +93,7 @@ export class UIScene extends Phaser.Scene {
     this.load.image("btn_decor3", "src/assets/ui/btn_decor3.png");
     this.load.image("btn_decor4", "src/assets/ui/btn_decor4.png");
     this.load.image("btn_select_skin", "src/assets/ui/btn_select_skin.png");
+    this.load.image("img-building-safe", "src/assets/imgs/buildings/safe.png");
   }
 
   create() {
@@ -97,6 +102,9 @@ export class UIScene extends Phaser.Scene {
     this.actionMenu = new ActionMenu(this);
     this.moveTips = new UIManager(this, new UIBase(this, 0, 0, {}));
     this.moveTips.name = "MoveTips";
+    this.buildMenu = new BuildMenu(this);
+    this.buildTips = new UIManager(this, new UIBase(this, 0, 0, {}));
+    this.buildTips.name = "BuildTips";
     this.buildingMenu = new BuildingMenu(this);
     this.stakeMenu = new StakeMenu(this);
     this.stakingMenu = new StakingMenu(this);
@@ -110,6 +118,8 @@ export class UIScene extends Phaser.Scene {
     if (
       this.actionMenu?.isVisible ||
       this.moveTips?.isVisible ||
+      this.buildMenu?.isVisible ||
+      this.buildTips?.isVisible ||
       this.buildingMenu?.isVisible ||
       this.stakeMenu?.isVisible ||
       this.stakingMenu?.isVisible
