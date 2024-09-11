@@ -29,13 +29,13 @@ export class UIImage extends UIBase {
       parent,
     });
 
-    this.image = new Phaser.GameObjects.Image(
-      scene,
+    this.image = new Phaser.GameObjects.Image(scene, 0, 0, texture).setOrigin(
       0,
-      0,
-      texture,
-      undefined
-    ).setOrigin(0, 0);
+      0
+    );
+    const scaleValueX = this.width / this.image.width;
+    const scaleValueY = this.height / this.image.height;
+    this.image.setScale(scaleValueX, scaleValueY);
     this.root.add(this.image);
   }
 }

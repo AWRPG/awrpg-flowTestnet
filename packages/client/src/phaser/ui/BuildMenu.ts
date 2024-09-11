@@ -7,6 +7,7 @@ import { Bar } from "../components/ui/Bar";
 import { ALIGNMODES } from "../../constants";
 import { Button } from "../components/ui/Button";
 import { ButtonA } from "./buttons/ButtonA";
+import { UIImage } from "../components/ui/UIImage";
 
 export class BuildMenu extends UIManager {
   constructor(scene: UIScene) {
@@ -42,5 +43,30 @@ export class BuildMenu extends UIManager {
     });
     this.currentButtonIndex = 0;
     this.selectButton();
+
+    const text = new UIText(this.scene, "SAFE", {
+      alignModeName: ALIGNMODES.MIDDLE_TOP,
+      marginX: 168,
+      marginY: 32,
+      fontSize: 48,
+      fontColor: "#2D3E51",
+      parent: this.rootUI,
+    });
+
+    const img = new UIImage(
+      this.scene,
+      "img-building-safe",
+      830 * 0.6,
+      741 * 0.6,
+      {
+        alignModeName: ALIGNMODES.MIDDLE_TOP,
+        marginX: 0,
+        marginY: 48,
+        parent: text,
+      }
+    );
+    img.root.setAlpha(0.85);
   }
+
+  safe() {}
 }
