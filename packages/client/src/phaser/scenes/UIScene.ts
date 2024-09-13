@@ -16,15 +16,6 @@ export class UIScene extends Phaser.Scene {
   components: SetupResult["components"];
   systemCalls: SetupResult["systemCalls"];
   network: SetupResult["network"];
-  /**
-   * width of the window
-   */
-  width: number = 1280;
-
-  /**
-   * height of the window
-   */
-  height: number = 720;
 
   /**
    * the UI Components which is focused on
@@ -66,10 +57,6 @@ export class UIScene extends Phaser.Scene {
     this.components = setupResult.components;
     this.systemCalls = setupResult.systemCalls;
     this.network = setupResult.network;
-
-    // Get the size of game
-    this.width = Number(config.scale?.width);
-    this.height = Number(config.scale?.height);
   }
 
   preload() {

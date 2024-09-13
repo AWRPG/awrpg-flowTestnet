@@ -13,6 +13,7 @@ import { GameScene } from "../scenes/GameScene";
 import { SceneObject } from "./SceneObject";
 import { fromEntity } from "../../utils/encode";
 import { UIScene } from "../scenes/UIScene";
+import { Vector } from "../../utils/vector";
 
 /**
  * About the scene object with avatar such as character or building
@@ -52,6 +53,8 @@ export class Host extends SceneObject {
    * the side face to
    */
   direction: Direction;
+
+  prevCoord?: Vector 
 
   /**
    * @param scene the scene belong

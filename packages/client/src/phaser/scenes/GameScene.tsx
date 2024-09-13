@@ -295,6 +295,16 @@ export class GameScene extends Phaser.Scene {
       });
     });
 
+    defineSystem(world, [Has(this.components.MockPath)], ({entity, type}) => {
+      if (type === UpdateType.Exit) {
+        // const path = getComponentValue(Path, entity);
+        // if (!path) return;
+        // return this.hosts[entity]?.updatePath()
+      }
+      const path = getComponentValue(this.components.MockPath, entity);
+      // return this.hosts[entity]?.updatePath(path)
+    })
+
     // role on map
     defineSystem(world, [Has(Path), Has(Commander)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {

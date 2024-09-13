@@ -1,56 +1,46 @@
 import { ALIGNMODES } from "../../../constants";
-import { UIScene } from "../../scenes/UIScene";
 
+/**
+ * The most basic UI components
+ * There is only one root node inherited, which can be used as a container.
+ */
 export class UIBase {
-  /**
-   * A empty gameObject as the root node
-   */
+  /** A empty gameObject as the root node*/
   root: Phaser.GameObjects.Container;
 
-  /**
-   * uiScene
-   */
-  scene: UIScene;
+  /** the scene */
+  scene: Phaser.Scene;
 
-  /**
-   * The key, or instance of the Texture this Game Object will use to render with, as stored in the Texture Manager.
-   */
+  /** The key, or instance of the Texture this Game Object will use to render with, as stored in the Texture Manager.*/
   texture: string | undefined;
 
-  /**
-   * The alignments provided in “ALIGNMODES” include LEFT-MIDDLE-RIGHT, TOP-CENTER-BOTTOM.
-   * @readonly
-   */
+  /** The alignments provided in “ALIGNMODES” include LEFT-MIDDLE-RIGHT, TOP-CENTER-BOTTOM. @readonly */
   alignModeName: string;
 
+  /** Width of this UI @readonly */
   width: number;
 
+  /** Height of this UI @readonly */
   height: number;
 
+  /** parent UI of this UI  */
   parent: UIBase | undefined;
 
-  /**
-   * @readonly
-   */
+  /** The horizontal distance (px) to the align position @readonly */
   marginX: number;
 
-  /**
-   * @readonly
-   */
+  /** The vertical distance (px) to the align position @readonly */
   marginY: number;
 
-  /**
-   * @readonly
-   */
+  /** The horizontal position of this UI @readonly */
   x: number;
 
-  /**
-   * @readonly
-   */
+  /** The vertical position of this UI @readonly */
   y: number;
 
+  /** */
   constructor(
-    scene: UIScene,
+    scene: Phaser.Scene,
     width: number,
     height: number,
     {
@@ -118,6 +108,8 @@ export class UIBase {
    */
   adjustPositon() {
     const referObj = this.parent ?? this.scene;
+    if (referObj === this.scene) {
+    }
     switch (this.alignModeName) {
       case ALIGNMODES.LEFT_CENTER:
         this.x = this.marginX;
