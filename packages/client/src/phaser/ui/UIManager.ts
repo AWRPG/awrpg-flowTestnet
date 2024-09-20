@@ -37,6 +37,8 @@ export class UIManager {
    */
   currentButtonIndex: number = 0;
 
+  resizeListener: Function | undefined;
+
   /**
    * Data listener events that depend on Phaser: https://newdocs.phaser.io/docs/3.80.0/Phaser.Data.Events.CHANGE_DATA
    */
@@ -58,6 +60,12 @@ export class UIManager {
    * Show it
    */
   show(hasFocus: boolean = true, ...params: unknown[]) {
+    if (!this.resizeListener) {
+      this.resizeListener = (gameSize: Phaser.Structs.Size) => {
+        // this.rootUI.updatePosition(gameSize);
+      };
+      this.scene.scale.on("resize", this.resizeListener);
+    }
     this.rootUI.root.setVisible(true);
     this.isVisible = true;
     if (hasFocus) this.scene.focusUI.push(this);
@@ -71,6 +79,8 @@ export class UIManager {
     if (foucsRemove && focusUI.at(-1) === this) focusUI.pop();
     this.rootUI.root.setVisible(false);
     this.isVisible = false;
+    this.scene.scale.off("resize", this.resizeListener);
+    this.resizeListener = undefined;
   }
 
   /**
