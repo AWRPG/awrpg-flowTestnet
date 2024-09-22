@@ -1,13 +1,16 @@
 import { UIScene } from "../scenes/UIScene";
 import { UIManager } from "./UIManager";
 import { Box } from "../components/ui/Box";
-import { UIAvatar } from "../components/ui/UIAvatar";
-import { UIText } from "../components/ui/UIText";
+import { Avatar } from "../components/ui/Avatar";
+import { UIImage } from "../components/ui/common/UIImage";
+import { UIText } from "../components/ui/common/UIText";
 import { Bar } from "../components/ui/Bar";
 import { ALIGNMODES } from "../../constants";
+import { Heading2 } from "../components/ui/Heading2";
+import { Heading3 } from "../components/ui/Heading3";
 
 export class CharacterInfo extends UIManager {
-  avatar: UIAvatar;
+  avatar: UIImage;
   characterName: UIText;
 
   hpBar: Bar;
@@ -27,8 +30,10 @@ export class CharacterInfo extends UIManager {
   constructor(scene: UIScene) {
     super(
       scene,
-      new Box(scene, "ui-box", 680, 192, {
+      new Box(scene, {
         alignModeName: ALIGNMODES.LEFT_BOTTOM,
+        width: 680,
+        height: 192,
         marginX: 8,
         marginY: 8,
       })
@@ -37,18 +42,18 @@ export class CharacterInfo extends UIManager {
     this.setData("hp", 1);
     this.setData("sp", 1);
 
-    this.avatar = new UIAvatar(this.scene, "avatar-farmer-1-1", 256, 256, {
+    this.avatar = new Avatar(this.scene, "avatar-farmer-1-1", {
       alignModeName: ALIGNMODES.LEFT_BOTTOM,
+      width: 256,
+      height: 256,
       marginX: 1,
       marginY: 1,
       parent: this.rootUI,
     });
 
-    this.characterName = new UIText(this.scene, "Brief Kandle", {
-      alignModeName: ALIGNMODES.LEFT_TOP,
+    this.characterName = new Heading2(this.scene, "Brief Kandle", {
       marginX: 268,
       marginY: 12,
-      fontSize: 36,
       parent: this.rootUI,
     });
 
@@ -61,22 +66,17 @@ export class CharacterInfo extends UIManager {
       maxValue: this.maxHp,
     });
 
-    this.hpName = new UIText(this.scene, "HP", {
-      alignModeName: ALIGNMODES.LEFT_TOP,
+    this.hpName = new Heading3(this.scene, "HP", {
       marginX: 4,
       marginY: -20,
       parent: this.hpBar,
-      fontSize: 16,
-      fontFamily: "'Roboto Mono'",
     });
 
-    this.hpNum = new UIText(this.scene, this.hp + " / " + this.maxHp, {
+    this.hpNum = new Heading3(this.scene, this.hp + " / " + this.maxHp, {
       alignModeName: ALIGNMODES.RIGHT_TOP,
       marginX: 4,
       marginY: -20,
       parent: this.hpBar,
-      fontSize: 16,
-      fontFamily: "'Roboto Mono'",
     });
 
     this.spBar = new Bar(this.scene, "bar_yellow", "bar_empty", 358, 30, {
@@ -88,22 +88,17 @@ export class CharacterInfo extends UIManager {
       maxValue: this.maxSp,
     });
 
-    this.spName = new UIText(this.scene, "SP", {
-      alignModeName: ALIGNMODES.LEFT_TOP,
+    this.spName = new Heading3(this.scene, "SP", {
       marginX: 4,
       marginY: -20,
       parent: this.spBar,
-      fontSize: 16,
-      fontFamily: "'Roboto Mono'",
     });
 
-    this.spNum = new UIText(this.scene, this.sp + " / " + this.maxSp, {
+    this.spNum = new Heading3(this.scene, this.sp + " / " + this.maxSp, {
       alignModeName: ALIGNMODES.RIGHT_TOP,
       marginX: 4,
       marginY: -20,
       parent: this.spBar,
-      fontSize: 16,
-      fontFamily: "'Roboto Mono'",
     });
   }
 

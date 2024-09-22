@@ -1,7 +1,7 @@
 import { UIScene } from "../scenes/UIScene";
 import { UIManager } from "./UIManager";
 import { Box } from "../components/ui/Box";
-import { UIText } from "../components/ui/UIText";
+import { UIText } from "../components/ui/common/UIText";
 import { ALIGNMODES } from "../../constants";
 
 export class TerrainUI extends UIManager {

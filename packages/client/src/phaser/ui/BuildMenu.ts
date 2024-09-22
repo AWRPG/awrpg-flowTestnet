@@ -1,13 +1,13 @@
 import { UIScene } from "../scenes/UIScene";
 import { UIManager } from "./UIManager";
 import { Box } from "../components/ui/Box";
-import { UIAvatar } from "../components/ui/UIAvatar";
-import { UIText } from "../components/ui/UIText";
+import { UIAvatar } from "../components/ui/Avatar";
+import { UIText } from "../components/ui/common/UIText";
 import { Bar } from "../components/ui/Bar";
 import { ALIGNMODES } from "../../constants";
 import { Button } from "../components/ui/Button";
 import { ButtonA } from "./buttons/ButtonA";
-import { UIImage } from "../components/ui/UIImage";
+import { UIImage } from "../components/ui/common/UIImage";
 
 export class BuildMenu extends UIManager {
   constructor(scene: UIScene) {

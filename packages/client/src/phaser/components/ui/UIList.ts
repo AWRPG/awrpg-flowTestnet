@@ -1,4 +1,4 @@
-import { UIBase } from "./UIBase";
+import { UIBase } from "./common/UIBase";
 
 export class UIList extends UIBase{
     

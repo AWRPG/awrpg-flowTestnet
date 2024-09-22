@@ -1,5 +1,5 @@
 import { UIScene } from "../../scenes/UIScene";
-import { UIBase } from "./UIBase";
+import { UIBase } from "./common/UIBase";
 import { ALIGNMODES } from "../../../constants";
 
 /**
@@ -34,9 +34,11 @@ export class Bar extends UIBase {
       maxValue?: number;
     }
   ) {
-    super(scene, width, height, {
+    super(scene, {
       texture,
       alignModeName,
+      width,
+      height,
       marginX,
       marginY,
       parent,

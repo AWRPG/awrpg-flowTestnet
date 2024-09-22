@@ -3,7 +3,7 @@ import { CharacterInfo } from "../ui/CharacterInfo";
 import { TerrainUI } from "../ui/TerrainUI";
 import { ActionMenu } from "../ui/ActionMenu";
 import { UIManager } from "../ui/UIManager";
-import { UIBase } from "../components/ui/UIBase";
+import { UIBase } from "../components/ui/common/UIBase";
 import { BuildMenu } from "../ui/BuildMenu";
 import { BuildingMenu } from "../ui/BuildingMenu";
 import { StakeMenu } from "../ui/StakeMenu";
@@ -85,16 +85,16 @@ export class UIScene extends Phaser.Scene {
 
   create() {
     this.characterInfo = new CharacterInfo(this);
-    this.terrainUI = new TerrainUI(this);
-    this.actionMenu = new ActionMenu(this);
-    this.moveTips = new UIManager(this, new UIBase(this, 0, 0, {}));
-    this.moveTips.name = "MoveTips";
-    this.buildMenu = new BuildMenu(this);
-    this.buildTips = new UIManager(this, new UIBase(this, 0, 0, {}));
-    this.buildTips.name = "BuildTips";
-    this.buildingMenu = new BuildingMenu(this);
-    this.stakeMenu = new StakeMenu(this);
-    this.stakingMenu = new StakingMenu(this);
+    // this.terrainUI = new TerrainUI(this);
+    // this.actionMenu = new ActionMenu(this);
+    // this.moveTips = new UIManager(this, new UIBase(this, 0, 0, {}));
+    // this.moveTips.name = "MoveTips";
+    // this.buildMenu = new BuildMenu(this);
+    // this.buildTips = new UIManager(this, new UIBase(this, 0, 0, {}));
+    // this.buildTips.name = "BuildTips";
+    // this.buildingMenu = new BuildingMenu(this);
+    // this.stakeMenu = new StakeMenu(this);
+    // this.stakingMenu = new StakingMenu(this);
   }
 
   /**

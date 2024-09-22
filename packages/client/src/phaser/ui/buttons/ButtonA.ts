@@ -1,9 +1,9 @@
 import { UIScene } from "../../scenes/UIScene";
 import { ALIGNMODES } from "../../../constants";
-import { UIBase } from "../../components/ui/UIBase";
+import { UIBase } from "../../components/ui/common/UIBase";
 import { Box } from "../../components/ui/Box";
 import { Button } from "../../components/ui/Button";
-import { UIImage } from "../../components/ui/UIImage";
+import { UIImage } from "../../components/ui/common/UIImage";
 
 export class ButtonA extends Button {
   constructor(

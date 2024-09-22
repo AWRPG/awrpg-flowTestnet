@@ -1,7 +1,7 @@
 import { UIScene } from "../../scenes/UIScene";
-import { UIBase } from "./UIBase";
+import { UIBase } from "./common/UIBase";
 import { Box } from "./Box";
-import { UIText } from "./UIText";
+import { UIText } from "./common/UIText";
 import { ALIGNMODES } from "../../../constants";
 
 export class Button extends UIBase {

@@ -1,5 +1,5 @@
 import { UIScene } from "../scenes/UIScene";
-import { UIBase } from "../components/ui/UIBase";
+import { UIBase } from "../components/ui/common/UIBase";
 import { Button } from "../components/ui/Button";
 
 /**

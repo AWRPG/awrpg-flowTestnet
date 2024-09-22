@@ -3,7 +3,7 @@ import { UIManager } from "./UIManager";
 import { ALIGNMODES } from "../../constants";
 import { Box } from "../components/ui/Box";
 import { Button } from "../components/ui/Button";
-import { UIText } from "../components/ui/UIText";
+import { UIText } from "../components/ui/common/UIText";
 import { ButtonA } from "./buttons/ButtonA";
 
 /**

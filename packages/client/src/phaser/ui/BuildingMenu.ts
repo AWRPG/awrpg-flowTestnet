@@ -2,7 +2,7 @@ import { Entity, getComponentValue } from "@latticexyz/recs";
 import { ALIGNMODES, SOURCE } from "../../constants";
 import { Box } from "../components/ui/Box";
 import { Button } from "../components/ui/Button";
-import { UIText } from "../components/ui/UIText";
+import { UIText } from "../components/ui/common/UIText";
 import { UIScene } from "../scenes/UIScene";
 import { ButtonA } from "./buttons/ButtonA";
 import { UIManager } from "./UIManager";
