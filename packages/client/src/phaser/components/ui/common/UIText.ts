@@ -26,7 +26,7 @@ export class UIText extends UIBase {
   textObj: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene, text: string, config: UITextConfig = {}) {
-    super(scene, { width: 0, height: 0, ...config });
+    super(scene, { width: -1, height: -1, ...config });
 
     this.textObj = new Phaser.GameObjects.Text(scene, 0, 0, text, {
       ...config,

@@ -87,19 +87,21 @@ export class UIBase {
    * Set the scale, size & display size of the root container
    */
   setAutoScale(config: Partial<UIBaseConfig>): UIBase {
-    const textureObj = config.texture
-      ? this.scene.textures.get(config.texture)
-      : undefined;
-    const width =
-      config.width !== undefined
-        ? config.width
-        : textureObj?.source[0]?.width ?? 576;
-    const height =
-      config.height !== undefined
-        ? config.height
-        : textureObj?.source[0]?.height ?? 324;
-    this.root.setSize(width, height);
-    this.root.setDisplaySize(width, height);
+    if (config.width !== -1 && config.height !== -1) {
+      const textureObj = config.texture
+        ? this.scene.textures.get(config.texture)
+        : undefined;
+      const width =
+        config.width !== undefined
+          ? config.width
+          : textureObj?.source[0]?.width ?? 576;
+      const height =
+        config.height !== undefined
+          ? config.height
+          : textureObj?.source[0]?.height ?? 324;
+      this.root.setSize(width, height);
+      this.root.setDisplaySize(width, height);
+    }
     if (config.scale !== undefined) this.root.setScale(config.scale);
     return this;
   }
