@@ -19,9 +19,6 @@ export class UIBase {
   /** A empty gameObject as the root node*/
   root: Phaser.GameObjects.Container;
 
-  /** the scene */
-  scene: Phaser.Scene;
-
   /** The key, or instance of the Texture this Game Object will use to render with, as stored in the Texture Manager.*/
   texture: string | undefined;
 
@@ -39,7 +36,6 @@ export class UIBase {
 
   /** */
   constructor(scene: Phaser.Scene, config: UIBaseConfig) {
-    this.scene = scene;
     this.texture = config.texture;
     this.alignModeName = config.alignModeName ?? ALIGNMODES.LEFT_TOP;
     this.marginX = config.marginX ?? 0;
@@ -62,41 +58,35 @@ export class UIBase {
   /**
    * Mount several basic UI components on the root container
    */
-  add(children: UIBase | UIBase[]) {
+  add(children: UIBase | UIBase[]): UIBase {
     if (Array.isArray(children)) {
       for (const i in children) this.root.add(children[i].root);
     } else {
       this.root.add(children.root);
     }
-  }
-
-  /**
-   * Sets the visibility of the root container.
-   * An invisible UI component will skip rendering, but will still process update logic.
-   * @param value The visible state of the Game Object.
-   */
-  setVisible(value: boolean): Phaser.GameObjects.Container {
-    return this.root.setVisible(value);
+    return this;
   }
 
   /**
    * Show the root container
    */
-  show() {
-    this.setVisible(true);
+  show(): UIBase {
+    this.visible = true;
+    return this;
   }
 
   /**
    * Hide the root container
    */
-  hide() {
-    this.setVisible(false);
+  hidden(): UIBase {
+    this.visible = false;
+    return this;
   }
 
   /**
    * Set the scale, size & display size of the root container
    */
-  setAutoScale(config: Partial<UIBaseConfig>) {
+  setAutoScale(config: Partial<UIBaseConfig>): UIBase {
     const textureObj = config.texture
       ? this.scene.textures.get(config.texture)
       : undefined;
@@ -108,18 +98,16 @@ export class UIBase {
       config.height !== undefined
         ? config.height
         : textureObj?.source[0]?.height ?? 324;
-
-    if (width !== 0 || height !== 0) {
-      this.root.setSize(width, height);
-      this.root.setDisplaySize(width, height);
-    }
+    this.root.setSize(width, height);
+    this.root.setDisplaySize(width, height);
     if (config.scale !== undefined) this.root.setScale(config.scale);
+    return this;
   }
 
   /**
    * Set coordinates according to alignment
    */
-  updatePosition() {
+  updatePosition(): UIBase {
     const referObj = this.parent ?? this.scene.scale;
     switch (this.alignModeName) {
       case ALIGNMODES.LEFT_CENTER:
@@ -159,6 +147,7 @@ export class UIBase {
         this.y = this.marginY;
         break;
     }
+    return this;
   }
 
   /**
@@ -168,9 +157,10 @@ export class UIBase {
    * @param x new x
    * @param y new y
    */
-  setPosition(x?: number, y?: number) {
+  setPosition(x?: number, y?: number): UIBase {
     if (x) this.root.x = this.x = x;
     if (y) this.root.y = this.y = y;
+    return this;
   }
 
   /**
@@ -178,41 +168,25 @@ export class UIBase {
    * @param x new marginX
    * @param y new marginY
    */
-  setMargin(x?: number, y?: number) {
+  setMargin(x?: number, y?: number): UIBase {
     if (x) this.marginX = x;
     if (y) this.marginY = y;
     this.updatePosition();
     this.root.x = this.x;
     this.root.y = this.y;
+    return this;
   }
 
   /**
    * Modify alignment mode and synchronize position changes
    * @param name the name of alignMode you want to use
    */
-  setAlignMode(name: string) {
+  setAlignMode(name: string): UIBase {
     this.alignModeName = name;
     this.updatePosition();
     this.root.x = this.x;
     this.root.y = this.y;
-  }
-
-  /**
-   * Sets the display size of this Game Object. Calling this will adjust the scale.
-   * @param width The width of this Game Object.
-   * @param height The height of this Game Object.
-   */
-  setDisplaySize(width: number, height: number): Phaser.GameObjects.Container {
-    return this.root.setDisplaySize(width, height);
-  }
-
-  /**
-   * Sets the scale of this Game Object.
-   * @param x The horizontal scale of this Game Object. Default 1.
-   * @param y The vertical scale of this Game Object. If not set it will use the `x` value. Default x.
-   */
-  setScale(x?: number, y?: number): Phaser.GameObjects.Container {
-    return this.root.setScale(x, y);
+    return this;
   }
 
   /**
@@ -221,25 +195,29 @@ export class UIBase {
    * @param width The width of this Game Object.
    * @param height The height of this Game Object.
    */
-  setSize(width: number, height: number): Phaser.GameObjects.Container {
-    return this.root.setSize(width, height);
+  setSize(width: number, height: number): UIBase {
+    this.root.setSize(width, height);
+    return this;
   }
 
   /**
-   * Clears all alpha values associated with this Game Object.
-   * Immediately sets the alpha levels back to 1 (fully opaque).
+   * Sets the display size of this Game Object. Calling this will adjust the scale.
+   * @param width The width of this Game Object.
+   * @param height The height of this Game Object.
    */
-  clearAlpha(): Phaser.GameObjects.Container {
-    return this.root.clearAlpha();
+  setDisplaySize(width: number, height: number): UIBase {
+    this.root.setDisplaySize(width, height);
+    return this;
   }
 
   /**
-   * Set the Alpha level of this Game Object. The alpha controls the opacity of the Game Object as it renders.
-   * Alpha values are provided as a float between 0, fully transparent, and 1, fully opaque.
-   * @param value The alpha value applied across the whole Game Object. Default 1.
+   * Sets the scale of this Game Object.
+   * @param x The horizontal scale of this Game Object. Default 1.
+   * @param y The vertical scale of this Game Object. If not set it will use the `x` value. Default x.
    */
-  setAlpha(value?: number): Phaser.GameObjects.Container {
-    return this.root.setAlpha(value);
+  setScale(x?: number, y?: number): UIBase {
+    this.root.setScale(x, y);
+    return this;
   }
 
   /**
@@ -252,6 +230,10 @@ export class UIBase {
   //===========================================
   //    Simplified writing for ease of use
   //===========================================
+  get scene() {
+    return this.root.scene;
+  }
+
   get x() {
     return this.root.x;
   }
@@ -313,7 +295,7 @@ export class UIBase {
   }
 
   set alpha(value: number) {
-    this.setAlpha(value);
+    this.root.setAlpha(value);
   }
 
   get visible() {
@@ -321,6 +303,6 @@ export class UIBase {
   }
 
   set visible(value: boolean) {
-    this.setVisible(value);
+    this.root.setVisible(value);
   }
 }

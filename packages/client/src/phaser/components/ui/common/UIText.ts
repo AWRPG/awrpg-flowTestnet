@@ -41,7 +41,7 @@ export class UIText extends UIBase {
     if (!config.wordWrap) this.textObj.setWordWrapWidth(config.wordWrapWidth);
 
     // Adjusting the position of the text
-    const offset = this.adjustTextPositon(this.alignModeName);
+    const offset = this.adjustTextPositon();
     this.textObj.x += offset.x;
     this.textObj.y += offset.y;
 
@@ -56,10 +56,10 @@ export class UIText extends UIBase {
   /**
    * Adjust the position of the text
    */
-  adjustTextPositon(alignModeName: string): { x: number; y: number } {
+  adjustTextPositon(): { x: number; y: number } {
     let offsetX = 0;
     let offsetY = 0;
-    switch (alignModeName) {
+    switch (this.alignModeName) {
       case ALIGNMODES.LEFT_CENTER:
         offsetY -= this.textObj.height / 8;
         break;
@@ -98,15 +98,15 @@ export class UIText extends UIBase {
    * An array of strings will be joined with `\n` line breaks.
    * @param value The string, or array of strings, to be set as the content of this Text object.
    */
-  setText(value: string | string[]): Phaser.GameObjects.Text {
-    const offset1 = this.adjustTextPositon(this.alignModeName);
+  setText(value: string | string[]): UIText {
+    const offset1 = this.adjustTextPositon();
     this.textObj.x -= offset1.x;
     this.textObj.y -= offset1.y;
     this.textObj.setText(value);
-    const offset2 = this.adjustTextPositon(this.alignModeName);
+    const offset2 = this.adjustTextPositon();
     this.textObj.x += offset2.x;
     this.textObj.y += offset2.y;
-    return this.textObj;
+    return this;
   }
 
   /**
@@ -115,57 +115,33 @@ export class UIText extends UIBase {
    * @param value The string, or array of strings, to be appended to the existing content of this Text object.
    * @param addCR Insert a carriage-return before the string value. Default true.
    */
-  appendText(
-    value: string | string[],
-    addCR?: boolean
-  ): Phaser.GameObjects.Text {
-    return this.textObj.appendText(value);
+  appendText(value: string | string[], addCR?: boolean): UIText {
+    const offset1 = this.adjustTextPositon();
+    this.textObj.x -= offset1.x;
+    this.textObj.y -= offset1.y;
+    this.textObj.appendText(value, addCR);
+    const offset2 = this.adjustTextPositon();
+    this.textObj.x += offset2.x;
+    this.textObj.y += offset2.y;
+    return this;
   }
 
   /**
    * Set the text style.
    * @param style The style settings to set.
    */
-  setStyle(style: object): Phaser.GameObjects.Text {
-    return this.textObj.setStyle(style);
+  setStyle(style: object): UIText {
+    this.textObj.setStyle(style);
+    return this;
   }
 
   /**
    * Set the font.
    * @param font The font family or font settings to set.
    */
-  setFont(font: string): Phaser.GameObjects.Text {
-    return this.textObj.setFont(font);
-  }
-
-  /**
-   * Set the font family.
-   *
-   * **Important:** The font name must be quoted if it contains certain combinations of digits or special characters:
-   * ```javascript
-   * setFontFamily('"Press Start 2P"');
-   * setFontFamily('Georgia, "Goudy Bookletter 1911", Times, serif');
-   * ```
-   * @param family The font family.
-   */
-  setFontFamily(family: string): Phaser.GameObjects.Text {
-    return this.textObj.setFontFamily(family);
-  }
-
-  /**
-   * Set the font size. Can be a string with a valid CSS unit, i.e. `16px`, or a number.
-   * @param size The font size.
-   */
-  setFontSize(size: number): Phaser.GameObjects.Text {
-    return this.textObj.setFontSize(size * 4);
-  }
-
-  /**
-   * Set the font style, such as 'bold', 'italic' or 'bold italic'
-   * @param style The font style.
-   */
-  setFontStyle(style: string): Phaser.GameObjects.Text {
-    return this.textObj.setFontStyle(style);
+  setFont(font: string): UIText {
+    this.textObj.setFont(font);
+    return this;
   }
 
   /**
@@ -174,48 +150,22 @@ export class UIText extends UIBase {
    * @param width The fixed width to set. `0` disables fixed width.
    * @param height The fixed height to set. `0` disables fixed height.
    */
-  setFixedSize(width: number, height: number): Phaser.GameObjects.Text {
-    return this.textObj.setFixedSize(width, height);
-  }
-
-  /**
-   * Set the alignment of the text in this Text object.
-   *
-   * The argument can be one of: `left`, `right`, `center` or `justify`.
-   * Alignment only works if the Text object has more than one line of text.
-   * @param align The text alignment for multi-line text. Default 'left'.
-   */
-  setTextAlign(align?: string): Phaser.GameObjects.Text {
-    return this.textObj.setAlign(align);
-  }
-
-  /**
-   * Set the text fill color.
-   * @param color The text fill color.
-   */
-  setFontColor(
-    color: string | CanvasGradient | CanvasPattern
-  ): Phaser.GameObjects.Text {
-    return this.textObj.setColor(color);
-  }
-
-  /**
-   * Set the background color.
-   * @param color The background color.
-   */
-  setBackgroundColor(color: string): Phaser.GameObjects.Text {
-    return this.textObj.setBackgroundColor(color);
+  setFixedSize(width: number, height: number): UIText {
+    this.textObj.setFixedSize(width, height);
+    return this;
   }
 
   /**
    * Set the stroke color.
    * @param color The stroke color.
+   * @param thickness The stroke thickness.
    */
   setStroke(
     color: string | CanvasGradient | CanvasPattern,
     thickness: number
-  ): Phaser.GameObjects.Text {
-    return this.textObj.setStroke(color, thickness);
+  ): UIText {
+    this.textObj.setStroke(color, thickness);
+    return this;
   }
 
   /**
@@ -234,8 +184,9 @@ export class UIText extends UIBase {
     blur?: number,
     shadowStroke?: boolean,
     shadowFill?: boolean
-  ): Phaser.GameObjects.Text {
-    return this.textObj.setShadow(x, y, color, blur, shadowStroke, shadowFill);
+  ): UIText {
+    this.textObj.setShadow(x, y, color, blur, shadowStroke, shadowFill);
+    return this;
   }
 
   /**
@@ -243,40 +194,9 @@ export class UIText extends UIBase {
    * @param x The horizontal shadow offset.
    * @param y The vertical shadow offset.
    */
-  setShadowOffset(x: number, y: number): Phaser.GameObjects.Text {
-    return this.textObj.setShadowOffset(x, y);
-  }
-
-  /**
-   * Set the shadow color.
-   * @param color The shadow color.
-   */
-  setShadowColor(color: string): Phaser.GameObjects.Text {
-    return this.textObj.setShadowColor(color);
-  }
-
-  /**
-   * Set the shadow blur radius.
-   * @param blur The shadow blur radius.
-   */
-  setShadowBlur(blur: number): Phaser.GameObjects.Text {
-    return this.textObj.setShadowBlur(blur);
-  }
-
-  /**
-   * Enable or disable shadow stroke.
-   * @param enabled Whether shadow stroke is enabled or not.
-   */
-  setShadowStroke(enabled: boolean): Phaser.GameObjects.Text {
-    return this.textObj.setShadowStroke(enabled);
-  }
-
-  /**
-   * Enable or disable shadow fill.
-   * @param enabled Whether shadow fill is enabled or not.
-   */
-  setShadowFill(enabled: boolean): Phaser.GameObjects.Text {
-    return this.textObj.setShadowFill(enabled);
+  setShadowOffset(x: number, y: number): UIText {
+    this.textObj.setShadowOffset(x, y);
+    return this;
   }
 
   /**
@@ -289,8 +209,9 @@ export class UIText extends UIBase {
   setWordWrapWidth(
     width: number | undefined,
     useAdvancedWrap?: boolean
-  ): Phaser.GameObjects.Text {
-    return this.textObj.setWordWrapWidth(width, useAdvancedWrap);
+  ): UIText {
+    this.textObj.setWordWrapWidth(width, useAdvancedWrap);
+    return this;
   }
 
   /**
@@ -304,35 +225,9 @@ export class UIText extends UIBase {
   setWordWrapCallback(
     callback: TextStyleWordWrapCallback,
     scope?: object
-  ): Phaser.GameObjects.Text {
-    return this.textObj.setWordWrapCallback(callback, scope);
-  }
-
-  /**
-   * Sets the line spacing value.
-   * This value is _added_ to the height of the font when calculating the overall line height.
-   * This only has an effect if this Text object consists of multiple lines of text.
-   * @param value The amount to add to the font height to achieve the overall line height.
-   */
-  setLineSpacing(value: number): Phaser.GameObjects.Text {
-    return this.textObj.setLineSpacing(value);
-  }
-
-  /**
-   * Sets the letter spacing value.
-   *
-   * This will add, or remove spacing between each character of this Text Game Object. The value can be
-   * either positive or negative. Positive values increase the space between each character, whilst negative
-   * values decrease it. Note that some fonts are spaced naturally closer together than others.
-   *
-   * Please understand that enabling this feature will cause Phaser to render each character in this Text object
-   * one by one, rather than use a draw for the whole string. This makes it extremely expensive when used with
-   * either long strings, or lots of strings in total. You will be better off creating bitmap font text if you
-   * need to display large quantities of characters with fine control over the letter spacing.
-   * @param value The amount to add to the letter width. Set to zero to disable.
-   */
-  setLetterSpacing(value: number): Phaser.GameObjects.Text {
-    return this.textObj.setLineSpacing(value);
+  ): UIText {
+    this.textObj.setWordWrapCallback(callback, scope);
+    return this;
   }
 
   /**
@@ -349,53 +244,9 @@ export class UIText extends UIBase {
     top?: number,
     right?: number,
     bottom?: number
-  ): Phaser.GameObjects.Text {
-    return this.textObj.setPadding(left, top, right, bottom);
-  }
-
-  /**
-   * Set the maximum number of lines to draw.
-   * @param max The maximum number of lines to draw. Default 0.
-   */
-  setMaxLines(max?: number): Phaser.GameObjects.Text {
-    return this.textObj.setMaxLines(max);
-  }
-
-  /**
-   * Render text from right-to-left or left-to-right.
-   * @param rtl Set to `true` to render from right-to-left. Default true.
-   */
-  setRTL(rtl?: boolean): Phaser.GameObjects.Text {
-    return this.textObj.setRTL(rtl);
-  }
-
-  /**
-   * Sets the Blend Mode being used by this Game Object.
-   *
-   * This can be a const, such as `Phaser.BlendModes.SCREEN`, or an integer, such as 4 (for Overlay)
-   *
-   * Under WebGL only the following Blend Modes are available:
-   *
-   * * NORMAL
-   * * ADD
-   * * MULTIPLY
-   * * SCREEN
-   * * ERASE (only works when rendering to a framebuffer, like a Render Texture)
-   *
-   * Canvas has more available depending on browser support.
-   *
-   * You can also create your own custom Blend Modes in WebGL.
-   *
-   * Blend modes have different effects under Canvas and WebGL, and from browser to browser, depending
-   * on support. Blend Modes also cause a WebGL batch flush should it encounter a new blend mode. For these
-   * reasons try to be careful about the construction of your Scene and the frequency in which blend modes
-   * are used.
-   * @param value The BlendMode value. Either a string, a CONST or a number.
-   */
-  setBlendMode(
-    value: string | Phaser.BlendModes | number
-  ): Phaser.GameObjects.Text {
-    return this.textObj.setBlendMode(value);
+  ): UIText {
+    this.textObj.setPadding(left, top, right, bottom);
+    return this;
   }
 
   //===========================================
@@ -414,7 +265,7 @@ export class UIText extends UIBase {
   }
 
   set fontFamily(value: string) {
-    this.setFontFamily(value);
+    this.textObj.setFontFamily(value);
   }
 
   get fontSize() {
@@ -422,7 +273,7 @@ export class UIText extends UIBase {
   }
 
   set fontSize(value: string | number) {
-    this.setFontSize(
+    this.textObj.setFontSize(
       typeof value === "string" ? parseInt(value, 10) * 4 : value * 4
     );
   }
@@ -432,7 +283,7 @@ export class UIText extends UIBase {
   }
 
   set fontStyle(value: string) {
-    this.setFontStyle(value);
+    this.textObj.setFontStyle(value);
   }
 
   get textAlign() {
@@ -440,7 +291,7 @@ export class UIText extends UIBase {
   }
 
   set textAlign(value: string) {
-    this.setTextAlign(value);
+    this.textObj.setAlign(value);
   }
 
   get fontColor() {
@@ -448,7 +299,7 @@ export class UIText extends UIBase {
   }
 
   set fontColor(value: string | CanvasGradient | CanvasPattern) {
-    this.setFontColor(value);
+    this.textObj.setColor(value);
   }
 
   get backgroundColor() {
@@ -456,7 +307,7 @@ export class UIText extends UIBase {
   }
 
   set backgroundColor(value: string) {
-    this.setBackgroundColor(value);
+    this.textObj.setBackgroundColor(value);
   }
 
   get strokeColor() {
@@ -496,7 +347,7 @@ export class UIText extends UIBase {
   }
 
   set shadowColor(value: string) {
-    this.setShadowColor(value);
+    this.textObj.setShadowColor(value);
   }
 
   get shadowBlur() {
@@ -504,7 +355,7 @@ export class UIText extends UIBase {
   }
 
   set shadowBlur(value: number) {
-    this.setShadowBlur(value);
+    this.textObj.setShadowBlur(value);
   }
 
   get shadowStroke() {
@@ -512,7 +363,7 @@ export class UIText extends UIBase {
   }
 
   set shadowStroke(value: boolean) {
-    this.setShadowStroke(value);
+    this.textObj.setShadowStroke(value);
   }
 
   get shadowFill() {
@@ -520,7 +371,7 @@ export class UIText extends UIBase {
   }
 
   set shadowFill(value: boolean) {
-    this.setShadowFill(value);
+    this.textObj.setShadowFill(value);
   }
 
   get wordWrapWidth() {
@@ -536,7 +387,15 @@ export class UIText extends UIBase {
   }
 
   set lineSpacing(value: number) {
-    this.setLineSpacing(value);
+    this.textObj.setLineSpacing(value);
+  }
+
+  get letterSpacing() {
+    return this.textObj.letterSpacing;
+  }
+
+  set letterSpacing(value: number) {
+    this.textObj.setLetterSpacing(value);
   }
 
   get padding() {
@@ -552,7 +411,7 @@ export class UIText extends UIBase {
   }
 
   set maxLines(value: number) {
-    this.setMaxLines(value);
+    this.textObj.setMaxLines(value);
   }
 
   get fixedWidth() {
@@ -576,7 +435,7 @@ export class UIText extends UIBase {
   }
 
   set rtl(value: boolean) {
-    this.setRTL(value);
+    this.textObj.setRTL(value);
   }
 
   get blendMode() {
@@ -584,6 +443,6 @@ export class UIText extends UIBase {
   }
 
   set blendMode(value: Phaser.BlendModes | string | number) {
-    this.setBlendMode(value);
+    this.textObj.setBlendMode(value);
   }
 }

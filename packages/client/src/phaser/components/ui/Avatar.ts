@@ -7,6 +7,6 @@ export class Avatar extends UIImage {
     config: UIImageConfig = {}
   ) {
     super(scene, texture, config);
-    this.setFlipX(true);
+    this.flipX = true;
   }
 }

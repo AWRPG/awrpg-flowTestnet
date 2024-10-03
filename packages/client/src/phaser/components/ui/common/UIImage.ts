@@ -52,36 +52,19 @@ export class UIImage extends UIBase {
   }
 
   /**
-   * Sets the horizontal and vertical flipped state of this Game Object.
-   * A Game Object that is flipped will render inversed on the flipped axis.
-   * Flipping always takes place from the middle of the texture and does not impact the scale value.
-   * If this Game Object has a physics body, it will not change the body. This is a rendering toggle only.
+   * Sets the horizontal and vertical flipped state of this image.
    * @param x The horizontal flipped state. `false` for no flip, or `true` to be flipped.
    * @param y The horizontal flipped state. `false` for no flip, or `true` to be flipped. If not set it will use the `x` value.
    */
-  setFlip(x: boolean, y: boolean = x) {
-    if (this.image instanceof Phaser.GameObjects.NineSlice) return;
+  setFlip(x: boolean, y: boolean = x): UIImage {
+    if (this.image instanceof Phaser.GameObjects.NineSlice) return this;
     this.image.setFlip(x, y);
+    return this;
   }
 
-  /**
-   * Sets the horizontal flipped state of this Game Object.
-   * @param value The flipped state. `false` for no flip, or `true` to be flipped.
-   */
-  setFlipX(value: boolean) {
-    if (this.image instanceof Phaser.GameObjects.NineSlice) return;
-    this.image.setFlipX(value);
-  }
-
-  /**
-   * Sets the vertical flipped state of this Game Object.
-   * @param value The flipped state. `false` for no flip, or `true` to be flipped.
-   */
-  setFlipY(value: boolean) {
-    if (this.image instanceof Phaser.GameObjects.NineSlice) return;
-    this.image.setFlipY(value);
-  }
-
+  //===========================================
+  //    Simplified writing for ease of use
+  //===========================================
   get flipX() {
     if (this.image instanceof Phaser.GameObjects.NineSlice) return false;
     return this.image.flipX;
