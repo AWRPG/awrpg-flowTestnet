@@ -1,10 +1,10 @@
 import { UIScene } from "../scenes/UIScene";
-import { UIManager } from "./UIManager";
+import { GuiBase } from "./GuiBase";
 import { Box } from "../components/ui/Box";
 import { UIText } from "../components/ui/common/UIText";
 import { ALIGNMODES } from "../../constants";
 
-export class TerrainUI extends UIManager {
+export class TerrainUI extends GuiBase {
   terrainNameText: UIText;
   terrainInfoText: UIText;
 

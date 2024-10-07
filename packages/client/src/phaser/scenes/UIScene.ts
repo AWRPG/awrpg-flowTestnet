@@ -2,12 +2,13 @@ import { SetupResult } from "../../mud/setup";
 import { CharacterInfo } from "../ui/CharacterInfo";
 import { TerrainUI } from "../ui/TerrainUI";
 import { ActionMenu } from "../ui/ActionMenu";
-import { UIManager } from "../ui/UIManager";
+import { GuiBase } from "../ui/GuiBase";
 import { UIBase } from "../components/ui/common/UIBase";
 import { BuildMenu } from "../ui/BuildMenu";
 import { BuildingMenu } from "../ui/BuildingMenu";
 import { StakeMenu } from "../ui/StakeMenu";
 import { StakingMenu } from "../ui/StakingMenu";
+import "../components/ui/UIBaseExtend";
 
 export class UIScene extends Phaser.Scene {
   /**
@@ -20,7 +21,7 @@ export class UIScene extends Phaser.Scene {
   /**
    * the UI Components which is focused on
    */
-  focusUI: UIManager[] = [];
+  focusUI: GuiBase[] = [];
 
   /**
    * show the information of current host
@@ -43,8 +44,8 @@ export class UIScene extends Phaser.Scene {
 
   stakingMenu: StakingMenu | undefined;
 
-  moveTips: UIManager | undefined;
-  buildTips: UIManager | undefined;
+  moveTips: GuiBase | undefined;
+  buildTips: GuiBase | undefined;
 
   buildMenu: BuildMenu | undefined;
 
@@ -86,11 +87,11 @@ export class UIScene extends Phaser.Scene {
   create() {
     this.characterInfo = new CharacterInfo(this);
     // this.terrainUI = new TerrainUI(this);
-    // this.actionMenu = new ActionMenu(this);
-    // this.moveTips = new UIManager(this, new UIBase(this, 0, 0, {}));
-    // this.moveTips.name = "MoveTips";
+    this.actionMenu = new ActionMenu(this);
+    this.moveTips = new GuiBase(this, new UIBase(this));
+    this.moveTips.name = "MoveTips";
     // this.buildMenu = new BuildMenu(this);
-    // this.buildTips = new UIManager(this, new UIBase(this, 0, 0, {}));
+    // this.buildTips = new GuiBase(this, new UIBase(this, 0, 0, {}));
     // this.buildTips.name = "BuildTips";
     // this.buildingMenu = new BuildingMenu(this);
     // this.stakeMenu = new StakeMenu(this);

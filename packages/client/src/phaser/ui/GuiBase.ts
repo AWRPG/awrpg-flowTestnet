@@ -5,7 +5,7 @@ import { Button } from "../components/ui/Button";
 /**
  * All the complex UI Components need to extend from this class.
  */
-export class UIManager {
+export class GuiBase {
   /**
    * the UIScene
    */
@@ -23,7 +23,7 @@ export class UIManager {
   isVisible: boolean = false;
 
   /**
-   * Each UIManager must have a basic UI component as a root node
+   * Each GuiBase must have a basic UI component as a root node
    */
   rootUI: UIBase;
 
@@ -46,10 +46,10 @@ export class UIManager {
 
   /**
    * @param scene currently only UIScene is supported
-   * @param rootUI The base UI component that serves as the root node of the UIManager
+   * @param rootUI The base UI component that serves as the root node of the GuiBase
    */
   constructor(scene: UIScene, rootUI: UIBase) {
-    this.name = "UIManager";
+    this.name = "GuiBase";
     this.scene = scene;
     this.rootUI = rootUI;
     this.hidden(); // It will only be displayed when be called.
@@ -141,7 +141,7 @@ export class UIManager {
     if (!this.buttons) return;
     const button = this.buttons[this.currentButtonIndex].button;
     button.skin.show();
-    button.selectedSkin.hide();
+    button.selectedSkin.hidden();
   }
 
   /**
@@ -150,7 +150,7 @@ export class UIManager {
   selectButton() {
     if (!this.buttons) return;
     const button = this.buttons[this.currentButtonIndex].button;
-    button.skin.hide();
+    button.skin.hidden();
     button.selectedSkin.show();
   }
 

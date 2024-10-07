@@ -36,7 +36,6 @@ export class UIText extends UIBase {
       align: config.textAlign,
     });
 
-    // if (config.fontFamily) this.textObj.setFontFamily(config.fontFamily);
     this.textObj.setScale(0.25); // Since Phaser’s problem with rendering text, solving by scaling.
     if (!config.wordWrap) this.textObj.setWordWrapWidth(config.wordWrapWidth);
 

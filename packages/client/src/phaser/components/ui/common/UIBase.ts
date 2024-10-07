@@ -1,4 +1,6 @@
+import { Component, Schema, Entity } from "@latticexyz/recs";
 import { ALIGNMODES } from "../../../../constants";
+import { listenComponentValue } from "../../../../utils/listenComponetValue";
 
 export interface UIBaseConfig {
   texture?: string | undefined;
@@ -28,14 +30,23 @@ export class UIBase {
   /** parent UI of this UI  */
   parent: UIBase | undefined;
 
+  /** children UIs of this UI  */
+  children: UIBase[] = [];
+
   /** The horizontal distance (px) to the align position @readonly */
   marginX: number;
 
   /** The vertical distance (px) to the align position @readonly */
   marginY: number;
 
+  /** The global x position of root @readonly */
+  globalX: number = 0;
+
+  /** The global y position of root @readonly */
+  globalY: number = 0;
+
   /** */
-  constructor(scene: Phaser.Scene, config: UIBaseConfig) {
+  constructor(scene: Phaser.Scene, config: UIBaseConfig = {}) {
     this.texture = config.texture;
     this.alignModeName = config.alignModeName ?? ALIGNMODES.LEFT_TOP;
     this.marginX = config.marginX ?? 0;
@@ -50,9 +61,18 @@ export class UIBase {
     // Mounts the root on the specified object
     if (this.parent) {
       this.parent.root.add(this.root);
+      this.parent.children.push(this);
     } else {
       scene.add.existing(this.root);
     }
+    this.init();
+  }
+
+  /**
+   * Initialise the rest
+   */
+  init() {
+    // Expand as needed
   }
 
   /**
@@ -149,9 +169,21 @@ export class UIBase {
         this.y = this.marginY;
         break;
     }
+    this.updateGlobalPosition();
     return this;
   }
 
+  /**
+   * Update self and all children's global x & y
+   */
+  updateGlobalPosition(): UIBase {
+    this.globalX = this.parent ? this.parent.globalX + this.x : this.x;
+    this.globalY = this.parent ? this.parent.globalY + this.y : this.y;
+    for (let child in this.children) {
+      this.children[child].updateGlobalPosition();
+    }
+    return this;
+  }
   /**
    * Change the position. Considered unchanged by default.
    * Considering alignment and such, it's not recommended to use it directly
@@ -159,9 +191,10 @@ export class UIBase {
    * @param x new x
    * @param y new y
    */
-  setPosition(x?: number, y?: number): UIBase {
-    if (x) this.root.x = this.x = x;
-    if (y) this.root.y = this.y = y;
+  setPosition(x: number | undefined, y?: number): UIBase {
+    if (x != undefined) this.x = x;
+    if (y != undefined) this.y = y;
+    this.updateGlobalPosition();
     return this;
   }
 
@@ -174,8 +207,6 @@ export class UIBase {
     if (x) this.marginX = x;
     if (y) this.marginY = y;
     this.updatePosition();
-    this.root.x = this.x;
-    this.root.y = this.y;
     return this;
   }
 
@@ -186,8 +217,6 @@ export class UIBase {
   setAlignMode(name: string): UIBase {
     this.alignModeName = name;
     this.updatePosition();
-    this.root.x = this.x;
-    this.root.y = this.y;
     return this;
   }
 

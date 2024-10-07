@@ -1,31 +1,32 @@
 import { UIScene } from "../scenes/UIScene";
-import { UIManager } from "./UIManager";
+import { GuiBase } from "./GuiBase";
 import { Box } from "../components/ui/Box";
 import { Avatar } from "../components/ui/Avatar";
 import { UIImage } from "../components/ui/common/UIImage";
 import { UIText } from "../components/ui/common/UIText";
-import { Bar } from "../components/ui/Bar";
+import { UISlider } from "../components/ui/common/UISlider";
 import { ALIGNMODES } from "../../constants";
 import { Heading2 } from "../components/ui/Heading2";
 import { Heading3 } from "../components/ui/Heading3";
+import { HpBar } from "../components/ui/HpBar";
 
-export class CharacterInfo extends UIManager {
+export class CharacterInfo extends GuiBase {
   avatar: UIImage;
   characterName: UIText;
 
-  hpBar: Bar;
+  hpBar: HpBar;
   hpName: UIText;
   hpNum: UIText;
 
-  hp: number = 1;
-  maxHp: number = 1;
+  hp: number = 1000;
+  maxHp: number = 1000;
 
-  spBar: Bar;
+  spBar: UISlider;
   spName: UIText;
   spNum: UIText;
 
-  sp: number = 1;
-  maxSp: number = 1;
+  sp: number = 1000;
+  maxSp: number = 1000;
 
   constructor(scene: UIScene) {
     super(
@@ -57,13 +58,12 @@ export class CharacterInfo extends UIManager {
       parent: this.rootUI,
     });
 
-    this.hpBar = new Bar(this.scene, "bar_red", "bar_empty", 358, 30, {
-      alignModeName: ALIGNMODES.LEFT_TOP,
+    this.hpBar = new HpBar(this.scene, {
+      width: 358,
+      height: 30,
       marginX: 268,
       marginY: 78,
       parent: this.rootUI,
-      value: this.hp,
-      maxValue: this.maxHp,
     });
 
     this.hpName = new Heading3(this.scene, "HP", {
@@ -79,13 +79,15 @@ export class CharacterInfo extends UIManager {
       parent: this.hpBar,
     });
 
-    this.spBar = new Bar(this.scene, "bar_yellow", "bar_empty", 358, 30, {
+    this.spBar = new UISlider(this.scene, "bar_empty", "bar_yellow", null, {
+      width: 358,
+      height: 30,
       alignModeName: ALIGNMODES.LEFT_TOP,
       marginX: 268,
       marginY: 140,
       parent: this.rootUI,
-      value: this.sp,
-      maxValue: this.maxSp,
+      defaultValue: this.sp,
+      max: this.maxSp,
     });
 
     this.spName = new Heading3(this.scene, "SP", {

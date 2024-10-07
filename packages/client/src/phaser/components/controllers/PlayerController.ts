@@ -16,6 +16,7 @@ import {
   terrainMapping,
   UI_NAME,
   HIGHLIGHT_MODE,
+  POOL_TYPES,
 } from "../../../constants";
 import {
   setNewTargetTile,
@@ -32,7 +33,7 @@ import {
 import { getHostPosition } from "../../../logics/path";
 import { getTargetTerrainData, TileData } from "../../../logics/terrain";
 import { Host } from "../../objects/Host";
-import { UIManager } from "../../ui/UIManager";
+import { GuiBase } from "../../ui/GuiBase";
 
 /**
  * Handle user client interface
@@ -175,7 +176,7 @@ export class PlayerController {
         if (type === "role" || type === "building") return;
         if (this.scene.hosts[this.moveEntity].movesUpdate()) {
           this.closeTileHighlight(this.moveEntity);
-          this.uiScene.characterInfo?.hidden();
+          // this.uiScene.characterInfo?.hidden();
           this.scene.cursor.clearAccessory(this.moveEntity);
           this.uiScene.moveTips?.hidden();
         }
@@ -349,17 +350,20 @@ export class PlayerController {
     const maxHp = entityObj.properties.get("maxBLOOD");
     const sp = entityObj.properties.get("STAMINA");
     const maxSp = entityObj.properties.get("maxSTAMINA");
-    this.uiScene.characterInfo?.setData("hp", hp + "/" + maxHp);
-    this.uiScene.characterInfo?.setData("sp", sp + "/" + maxSp);
+    if (this.uiScene.characterInfo) {
+      this.uiScene.characterInfo.setData("hp", hp + "/" + maxHp);
+      this.uiScene.characterInfo.setData("sp", sp + "/" + maxSp);
+      this.uiScene.characterInfo.hpBar.entity = entityObj.entity;
+    }
   }
 
-  getFocusUI(): UIManager | undefined {
+  getFocusUI(): GuiBase | undefined {
     return this.uiScene.focusUI?.length > 0
       ? this.uiScene.focusUI[this.uiScene.focusUI.length - 1]
       : undefined;
   }
 
-  isMenu(ui: UIManager | undefined): boolean {
+  isMenu(ui: GuiBase | undefined): boolean {
     return !ui || !ui?.buttons ? false : true;
   }
 

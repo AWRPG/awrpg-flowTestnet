@@ -94,7 +94,7 @@ export class Button extends UIBase {
       topHeight: topHeightSelected,
       bottomHeight: bottomHeightSelected,
     });
-    this.selectedSkin.hide();
+    this.selectedSkin.hidden();
 
     // Text
     this.uiText = new UIText(scene, content, {

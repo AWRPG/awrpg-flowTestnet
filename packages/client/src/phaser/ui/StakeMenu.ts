@@ -2,7 +2,7 @@ import { Entity, getComponentValue } from "@latticexyz/recs";
 import { ALIGNMODES, SOURCE } from "../../constants";
 import { Box } from "../components/ui/Box";
 import { UIScene } from "../scenes/UIScene";
-import { UIManager } from "./UIManager";
+import { GuiBase } from "./GuiBase";
 import {
   getRoleAndHostAdjacentCoord,
   roleAndHostWithinRange,
@@ -20,7 +20,7 @@ import { Hex, hexToString } from "viem";
 import { ButtonA } from "./buttons/ButtonA";
 
 // display building's stake menu that lists all available stake outputTypes in said building
-export class StakeMenu extends UIManager {
+export class StakeMenu extends GuiBase {
   components: UIScene["components"];
   systemCalls: UIScene["systemCalls"];
 

@@ -5,7 +5,7 @@ import { Button } from "../components/ui/Button";
 import { UIText } from "../components/ui/common/UIText";
 import { UIScene } from "../scenes/UIScene";
 import { ButtonA } from "./buttons/ButtonA";
-import { UIManager } from "./UIManager";
+import { GuiBase } from "./GuiBase";
 import { canRoleEnter, roleAndHostWithinRange } from "../../logics/building";
 import { getTargetTerrainData } from "../../logics/terrain";
 import {
@@ -14,7 +14,7 @@ import {
 } from "../../logics/stake";
 import { Hex } from "viem";
 
-export class BuildingMenu extends UIManager {
+export class BuildingMenu extends GuiBase {
   components: UIScene["components"];
   systemCalls: UIScene["systemCalls"];
 
