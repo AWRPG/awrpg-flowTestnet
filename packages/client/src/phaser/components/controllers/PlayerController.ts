@@ -354,6 +354,14 @@ export class PlayerController {
       this.uiScene.characterInfo.setData("hp", hp + "/" + maxHp);
       this.uiScene.characterInfo.setData("sp", sp + "/" + maxSp);
       this.uiScene.characterInfo.hpBar.entity = entityObj.entity;
+      this.uiScene.characterInfo.hpName.listenComponentValue(
+        "Path",
+        (value: any) => {
+          if (this.uiScene.characterInfo)
+            this.uiScene.characterInfo.hpName.text = value.toX.toString();
+        },
+        entityObj.entity
+      );
     }
   }
 

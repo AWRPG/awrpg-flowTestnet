@@ -1,7 +1,6 @@
 import { UISlider, UISliderConfig } from "./common/UISlider";
 import { Hex } from "viem";
 import { Entity } from "@latticexyz/recs";
-import { ClientComponents } from "../../../mud/createClientComponents";
 import { getPoolAmount, getPoolCapacity } from "../../../logics/pool";
 import { POOL_TYPES } from "../../../constants";
 
@@ -38,8 +37,8 @@ export class HpBar extends UISlider {
 
   set entity(value: Entity | undefined) {
     super.entity = value;
-    this.listenComponentValue(this.components.Path, (nextValue) => {
-      this.px = nextValue;
-    });
+    // this.listenComponentValue("Path", (nextValue) => {
+    //   this.px = nextValue;
+    // });
   }
 }
