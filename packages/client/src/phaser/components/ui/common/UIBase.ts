@@ -1,6 +1,4 @@
-import { Component, Schema, Entity } from "@latticexyz/recs";
 import { ALIGNMODES } from "../../../../constants";
-import { listenComponentValue } from "../../../../utils/listenComponetValue";
 
 export interface UIBaseConfig {
   texture?: string | undefined;
