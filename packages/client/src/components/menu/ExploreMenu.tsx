@@ -149,7 +149,7 @@ export default function ExploreMenu() {
       },
     },
     {
-      name: "舔包",
+      name: "loot",
       onClick: async () => {
         const body = erc721Drops[0] as Hex;
         if (!body) return;
