@@ -182,7 +182,6 @@ export class GameScene extends Phaser.Scene {
       EntityType,
       StoredSize,
       Owner,
-      Moves,
       SelectedHost,
       SelectedEntity,
       Commander,
@@ -246,17 +245,6 @@ export class GameScene extends Phaser.Scene {
       // const pathCoords = calculatePathCoords(this.components, entity);
     });
 
-    /**
-     * rn, load/unload building because role is handled by Path
-     * note: entity is tileId
-     */
-    defineSystem(world, [Has(TileEntity)], ({ entity, type }) => {
-      if (type === UpdateType.Exit) {
-        return this.unloadTileEntity(entity);
-      }
-      this.loadTileEntity(entity);
-    });
-
     defineSystem(world, [Has(MineValue)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
         this.mines[entity]?.destroy();
@@ -313,6 +301,20 @@ export class GameScene extends Phaser.Scene {
         this.tileHighlights[entity].clearHighlight();
         delete this.tileHighlights[entity];
       }
+    });
+
+    // // building on map
+    // defineSystem(world, [Has(Path), Has(Creator)], ({ entity, type }) => {});
+
+    /**
+     * rn, load/unload building because role is handled by Path
+     * note: entity is tileId
+     */
+    defineSystem(world, [Has(TileEntity)], ({ entity, type }) => {
+      if (type === UpdateType.Exit) {
+        return this.unloadTileEntity(entity);
+      }
+      this.loadTileEntity(entity);
     });
 
     defineSystem(
