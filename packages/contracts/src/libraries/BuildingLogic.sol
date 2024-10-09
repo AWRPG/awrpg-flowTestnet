@@ -45,6 +45,7 @@ library BuildingLogic {
     bytes32 building = ContainerLogic._mint(buildingType, space());
     TileLogic._setTileEntitiesStrict(building, tileIds);
     // TODO?: set building path on lowerX, lowerY?
+    PathLogic._initPath(building, lowerX, lowerY);
     // Position.set(building, x, y);
     Creator.set(building, player);
   }
@@ -120,17 +121,25 @@ library BuildingLogic {
   function _burnBuilding(bytes32 role, uint32 x, uint32 y) internal {
     bytes32 coordId = MapLogic.getCoordId(x, y);
     bytes32 entity = TileEntity.get(coordId);
-    if (entity == 0) revert Errors.HasNoEntityOnCoord();
+    // if (entity == 0) revert Errors.HasNoEntityOnCoord();
 
     bytes16 entityType = EntityType.get(entity);
     if (!EntityLogic.isBuildingType(entityType)) revert Errors.NotBuildingType();
-    CostLogic._burnBurnCosts(entityType, role);
+    // CostLogic._burnBurnCosts(entityType, role);
+    // AwardLogic._mintBurnAwards(entityType, role);
 
-    AwardLogic._mintBurnAwards(entityType, role);
+    (uint32 lowerX, uint32 lowerY) = PathLogic.getPositionStrict(entity);
+    bytes32[] memory tilIds = getRectangleCoordIdsStrict(
+      x,
+      y,
+      lowerX,
+      lowerY,
+      BuildingSpecs.getWidth(entityType),
+      BuildingSpecs.getHeight(entityType)
+    );
+    TileLogic._deleteTileEntities(entity, tilIds);
 
     ContainerLogic._burn(entity);
-    TileEntity.deleteRecord(coordId);
-    // Position.deleteRecord(entity);
     Creator.deleteRecord(entity);
   }
 

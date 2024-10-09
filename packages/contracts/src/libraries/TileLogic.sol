@@ -16,4 +16,14 @@ library TileLogic {
     if (TileEntity.get(tileId) != 0) revert Errors.HasEntityOnCoord();
     TileEntity.set(tileId, entity);
   }
+
+  function _deleteTileEntities(bytes32 entity, bytes32[] memory tileIds) internal {
+    for (uint256 i = 0; i < tileIds.length; i++) {
+      _deleteTileEntity(entity, tileIds[i]);
+    }
+  }
+
+  function _deleteTileEntity(bytes32 entity, bytes32 tileId) internal {
+    TileEntity.deleteRecord(tileId);
+  }
 }
