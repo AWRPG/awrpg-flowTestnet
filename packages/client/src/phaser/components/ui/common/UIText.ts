@@ -26,7 +26,7 @@ export class UIText extends UIBase {
   textObj: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene, text: string, config: UITextConfig = {}) {
-    super(scene, { width: -1, height: -1, ...config });
+    super(scene, { ...config, width: -1, height: -1 });
 
     this.textObj = new Phaser.GameObjects.Text(scene, 0, 0, text, {
       ...config,
@@ -40,14 +40,7 @@ export class UIText extends UIBase {
     if (!config.wordWrap) this.textObj.setWordWrapWidth(config.wordWrapWidth);
 
     // Adjusting the position of the text
-    const offset = this.adjustTextPositon();
-    this.textObj.x += offset.x;
-    this.textObj.y += offset.y;
-
-    // Further adjustments for special fonts
-    if (config.fontFamily === "ThaleahFat") {
-      this.textObj.y -= this.textObj.height / 16;
-    }
+    this.adjustTextPositon();
 
     this.root.add(this.textObj);
   }
@@ -55,22 +48,25 @@ export class UIText extends UIBase {
   /**
    * Adjust the position of the text
    */
-  adjustTextPositon(): { x: number; y: number } {
+  adjustTextPositon() {
     let offsetX = 0;
     let offsetY = 0;
     switch (this.alignModeName) {
       case ALIGNMODES.LEFT_CENTER:
         offsetY -= this.textObj.height / 8;
+        if (this.fontFamily === "ThaleahFat") offsetY -= this.fontSize / 4;
         break;
       case ALIGNMODES.LEFT_BOTTOM:
         offsetY -= this.textObj.height / 4;
         break;
       case ALIGNMODES.RIGHT_TOP:
         offsetX -= this.textObj.width / 4;
+        if (this.fontFamily === "ThaleahFat") offsetY -= this.fontSize / 2;
         break;
       case ALIGNMODES.RIGHT_CENTER:
         offsetX -= this.textObj.width / 4;
         offsetY -= this.textObj.height / 8;
+        if (this.fontFamily === "ThaleahFat") offsetY -= this.fontSize / 4;
         break;
       case ALIGNMODES.RIGHT_BOTTOM:
         offsetX -= this.textObj.width / 4;
@@ -78,17 +74,23 @@ export class UIText extends UIBase {
         break;
       case ALIGNMODES.MIDDLE_TOP:
         offsetX -= this.textObj.width / 8;
+        if (this.fontFamily === "ThaleahFat") offsetY -= this.fontSize / 2;
         break;
       case ALIGNMODES.MIDDLE_CENTER:
         offsetX -= this.textObj.width / 8;
         offsetY -= this.textObj.height / 8;
+        if (this.fontFamily === "ThaleahFat") offsetY -= this.fontSize / 4;
         break;
       case ALIGNMODES.MIDDLE_BOTTOM:
         offsetX -= this.textObj.width / 8;
         offsetY -= this.textObj.height / 4;
         break;
+      default:
+        if (this.fontFamily === "ThaleahFat") offsetY -= this.fontSize / 2;
+        break;
     }
-    return { x: offsetX, y: offsetY };
+    this.textObj.x = offsetX;
+    this.textObj.y = offsetY;
   }
 
   /**
@@ -98,13 +100,8 @@ export class UIText extends UIBase {
    * @param value The string, or array of strings, to be set as the content of this Text object.
    */
   setText(value: string | string[]): UIText {
-    const offset1 = this.adjustTextPositon();
-    this.textObj.x -= offset1.x;
-    this.textObj.y -= offset1.y;
     this.textObj.setText(value);
-    const offset2 = this.adjustTextPositon();
-    this.textObj.x += offset2.x;
-    this.textObj.y += offset2.y;
+    this.adjustTextPositon();
     return this;
   }
 
@@ -115,13 +112,8 @@ export class UIText extends UIBase {
    * @param addCR Insert a carriage-return before the string value. Default true.
    */
   appendText(value: string | string[], addCR?: boolean): UIText {
-    const offset1 = this.adjustTextPositon();
-    this.textObj.x -= offset1.x;
-    this.textObj.y -= offset1.y;
     this.textObj.appendText(value, addCR);
-    const offset2 = this.adjustTextPositon();
-    this.textObj.x += offset2.x;
-    this.textObj.y += offset2.y;
+    this.adjustTextPositon();
     return this;
   }
 
@@ -256,7 +248,7 @@ export class UIText extends UIBase {
   }
 
   set text(value: string | string[]) {
-    this.textObj.setText(value);
+    this.setText(value);
   }
 
   get fontFamily() {
@@ -268,13 +260,12 @@ export class UIText extends UIBase {
   }
 
   get fontSize() {
-    return this.textObj.style.fontSize;
+    const value = this.textObj.style.fontSize;
+    return typeof value === "string" ? parseInt(value, 10) / 4 : value / 4;
   }
 
-  set fontSize(value: string | number) {
-    this.textObj.setFontSize(
-      typeof value === "string" ? parseInt(value, 10) * 4 : value * 4
-    );
+  set fontSize(value: number) {
+    this.textObj.setFontSize(value * 4);
   }
 
   get fontStyle() {

@@ -5,15 +5,13 @@ import { getPoolAmount, getPoolCapacity } from "../../../logics/pool";
 import { POOL_TYPES } from "../../../constants";
 
 export class HpBar extends UISlider {
-  private _px: unknown = null;
-
   constructor(scene: Phaser.Scene, config: UISliderConfig = {}) {
     super(scene, "bar_empty", "bar_red", null, config);
   }
 
-  updateComponentValues() {
-    console.log("updateComponentValues");
+  updateComponentValues(entity?: Entity) {
     if (!this.components || !this.entity) return;
+    if (entity && entity !== this.entity) return;
     this.max = Number(
       getPoolCapacity(this.components, this.entity as Hex, POOL_TYPES[2])
     );
@@ -22,23 +20,12 @@ export class HpBar extends UISlider {
     );
   }
 
-  get px() {
-    return this._px;
-  }
-
-  set px(value: unknown) {
-    this._px = value;
-    this.updateComponentValues();
-  }
-
   get entity() {
     return super.entity;
   }
 
   set entity(value: Entity | undefined) {
     super.entity = value;
-    // this.listenComponentValue("Path", (nextValue) => {
-    //   this.px = nextValue;
-    // });
+    this.updateComponentValues();
   }
 }

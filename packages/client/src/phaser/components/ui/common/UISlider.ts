@@ -153,13 +153,6 @@ export class UISlider extends UIBase {
     this.vertical = config.vertical ?? false;
     this.maskMode = config.maskMode ?? true;
     this.updateFilledTrack();
-
-    // listener
-    // if (config.onChange) this.root.on("value", this.onValueChanged);
-
-    // this.bar.setData("value", value);
-    // this.bar.setData("maxValue", maxValue);
-    // this.bar.on("changedata", this.onDataChanged);
   }
 
   updateFilledTrack() {

@@ -54,7 +54,7 @@ export class Host extends SceneObject {
    */
   direction: Direction;
 
-  prevCoord?: Vector 
+  prevCoord?: Vector;
 
   /**
    * @param scene the scene belong

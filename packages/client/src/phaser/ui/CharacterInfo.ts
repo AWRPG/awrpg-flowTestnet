@@ -1,5 +1,4 @@
-import { UIScene } from "../scenes/UIScene";
-import { GuiBase } from "./GuiBase";
+import { GuiBase } from "../components/ui/common/GuiBase";
 import { Box } from "../components/ui/Box";
 import { Avatar } from "../components/ui/Avatar";
 import { UIImage } from "../components/ui/common/UIImage";
@@ -9,39 +8,31 @@ import { ALIGNMODES } from "../../constants";
 import { Heading2 } from "../components/ui/Heading2";
 import { Heading3 } from "../components/ui/Heading3";
 import { HpBar } from "../components/ui/HpBar";
+import { SpBar } from "../components/ui/SpBar";
 
 export class CharacterInfo extends GuiBase {
+  rootUI: Box;
   avatar: UIImage;
   characterName: UIText;
-
   hpBar: HpBar;
   hpName: UIText;
   hpNum: UIText;
-
-  hp: number = 1000;
-  maxHp: number = 1000;
-
   spBar: UISlider;
   spName: UIText;
   spNum: UIText;
 
-  sp: number = 1000;
-  maxSp: number = 1000;
-
-  constructor(scene: UIScene) {
-    super(
-      scene,
-      new Box(scene, {
-        alignModeName: ALIGNMODES.LEFT_BOTTOM,
-        width: 680,
-        height: 192,
-        marginX: 8,
-        marginY: 8,
-      })
-    );
+  constructor(scene: Phaser.Scene) {
+    super(scene);
     this.name = "CharacterInfo";
-    this.setData("hp", 1);
-    this.setData("sp", 1);
+    this.hidden();
+
+    this.rootUI = new Box(scene, {
+      alignModeName: ALIGNMODES.LEFT_BOTTOM,
+      width: 680,
+      height: 192,
+      marginX: 8,
+      marginY: 8,
+    });
 
     this.avatar = new Avatar(this.scene, "avatar-farmer-1-1", {
       alignModeName: ALIGNMODES.LEFT_BOTTOM,
@@ -72,22 +63,19 @@ export class CharacterInfo extends GuiBase {
       parent: this.hpBar,
     });
 
-    this.hpNum = new Heading3(this.scene, this.hp + " / " + this.maxHp, {
+    this.hpNum = new Heading3(this.scene, "1 / 1", {
       alignModeName: ALIGNMODES.RIGHT_TOP,
       marginX: 4,
       marginY: -20,
       parent: this.hpBar,
     });
 
-    this.spBar = new UISlider(this.scene, "bar_empty", "bar_yellow", null, {
+    this.spBar = new SpBar(this.scene, {
       width: 358,
       height: 30,
-      alignModeName: ALIGNMODES.LEFT_TOP,
       marginX: 268,
       marginY: 140,
       parent: this.rootUI,
-      defaultValue: this.sp,
-      max: this.maxSp,
     });
 
     this.spName = new Heading3(this.scene, "SP", {
@@ -96,21 +84,11 @@ export class CharacterInfo extends GuiBase {
       parent: this.spBar,
     });
 
-    this.spNum = new Heading3(this.scene, this.sp + " / " + this.maxSp, {
+    this.spNum = new Heading3(this.scene, "1 / 1", {
       alignModeName: ALIGNMODES.RIGHT_TOP,
       marginX: 4,
       marginY: -20,
       parent: this.spBar,
     });
-  }
-
-  onDataChanged(parent: unknown, key: string, data: unknown) {
-    switch (key) {
-      case "hp":
-        this.hpNum.setText(data as string);
-        break;
-      case "sp":
-        this.spNum.setText(data as string);
-    }
   }
 }

@@ -26,7 +26,7 @@ export class UIBase {
   alignModeName: string;
 
   /** parent UI of this UI  */
-  parent: UIBase | undefined;
+  protected _parent: UIBase | undefined;
 
   /** children UIs of this UI  */
   children: UIBase[] = [];
@@ -49,20 +49,14 @@ export class UIBase {
     this.alignModeName = config.alignModeName ?? ALIGNMODES.LEFT_TOP;
     this.marginX = config.marginX ?? 0;
     this.marginY = config.marginY ?? 0;
-    this.parent = config.parent;
 
     // Creates the root container & init size and position
     this.root = new Phaser.GameObjects.Container(scene, 0, 0);
+    this.parent = config.parent;
     this.setAutoScale(config);
     this.updatePosition();
 
     // Mounts the root on the specified object
-    if (this.parent) {
-      this.parent.root.add(this.root);
-      this.parent.children.push(this);
-    } else {
-      scene.add.existing(this.root);
-    }
     this.init();
   }
 
@@ -127,7 +121,7 @@ export class UIBase {
   /**
    * Set coordinates according to alignment
    */
-  updatePosition(): UIBase {
+  updatePosition() {
     const referObj = this.parent ?? this.scene.scale;
     switch (this.alignModeName) {
       case ALIGNMODES.LEFT_CENTER:
@@ -168,7 +162,6 @@ export class UIBase {
         break;
     }
     this.updateGlobalPosition();
-    return this;
   }
 
   /**
@@ -254,6 +247,26 @@ export class UIBase {
    */
   destroyChildren() {
     this.root.removeAll(true);
+  }
+
+  get parent() {
+    return this._parent;
+  }
+
+  set parent(value: UIBase | undefined) {
+    if (this.parent) {
+      this.parent.root.remove(this.root);
+      this.parent.children.splice(this.parent.children.indexOf(this), 1);
+    } else {
+      this.scene.children.remove(this.root);
+    }
+    this._parent = value;
+    if (value) {
+      value.root.add(this.root);
+      value.children.push(this);
+    } else {
+      this.scene.add.existing(this.root);
+    }
   }
 
   //===========================================

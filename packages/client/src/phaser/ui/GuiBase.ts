@@ -1,4 +1,3 @@
-import { UIScene } from "../scenes/UIScene";
 import { UIBase } from "../components/ui/common/UIBase";
 import { Button } from "../components/ui/Button";
 
@@ -9,7 +8,7 @@ export class GuiBase {
   /**
    * the UIScene
    */
-  scene: UIScene;
+  scene: Phaser.Scene;
 
   /**
    * The name is used for controllers to determine the current UI object
@@ -45,10 +44,10 @@ export class GuiBase {
   onDataChanged(parent: unknown, key: string, data: unknown) {}
 
   /**
-   * @param scene currently only UIScene is supported
+   * @param scene
    * @param rootUI The base UI component that serves as the root node of the GuiBase
    */
-  constructor(scene: UIScene, rootUI: UIBase) {
+  constructor(scene: Phaser.Scene, rootUI: UIBase) {
     this.name = "GuiBase";
     this.scene = scene;
     this.rootUI = rootUI;

@@ -346,22 +346,28 @@ export class PlayerController {
   }
 
   setCharacterInfo(entityObj: Host) {
-    const hp = entityObj.properties.get("BLOOD");
-    const maxHp = entityObj.properties.get("maxBLOOD");
-    const sp = entityObj.properties.get("STAMINA");
-    const maxSp = entityObj.properties.get("maxSTAMINA");
-    if (this.uiScene.characterInfo) {
-      this.uiScene.characterInfo.setData("hp", hp + "/" + maxHp);
-      this.uiScene.characterInfo.setData("sp", sp + "/" + maxSp);
-      this.uiScene.characterInfo.hpBar.entity = entityObj.entity;
-      this.uiScene.characterInfo.hpName.listenComponentValue(
-        "Path",
-        (value: any) => {
-          if (this.uiScene.characterInfo)
-            this.uiScene.characterInfo.hpName.text = value.toX.toString();
-        },
-        entityObj.entity
-      );
+    const hp = entityObj.properties.get("BLOOD") ?? 0;
+    const maxHp = entityObj.properties.get("maxBLOOD") ?? 0;
+    const sp = entityObj.properties.get("STAMINA") ?? 0;
+    const maxSp = entityObj.properties.get("maxSTAMINA") ?? 0;
+    const gui = this.uiScene.characterInfo;
+    if (gui) {
+      gui.hpNum.text = hp + "/" + maxHp;
+      gui.hpBar.max = maxHp;
+      gui.hpBar.value = hp;
+      gui.spNum.text = sp + "/" + maxSp;
+      gui.spBar.max = maxSp;
+      gui.spBar.value = sp;
+
+      // this.uiScene.characterInfo.hpBar.listenComponentValue(
+      //   entityObj.components.PoolOf,
+      //   (value: any) => {
+      //     console.log(value)
+      //     if (this.uiScene.characterInfo)
+      //       this.uiScene.characterInfo.hpName.text = value.toString();
+      //   },
+      //   entityObj.entity
+      // );
     }
   }
 

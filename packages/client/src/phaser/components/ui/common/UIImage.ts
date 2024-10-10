@@ -1,11 +1,7 @@
 import { UIBase, UIBaseConfig } from "./UIBase";
 
 export interface UIImageConfig extends UIBaseConfig {
-  nineSlice?: number;
-  leftWidth?: number;
-  rightWidth?: number;
-  topHeight?: number;
-  bottomHeight?: number;
+  nineSlice?: number | number[];
 }
 
 export class UIImage extends UIBase {
@@ -18,14 +14,12 @@ export class UIImage extends UIBase {
   ) {
     super(scene, { texture, ...config });
 
-    const { nineSlice, leftWidth, rightWidth, topHeight, bottomHeight } =
-      config;
-
-    if (
-      [nineSlice, leftWidth, rightWidth, topHeight, bottomHeight].some(
-        (value) => value !== undefined
-      )
-    ) {
+    const { nineSlice = 0 } = config;
+    const [leftWidth = 0, rightWidth = 0, topHeight = 0, bottomHeight = 0] =
+      Array.isArray(nineSlice)
+        ? nineSlice
+        : [nineSlice, nineSlice, nineSlice, nineSlice];
+    if (nineSlice) {
       this.image = new Phaser.GameObjects.NineSlice(
         scene,
         0,
@@ -34,10 +28,10 @@ export class UIImage extends UIBase {
         undefined,
         this.displayWidth / this.scale,
         this.displayHeight / this.scale,
-        nineSlice ?? leftWidth ?? 0,
-        nineSlice ?? rightWidth ?? 0,
-        nineSlice ?? topHeight ?? 0,
-        nineSlice ?? bottomHeight ?? 0
+        leftWidth,
+        rightWidth,
+        topHeight,
+        bottomHeight
       ).setOrigin(0, 0); // [TODO] Make new nine slice way can let the side loop like the tilemap
     } else {
       this.image = new Phaser.GameObjects.Image(scene, 0, 0, texture);
@@ -59,6 +53,12 @@ export class UIImage extends UIBase {
   setFlip(x: boolean, y: boolean = x): UIImage {
     if (this.image instanceof Phaser.GameObjects.NineSlice) return this;
     this.image.setFlip(x, y);
+    return this;
+  }
+
+  setTexture(texture: string): UIImage {
+    this.texture = texture;
+    this.image.setTexture(texture);
     return this;
   }
 
