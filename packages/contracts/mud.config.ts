@@ -85,6 +85,13 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
+    RoleSpecs: {
+      schema: {
+        roleType: "bytes16",
+        maxPools: "bytes32[]",
+      },
+      key: ["roleType"],
+    },
     // ----- equipment -----
     // host -> weapon
     Weapon: "bytes32",
