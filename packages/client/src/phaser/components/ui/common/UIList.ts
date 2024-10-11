@@ -1,4 +1,5 @@
 import { UIBase, UIBaseConfig } from "./UIBase";
+import { UIConfig } from "./UIConfig";
 
 export interface UIListConfig extends UIBaseConfig {
   itemIndentation?: number;
@@ -9,6 +10,7 @@ export interface UIListConfig extends UIBaseConfig {
 }
 
 export class UIList extends UIBase {
+  /** indentation of each item */
   itemIndentation: number = 0;
 
   /** horizontal spacing */
@@ -16,6 +18,9 @@ export class UIList extends UIBase {
 
   /** vertical spacing */
   spacingY: number = 0;
+
+  protected _item?: UIBase;
+  protected _itemIndex: number = -1;
 
   /** list items */
   protected _items: UIBase[] = [];
@@ -59,7 +64,40 @@ export class UIList extends UIBase {
     }
   }
 
-  get items() {
+  onFocus() {
+    if (this._itemIndex < 0 && this.itemsCount > 0) this.itemIndex = 0;
+    else if (this._itemIndex >= this.itemsCount)
+      this.itemIndex = this.itemsCount - 1;
+  }
+
+  onUpPressed() {
+    super.onUpPressed();
+    this.itemIndex = this.itemIndex > 0 ? this.itemIndex - 1 : 0;
+  }
+
+  onDownPressed() {
+    super.onDownPressed();
+    this.itemIndex =
+      this.itemIndex < this.itemsCount - 1
+        ? this.itemIndex + 1
+        : this.itemsCount - 1;
+  }
+
+  onItemSelected(value: UIBase | undefined) {
+    if (!value) return;
+    value.onSelected();
+  }
+
+  onItemUnSelected(value: UIBase | undefined) {
+    if (!value) return;
+    value.onUnSelected();
+  }
+
+  get itemsCount(): number {
+    return this._items.length;
+  }
+
+  get items(): UIBase[] {
     return this._items;
   }
 
@@ -67,7 +105,7 @@ export class UIList extends UIBase {
     this._items = value;
   }
 
-  get itemWidth() {
+  get itemWidth(): number {
     return this._itemWidth;
   }
 
@@ -75,11 +113,34 @@ export class UIList extends UIBase {
     this._itemWidth = value;
   }
 
-  get itemHeight() {
+  get itemHeight(): number {
     return this._itemHeight;
   }
 
   set itemHeight(value: number) {
     this._itemHeight = value;
+  }
+
+  get item(): UIBase | undefined {
+    return this._item;
+  }
+
+  set item(value: UIBase) {
+    this.onItemUnSelected(this._item);
+    const index = this._items.indexOf(value);
+    this._item = index !== -1 ? value : undefined;
+    this._itemIndex = index;
+    this.onItemSelected(this._item);
+  }
+
+  get itemIndex(): number {
+    return this._itemIndex;
+  }
+
+  set itemIndex(value: number) {
+    this.onItemUnSelected(this._item);
+    this._itemIndex = value;
+    this._item = value >= 0 ? this._items[value] : undefined;
+    this.onItemSelected(this._item);
   }
 }

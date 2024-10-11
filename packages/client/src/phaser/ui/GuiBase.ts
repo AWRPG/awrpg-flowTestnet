@@ -67,15 +67,15 @@ export class GuiBase {
     }
     this.rootUI.root.setVisible(true);
     this.isVisible = true;
-    if (hasFocus) this.scene.focusUI.push(this);
+    // if (hasFocus) this.scene.focusUI.push(this);
   }
 
   /**
    * Hide it
    */
   hidden(foucsRemove: boolean = true, ...params: unknown[]) {
-    const focusUI = this.scene.focusUI;
-    if (foucsRemove && focusUI.at(-1) === this) focusUI.pop();
+    // const focusUI = this.scene.focusUI;
+    // if (foucsRemove && focusUI.at(-1) === this) focusUI.pop();
     this.rootUI.root.setVisible(false);
     this.isVisible = false;
     this.scene.scale.off("resize", this.resizeListener);
@@ -157,7 +157,7 @@ export class GuiBase {
     this.buttons.forEach((button) => {
       button.button.destroyChildren();
     });
-    this.scene.focusUI.pop();
+    // this.scene.focusUI.pop();
     this.hidden();
   }
 }

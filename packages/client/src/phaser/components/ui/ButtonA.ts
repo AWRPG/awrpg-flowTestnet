@@ -12,6 +12,8 @@ export class ButtonA extends UIButton {
       fontSize: 36,
       fontStyle: "600",
       fontColor: "#2D3E51",
+      hoverSkinTexture: "btn_select_skin",
+      clickedSkinTexture: "btn_select_skin",
       skinNineSlice: 16,
       ...config,
     });
@@ -41,7 +43,7 @@ export class ButtonA extends UIButton {
       height: 12,
       alignModeName: ALIGNMODES.LEFT_CENTER,
       marginX: -22,
-      parent: this.hoverSkin,
+      parent: this.clickedSkin,
     });
 
     // Arrow
@@ -50,7 +52,7 @@ export class ButtonA extends UIButton {
       height: 32,
       alignModeName: ALIGNMODES.LEFT_CENTER,
       marginX: -58,
-      parent: this.hoverSkin,
+      parent: this.clickedSkin,
     });
     scene.tweens.add({
       targets: arrow.root,
@@ -61,11 +63,6 @@ export class ButtonA extends UIButton {
     });
 
     this.root.bringToTop(this.content.root);
-
-    console.log(
-      this.content.textObj.width / 4,
-      this.content.textObj.height / 4
-    );
   }
 
   initSkin(config: UIButtonConfig): UIImage {

@@ -2,12 +2,12 @@ import { UIScene } from "../scenes/UIScene";
 import { GuiBase } from "./GuiBase";
 import { ALIGNMODES } from "../../constants";
 import { UIList } from "../components/ui/common/UIList";
-import { UIButton } from "../components/ui/common/UIButton";
 import { Box } from "../components/ui/Box";
 import { Box2 } from "../components/ui/Box2";
 import { UIText } from "../components/ui/common/UIText";
 import { ButtonA } from "../components/ui/ButtonA";
 import { MenuTitle } from "../components/ui/MenuTitle";
+import { UIController } from "../components/controllers/UIController";
 /**
  * show the action buttons player can do
  */
@@ -49,28 +49,11 @@ export class ActionMenu extends GuiBase {
     });
     const buttonsIndex = ["Move", "Build", "Change Terrain"];
     buttonsIndex.forEach((name) => {
-      const item = new ButtonA(scene, {
-        text: name,
-        hoverSkinTexture: "btn_select_skin",
-      });
+      const item = new ButtonA(scene, { text: name });
       this.list.addItem(item);
     });
 
-    // Init the action button list
-    // const buttons: { name: string; button: Button }[] = (this.buttons = []);
-    // const buttonsIndex = ["Move", "Build", "Change Terrain"];
-    // buttonsIndex.forEach((name, index) => {
-    //   buttons.push({
-    //     name: name,
-    //     button: new ButtonA(scene, name, 260, 48, {
-    //       alignModeName: ALIGNMODES.LEFT_TOP,
-    //       marginY: 28 + index * 56,
-    //       parent: this.rootUI,
-    //       fontAlignMode: ALIGNMODES.LEFT_CENTER,
-    //     }),
-    //   });
-    // });
-    // this.currentButtonIndex = 0;
-    // this.selectButton();
+    // Set focus
+    UIController.focus = this.list;
   }
 }

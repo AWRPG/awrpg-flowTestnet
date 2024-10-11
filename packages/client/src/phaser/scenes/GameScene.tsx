@@ -70,6 +70,7 @@ import { getHostPosition } from "../../logics/path";
 import { isDropContainer, splitDropContainer } from "../../logics/drop";
 import { Drop } from "../objects/Drop";
 import { Cursor } from "../objects/Cursor";
+import { UIController } from "../components/controllers/UIController";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -195,6 +196,7 @@ export class GameScene extends Phaser.Scene {
     this.createAnimations();
     this.playController = new PlayerController(this, this.components);
     this.cursor = new Cursor(TARGET, this, this.components);
+    UIController.listenStart(this);
 
     /**
      * load/unload tile sprites on map; TileValue is a client component that is updated when character moves, which is handled by useSyncComputedComponents

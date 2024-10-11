@@ -29,7 +29,7 @@ export class UIButton extends UIBase {
 
     this.skin = this.initSkin(config);
     this.hoverSkin = this.initHoverSkin(config);
-    // this.hoverSkin.hidden();
+    this.hoverSkin.hidden();
     this.clickedSkin = this.initClickedSkin(config);
     this.clickedSkin.hidden();
     this.content = this.initContent(config);
@@ -68,12 +68,30 @@ export class UIButton extends UIBase {
   }
 
   initContent(config: UIButtonConfig): UIText {
-    console.log("initContent:", config.width, config.height);
     return new UIText(this.scene, config.text ?? "", {
       ...config,
       alignModeName: config.alignModeName ?? ALIGNMODES.LEFT_CENTER,
       parent: this,
     });
+  }
+
+  onSelected() {
+    super.onSelected();
+    this.clickedSkin.show();
+    this.skin.hidden();
+    this.hoverSkin.hidden();
+  }
+
+  onUnSelected() {
+    super.onUnSelected();
+    if (this.hovering) {
+      this.hoverSkin.show();
+      this.skin.hidden();
+    } else {
+      this.skin.show();
+      this.hoverSkin.hidden();
+    }
+    this.clickedSkin.hidden();
   }
 
   get skinTexture() {

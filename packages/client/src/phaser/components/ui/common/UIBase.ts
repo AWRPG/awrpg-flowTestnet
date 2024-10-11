@@ -43,6 +43,9 @@ export class UIBase {
   /** The global y position of root @readonly */
   globalY: number = 0;
 
+  /** Mouse over */
+  hovering: boolean = false;
+
   /** */
   constructor(scene: Phaser.Scene, config: UIBaseConfig = {}) {
     this.texture = config.texture;
@@ -175,6 +178,75 @@ export class UIBase {
     }
     return this;
   }
+
+  /**
+   * Add a listener for a given event.
+   * @param event The event name.
+   * @param fn The listener function.
+   * @param context The context to invoke the listener with. Default this.
+   */
+  on(event: string | symbol, fn: Function, context?: any): UIBase {
+    this.root.on(event, fn, context);
+    return this;
+  }
+
+  /**
+   * Add a one-time listener for a given event.
+   * @param event The event name.
+   * @param fn The listener function.
+   * @param context The context to invoke the listener with. Default this.
+   */
+  once(event: string | symbol, fn: Function, context?: any): UIBase {
+    this.root.once(event, fn, context);
+    return this;
+  }
+
+  /**
+   * Remove the listeners of a given event or all listeners
+   * @param event The event name.
+   * @param fn Only remove the listeners that match this function.
+   * @param context Only remove the listeners that have this context.
+   * @param once Only remove one-time listeners.
+   */
+  off(
+    event?: string | symbol,
+    fn?: Function,
+    context?: any,
+    once?: boolean
+  ): UIBase {
+    if (event) {
+      this.root.off(event, fn, context, once);
+    } else {
+      this.root.removeAllListeners();
+    }
+    return this;
+  }
+
+  /**
+   * Return the listeners registered for a given event.
+   * @param event The event name.
+   */
+  listeners(event: string | symbol): Function[] {
+    return this.root.listeners(event);
+  }
+
+  /**
+   * Return the number of listeners listening to a given event.
+   * @param event The event name.
+   */
+  listenerCount(event: string | symbol): number {
+    return this.root.listenerCount(event);
+  }
+
+  /**
+   * Calls each of the listeners registered for a given event.
+   * @param event The event name.
+   * @param args Additional arguments that will be passed to the event handler.
+   */
+  emit(event: string | symbol, ...args: any[]): boolean {
+    return this.root.emit(event, ...args);
+  }
+
   /**
    * Change the position. Considered unchanged by default.
    * Considering alignment and such, it's not recommended to use it directly
@@ -267,6 +339,22 @@ export class UIBase {
     } else {
       this.scene.add.existing(this.root);
     }
+  }
+
+  //===========================================
+  //    About the listeners
+  //===========================================
+  onFocus() {}
+  onBlur() {}
+  onUpPressed() {}
+  onDownPressed() {}
+  onSelected() {}
+  onUnSelected() {}
+  onHover() {
+    this.hovering = true;
+  }
+  onUnHover() {
+    this.hovering = false;
   }
 
   //===========================================
