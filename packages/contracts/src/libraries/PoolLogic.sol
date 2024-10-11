@@ -10,9 +10,9 @@ import "@/constants.sol";
 import "@/hashes.sol";
 
 library PoolLogic {
-  function getMaxPoolAmount(bytes32 role, bytes16 poolType) internal view returns (uint128) {
-    bytes16 roleType = EntityType.get(role);
-    bytes32[] memory maxPools = StatsSpecs.getMaxPools(roleType);
+  function getMaxPoolAmount(bytes32 entity, bytes16 poolType) internal view returns (uint128) {
+    bytes16 entityType = EntityType.get(entity);
+    bytes32[] memory maxPools = StatsSpecs.getMaxPools(entityType);
     for (uint256 i = 0; i < maxPools.length; i++) {
       (bytes16 poolType_, bytes16 amount) = LibUtils.splitBytes32(maxPools[i]);
       if (poolType == poolType_) {
@@ -22,21 +22,30 @@ library PoolLogic {
     return 0;
   }
 
-  function getPoolAmount(bytes32 role, bytes16 poolType) internal view returns (uint256) {
-    return Balance.get(poolType, role);
+  function getPoolAmount(bytes32 entity, bytes16 poolType) internal view returns (uint256) {
+    return Balance.get(poolType, entity);
   }
 
-  function _decreaseStrict(bytes32 role, bytes16 poolType, uint128 amount) internal {
-    ERC20Logic._burn(poolType, role, amount);
+  function _initPools(bytes32 entity) internal {
+    bytes16 entityType = EntityType.get(entity);
+    bytes32[] memory maxPools = StatsSpecs.getMaxPools(entityType);
+    for (uint256 i = 0; i < maxPools.length; i++) {
+      (bytes16 poolType, bytes16 amount) = LibUtils.splitBytes32(maxPools[i]);
+      ERC20Logic._mint(poolType, entity, uint128(amount));
+    }
+  }
+
+  function _decreaseStrict(bytes32 entity, bytes16 poolType, uint128 amount) internal {
+    ERC20Logic._burn(poolType, entity, amount);
   }
 
   // used in combat
-  function _decreaseLoose(bytes32 role, bytes16 poolType, uint128 amount) internal returns (bool empty) {
-    uint256 poolAmount = getPoolAmount(role, poolType);
+  function _decreaseLoose(bytes32 entity, bytes16 poolType, uint128 amount) internal returns (bool empty) {
+    uint256 poolAmount = getPoolAmount(entity, poolType);
     if (poolAmount <= amount) {
       return empty = true;
     } else {
-      _decreaseStrict(role, poolType, amount);
+      _decreaseStrict(entity, poolType, amount);
       return empty = false;
     }
   }
@@ -44,28 +53,28 @@ library PoolLogic {
   /**
    * increase cannot exceed max pool amount
    */
-  function _increaseLoose(bytes32 role, bytes16 poolType, uint128 amount) internal {
-    uint128 maxAmount = getMaxPoolAmount(role, poolType);
-    uint256 poolAmount = getPoolAmount(role, poolType);
+  function _increaseLoose(bytes32 entity, bytes16 poolType, uint128 amount) internal {
+    uint128 maxAmount = getMaxPoolAmount(entity, poolType);
+    uint256 poolAmount = getPoolAmount(entity, poolType);
     uint256 mintAmount = poolAmount + amount > maxAmount ? maxAmount - poolAmount : amount;
-    ERC20Logic._mint(poolType, role, mintAmount);
+    ERC20Logic._mint(poolType, entity, mintAmount);
   }
 
-  function _restorePool(bytes32 role, bytes16 poolType) internal {
-    uint128 maxAmount = getMaxPoolAmount(role, poolType);
-    uint256 poolAmount = getPoolAmount(role, poolType);
+  function _restorePool(bytes32 entity, bytes16 poolType) internal {
+    uint128 maxAmount = getMaxPoolAmount(entity, poolType);
+    uint256 poolAmount = getPoolAmount(entity, poolType);
     if (poolAmount < maxAmount) {
-      ERC20Logic._mint(poolType, role, maxAmount - poolAmount);
+      ERC20Logic._mint(poolType, entity, maxAmount - poolAmount);
     }
   }
 
-  // function _extract(bytes32 role, bytes16 poolType, uint128 amount) internal {
-  //   bytes32 pool = getPool(role, poolType);
-  //   ContainerLogic._transfer(poolType, pool, role, amount);
+  // function _extract(bytes32 entity, bytes16 poolType, uint128 amount) internal {
+  //   bytes32 pool = getPool(entity, poolType);
+  //   ContainerLogic._transfer(poolType, pool, entity, amount);
   // }
 
-  // function _inject(bytes32 role, bytes16 poolType, uint128 amount) internal {
-  //   bytes32 pool = getPool(role, poolType);
-  //   ContainerLogic._transfer(poolType, role, pool, amount);
+  // function _inject(bytes32 entity, bytes16 poolType, uint128 amount) internal {
+  //   bytes32 pool = getPool(entity, poolType);
+  //   ContainerLogic._transfer(poolType, entity, pool, amount);
   // }
 }

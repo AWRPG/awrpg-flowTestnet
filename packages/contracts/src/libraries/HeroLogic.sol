@@ -16,11 +16,7 @@ library HeroLogic {
     bytes32 hero = ContainerLogic._mint(HOST, space());
     Commander.set(hero, player);
 
-    bytes32[] memory maxPools = StatsSpecs.getMaxPools(HOST);
-    for (uint256 i = 0; i < maxPools.length; i++) {
-      (bytes16 poolType, bytes16 amount) = LibUtils.splitBytes32(maxPools[i]);
-      PoolLogic._increaseLoose(hero, poolType, uint128(amount));
-    }
+    PoolLogic._initPools(hero);
 
     (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 2 ** 16 - 32, 2 ** 16 - 32, 2 ** 16, 2 ** 16);
     MapLogic._initGroundPath(hero, x, y);
