@@ -5,6 +5,10 @@ import { IWorld } from "@/codegen/world/IWorld.sol";
 import "@/codegen/index.sol";
 
 library DefineTypes {
+  function defineRole(bytes16 roleType, bytes32[] memory maxPools) internal {
+    RoleSpecs.set(roleType, maxPools);
+  }
+
   function definePool(bytes16 poolType, uint256 capacity) internal {
     ContainerSpecs.set(poolType, capacity);
   }

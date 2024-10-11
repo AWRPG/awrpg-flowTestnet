@@ -12,6 +12,7 @@ import "@/codegen/index.sol";
 
 function initializeTypes() {
   // initConstants();
+  initRoletypes();
   initTerrainTypes();
   initPoolTypes();
   initBuildingTypes();
@@ -22,6 +23,10 @@ function initializeTypes() {
   initWeaponTypes();
   initCookTypes();
   initStakeTypes();
+}
+
+function initRoletypes() {
+  DefineTypes.defineRole(HOST, compileThreeTypes(BLOOD, SOUL, STAMINA, 1000, 1000, 1000));
 }
 
 function initCookTypes() {
@@ -238,5 +243,24 @@ function compileTwoTypes(
   types[1] = erc20Type2;
   amounts[0] = amount1;
   amounts[1] = amount2;
+  inputs = LibUtils.compileCosts(types, amounts);
+}
+
+function compileThreeTypes(
+  bytes16 erc20Type1,
+  bytes16 erc20Type2,
+  bytes16 erc20Type3,
+  uint128 amount1,
+  uint128 amount2,
+  uint128 amount3
+) pure returns (bytes32[] memory inputs) {
+  bytes16[] memory types = new bytes16[](3);
+  uint128[] memory amounts = new uint128[](3);
+  types[0] = erc20Type1;
+  types[1] = erc20Type2;
+  types[2] = erc20Type3;
+  amounts[0] = amount1;
+  amounts[1] = amount2;
+  amounts[2] = amount3;
   inputs = LibUtils.compileCosts(types, amounts);
 }
