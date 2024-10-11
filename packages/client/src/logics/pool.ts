@@ -48,7 +48,7 @@ export const usePoolAmount = (
   return Number(balance);
 };
 
-// check if role has pool in its RoleSpecs maxPools
+// check if role has pool in its StatsSpecs maxPools
 export const hasPoolCapaicty = (
   components: ClientComponents,
   role: Entity,
@@ -62,8 +62,8 @@ export const getPoolCapacity = (
   role: Entity,
   poolType: Hex
 ) => {
-  const { RoleSpecs } = components;
-  const maxPoolsHex = (getComponentValue(RoleSpecs, role)?.maxPools ??
+  const { StatsSpecs } = components;
+  const maxPoolsHex = (getComponentValue(StatsSpecs, role)?.maxPools ??
     []) as Hex[];
   const maxPools = maxPoolsHex.map((pool) => fromEntity(pool));
   const maxPool = maxPools.find((pool) => pool.type === poolType)?.id ?? 0n;
@@ -76,8 +76,8 @@ export const usePoolCapacity = (
   role: Entity,
   poolType: Hex
 ) => {
-  const { RoleSpecs } = components;
-  const maxPoolsHex = (useComponentValue(RoleSpecs, role)?.maxPools ??
+  const { StatsSpecs } = components;
+  const maxPoolsHex = (useComponentValue(StatsSpecs, role)?.maxPools ??
     []) as Hex[];
   const maxPools = maxPoolsHex.map((pool) => fromEntity(pool));
   const maxPool = maxPools.find((pool) => pool.type === poolType)?.id ?? 0n;

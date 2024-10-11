@@ -85,12 +85,13 @@ export default defineWorld({
       },
       key: ["entityId"],
     },
-    RoleSpecs: {
+    // for non-fungible entity that has stats (with max & balance)
+    StatsSpecs: {
       schema: {
-        roleType: "bytes16",
+        entityType: "bytes16",
         maxPools: "bytes32[]",
       },
-      key: ["roleType"],
+      key: ["entityType"],
     },
     // ----- equipment -----
     // host -> weapon

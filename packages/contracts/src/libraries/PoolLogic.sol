@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Owner, Balance, EntityType, RoleSpecs } from "@/codegen/index.sol";
+import { Owner, Balance, EntityType, StatsSpecs } from "@/codegen/index.sol";
 import { ContainerLogic } from "@/libraries/ContainerLogic.sol";
 import { ERC20Logic } from "@/libraries/ERC20Logic.sol";
 import { Errors } from "@/Errors.sol";
@@ -12,7 +12,7 @@ import "@/hashes.sol";
 library PoolLogic {
   function getMaxPoolAmount(bytes32 role, bytes16 poolType) internal view returns (uint128) {
     bytes16 roleType = EntityType.get(role);
-    bytes32[] memory maxPools = RoleSpecs.getMaxPools(roleType);
+    bytes32[] memory maxPools = StatsSpecs.getMaxPools(roleType);
     for (uint256 i = 0; i < maxPools.length; i++) {
       (bytes16 poolType_, bytes16 amount) = LibUtils.splitBytes32(maxPools[i]);
       if (poolType == poolType_) {

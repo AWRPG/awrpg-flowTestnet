@@ -19,7 +19,7 @@ import { Moves } from "./tables/Moves.sol";
 import { Terrain } from "./tables/Terrain.sol";
 import { TileEntity } from "./tables/TileEntity.sol";
 import { Position, PositionData } from "./tables/Position.sol";
-import { RoleSpecs } from "./tables/RoleSpecs.sol";
+import { StatsSpecs } from "./tables/StatsSpecs.sol";
 import { Weapon } from "./tables/Weapon.sol";
 import { Armor } from "./tables/Armor.sol";
 import { Trinket } from "./tables/Trinket.sol";

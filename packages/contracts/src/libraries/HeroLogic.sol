@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Owner, Commander, Position, TileEntity, EntityType, RoleSpecs } from "@/codegen/index.sol";
+import { Owner, Commander, Position, TileEntity, EntityType, StatsSpecs } from "@/codegen/index.sol";
 import { ContainerLogic } from "@/libraries/ContainerLogic.sol";
 import { MapLogic } from "@/libraries/MapLogic.sol";
 import { Errors } from "@/Errors.sol";
@@ -16,7 +16,7 @@ library HeroLogic {
     bytes32 hero = ContainerLogic._mint(HOST, space());
     Commander.set(hero, player);
 
-    bytes32[] memory maxPools = RoleSpecs.getMaxPools(HOST);
+    bytes32[] memory maxPools = StatsSpecs.getMaxPools(HOST);
     for (uint256 i = 0; i < maxPools.length; i++) {
       (bytes16 poolType, bytes16 amount) = LibUtils.splitBytes32(maxPools[i]);
       PoolLogic._increaseLoose(hero, poolType, uint128(amount));

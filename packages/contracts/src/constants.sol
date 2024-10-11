@@ -55,6 +55,10 @@ bytes16 constant POOL = bytes16("POOL");
 bytes16 constant BLOOD = bytes16("BLOOD");
 bytes16 constant SOUL = bytes16("SOUL");
 bytes16 constant STAMINA = bytes16("STAMINA");
+// stats
+bytes16 constant ATTACK = bytes16("ATTACK");
+bytes16 constant DEFENSE = bytes16("DEFENSE");
+bytes16 constant RANGE = bytes16("RANGE");
 
 // terrain
 bytes16 constant OCEAN = bytes16("OCEAN");
