@@ -18,11 +18,12 @@ export default function RoleInfo({ role }: { role: Entity }) {
     return {
       pool: getPool(role as Hex, poolType),
       poolType,
-      capacity: getPoolCapacity(components, role as Hex, poolType),
-      balance: getPoolAmount(components, role as Hex, poolType),
+      capacity: getPoolCapacity(components, role, poolType),
+      balance: getPoolAmount(components, role, poolType),
     };
   });
 
+  // for bags
   const capacity =
     getEntitySpecs(components, ContainerSpecs, role)?.capacity ?? 0n;
   const storedSize = getComponentValue(StoredSize, role)?.value ?? 0n;

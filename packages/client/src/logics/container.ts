@@ -12,6 +12,7 @@ import { encodeEntity } from "@latticexyz/store-sync/recs";
 import { getPool } from "../contract/hashes";
 import { encodeTypeEntity } from "../utils/encode";
 import { ERC20_TYPES } from "../constants";
+import { useComponentValue } from "@latticexyz/react";
 
 export function canStoreERC721(
   components: ClientComponents,
@@ -118,6 +119,7 @@ export const getERC20Store = (role: Hex, erc20Type: Hex) => {
   return isPoolType(erc20Type) ? getPool(role, erc20Type) : role;
 };
 
+// note: this can be used for any erc20 balance?
 export function getBalance(
   components: ClientComponents,
   store: Entity,
@@ -125,6 +127,17 @@ export function getBalance(
 ) {
   const balanceEntity = getBalanceEntity(erc20Type, store as Hex);
   return getComponentValue(components.Balance, balanceEntity)?.value ?? 0n;
+}
+
+export function useBalance(
+  components: ClientComponents,
+  store: Entity,
+  erc20Type: Hex
+) {
+  const balanceEntity = getBalanceEntity(erc20Type, store as Hex);
+  const balance =
+    useComponentValue(components.Balance, balanceEntity)?.value ?? 0n;
+  return balance;
 }
 
 export function hasBalance(
