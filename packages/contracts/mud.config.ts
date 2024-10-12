@@ -94,25 +94,35 @@ export default defineWorld({
       key: ["entityType"],
     },
     // ----- equipment -----
+    Equipment: {
+      schema: {
+        equipType: "bytes16",
+        owner: "bytes32",
+        equipment: "bytes32",
+      },
+      key: ["equipType", "owner"],
+    },
+    // // item -> bool; if true, cannot be transferred or equiped
+    // IsEquipped: "bool",
     // host -> weapon
-    Weapon: "bytes32",
-    Armor: "bytes32",
-    Trinket: "bytes32",
-    WeaponSpecs: {
-      schema: {
-        weaponType: "bytes16",
-        attack: "uint16",
-        range: "uint16",
-      },
-      key: ["weaponType"],
-    },
-    ArmorSpecs: {
-      schema: {
-        armorType: "bytes16",
-        defense: "uint16",
-      },
-      key: ["armorType"],
-    },
+    // Weapon: "bytes32",
+    // Armor: "bytes32",
+    // Trinket: "bytes32",
+    // WeaponSpecs: {
+    //   schema: {
+    //     weaponType: "bytes16",
+    //     attack: "uint16",
+    //     range: "uint16",
+    //   },
+    //   key: ["weaponType"],
+    // },
+    // ArmorSpecs: {
+    //   schema: {
+    //     armorType: "bytes16",
+    //     defense: "uint16",
+    //   },
+    //   key: ["armorType"],
+    // },
     // ----- terrain & map -----
     // if true, not obstacle, can build, can move onto if no building
     // coordId ->

@@ -8,11 +8,11 @@ import { AccessControl } from "@/extensions/AccessControl.sol";
 import { EquipmentLogic } from "@/libraries/EquipmentLogic.sol";
 
 contract EquipmentSystem is System, AccessControl {
-  function equip(bytes32 equipment) public onlyCommander(Owner.get(equipment)) {
-    EquipmentLogic._equip(equipment);
+  function equip(bytes32 equipment, bytes16 equipType) public onlyCommander(Owner.get(equipment)) {
+    EquipmentLogic._equip(equipment, equipType);
   }
 
-  function unequip(bytes32 equipment) public {
-    EquipmentLogic._unequipStrict(equipment);
+  function unequip(bytes32 host, bytes16 equipType) public onlyCommander(host) {
+    EquipmentLogic._unequip(host, equipType);
   }
 }

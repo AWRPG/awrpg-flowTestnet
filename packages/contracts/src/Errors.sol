@@ -70,6 +70,7 @@ contract Errors is System {
 
   // equipment errors
   error NotEquipped();
+  error AlreadyEquipped();
 
   // swap errors
   error SwapRatioNotSet();

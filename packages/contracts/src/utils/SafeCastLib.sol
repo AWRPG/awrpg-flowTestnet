@@ -5,6 +5,12 @@ pragma solidity >=0.8.0;
 /// @author Solmate (https://github.com/transmissions11/solmate/blob/main/src/utils/SafeCastLib.sol)
 /// @author Modified from OpenZeppelin (https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/math/SafeCast.sol)
 library SafeCastLib {
+  function safeCastTo16(uint256 x) internal pure returns (uint16 y) {
+    require(x < 1 << 16);
+
+    y = uint16(x);
+  }
+
   function safeCastTo32(uint256 x) internal pure returns (uint32 y) {
     require(x < 1 << 32);
 

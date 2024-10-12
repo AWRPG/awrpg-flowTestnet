@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Owner, BurnAwards, BuildingSpecs, EntityType, WeaponSpecs, ArmorSpecs } from "@/codegen/index.sol";
+import { Owner, BurnAwards, BuildingSpecs, EntityType } from "@/codegen/index.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 
@@ -39,21 +39,21 @@ library EntityLogic {
     return EntityType.get(role) == HOST;
   }
 
-  function isWeapon(bytes32 weapon) internal view returns (bool) {
-    return isWeaponType(EntityType.get(weapon));
-  }
+  // function isWeapon(bytes32 weapon) internal view returns (bool) {
+  //   return isWeaponType(EntityType.get(weapon));
+  // }
 
-  function isWeaponType(bytes16 weaponType) internal view returns (bool) {
-    return WeaponSpecs.getAttack(weaponType) != 0;
-  }
+  // function isWeaponType(bytes16 weaponType) internal view returns (bool) {
+  //   return WeaponSpecs.getAttack(weaponType) != 0;
+  // }
 
-  function isArmor(bytes32 armor) internal view returns (bool) {
-    return isArmorType(EntityType.get(armor));
-  }
+  // function isArmor(bytes32 armor) internal view returns (bool) {
+  //   return isArmorType(EntityType.get(armor));
+  // }
 
-  function isArmorType(bytes16 armorType) internal view returns (bool) {
-    return ArmorSpecs.getDefense(armorType) != 0;
-  }
+  // function isArmorType(bytes16 armorType) internal view returns (bool) {
+  //   return ArmorSpecs.getDefense(armorType) != 0;
+  // }
 
   function getTopHost(bytes32 entity) internal view returns (bytes32) {
     bytes32 curr = entity;
