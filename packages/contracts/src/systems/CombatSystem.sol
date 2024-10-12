@@ -11,9 +11,9 @@ import { PositionControl } from "@/extensions/PositionControl.sol";
 contract CombatSystem is System, AccessControl, PositionControl {
   using TypeCast for address;
 
-  function attack(bytes32 attacker, bytes32 target) public onlyCommander(attacker) onlyAdjacentHosts(attacker, target) {
-    // CombatLogic._attack(attacker, target);
-    CombatLogic._defeatRole(target);
+  function attack(bytes32 attacker, bytes32 target) public onlyCommander(attacker) {
+    CombatLogic._attack(attacker, target);
+    // CombatLogic._defeatRole(target);
   }
 
   function attack2(

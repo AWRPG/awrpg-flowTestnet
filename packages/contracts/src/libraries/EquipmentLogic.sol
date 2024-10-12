@@ -50,15 +50,15 @@ library EquipmentLogic {
   /**
    * ad hoc function 2b used in combat, unless figure out a more generalized way to describe interaction
    */
-  function getAttack(bytes32 host) internal view returns (uint16) {
-    return getEquipmentStats(host, WEAPON, ATTACK).safeCastTo16();
+  function getAttack(bytes32 host) internal view returns (uint32) {
+    return getEquipmentStats(host, WEAPON, ATTACK).safeCastTo32();
   }
 
-  function getRange(bytes32 host) internal view returns (uint16) {
-    return getEquipmentStats(host, WEAPON, RANGE).safeCastTo16();
+  function getRange(bytes32 host) internal view returns (uint32) {
+    return getEquipmentStats(host, WEAPON, RANGE).safeCastTo32();
   }
 
-  function getDefense(bytes32 host) internal view returns (uint16) {
-    return getEquipmentStats(host, ARMOR, DEFENSE).safeCastTo16();
+  function getDefense(bytes32 host) internal view returns (uint32) {
+    return getEquipmentStats(host, ARMOR, DEFENSE).safeCastTo32();
   }
 }

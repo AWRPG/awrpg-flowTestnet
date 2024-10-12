@@ -5,18 +5,18 @@ import { IWorld } from "@/codegen/world/IWorld.sol";
 import "@/codegen/index.sol";
 
 library DefineTypes {
-  function defineRole(bytes16 roleType, bytes32[] memory maxPools) internal {
-    StatsSpecs.set(roleType, maxPools);
+  function definePoolStats(bytes16 entityType, bytes32[] memory maxPools) internal {
+    StatsSpecs.set(entityType, maxPools);
   }
 
-  function defineWeapon(bytes16 weaponType, bytes32[] memory maxPools) internal {
-    StatsSpecs.set(weaponType, maxPools);
-    // MintCosts.set();
+  function defineHost(bytes16 hostType, uint256 capacity, uint128 size) internal {
+    ContainerSpecs.set(hostType, capacity);
+    SizeSpecs.set(hostType, size);
   }
 
-  function definePool(bytes16 poolType, uint256 capacity) internal {
-    ContainerSpecs.set(poolType, capacity);
-  }
+  // function definePool(bytes16 poolType, uint256 capacity) internal {
+  //   ContainerSpecs.set(poolType, capacity);
+  // }
 
   function defineTerrain(
     bytes16 terrainType,
@@ -37,13 +37,11 @@ library DefineTypes {
   function defineBuilding(
     bytes16 buildingType,
     BuildingSpecsData memory buildingSpecs,
-    uint256 capacity,
     bytes32[] memory mintCosts,
     bytes32[] memory burnCosts,
     bytes32[] memory burnAwards
   ) internal {
     BuildingSpecs.set(buildingType, buildingSpecs);
-    ContainerSpecs.set(buildingType, capacity);
     MintCosts.set(buildingType, mintCosts);
     BurnCosts.set(buildingType, burnCosts);
     BurnAwards.set(buildingType, burnAwards);
@@ -71,11 +69,6 @@ library DefineTypes {
     SizeSpecs.set(itemType, size);
     MintCosts.set(itemType, mintCosts);
     BurnAwards.set(itemType, burnAwards);
-  }
-
-  function defineHost(bytes16 hostType, uint256 capacity, uint128 size) internal {
-    ContainerSpecs.set(hostType, capacity);
-    SizeSpecs.set(hostType, size);
   }
 
   // function defineERC721Item(

@@ -87,4 +87,7 @@ contract Errors is System {
   error WrongBuildingTypeToCook();
   error HasNoCookingInBuilding();
   error AlreadyHasCooking();
+
+  // combat
+  error NotInRange();
 }

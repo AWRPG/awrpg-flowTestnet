@@ -12,7 +12,7 @@ import "@/codegen/index.sol";
 
 function initializeTypes() {
   // initConstants();
-  initRoletypes();
+  initPoolStatsTypes();
   initTerrainTypes();
   // initPoolTypes();
   initBuildingTypes();
@@ -20,17 +20,28 @@ function initializeTypes() {
   initHostTypes();
   initERC20Sizes();
   initERC20BurnAwards();
-  initWeaponTypes();
   initCookTypes();
   initStakeTypes();
 }
 
-function initRoletypes() {
-  DefineTypes.defineRole(HOST, compileThreeTypes(BLOOD, SOUL, STAMINA, 1000, 1000, 1000));
+// role, building, equipment, or any nft can has pool stats
+function initPoolStatsTypes() {
+  DefineTypes.definePoolStats(
+    HOST,
+    complieSixTypes(BLOOD, SOUL, STAMINA, ATTACK, DEFENSE, RANGE, 1000, 1000, 1000, 100, 100, 4)
+  );
+  DefineTypes.definePoolStats(SWORD, compileTwoTypes(ATTACK, RANGE, 10, 5));
 }
 
-function initWeaponTypes() {
-  DefineTypes.defineWeapon(SWORD, compileTwoTypes(ATTACK, RANGE, 10, 5));
+// host means has capacity & size
+function initHostTypes() {
+  DefineTypes.defineHost(HOST, 1000, 1200);
+  DefineTypes.defineHost(DROP, type(uint256).max, type(uint128).max);
+  DefineTypes.defineHost(MINER, 1000 * 5, 1200 * 5);
+  DefineTypes.defineHost(CAULDRON, 1000, 1200);
+  DefineTypes.defineHost(FIELD, 1000, 1200);
+  DefineTypes.defineHost(SAFE, 1000 * 5, 1200 * 5);
+  DefineTypes.defineHost(FOUNDRY, 1000, 1200);
 }
 
 function initCookTypes() {
@@ -108,7 +119,6 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     MINER,
     BuildingSpecsData({ width: 2, height: 2, canMove: true, terrainType: PLAIN }),
-    1000 * 5,
     compileTwoTypes(STAMINA, WOOD, 0, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
@@ -116,7 +126,6 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     CAULDRON,
     BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: PLAIN }),
-    1000 * 5,
     compileTwoTypes(STAMINA, WOOD, 0, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
@@ -124,7 +133,6 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     FIELD,
     BuildingSpecsData({ width: 3, height: 1, canMove: true, terrainType: PLAIN }),
-    1000 * 5,
     compileTwoTypes(STAMINA, WOOD, 0, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
@@ -132,7 +140,6 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     BRIDGE,
     BuildingSpecsData({ width: 1, height: 1, canMove: true, terrainType: OCEAN }),
-    0,
     compileTwoTypes(STAMINA, BLOOD, 0, 0),
     compileOneType(STAMINA, 100),
     compileOneType(BLOOD, 1)
@@ -140,7 +147,6 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     SAFE,
     BuildingSpecsData({ width: 2, height: 2, canMove: true, terrainType: PLAIN }),
-    1000 * 5,
     compileTwoTypes(STAMINA, WOOD, 0, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
@@ -148,7 +154,6 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     FENCE,
     BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
-    0,
     compileTwoTypes(STAMINA, WOOD, 20, 5),
     compileOneType(STAMINA, 50),
     compileOneType(WOOD, 1)
@@ -156,7 +161,6 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     NODE,
     BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
-    0,
     compileTwoTypes(STAMINA, WOOD, 60, 8),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
@@ -164,7 +168,6 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     FOUNDRY,
     BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
-    1000,
     compileTwoTypes(STAMINA, WOOD, 80, 9),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
@@ -200,11 +203,6 @@ function initConvertRatios() {
 // 	Resource crystal = new Resource(world, "CRYSTAL", "CRYSTAL");
 // 	TokenAddress.set(CRYSTAL, address(crystal));
 // }
-
-function initHostTypes() {
-  DefineTypes.defineHost(HOST, 1000, 1200);
-  DefineTypes.defineHost(DROP, type(uint256).max, type(uint128).max);
-}
 
 function initERC20Sizes() {
   SizeSpecs.set(STAMINA, 1);
@@ -261,5 +259,36 @@ function compileThreeTypes(
   amounts[0] = amount1;
   amounts[1] = amount2;
   amounts[2] = amount3;
+  inputs = LibUtils.compileCosts(types, amounts);
+}
+
+function complieSixTypes(
+  bytes16 erc20Type1,
+  bytes16 erc20Type2,
+  bytes16 erc20Type3,
+  bytes16 erc20Type4,
+  bytes16 erc20Type5,
+  bytes16 erc20Type6,
+  uint128 amount1,
+  uint128 amount2,
+  uint128 amount3,
+  uint128 amount4,
+  uint128 amount5,
+  uint128 amount6
+) pure returns (bytes32[] memory inputs) {
+  bytes16[] memory types = new bytes16[](6);
+  uint128[] memory amounts = new uint128[](6);
+  types[0] = erc20Type1;
+  types[1] = erc20Type2;
+  types[2] = erc20Type3;
+  types[3] = erc20Type4;
+  types[4] = erc20Type5;
+  types[5] = erc20Type6;
+  amounts[0] = amount1;
+  amounts[1] = amount2;
+  amounts[2] = amount3;
+  amounts[3] = amount4;
+  amounts[4] = amount5;
+  amounts[5] = amount6;
   inputs = LibUtils.compileCosts(types, amounts);
 }
