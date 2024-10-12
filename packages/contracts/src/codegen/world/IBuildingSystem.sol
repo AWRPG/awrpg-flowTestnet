@@ -17,6 +17,4 @@ interface IBuildingSystem {
     uint32 lowerX,
     uint32 lowerY
   ) external;
-
-  function burnBuilding(bytes32 role, uint32 x, uint32 y) external;
 }

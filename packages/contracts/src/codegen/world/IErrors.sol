@@ -52,6 +52,7 @@ interface IErrors {
   error NotArmorType();
   error NotRoleType();
   error NotEquipped();
+  error AlreadyEquipped();
   error SwapRatioNotSet();
   error NotInDropContainer();
   error WrongBuildingTypeToStake();
@@ -60,4 +61,5 @@ interface IErrors {
   error WrongBuildingTypeToCook();
   error HasNoCookingInBuilding();
   error AlreadyHasCooking();
+  error NotInRange();
 }

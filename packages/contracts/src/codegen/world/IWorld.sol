@@ -7,6 +7,7 @@ import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.
 
 import { IErrors } from "./IErrors.sol";
 import { IBuilding2System } from "./IBuilding2System.sol";
+import { IBuilding3System } from "./IBuilding3System.sol";
 import { IBuildingSystem } from "./IBuildingSystem.sol";
 import { ICombatSystem } from "./ICombatSystem.sol";
 import { ICookSystem } from "./ICookSystem.sol";
@@ -32,6 +33,7 @@ interface IWorld is
   IBaseWorld,
   IErrors,
   IBuilding2System,
+  IBuilding3System,
   IBuildingSystem,
   ICombatSystem,
   ICookSystem,
