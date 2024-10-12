@@ -14,7 +14,7 @@ function initializeTypes() {
   // initConstants();
   initRoletypes();
   initTerrainTypes();
-  initPoolTypes();
+  // initPoolTypes();
   initBuildingTypes();
   initConvertRatios();
   initHostTypes();
@@ -27,6 +27,10 @@ function initializeTypes() {
 
 function initRoletypes() {
   DefineTypes.defineRole(HOST, compileThreeTypes(BLOOD, SOUL, STAMINA, 1000, 1000, 1000));
+}
+
+function initWeaponTypes() {
+  DefineTypes.defineWeapon(SWORD, compileTwoTypes(ATTACK, RANGE, 10, 5));
 }
 
 function initCookTypes() {
@@ -60,11 +64,6 @@ function initStakeTypes() {
       outputs: compileTwoTypes(WOOD, MEAT, 10, 20)
     })
   );
-}
-
-function initWeaponTypes() {
-  DefineTypes.defineWeapon(SWORD, WeaponSpecsData({ attack: 100, range: 4 }));
-  DefineTypes.defineWeapon(BOW, WeaponSpecsData({ attack: 50, range: 8 }));
 }
 
 function initTerrainTypes() {
@@ -178,9 +177,9 @@ function initConvertRatios() {
   DefineTypes.defineConvertRatio(STAMINA, SOUL, 1, 1);
 }
 
-function initPoolTypes() {
-  DefineTypes.definePool(POOL, 1000);
-}
+// function initPoolTypes() {
+//   DefineTypes.definePool(POOL, 1000);
+// }
 
 // function initConstants() {
 // 	Constant.set(SPAWN_AMOUNT, 15);

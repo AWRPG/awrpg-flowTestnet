@@ -9,6 +9,11 @@ library DefineTypes {
     StatsSpecs.set(roleType, maxPools);
   }
 
+  function defineWeapon(bytes16 weaponType, bytes32[] memory maxPools) internal {
+    StatsSpecs.set(weaponType, maxPools);
+    // MintCosts.set();
+  }
+
   function definePool(bytes16 poolType, uint256 capacity) internal {
     ContainerSpecs.set(poolType, capacity);
   }
@@ -71,11 +76,6 @@ library DefineTypes {
   function defineHost(bytes16 hostType, uint256 capacity, uint128 size) internal {
     ContainerSpecs.set(hostType, capacity);
     SizeSpecs.set(hostType, size);
-  }
-
-  function defineWeapon(bytes16 weaponType, WeaponSpecsData memory weaponSpecs) internal {
-    WeaponSpecs.set(weaponType, weaponSpecs);
-    // MintCosts.set();
   }
 
   // function defineERC721Item(

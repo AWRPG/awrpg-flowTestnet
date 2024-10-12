@@ -26,9 +26,8 @@ contract PostDeploy is Script {
     initializeTypes();
     (uint32 x, uint32 y, bytes32 hero) = world.spawnHero();
     ContainerLogic._mint(BERRY, hero, 10);
-    bytes32 sword = ContainerLogic._mint(SWORD, hero);
-    ContainerLogic._mint(BOW, hero);
-    EquipmentLogic._equip(sword);
+    // bytes32 sword = ContainerLogic._mint(SWORD, hero);
+    // EquipmentLogic._equip(sword);
     (, , bytes32 hero2) = world.spawnHero();
     ContainerLogic._mint(BERRY, hero2, 10);
     world.buildBuilding(hero, FIELD, x - 1, y, x - 3, y);
