@@ -3,7 +3,11 @@ import { useMUD } from "../MUDContext";
 import { POOL_COLORS, POOL_COLORS_STRING, POOL_TYPES } from "../constants";
 import { getPool } from "../contract/hashes";
 import { Hex, hexToString } from "viem";
-import { getPoolCapacity, getPoolAmount } from "../logics/pool";
+import {
+  getPoolCapacity,
+  getPoolAmount,
+  getEntityPoolsInfo,
+} from "../logics/pool";
 import HealthBar from "./HealthBar";
 import { getEntitySpecs } from "../logics/entity";
 import EntityName from "./EntityName";
@@ -14,14 +18,7 @@ export default function RoleInfo({ role }: { role: Entity }) {
   const { components } = useMUD();
   const { ContainerSpecs, StoredSize } = components;
 
-  const poolsData = POOL_TYPES.map((poolType) => {
-    return {
-      pool: getPool(role as Hex, poolType),
-      poolType,
-      capacity: getPoolCapacity(components, role, poolType),
-      balance: getPoolAmount(components, role, poolType),
-    };
-  });
+  const poolsInfo = getEntityPoolsInfo(components, role) ?? [];
 
   // for bags
   const capacity =
@@ -34,13 +31,13 @@ export default function RoleInfo({ role }: { role: Entity }) {
         <span>ROLE NAME: </span>
         <EntityName entity={role} />
       </div>
-      {poolsData.map(({ pool, poolType, capacity, balance }) => (
-        <div key={poolType}>
+      {poolsInfo.map(({ type, capacity, balance }) => (
+        <div key={type}>
           <HealthBar
             value={Number(balance)}
-            fillColor={POOL_COLORS_STRING[poolType]}
+            fillColor={POOL_COLORS_STRING[type] ?? "white"}
             maxValue={Number(capacity)}
-            text={hexToString(poolType)}
+            text={hexToString(type)}
           />
         </div>
       ))}

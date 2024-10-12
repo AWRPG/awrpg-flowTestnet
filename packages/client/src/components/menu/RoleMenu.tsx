@@ -20,7 +20,11 @@ import useMenuKeys from "../../hooks/useMenuKeys";
 import { Hex, hexToString } from "viem";
 import { getPool } from "../../contract/hashes";
 import { getEntitySpecs } from "../../logics/entity";
-import { getPoolCapacity, getPoolAmount } from "../../logics/pool";
+import {
+  getPoolCapacity,
+  getPoolAmount,
+  getEntityPoolsInfo,
+} from "../../logics/pool";
 import HealthBar from "../HealthBar";
 import EntityName from "../EntityName";
 
@@ -42,34 +46,25 @@ export default function RoleMenu() {
 
   const role = useComponentValue(SelectedHost, SOURCE)?.value as Entity;
   // TODO: targetHost?
-  const poolsData = POOL_TYPES.map((poolType) => {
-    return {
-      pool: getPool(role as Hex, poolType),
-      poolType,
-      capacity: getPoolCapacity(components, role as Hex, poolType),
-      balance: getPoolAmount(components, role as Hex, poolType),
-    };
-  });
+  const poolsInfo = getEntityPoolsInfo(components, role) ?? [];
   const capacity =
     getEntitySpecs(components, ContainerSpecs, role)?.capacity ?? 0n;
   const storedSize = getComponentValue(StoredSize, role)?.value ?? 0n;
 
   const selections: SelectionType[] = [];
-  const poolsSelections = poolsData.map(
-    ({ pool, poolType, capacity, balance }) => {
-      return {
-        content: (
-          <HealthBar
-            value={Number(balance)}
-            fillColor={POOL_COLORS_STRING[poolType]}
-            maxValue={Number(capacity)}
-            text={hexToString(poolType)}
-          />
-        ),
-        onClick: () => {},
-      };
-    }
-  );
+  const poolsSelections = poolsInfo.map(({ type, capacity, balance }) => {
+    return {
+      content: (
+        <HealthBar
+          value={Number(balance)}
+          fillColor={POOL_COLORS_STRING[type] ?? "white"}
+          maxValue={Number(capacity)}
+          text={hexToString(type)}
+        />
+      ),
+      onClick: () => {},
+    };
+  });
   const bagSelection = {
     content: (
       <HealthBar
