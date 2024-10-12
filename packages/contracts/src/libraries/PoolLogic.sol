@@ -79,6 +79,13 @@ library PoolLogic {
     return Balance.get(poolType, entity);
   }
 
+  /**
+   * to check if (exist) entity has pool type
+   */
+  function hasPoolType(bytes32 entity, bytes16 poolType) internal view returns (bool) {
+    return getPoolAmount(entity, poolType) != 0;
+  }
+
   // function _extract(bytes32 entity, bytes16 poolType, uint128 amount) internal {
   //   bytes32 pool = getPool(entity, poolType);
   //   ContainerLogic._transfer(poolType, pool, entity, amount);

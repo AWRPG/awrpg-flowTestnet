@@ -33,10 +33,10 @@ library EntityLogic {
     return true;
   }
 
-  // hardcoded pool type; can consider putting them into table later
-  function isPoolType(bytes16 entityType) internal pure returns (bool) {
-    return entityType == BLOOD || entityType == SOUL || entityType == STAMINA;
-  }
+  // depreciated // hardcoded pool type; can consider putting them into table later
+  // function isPoolType(bytes16 entityType) internal pure returns (bool) {
+  //   return entityType == BLOOD || entityType == SOUL || entityType == STAMINA;
+  // }
 
   function hasBurnAwards(bytes16 burnType) internal view returns (bool) {
     return BurnAwards.lengthAwards(burnType) != 0;

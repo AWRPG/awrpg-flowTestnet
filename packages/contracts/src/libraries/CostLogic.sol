@@ -37,7 +37,7 @@ library CostLogic {
       bytes32 cost = costs[i];
       (bytes16 costType, bytes16 amount) = LibUtils.splitBytes32(cost);
 
-      if (EntityLogic.isPoolType(costType)) {
+      if (PoolLogic.hasPoolType(role, costType)) {
         PoolLogic._decreaseStrict(role, costType, uint128(amount));
       } else {
         ContainerLogic._burn(costType, role, uint128(amount));

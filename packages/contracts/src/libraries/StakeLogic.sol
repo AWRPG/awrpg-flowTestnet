@@ -86,7 +86,7 @@ library StakeLogic {
       bytes32 input = inputs[i];
       (bytes16 costType, bytes16 amount) = LibUtils.splitBytes32(input);
 
-      if (EntityLogic.isPoolType(costType)) {
+      if (PoolLogic.hasPoolType(from, costType)) {
         PoolLogic._decreaseStrict(from, costType, uint128(amount));
       } else {
         ContainerLogic._transfer(costType, from, to, uint128(amount));
@@ -102,7 +102,7 @@ library StakeLogic {
       bytes32 input = inputs[i];
       (bytes16 costType, bytes16 amount) = LibUtils.splitBytes32(input);
 
-      if (!EntityLogic.isPoolType(costType)) {
+      if (!PoolLogic.hasPoolType(from, costType)) {
         ContainerLogic._transfer(costType, from, to, uint128(amount));
       }
     }
