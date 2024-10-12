@@ -2,10 +2,28 @@
 pragma solidity >=0.8.0;
 
 import { Owner, BurnAwards, BuildingSpecs, EntityType } from "@/codegen/index.sol";
+import { ContainerLogic } from "@/libraries/ContainerLogic.sol";
+import { PoolLogic } from "@/libraries/PoolLogic.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 
 library EntityLogic {
+  /**
+   * to mint entity with pools/stats; used to handle minting of all NFT
+   */
+  function _mint(bytes16 entityType, bytes32 to) internal returns (bytes32 entity) {
+    entity = ContainerLogic._mint(entityType, to);
+    PoolLogic._initPools(entity);
+  }
+
+  /**
+   * to burn entity with pools/stats; used to handle burning of all NFT
+   */
+  function _burn(bytes32 entity) internal {
+    PoolLogic._burnPools(entity);
+    ContainerLogic._burn(entity);
+  }
+
   function isOwner(bytes32 entity, bytes32 owner) internal view returns (bool) {
     bytes32 curr = entity;
     while (curr != owner) {

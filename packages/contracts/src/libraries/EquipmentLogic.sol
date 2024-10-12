@@ -47,6 +47,9 @@ library EquipmentLogic {
     return PoolLogic.getPoolAmount(equipment, poolType);
   }
 
+  /**
+   * ad hoc function 2b used in combat, unless figure out a more generalized way to describe interaction
+   */
   function getAttack(bytes32 host) internal view returns (uint16) {
     return getEquipmentStats(host, WEAPON, ATTACK).safeCastTo16();
   }

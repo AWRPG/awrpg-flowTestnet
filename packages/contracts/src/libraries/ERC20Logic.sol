@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import {Allowance, Balance, TotalSupply} from "@/codegen/index.sol";
-import {Errors} from "@/Errors.sol";
+import { Allowance, Balance, TotalSupply } from "@/codegen/index.sol";
+import { Errors } from "@/Errors.sol";
 
 library ERC20Logic {
   function _mint(bytes16 entityType, bytes32 to, uint256 amount) internal {
@@ -24,12 +24,7 @@ library ERC20Logic {
     return true;
   }
 
-  function _transfer(
-    bytes16 entityType,
-    bytes32 from,
-    bytes32 to,
-    uint256 amount
-  ) internal {
+  function _transfer(bytes16 entityType, bytes32 from, bytes32 to, uint256 amount) internal {
     if (from == 0) revert Errors.TransferFromNull();
     if (to == 0) revert Errors.TransferToNull();
 
@@ -47,42 +42,24 @@ library ERC20Logic {
     uint256 entityBalance = Balance.get(entityType, from);
     if (entityBalance < amount) revert Errors.BurnExceedsBalance();
 
-    Balance.set(entityType, from, entityBalance - amount);
+    entityBalance == amount
+      ? Balance.deleteRecord(entityType, from)
+      : Balance.set(entityType, from, entityBalance - amount);
     TotalSupply.set(entityType, TotalSupply.get(entityType) - amount);
   }
 
-  function _increaseAllowance(
-    bytes16 entityType,
-    bytes32 owner,
-    bytes32 spender,
-    uint256 addedValue
-  ) internal {
-    Allowance.set(
-      entityType,
-      owner,
-      spender,
-      Allowance.get(entityType, owner, spender) + addedValue
-    );
+  function _increaseAllowance(bytes16 entityType, bytes32 owner, bytes32 spender, uint256 addedValue) internal {
+    Allowance.set(entityType, owner, spender, Allowance.get(entityType, owner, spender) + addedValue);
   }
 
-  function _approve(
-    bytes16 entityType,
-    bytes32 owner,
-    bytes32 spender,
-    uint256 value
-  ) internal {
+  function _approve(bytes16 entityType, bytes32 owner, bytes32 spender, uint256 value) internal {
     if (owner == 0) revert Errors.ApproveOwnerNull();
     if (spender == 0) revert Errors.ApproveSpenderNull();
 
     Allowance.set(entityType, owner, spender, value);
   }
 
-  function _spendAllowance(
-    bytes16 entityType,
-    bytes32 owner,
-    bytes32 spender,
-    uint256 value
-  ) internal {
+  function _spendAllowance(bytes16 entityType, bytes32 owner, bytes32 spender, uint256 value) internal {
     uint256 currentAllowance = Allowance.get(entityType, owner, spender);
     if (currentAllowance != type(uint256).max) {
       if (currentAllowance < value) {

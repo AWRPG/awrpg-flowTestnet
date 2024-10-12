@@ -42,7 +42,7 @@ library BuildingLogic {
     CostLogic._burnMintCosts(buildingType, role);
 
     // mint building
-    bytes32 building = ContainerLogic._mint(buildingType, space());
+    bytes32 building = EntityLogic._mint(buildingType, space());
     TileLogic._setTileEntitiesStrict(building, tileIds);
     // TODO?: set building path on lowerX, lowerY?
     PathLogic._initPath(building, lowerX, lowerY);
@@ -139,7 +139,7 @@ library BuildingLogic {
     );
     TileLogic._deleteTileEntities(entity, tilIds);
 
-    ContainerLogic._burn(entity);
+    EntityLogic._burn(entity);
     Creator.deleteRecord(entity);
   }
 

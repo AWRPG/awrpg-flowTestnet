@@ -10,28 +10,23 @@ import "@/constants.sol";
 import "@/hashes.sol";
 
 library PoolLogic {
-  function getMaxPoolAmount(bytes32 entity, bytes16 poolType) internal view returns (uint128) {
-    bytes16 entityType = EntityType.get(entity);
-    bytes32[] memory maxPools = StatsSpecs.getMaxPools(entityType);
-    for (uint256 i = 0; i < maxPools.length; i++) {
-      (bytes16 poolType_, bytes16 amount) = LibUtils.splitBytes32(maxPools[i]);
-      if (poolType == poolType_) {
-        return uint128(amount);
-      }
-    }
-    return 0;
-  }
-
-  function getPoolAmount(bytes32 entity, bytes16 poolType) internal view returns (uint256) {
-    return Balance.get(poolType, entity);
-  }
-
+  // called after ContainerLogic._mint(...)
   function _initPools(bytes32 entity) internal {
     bytes16 entityType = EntityType.get(entity);
     bytes32[] memory maxPools = StatsSpecs.getMaxPools(entityType);
     for (uint256 i = 0; i < maxPools.length; i++) {
       (bytes16 poolType, bytes16 amount) = LibUtils.splitBytes32(maxPools[i]);
       ERC20Logic._mint(poolType, entity, uint128(amount));
+    }
+  }
+
+  // called before ContainerLogic._burn(...)
+  function _burnPools(bytes32 entity) internal {
+    bytes16 entityType = EntityType.get(entity);
+    bytes32[] memory maxPools = StatsSpecs.getMaxPools(entityType);
+    for (uint256 i = 0; i < maxPools.length; i++) {
+      (bytes16 poolType, ) = LibUtils.splitBytes32(maxPools[i]);
+      ERC20Logic._burn(poolType, entity, getPoolAmount(entity, poolType));
     }
   }
 
@@ -66,6 +61,22 @@ library PoolLogic {
     if (poolAmount < maxAmount) {
       ERC20Logic._mint(poolType, entity, maxAmount - poolAmount);
     }
+  }
+
+  function getMaxPoolAmount(bytes32 entity, bytes16 poolType) internal view returns (uint128) {
+    bytes16 entityType = EntityType.get(entity);
+    bytes32[] memory maxPools = StatsSpecs.getMaxPools(entityType);
+    for (uint256 i = 0; i < maxPools.length; i++) {
+      (bytes16 poolType_, bytes16 amount) = LibUtils.splitBytes32(maxPools[i]);
+      if (poolType == poolType_) {
+        return uint128(amount);
+      }
+    }
+    return 0;
+  }
+
+  function getPoolAmount(bytes32 entity, bytes16 poolType) internal view returns (uint256) {
+    return Balance.get(poolType, entity);
   }
 
   // function _extract(bytes32 entity, bytes16 poolType, uint128 amount) internal {

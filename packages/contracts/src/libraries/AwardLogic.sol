@@ -28,7 +28,7 @@ library AwardLogic {
       if (EntityLogic.isPoolType(awardType)) {
         PoolLogic._increaseLoose(role, awardType, uint128(amount));
       } else if (amount == 0) {
-        ContainerLogic._mint(awardType, role);
+        EntityLogic._mint(awardType, role);
       } else {
         ContainerLogic._mintLoose(awardType, role, uint128(amount));
       }

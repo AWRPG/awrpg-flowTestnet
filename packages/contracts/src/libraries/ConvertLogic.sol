@@ -51,7 +51,7 @@ library ConvertLogic {
   // burn erc20s, which mint erc721, an item
   function _craftERC721(bytes16 craftType, bytes32 role) internal {
     CostLogic._burnMintCosts(craftType, role);
-    ContainerLogic._mint(craftType, role);
+    EntityLogic._mint(craftType, role);
   }
 
   // burn 1 erc20, which award erc20s
