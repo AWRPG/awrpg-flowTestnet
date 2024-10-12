@@ -80,7 +80,7 @@ uint8 constant UP_LIMIT_MINE = 75;
 uint8 constant DOWN_LIMIT_MINE = 70;
 uint8 constant PERCENTAGE_MINE = 10;
 
-// equipment
+// 3 equipTypes
 bytes16 constant WEAPON = bytes16("WEAPON");
 bytes16 constant ARMOR = bytes16("ARMOR");
 bytes16 constant TRINKET = bytes16("TRINKET");
