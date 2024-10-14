@@ -66,6 +66,7 @@ library MiningLogic {
     uint128 amount = getAcutalMinedAmount(role).safeCastTo128();
     ContainerLogic._mint(BERRY, role, amount);
     ERC721Logic._transfer(getCustodian(building), building, role);
+    MiningInfo.deleteRecord(role);
   }
 
   function getMinedAmount(bytes32 role) internal view returns (uint256) {
