@@ -57,3 +57,17 @@ export const CUSTODIAN = toHex("CUSTODIAN", { size: 16 });
 
 // drop
 export const DROP = toHex("DROP", { size: 16 });
+
+// stats
+export const ATTACK = toHex("ATTACK", { size: 16 });
+export const DEFENSE = toHex("DEFENSE", { size: 16 });
+export const RANGE = toHex("RANGE", { size: 16 });
+
+// 3 equipTypes
+export const WEAPON = toHex("WEAPON", { size: 16 });
+export const ARMOR = toHex("ARMOR", { size: 16 });
+export const TRINKET = toHex("TRINKET", { size: 16 });
+
+// mining
+export const MINING_RATE = 10 ** 18;
+export const DECIMALS = 18;
