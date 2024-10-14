@@ -281,6 +281,16 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const equip = async (equipment: Hex, equipType: Hex) => {
+    const tx = await worldContract.write.equip([equipment, equipType]);
+    await waitForTransaction(tx);
+  };
+
+  const unequip = async (host: Hex, equipType: Hex) => {
+    const tx = await worldContract.write.unequip([host, equipType]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
@@ -306,5 +316,7 @@ export function createSystemCalls(
     stake,
     unstake,
     claim,
+    equip,
+    unequip,
   };
 }
