@@ -8,6 +8,7 @@ import { AccessControl } from "@/extensions/AccessControl.sol";
 import { EquipmentLogic } from "@/libraries/EquipmentLogic.sol";
 
 contract EquipmentSystem is System, AccessControl {
+  // TODO: consider using onlyController instead of onlyCommander so that building can equip role
   function equip(bytes32 equipment, bytes16 equipType) public onlyCommander(Owner.get(equipment)) {
     EquipmentLogic._equip(equipment, equipType);
   }
