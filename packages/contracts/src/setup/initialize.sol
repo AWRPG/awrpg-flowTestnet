@@ -79,10 +79,9 @@ function initStakeTypes() {
 
 function initTerrainTypes() {
   bytes32[] memory empty = new bytes32[](0);
-  DefineTypes.defineTerrain(ROCK, TerrainSpecsData({ canMove: true, canBurn: false }), empty, empty, empty, empty);
-  DefineTypes.defineTerrain(GRASS, TerrainSpecsData({ canMove: true, canBurn: false }), empty, empty, empty, empty);
+  DefineTypes.defineTerrain(PLAIN, TerrainSpecsData({ canMove: true, canBurn: false }), empty, empty, empty, empty);
   DefineTypes.defineTerrain(
-    WATER,
+    OCEAN,
     TerrainSpecsData({ canMove: false, canBurn: false }),
     compileOneType(STAMINA, 200),
     compileOneType(FISH, 1),
@@ -90,15 +89,7 @@ function initTerrainTypes() {
     empty
   );
   DefineTypes.defineTerrain(
-    BUSH,
-    TerrainSpecsData({ canMove: true, canBurn: false }),
-    compileOneType(STAMINA, 100),
-    compileOneType(BERRY, 1),
-    empty,
-    empty
-  );
-  DefineTypes.defineTerrain(
-    TREE,
+    FOREST,
     TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
     empty,
@@ -106,8 +97,8 @@ function initTerrainTypes() {
     compileOneType(WOOD, 20)
   );
   DefineTypes.defineTerrain(
-    RED_MINE,
-    TerrainSpecsData({ canMove: true, canBurn: false }),
+    MOUNTAIN,
+    TerrainSpecsData({ canMove: false, canBurn: false }),
     compileOneType(STAMINA, 100),
     compileOneType(RED, 1),
     empty,
