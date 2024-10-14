@@ -52,6 +52,7 @@ export default function Overlay() {
 
   const sourceHost = useComponentValue(SelectedHost, SOURCE)?.value;
   const target = useComponentValue(SelectedHost, TARGET)?.value;
+  const targetTile = useComponentValue(TargetTile, TARGET)?.value;
 
   const menu = useComponentValue(SelectedEntity, MENU)?.value;
 
@@ -67,6 +68,12 @@ export default function Overlay() {
         <div className="absolute pointer-events-auto top-2 left-2">
           <Role role={sourceHost} />
         </div>
+      )}
+      {targetTile && (
+        <div className="absolute pointer-events-auto bottom-2 left-2">
+          <Tile tile={targetTile} />
+        </div>
+      )}
       <div className="relative h-full">
         <div className="absolute pointer-events-auto top-2 right-2 font-['Press_Start_2P']">
           {menu === MAIN_MENU && <MainMenu player={playerEntity} />}
