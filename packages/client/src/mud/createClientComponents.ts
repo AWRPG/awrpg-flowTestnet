@@ -41,6 +41,10 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     TargetTile: defineComponent(world, {
       value: Type.Entity,
     }),
+    // TARGET -> buildingType
+    ToBuildType: defineComponent(world, {
+      value: Type.Entity,
+    }),
     // SOURCE ->
     Moves: defineComponent(world, {
       value: Type.NumberArray,

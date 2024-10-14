@@ -6,6 +6,8 @@ import { useEntityOnTile } from "../../logics/entity";
 import EntityName from "../EntityName";
 import { Role } from "../host/Role";
 import { Drop } from "./Drop";
+import { Buildable } from "./Buildable";
+import { Host } from "../host/Host";
 import { SetTerrains } from "./SetTerrains";
 
 /**
@@ -19,8 +21,10 @@ export function Tile({ tile }: { tile: Entity }) {
 
   return (
     <div className="flex flex-col space-y-3 w-96 bg-white">
+      <SetTerrains tile={tile} />
       {entity && <Host host={entity} />}
       <Drop tile={tile} />
+      {!entity && <Buildable tile={tile} selectedHost={sourceHost as Entity} />}
     </div>
   );
 }
