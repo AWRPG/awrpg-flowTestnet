@@ -35,10 +35,18 @@ import TransferMenu from "./menu/TransferMenu";
 import TargetMenu from "./menu/TargetMenu";
 import SwapControlMenu from "./menu/SwapControlMenu";
 import SwapMenu from "./menu/SwapMenu";
+import { Role } from "./host/Role";
+import { Tile } from "./tile/Tile";
 
 export default function Overlay() {
   const {
-    components: { SelectedHost, Commander, SelectedEntity, ConsoleMessage },
+    components: {
+      SelectedHost,
+      Commander,
+      SelectedEntity,
+      ConsoleMessage,
+      TargetTile,
+    },
     network: { playerEntity },
   } = useMUD();
 
@@ -55,7 +63,10 @@ export default function Overlay() {
 
   return (
     <div className="absolute h-full w-full pointer-events-none">
-      {/* {sourceHost && <PoolBars host={sourceHost} />} */}
+      {sourceHost && (
+        <div className="absolute pointer-events-auto top-2 left-2">
+          <Role role={sourceHost} />
+        </div>
       <div className="relative h-full">
         <div className="absolute pointer-events-auto top-2 right-2 font-['Press_Start_2P']">
           {menu === MAIN_MENU && <MainMenu player={playerEntity} />}
