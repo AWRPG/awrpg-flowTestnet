@@ -5,6 +5,8 @@ import { Bag } from "./Bag";
 import { useMUD } from "../../MUDContext";
 import { useComponentValue } from "@latticexyz/react";
 import { useCanExit } from "../../logics/building";
+import { InBuilding } from "../building/StoreBuilding";
+import { Mining, StartMining } from "./Mining";
 
 /**
  * display role's name, pools, bag, inBuilding, startMining, mining
@@ -22,6 +24,9 @@ export function Role({ role }: { role: Entity }) {
       <EntityName entity={role} />
       <EntityPools entity={role} />
       <Bag host={role} />
+      {isPlayer && canExit && <InBuilding entity={role} />}
+      {isPlayer && <StartMining role={role} />}
+      <Mining role={role} />
     </div>
   );
 }
