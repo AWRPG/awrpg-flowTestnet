@@ -1,28 +1,52 @@
 import { Hex } from "viem";
 import { ClientComponents } from "../mud/createClientComponents";
 import { Entity, getComponentValue } from "@latticexyz/recs";
-import { getCustodian } from "../contract/hashes";
 import { SystemCalls } from "../mud/createSystemCalls";
 import {
   DOWN_LIMIT_MINE,
   PERLIN_DENOM_MINE,
   UP_LIMIT_MINE,
   PERCENTAGE_MINE,
+  GRID_SIZE_MINE,
+  DECIMALS,
+  MINING_RATE,
 } from "../contract/constants";
 import { Vector } from "../utils/vector";
 import { getCoordId } from "./map";
 import { random } from "../utils/random";
 import { getAllBuildingTileIds } from "./building";
 import { splitFromEntity } from "./move";
+import { inCustodian } from "./custodian";
+import { useComponentValue } from "@latticexyz/react";
+import { isMiner } from "./entity";
+import { unixTimeSecond } from "../utils/time";
+import useRerender from "../hooks/useRerender";
 
 // checks if a role is mining, i.e., if its mininginfo's buildingId matches its owner custodian
 export const isMining = (components: ClientComponents, role: Hex): boolean => {
   const { MiningInfo, Owner } = components;
   const buildingId = getComponentValue(MiningInfo, role as Entity)?.buildingId;
   if (!buildingId) return false;
-  const owner = getComponentValue(Owner, role as Entity)?.value;
-  if (!owner) return false;
-  return owner === getCustodian(buildingId as Hex);
+  return inCustodian(components, buildingId as Entity, role as Entity);
+};
+
+export const useMiningInfo = (components: ClientComponents, role: Entity) => {
+  return useComponentValue(components.MiningInfo, role);
+};
+
+export const useMinedAmount = (components: ClientComponents, role: Entity) => {
+  useRerender();
+  return getMinedAmount(components, role);
+};
+
+export const getMinedAmount = (components: ClientComponents, role: Entity) => {
+  const miningRate = MINING_RATE;
+  const decimals = DECIMALS;
+  const miningInfo = getComponentValue(components.MiningInfo, role);
+  if (!miningInfo) return;
+  const { lastUpdated } = miningInfo;
+  const duration = unixTimeSecond() - lastUpdated;
+  return (miningRate * duration) / 10 ** decimals;
 };
 
 // TODO:
@@ -30,6 +54,35 @@ export const getMiningInfo = (components: ClientComponents, role: Hex) => {};
 
 export const getPerlin = (systemCalls: SystemCalls, position: Vector) => {
   return systemCalls.getNoise(position.x, position.y, PERLIN_DENOM_MINE);
+};
+
+// returns the tileId of the mine if the role can start mining
+export const useStartMineTile = (
+  components: ClientComponents,
+  systemCalls: SystemCalls,
+  role: Entity
+) => {
+  const { Owner } = components;
+  const owner = useComponentValue(Owner, role)?.value as Entity;
+  const isMinerType = isMiner(components, owner);
+  if (!isMinerType) return;
+  const tileIds = getAllBuildingTileIds(components, owner as Hex);
+  const tileId = tileIds.filter((tileId) =>
+    hasMineFromTile(systemCalls, splitFromEntity(tileId))
+  )[0];
+  if (!tileId) return;
+  return tileId;
+};
+
+export const hasMineFromTile = (
+  systemCalls: SystemCalls,
+  tileCoord: Vector
+) => {
+  const gridCoord = {
+    x: Math.floor(tileCoord.x / GRID_SIZE_MINE),
+    y: Math.floor(tileCoord.y / GRID_SIZE_MINE),
+  };
+  return hasMineFromGrid(systemCalls, gridCoord);
 };
 
 export const hasMineFromGrid = (

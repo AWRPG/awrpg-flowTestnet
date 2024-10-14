@@ -12,26 +12,29 @@ import { encodeEntity } from "@latticexyz/store-sync/recs";
 import { getPool } from "../contract/hashes";
 import { encodeTypeEntity } from "../utils/encode";
 import { ERC20_TYPES } from "../constants";
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 
 export function canStoreERC721(
   components: ClientComponents,
-  entityType: Entity,
+  entity: Entity,
   store: Entity
 ) {
   const { SizeSpecs } = components;
-  const size = getComponentValue(SizeSpecs, entityType)?.size;
+  const size = getEntitySpecs(components, SizeSpecs, entity)?.size;
   return canIncreaseStoredSize(components, store, size ?? 0n);
 }
 
 export function canStoreERC20Amount(
   components: ClientComponents,
-  resourceType: Entity,
+  resourceType: Hex,
   store: Entity
 ) {
   const { StoredSize, ContainerSpecs, SizeSpecs } = components;
   const storedSize = getComponentValue(StoredSize, store)?.value ?? 0n;
-  const resourceSize = getComponentValue(SizeSpecs, resourceType)?.size;
+  const resourceSize = getComponentValue(
+    SizeSpecs,
+    encodeTypeEntity(resourceType) as Entity
+  )?.size;
   const capacity = getEntitySpecs(components, ContainerSpecs, store)?.capacity;
   if (!resourceSize || !capacity) return 0n;
   return (capacity - storedSize) / resourceSize;
@@ -165,3 +168,9 @@ export function getERC721s(components: ClientComponents, store: Entity) {
   const { Owner } = components;
   return [...runQuery([HasValue(Owner, { value: store })])];
 }
+
+export const useERC721s = (components: ClientComponents, store: Entity) => {
+  const { Owner } = components;
+  const entities = useEntityQuery([HasValue(Owner, { value: store })]);
+  return entities;
+};

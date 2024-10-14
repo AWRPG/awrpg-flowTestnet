@@ -9,9 +9,10 @@ import {
 import { Hex, pad } from "viem";
 import { ClientComponents } from "../mud/createClientComponents";
 import { encodeTypeEntity } from "../utils/encode";
-import { BLOOD, HOST, STAMINA } from "../contract/constants";
+import { BLOOD, HOST, MINER, STAMINA } from "../contract/constants";
 import { POOL_TYPES, SOURCE } from "../constants";
 import { SetupNetworkResult } from "../mud/setupNetwork";
+import { useComponentValue } from "@latticexyz/react";
 
 export function getEntitySpecs<
   S extends ClientComponents[keyof ClientComponents]["schema"],
@@ -28,6 +29,16 @@ export function getEntitySpecs<
 
 export function isPoolType(entityType: Hex) {
   return POOL_TYPES.includes(entityType);
+}
+
+export function isHost(components: ClientComponents, entity: Entity) {
+  return (
+    getEntitySpecs(components, components.ContainerSpecs, entity) !== undefined
+  );
+}
+
+export function isMiner(components: ClientComponents, entity: Entity) {
+  return getComponentValue(components.EntityType, entity)?.value === MINER;
 }
 
 export function isBuilding(components: ClientComponents, entity: Entity) {
@@ -90,3 +101,21 @@ export function getTopHost(
     curr = next;
   }
 }
+
+export const getEntityOnTile = (
+  components: ClientComponents,
+  tileId: Entity
+) => {
+  const { TileEntity } = components;
+  const entity = getComponentValue(TileEntity, tileId)?.value as Entity;
+  return entity;
+};
+
+export const useEntityOnTile = (
+  components: ClientComponents,
+  tileId: Entity
+) => {
+  const { TileEntity } = components;
+  const entity = useComponentValue(TileEntity, tileId)?.value as Entity;
+  return entity;
+};

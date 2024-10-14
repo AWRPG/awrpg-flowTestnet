@@ -18,7 +18,6 @@ export const getEntityOnCoord = (
 export const canMoveTo = (
   components: ClientComponents,
   systemCalls: SystemCalls,
-  host: Entity,
   position: Vector
 ) => {
   const { TileEntity, TerrainSpecs } = components;

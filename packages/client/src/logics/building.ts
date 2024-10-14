@@ -23,6 +23,7 @@ import { getFourCoords, splitFromEntity } from "./move";
 import { adjacent } from "./position";
 import { SetupNetworkResult } from "../mud/setupNetwork";
 import { canStoreERC721 } from "./container";
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 
 export const roleAndHostWithinRange = (
   components: ClientComponents,
@@ -58,6 +59,21 @@ export const canRoleEnter = (
   const roleType = getComponentValue(components.EntityType, role)?.value;
   const entityType = encodeTypeEntity(roleType as Hex) as Entity;
   return canStoreERC721(components, entityType, building);
+};
+
+// can only exit when owner is a TileEntity value
+export const canExit = (components: ClientComponents, entity: Entity) => {
+  const { Owner, TileEntity } = components;
+  const owner = getComponentValue(Owner, entity)?.value;
+  const tileIds = [...runQuery([HasValue(TileEntity, { value: owner })])];
+  return tileIds.length > 0;
+};
+
+export const useCanExit = (components: ClientComponents, entity: Entity) => {
+  const { Owner, TileEntity } = components;
+  const owner = useComponentValue(Owner, entity)?.value;
+  const tileIds = useEntityQuery([HasValue(TileEntity, { value: owner })]);
+  return tileIds.length > 0;
 };
 
 // return an building coord that is adjacent (range=1) to a tile coord;
