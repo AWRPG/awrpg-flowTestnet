@@ -10,6 +10,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { Hex, hexToString } from "viem";
 import { TARGET } from "../../constants";
 import ItemContainer from "../ItemContainer";
+import { MintCostsDisplay } from "../Costs";
 
 /**
  * display all buildable types for a selectedHost & a selected tile (the lowerX & lowerY of the building)
@@ -87,6 +88,7 @@ export function Buildable({
           );
         })}
       </div>
+      {toBuildType && <MintCostsDisplay mintType={toBuildType} />}
       <BuildButton />
     </div>
   );
