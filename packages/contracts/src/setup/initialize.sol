@@ -22,6 +22,11 @@ function initializeTypes() {
   initERC20BurnAwards();
   initCookTypes();
   initStakeTypes();
+  initEntitySizes();
+}
+
+function initEntitySizes() {
+  SizeSpecs.set(SWORD, 200);
 }
 
 // role, building, equipment, or any nft can has pool stats
