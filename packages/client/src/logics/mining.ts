@@ -1,6 +1,6 @@
 import { Hex } from "viem";
 import { ClientComponents } from "../mud/createClientComponents";
-import { Entity, getComponentValue } from "@latticexyz/recs";
+import { Entity, getComponentValue, HasValue } from "@latticexyz/recs";
 import { SystemCalls } from "../mud/createSystemCalls";
 import {
   DOWN_LIMIT_MINE,
@@ -17,8 +17,8 @@ import { random } from "../utils/random";
 import { getAllBuildingTileIds } from "./building";
 import { splitFromEntity } from "./move";
 import { inCustodian } from "./custodian";
-import { useComponentValue } from "@latticexyz/react";
-import { isMiner } from "./entity";
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
+import { isBuildingMiner } from "./entity";
 import { unixTimeSecond } from "../utils/time";
 import useRerender from "../hooks/useRerender";
 
@@ -28,6 +28,20 @@ export const isMining = (components: ClientComponents, role: Hex): boolean => {
   const buildingId = getComponentValue(MiningInfo, role as Entity)?.buildingId;
   if (!buildingId) return false;
   return inCustodian(components, buildingId as Entity, role as Entity);
+};
+
+/**
+ * use all minings in a building
+ */
+export const useAllMinings = (
+  components: ClientComponents,
+  building: Entity
+) => {
+  const { MiningInfo } = components;
+  const roleIds = useEntityQuery([
+    HasValue(MiningInfo, { buildingId: building }),
+  ]);
+  return roleIds;
 };
 
 export const useMiningInfo = (components: ClientComponents, role: Entity) => {
@@ -64,7 +78,7 @@ export const useStartMineTile = (
 ) => {
   const { Owner } = components;
   const owner = useComponentValue(Owner, role)?.value as Entity;
-  const isMinerType = isMiner(components, owner);
+  const isMinerType = isBuildingMiner(components, owner);
   if (!isMinerType) return;
   const tileIds = getAllBuildingTileIds(components, owner as Hex);
   const tileId = tileIds.filter((tileId) =>
