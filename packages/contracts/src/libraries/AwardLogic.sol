@@ -25,7 +25,7 @@ library AwardLogic {
       bytes32 award = awards[i];
       (bytes16 awardType, bytes16 amount) = LibUtils.splitBytes32(award);
 
-      if (PoolLogic.hasPoolType(role, awardType)) {
+      if (PoolLogic.isPoolType(awardType)) {
         PoolLogic._increaseLoose(role, awardType, uint128(amount));
       } else if (amount == 0) {
         EntityLogic._mint(awardType, role);

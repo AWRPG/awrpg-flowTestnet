@@ -37,7 +37,7 @@ export function isHost(components: ClientComponents, entity: Entity) {
   );
 }
 
-export function isMiner(components: ClientComponents, entity: Entity) {
+export function isBuildingMiner(components: ClientComponents, entity: Entity) {
   return getComponentValue(components.EntityType, entity)?.value === MINER;
 }
 

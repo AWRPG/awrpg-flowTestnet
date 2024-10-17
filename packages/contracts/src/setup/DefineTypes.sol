@@ -71,6 +71,10 @@ library DefineTypes {
     BurnAwards.set(itemType, burnAwards);
   }
 
+  function defineEntitySize(bytes16 entityType, uint128 size) internal {
+    SizeSpecs.set(entityType, size);
+  }
+
   // function defineERC721Item(
   //   bytes16 itemType,
   //   SizeSpecsData memory sizeSpecs,

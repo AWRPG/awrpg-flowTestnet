@@ -22,6 +22,11 @@ function initializeTypes() {
   initERC20BurnAwards();
   initCookTypes();
   initStakeTypes();
+  initEntitySizes();
+}
+
+function initEntitySizes() {
+  SizeSpecs.set(SWORD, 200);
 }
 
 // role, building, equipment, or any nft can has pool stats
@@ -110,21 +115,21 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     MINER,
     BuildingSpecsData({ width: 2, height: 2, canMove: true, terrainType: PLAIN }),
-    compileTwoTypes(STAMINA, WOOD, 0, 0),
+    compileTwoTypes(STAMINA, WOOD, 10, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
   );
   DefineTypes.defineBuilding(
     CAULDRON,
     BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: PLAIN }),
-    compileTwoTypes(STAMINA, WOOD, 0, 0),
+    compileTwoTypes(STAMINA, WOOD, 10, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
   );
   DefineTypes.defineBuilding(
     FIELD,
-    BuildingSpecsData({ width: 3, height: 1, canMove: true, terrainType: PLAIN }),
-    compileTwoTypes(STAMINA, WOOD, 0, 0),
+    BuildingSpecsData({ width: 2, height: 1, canMove: true, terrainType: PLAIN }),
+    compileTwoTypes(STAMINA, WOOD, 10, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
   );
@@ -138,7 +143,7 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     SAFE,
     BuildingSpecsData({ width: 2, height: 2, canMove: true, terrainType: PLAIN }),
-    compileTwoTypes(STAMINA, WOOD, 0, 0),
+    compileTwoTypes(STAMINA, WOOD, 10, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
   );
@@ -196,9 +201,9 @@ function initConvertRatios() {
 // }
 
 function initERC20Sizes() {
-  SizeSpecs.set(STAMINA, 1);
-  SizeSpecs.set(BLOOD, 1);
-  SizeSpecs.set(SOUL, 1);
+  // SizeSpecs.set(STAMINA, 1);
+  // SizeSpecs.set(BLOOD, 1);
+  // SizeSpecs.set(SOUL, 1);
   SizeSpecs.set(WOOD, 1);
   SizeSpecs.set(BERRY, 1);
   SizeSpecs.set(FISH, 1);
@@ -206,7 +211,7 @@ function initERC20Sizes() {
 }
 
 function initERC20BurnAwards() {
-  BurnAwards.set(BERRY, compileOneType(STAMINA, 200));
+  BurnAwards.set(BERRY, compileOneType(STAMINA, 1));
   BurnAwards.set(FISH, compileOneType(STAMINA, 300));
   BurnAwards.set(RED, compileOneType(BLOOD, 100));
 }
