@@ -65,7 +65,6 @@ import { syncComputedComponents } from "../../mud/syncComputedComponents";
 import { Building } from "../objects/Building";
 import { Mine } from "../objects/Mine";
 import { UIScene } from "./UIScene";
-import { PlayerController } from "../components/controllers/PlayerController";
 import { getHostPosition } from "../../logics/path";
 import { isDropContainer, splitDropContainer } from "../../logics/drop";
 import { Drop } from "../objects/Drop";
