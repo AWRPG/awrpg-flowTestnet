@@ -18,6 +18,8 @@ export class ButtonA extends UIButton {
       ...config,
     });
 
+    if (this.disable) this.alpha = 0.5;
+
     // Underline
     new UIImage(scene, "btn_decor1", {
       width: this.content.textObj.width / 4,
