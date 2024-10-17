@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Owner, Balance, EntityType, StatsSpecs } from "@/codegen/index.sol";
+import { Owner, Balance, EntityType, StatsSpecs, SizeSpecs } from "@/codegen/index.sol";
 import { ContainerLogic } from "@/libraries/ContainerLogic.sol";
 import { ERC20Logic } from "@/libraries/ERC20Logic.sol";
 import { Errors } from "@/Errors.sol";
@@ -77,6 +77,10 @@ library PoolLogic {
 
   function getPoolAmount(bytes32 entity, bytes16 poolType) internal view returns (uint256) {
     return Balance.get(poolType, entity);
+  }
+
+  function isPoolType(bytes16 poolType) internal view returns (bool) {
+    return SizeSpecs.get(poolType) == 0;
   }
 
   /**
