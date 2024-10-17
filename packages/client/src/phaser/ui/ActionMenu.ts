@@ -1,19 +1,30 @@
 import { UIScene } from "../scenes/UIScene";
-import { UIManager } from "./UIManager";
+import { GuiBase } from "./GuiBase";
 import { ALIGNMODES } from "../../constants";
+import { UIList } from "../components/ui/common/UIList";
 import { Box } from "../components/ui/Box";
-import { Button } from "../components/ui/Button";
-import { UIText } from "../components/ui/UIText";
-import { ButtonA } from "./buttons/ButtonA";
+import { Box2 } from "../components/ui/Box2";
+import { UIText } from "../components/ui/common/UIText";
+import { ButtonA } from "../components/ui/ButtonA";
+import { MenuTitle } from "../components/ui/MenuTitle";
+import { UIController } from "../components/controllers/UIController";
+import { SceneObjectController } from "../components/controllers/SceneObjectController";
+import { Host } from "../objects/Host";
 
 /**
  * show the action buttons player can do
  */
-export class ActionMenu extends UIManager {
+export class ActionMenu extends GuiBase {
+  list: UIList;
+  role?: Host;
+
+  /** */
   constructor(scene: UIScene) {
     super(
       scene,
-      new Box(scene, "ui-box", 360, 210, {
+      new Box(scene, {
+        width: 360,
+        height: 210,
         alignModeName: ALIGNMODES.MIDDLE_CENTER,
         marginX: 220,
       })
@@ -21,41 +32,63 @@ export class ActionMenu extends UIManager {
 
     this.name = "ActionMenu";
 
-    // Title Background
-    const titleBox = new Box(scene, "ui-box-title-out-side2", 178, 58, {
+    // Title
+    const titleBox = new Box2(scene, {
+      width: 178,
+      height: 58,
       alignModeName: ALIGNMODES.RIGHT_TOP,
       marginX: 8,
       marginY: -36,
       parent: this.rootUI,
-      leftWidth: 24,
-      rightWidth: 24,
-      topHeight: 24,
-      bottomHeight: 24,
     });
+    new MenuTitle(scene, "ACTIONS", { parent: titleBox });
 
-    // Title text
-    new UIText(scene, "ACTIONS", {
-      alignModeName: ALIGNMODES.MIDDLE_CENTER,
-      parent: titleBox,
-      fontColor: "#2D3E51",
-      fontSize: 32,
+    // Button list
+    this.list = new UIList(scene, {
+      marginY: 28,
+      itemWidth: 260,
+      itemHeight: 48,
+      spacingY: 12,
+      parent: this.rootUI,
+      onCancel: () => {
+        this.hidden();
+        SceneObjectController.resetFocus();
+        SceneObjectController.controllable = true;
+      },
     });
+    const item1 = new ButtonA(scene, {
+      text: "Move",
+      onConfirm: () => {
+        this.hidden();
+        if (this.role) UIController.scene.moveTips?.show(this.role);
+      },
+    });
+    this.list.addItem(item1);
+    const item2 = new ButtonA(scene, {
+      text: "Build",
+      onConfirm: () => {
+        this.hidden();
+        if (this.role) UIController.scene.buildMenu?.show(this.role);
+      },
+      onCancel: () => {
+        this.show();
+      },
+    });
+    this.list.addItem(item2);
+    const item3 = new ButtonA(scene, {
+      text: "Change Terrain",
+      onConfirm: () => {
+        this.hidden();
+      },
+    });
+    this.list.addItem(item3);
+    this.focusUI = this.list;
+  }
 
-    // Init the action button list
-    const buttons: { name: string; button: Button }[] = (this.buttons = []);
-    const buttonsIndex = ["Move", "Build", "Change Terrain"];
-    buttonsIndex.forEach((name, index) => {
-      buttons.push({
-        name: name,
-        button: new ButtonA(scene, name, 260, 48, {
-          alignModeName: ALIGNMODES.LEFT_TOP,
-          marginY: 28 + index * 56,
-          parent: this.rootUI,
-          fontAlignMode: ALIGNMODES.LEFT_CENTER,
-        }),
-      });
-    });
-    this.currentButtonIndex = 0;
-    this.selectButton();
+  show(role?: Host) {
+    super.show();
+    this.role = role ?? this.role;
+    SceneObjectController.focus = this.role;
+    UIController.controllable = true;
   }
 }

@@ -1,15 +1,15 @@
-import { UIScene } from "../scenes/UIScene";
-import { UIBase } from "../components/ui/UIBase";
+import { UIBase } from "../components/ui/common/UIBase";
 import { Button } from "../components/ui/Button";
+import { UIController } from "../components/controllers/UIController";
 
 /**
  * All the complex UI Components need to extend from this class.
  */
-export class UIManager {
+export class GuiBase {
   /**
    * the UIScene
    */
-  scene: UIScene;
+  scene: Phaser.Scene;
 
   /**
    * The name is used for controllers to determine the current UI object
@@ -23,7 +23,7 @@ export class UIManager {
   isVisible: boolean = false;
 
   /**
-   * Each UIManager must have a basic UI component as a root node
+   * Each GuiBase must have a basic UI component as a root node
    */
   rootUI: UIBase;
 
@@ -37,17 +37,21 @@ export class UIManager {
    */
   currentButtonIndex: number = 0;
 
+  resizeListener: Function | undefined;
+
+  private _focusUI?: UIBase;
+
   /**
    * Data listener events that depend on Phaser: https://newdocs.phaser.io/docs/3.80.0/Phaser.Data.Events.CHANGE_DATA
    */
   onDataChanged(parent: unknown, key: string, data: unknown) {}
 
   /**
-   * @param scene currently only UIScene is supported
-   * @param rootUI The base UI component that serves as the root node of the UIManager
+   * @param scene
+   * @param rootUI The base UI component that serves as the root node of the GuiBase
    */
-  constructor(scene: UIScene, rootUI: UIBase) {
-    this.name = "UIManager";
+  constructor(scene: Phaser.Scene, rootUI: UIBase) {
+    this.name = "GuiBase";
     this.scene = scene;
     this.rootUI = rootUI;
     this.hidden(); // It will only be displayed when be called.
@@ -57,20 +61,27 @@ export class UIManager {
   /**
    * Show it
    */
-  show(hasFocus: boolean = true, ...params: unknown[]) {
+  show(...params: unknown[]) {
+    if (!this.resizeListener) {
+      this.resizeListener = (gameSize: Phaser.Structs.Size) => {
+        // this.rootUI.updatePosition(gameSize);
+      };
+      this.scene.scale.on("resize", this.resizeListener);
+    }
+    if (this.focusUI) UIController.focus = this.focusUI; // Set focus
     this.rootUI.root.setVisible(true);
     this.isVisible = true;
-    if (hasFocus) this.scene.focusUI.push(this);
   }
 
   /**
    * Hide it
    */
-  hidden(foucsRemove: boolean = true, ...params: unknown[]) {
-    const focusUI = this.scene.focusUI;
-    if (foucsRemove && focusUI.at(-1) === this) focusUI.pop();
+  hidden(...params: unknown[]) {
     this.rootUI.root.setVisible(false);
     this.isVisible = false;
+    if (UIController.focus === this.focusUI) UIController.focus = undefined;
+    this.scene.scale.off("resize", this.resizeListener);
+    this.resizeListener = undefined;
   }
 
   /**
@@ -131,7 +142,7 @@ export class UIManager {
     if (!this.buttons) return;
     const button = this.buttons[this.currentButtonIndex].button;
     button.skin.show();
-    button.selectedSkin.hide();
+    button.selectedSkin.hidden();
   }
 
   /**
@@ -140,7 +151,7 @@ export class UIManager {
   selectButton() {
     if (!this.buttons) return;
     const button = this.buttons[this.currentButtonIndex].button;
-    button.skin.hide();
+    button.skin.hidden();
     button.selectedSkin.show();
   }
 
@@ -148,7 +159,15 @@ export class UIManager {
     this.buttons.forEach((button) => {
       button.button.destroyChildren();
     });
-    this.scene.focusUI.pop();
+    // this.scene.focusUI.pop();
     this.hidden();
+  }
+
+  get focusUI(): UIBase | undefined {
+    return this._focusUI;
+  }
+
+  set focusUI(value: UIBase) {
+    this._focusUI = value;
   }
 }

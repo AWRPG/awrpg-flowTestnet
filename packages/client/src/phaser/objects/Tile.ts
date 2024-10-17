@@ -76,7 +76,7 @@ export class Tile extends SceneObject {
           // .setDepth(index)
           .setInteractive()
           .on("pointerdown", () => {
-            console.log(texture, frame);
+            // console.log(texture, frame);
           });
         this.tileSrpites[index] = tileSprite;
         this.root.add(tileSprite);

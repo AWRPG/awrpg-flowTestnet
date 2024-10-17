@@ -84,6 +84,13 @@ export class SceneObject {
    */
   moveTween: Phaser.Tweens.Tween | Phaser.Tweens.TweenChain | undefined;
 
+  /** Mouse over */
+  hovering: boolean = false;
+
+  onConfirm?: () => void;
+
+  onCancel?: () => void;
+
   /**
    * @param entity the scene object's entity
    * @param components the world's components
@@ -147,6 +154,30 @@ export class SceneObject {
     this.root.setDepth(depth);
   }
 
+  onFocus() {}
+  onBlur() {}
+  onUpPressed() {}
+  onDownPressed() {}
+  onLeftPressed() {}
+  onRightPressed() {}
+
+  onConfirmPressed() {
+    if (this.onConfirm) this.onConfirm();
+  }
+
+  onCancelPressed() {
+    if (this.onCancel) this.onCancel();
+  }
+
+  onSelected() {}
+  onUnSelected() {}
+  onHover() {
+    this.hovering = true;
+  }
+  onUnHover() {
+    this.hovering = false;
+  }
+
   /**
    *
    * @param entity
@@ -176,8 +207,8 @@ export class SceneObject {
     this.scene.hosts[entity].root.setAlpha(1);
     const coord = getHostPosition(this.components, this.scene.network, entity);
     if (!coord) return;
-    setComponent(this.components.TargetTile, TARGET, {
-      value: combineToEntity(coord.x, coord.y),
-    });
+    // setComponent(this.components.TargetTile, TARGET, {
+    //   value: combineToEntity(coord.x, coord.y),
+    // });
   }
 }

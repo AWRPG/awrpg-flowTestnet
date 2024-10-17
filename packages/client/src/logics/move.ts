@@ -30,21 +30,6 @@ export enum Direction {
   RIGHT = 4,
 }
 
-export const KEY_TO_DIRECTION: Record<string, number> = {
-  ["w"]: Direction.UP,
-  ["a"]: Direction.LEFT,
-  ["s"]: Direction.DOWN,
-  ["d"]: Direction.RIGHT,
-  ["W"]: Direction.UP,
-  ["A"]: Direction.LEFT,
-  ["S"]: Direction.DOWN,
-  ["D"]: Direction.RIGHT,
-  ["ArrowUp"]: Direction.UP,
-  ["ArrowLeft"]: Direction.LEFT,
-  ["ArrowDown"]: Direction.DOWN,
-  ["ArrowRight"]: Direction.RIGHT,
-};
-
 export const getFourCoords = (position: Vector) => {
   const { x, y } = position;
   return [

@@ -1,119 +1,117 @@
-import { UIScene } from "../scenes/UIScene";
-import { UIManager } from "./UIManager";
+import { GuiBase } from "./GuiBase";
 import { Box } from "../components/ui/Box";
-import { UIAvatar } from "../components/ui/UIAvatar";
-import { UIText } from "../components/ui/UIText";
-import { Bar } from "../components/ui/Bar";
+import { Avatar } from "../components/ui/Avatar";
+import { UIImage } from "../components/ui/common/UIImage";
+import { UIText } from "../components/ui/common/UIText";
+import { UISlider } from "../components/ui/common/UISlider";
 import { ALIGNMODES } from "../../constants";
+import { Heading2 } from "../components/ui/Heading2";
+import { Heading3 } from "../components/ui/Heading3";
+import { HpBar } from "../components/ui/HpBar";
+import { SpBar } from "../components/ui/SpBar";
+import { Host } from "../objects/Host";
 
-export class CharacterInfo extends UIManager {
-  avatar: UIAvatar;
+export class CharacterInfo extends GuiBase {
+  avatar: UIImage;
   characterName: UIText;
-
-  hpBar: Bar;
+  hpBar: HpBar;
   hpName: UIText;
   hpNum: UIText;
-
-  hp: number = 1;
-  maxHp: number = 1;
-
-  spBar: Bar;
+  spBar: UISlider;
   spName: UIText;
   spNum: UIText;
 
-  sp: number = 1;
-  maxSp: number = 1;
-
-  constructor(scene: UIScene) {
+  constructor(scene: Phaser.Scene) {
     super(
       scene,
-      new Box(scene, "ui-box", 680, 192, {
+      new Box(scene, {
         alignModeName: ALIGNMODES.LEFT_BOTTOM,
+        width: 680,
+        height: 192,
         marginX: 8,
         marginY: 8,
       })
     );
-    this.name = "CharacterInfo";
-    this.setData("hp", 1);
-    this.setData("sp", 1);
 
-    this.avatar = new UIAvatar(this.scene, "avatar-farmer-1-1", 256, 256, {
+    this.name = "CharacterInfo";
+
+    this.avatar = new Avatar(this.scene, "avatar-farmer-1-1", {
       alignModeName: ALIGNMODES.LEFT_BOTTOM,
+      width: 256,
+      height: 256,
       marginX: 1,
       marginY: 1,
       parent: this.rootUI,
     });
 
-    this.characterName = new UIText(this.scene, "Brief Kandle", {
-      alignModeName: ALIGNMODES.LEFT_TOP,
+    this.characterName = new Heading2(this.scene, "Brief Kandle", {
       marginX: 268,
       marginY: 12,
-      fontSize: 36,
       parent: this.rootUI,
     });
 
-    this.hpBar = new Bar(this.scene, "bar_red", "bar_empty", 358, 30, {
-      alignModeName: ALIGNMODES.LEFT_TOP,
+    this.hpBar = new HpBar(this.scene, {
+      width: 358,
+      height: 30,
       marginX: 268,
       marginY: 78,
       parent: this.rootUI,
-      value: this.hp,
-      maxValue: this.maxHp,
     });
 
-    this.hpName = new UIText(this.scene, "HP", {
-      alignModeName: ALIGNMODES.LEFT_TOP,
+    this.hpName = new Heading3(this.scene, "HP", {
       marginX: 4,
       marginY: -20,
       parent: this.hpBar,
-      fontSize: 16,
-      fontFamily: "'Roboto Mono'",
     });
 
-    this.hpNum = new UIText(this.scene, this.hp + " / " + this.maxHp, {
+    this.hpNum = new Heading3(this.scene, "1 / 1", {
       alignModeName: ALIGNMODES.RIGHT_TOP,
       marginX: 4,
       marginY: -20,
       parent: this.hpBar,
-      fontSize: 16,
-      fontFamily: "'Roboto Mono'",
     });
 
-    this.spBar = new Bar(this.scene, "bar_yellow", "bar_empty", 358, 30, {
-      alignModeName: ALIGNMODES.LEFT_TOP,
+    this.spBar = new SpBar(this.scene, {
+      width: 358,
+      height: 30,
       marginX: 268,
       marginY: 140,
       parent: this.rootUI,
-      value: this.sp,
-      maxValue: this.maxSp,
     });
 
-    this.spName = new UIText(this.scene, "SP", {
-      alignModeName: ALIGNMODES.LEFT_TOP,
+    this.spName = new Heading3(this.scene, "SP", {
       marginX: 4,
       marginY: -20,
       parent: this.spBar,
-      fontSize: 16,
-      fontFamily: "'Roboto Mono'",
     });
 
-    this.spNum = new UIText(this.scene, this.sp + " / " + this.maxSp, {
+    this.spNum = new Heading3(this.scene, "1 / 1", {
       alignModeName: ALIGNMODES.RIGHT_TOP,
       marginX: 4,
       marginY: -20,
       parent: this.spBar,
-      fontSize: 16,
-      fontFamily: "'Roboto Mono'",
     });
   }
 
-  onDataChanged(parent: unknown, key: string, data: unknown) {
-    switch (key) {
-      case "hp":
-        this.hpNum.setText(data as string);
-        break;
-      case "sp":
-        this.spNum.setText(data as string);
-    }
+  show(role: Host) {
+    super.show();
+    const hp = role.properties.get("BLOOD") ?? 0;
+    const maxHp = role.properties.get("maxBLOOD") ?? 0;
+    const sp = role.properties.get("STAMINA") ?? 0;
+    const maxSp = role.properties.get("maxSTAMINA") ?? 0;
+    this.hpNum.text = hp + "/" + maxHp;
+    this.hpBar.max = maxHp;
+    this.hpBar.value = hp;
+    this.spNum.text = sp + "/" + maxSp;
+    this.spBar.max = maxSp;
+    this.spBar.value = sp;
+
+    // this.hpBar.listenComponentValue(
+    //   role.components.PoolOf,
+    //   (value: any) => {
+    //     this.hpName.text = value.toString();
+    //   },
+    //   role.entity
+    // );
   }
 }

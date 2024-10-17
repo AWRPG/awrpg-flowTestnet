@@ -2,7 +2,7 @@ import { Entity, getComponentValue } from "@latticexyz/recs";
 import { ALIGNMODES, SOURCE } from "../../constants";
 import { Box } from "../components/ui/Box";
 import { UIScene } from "../scenes/UIScene";
-import { UIManager } from "./UIManager";
+import { GuiBase } from "./GuiBase";
 import {
   getRoleAndHostAdjacentCoord,
   roleAndHostWithinRange,
@@ -19,7 +19,7 @@ import { Hex, hexToString } from "viem";
 import { ButtonA } from "./buttons/ButtonA";
 
 // display stakingIds in building
-export class StakingMenu extends UIManager {
+export class StakingMenu extends GuiBase {
   components: UIScene["components"];
   systemCalls: UIScene["systemCalls"];
 

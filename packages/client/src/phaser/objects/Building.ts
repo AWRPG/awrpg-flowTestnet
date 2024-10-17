@@ -38,7 +38,7 @@ export class Building extends SceneObject {
     const buildingType = getComponentValue(EntityType, entity)?.value;
     const buildingSpecs = getEntitySpecs(components, BuildingSpecs, entity)!;
     const {width, height} = buildingSpecs;
-    console.log(buildingSpecs)
+    // console.log(buildingSpecs)
     // const buildingNumber = BUILDING_TYPES.indexOf(buildingType as Hex);
     // // buildingMapping[buildingNumber];
 
