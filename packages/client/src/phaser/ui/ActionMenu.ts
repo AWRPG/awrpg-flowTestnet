@@ -65,10 +65,10 @@ export class ActionMenu extends GuiBase {
     });
     this.list.addItem(item1);
     const item2 = new ButtonA(scene, {
-      text: "Build",
+      text: "Construct",
       onConfirm: () => {
         this.hidden();
-        if (this.role) UIController.scene.buildMenu?.show(this.role);
+        if (this.role) UIController.scene.constructMenu?.show(this.role);
       },
       onCancel: () => {
         this.show();

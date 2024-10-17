@@ -15,7 +15,6 @@ import {
   EXPLORE_MENU,
   TARGET,
   terrainMapping,
-  UI_NAME,
   HIGHLIGHT_MODE,
   POOL_TYPES,
 } from "../../../constants";

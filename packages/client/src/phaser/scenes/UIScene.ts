@@ -3,10 +3,10 @@ import { CharacterInfo } from "../ui/CharacterInfo";
 import { TerrainUI } from "../ui/TerrainUI";
 import { ActionMenu } from "../ui/ActionMenu";
 import { MoveTips } from "../ui/MoveTips";
-import { BuildTips } from "../ui/BuildTips";
+import { ConstructTips } from "../ui/ConstructTips";
 import { GuiBase } from "../ui/GuiBase";
 import { UIBase } from "../components/ui/common/UIBase";
-import { BuildMenu } from "../ui/BuildMenu";
+import { ConstructMenu } from "../ui/ConstructMenu";
 import { BuildingMenu } from "../ui/BuildingMenu";
 import { StakeMenu } from "../ui/StakeMenu";
 import { StakingMenu } from "../ui/StakingMenu";
@@ -48,9 +48,9 @@ export class UIScene extends Phaser.Scene {
   stakingMenu: StakingMenu | undefined;
 
   moveTips?: MoveTips;
-  buildTips: GuiBase | undefined;
+  constructTips: GuiBase | undefined;
 
-  buildMenu: BuildMenu | undefined;
+  constructMenu?: ConstructMenu;
 
   /**
    * @param setupResult
@@ -92,8 +92,8 @@ export class UIScene extends Phaser.Scene {
     this.terrainUI = new TerrainUI(this);
     this.actionMenu = new ActionMenu(this);
     this.moveTips = new MoveTips(this);
-    this.buildMenu = new BuildMenu(this);
-    this.buildTips = new BuildTips(this);
+    this.constructMenu = new ConstructMenu(this);
+    this.constructTips = new ConstructTips(this);
     this.buildingMenu = new BuildingMenu(this);
     // this.stakeMenu = new StakeMenu(this);
     // this.stakingMenu = new StakingMenu(this);

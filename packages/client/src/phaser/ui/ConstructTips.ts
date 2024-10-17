@@ -15,13 +15,13 @@ import { UIBase } from "../components/ui/common/UIBase";
 /**
  * show the action buttons player can do
  */
-export class BuildTips extends GuiBase {
+export class ConstructTips extends GuiBase {
   role?: Host;
 
   /** */
   constructor(scene: UIScene) {
     super(scene, new UIBase(scene));
-    this.name = "BuildTips";
+    this.name = "ConstructTips";
   }
 
   show(role?: Host) {

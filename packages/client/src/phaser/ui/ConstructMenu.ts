@@ -10,7 +10,7 @@ import { SceneObjectController } from "../components/controllers/SceneObjectCont
 import { Host } from "../objects/Host";
 import { UIController } from "../components/controllers/UIController";
 
-export class BuildMenu extends GuiBase {
+export class ConstructMenu extends GuiBase {
   list: UIList;
   role?: Host;
 
@@ -23,7 +23,7 @@ export class BuildMenu extends GuiBase {
         alignModeName: ALIGNMODES.MIDDLE_CENTER,
       })
     );
-    this.name = "BuildMenu";
+    this.name = "ConstructMenu";
 
     // Init the action button list
     this.list = new UIList(scene, {
@@ -56,7 +56,7 @@ export class BuildMenu extends GuiBase {
       onConfirm: () => {
         if (!this.role) return;
         this.hidden();
-        UIController.scene.buildTips?.show(this.role);
+        UIController.scene.constructTips?.show(this.role);
       },
     });
     this.list.addItem(item1);

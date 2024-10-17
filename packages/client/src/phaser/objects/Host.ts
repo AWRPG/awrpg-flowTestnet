@@ -152,8 +152,8 @@ export class Host extends SceneObject {
         UIController.scene.moveTips.hidden();
         SceneObjectController.resetFocus();
       }
-    } else if (UIController.scene.buildTips?.isVisible) {
-      UIController.scene.buildTips.hidden();
+    } else if (UIController.scene.constructTips?.isVisible) {
+      UIController.scene.constructTips.hidden();
       SceneObjectController.resetFocus();
     }
   }
@@ -163,9 +163,9 @@ export class Host extends SceneObject {
     if (UIController.scene.moveTips?.isVisible) {
       UIController.scene.moveTips.hidden();
       UIController.scene.actionMenu?.show(this);
-    } else if (UIController.scene.buildTips?.isVisible) {
-      UIController.scene.buildTips.hidden();
-      UIController.scene.buildMenu?.show(this);
+    } else if (UIController.scene.constructTips?.isVisible) {
+      UIController.scene.constructTips.hidden();
+      UIController.scene.constructMenu?.show(this);
     }
   }
 
