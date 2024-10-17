@@ -77,6 +77,7 @@ export class ActionMenu extends GuiBase {
     this.list.addItem(item2);
     const item3 = new ButtonA(scene, {
       text: "Change Terrain",
+      disable: true,
       onConfirm: () => {
         this.hidden();
       },

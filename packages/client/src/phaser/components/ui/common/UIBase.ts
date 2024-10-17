@@ -9,6 +9,7 @@ export interface UIBaseConfig {
   marginY?: number;
   scale?: number;
   parent?: UIBase | undefined;
+  disable?: boolean;
   onConfirm?: () => void;
   onCancel?: () => void;
 }
@@ -48,6 +49,8 @@ export class UIBase {
   /** Mouse over */
   hovering: boolean = false;
 
+  disable: boolean;
+
   /**  */
   onConfirm?: () => void;
 
@@ -59,6 +62,7 @@ export class UIBase {
     this.alignModeName = config.alignModeName ?? ALIGNMODES.LEFT_TOP;
     this.marginX = config.marginX ?? 0;
     this.marginY = config.marginY ?? 0;
+    this.disable = config.disable ?? false;
 
     // Creates the root container & init size and position
     this.root = new Phaser.GameObjects.Container(scene, 0, 0);

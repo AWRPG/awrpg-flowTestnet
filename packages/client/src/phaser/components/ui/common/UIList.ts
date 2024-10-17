@@ -86,7 +86,7 @@ export class UIList extends UIBase {
 
   onConfirmPressed() {
     super.onConfirmPressed();
-    if (this._item?.onConfirm) {
+    if (!this._item?.disable && this._item?.onConfirm) {
       UIController.focus = this._item;
       this._item.onConfirm();
     }
