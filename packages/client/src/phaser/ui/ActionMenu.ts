@@ -8,11 +8,15 @@ import { UIText } from "../components/ui/common/UIText";
 import { ButtonA } from "../components/ui/ButtonA";
 import { MenuTitle } from "../components/ui/MenuTitle";
 import { UIController } from "../components/controllers/UIController";
+import { SceneObjectController } from "../components/controllers/SceneObjectController";
+import { Host } from "../objects/Host";
+
 /**
  * show the action buttons player can do
  */
 export class ActionMenu extends GuiBase {
   list: UIList;
+  role?: Host;
 
   /** */
   constructor(scene: UIScene) {
@@ -46,14 +50,45 @@ export class ActionMenu extends GuiBase {
       itemHeight: 48,
       spacingY: 12,
       parent: this.rootUI,
+      onCancel: () => {
+        this.hidden();
+        SceneObjectController.resetFocus();
+        SceneObjectController.controllable = true;
+      },
     });
-    const buttonsIndex = ["Move", "Build", "Change Terrain"];
-    buttonsIndex.forEach((name) => {
-      const item = new ButtonA(scene, { text: name });
-      this.list.addItem(item);
+    const item1 = new ButtonA(scene, {
+      text: "Move",
+      onConfirm: () => {
+        this.hidden();
+        if (this.role) UIController.scene.moveTips?.show(this.role);
+      },
     });
+    this.list.addItem(item1);
+    const item2 = new ButtonA(scene, {
+      text: "Build",
+      onConfirm: () => {
+        this.hidden();
+        if (this.role) UIController.scene.buildMenu?.show(this.role);
+      },
+      onCancel: () => {
+        this.show();
+      },
+    });
+    this.list.addItem(item2);
+    const item3 = new ButtonA(scene, {
+      text: "Change Terrain",
+      onConfirm: () => {
+        this.hidden();
+      },
+    });
+    this.list.addItem(item3);
+    this.focusUI = this.list;
+  }
 
-    // Set focus
-    UIController.focus = this.list;
+  show(role?: Host) {
+    super.show();
+    this.role = role ?? this.role;
+    SceneObjectController.focus = this.role;
+    UIController.controllable = true;
   }
 }

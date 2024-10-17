@@ -2,6 +2,8 @@ import { SetupResult } from "../../mud/setup";
 import { CharacterInfo } from "../ui/CharacterInfo";
 import { TerrainUI } from "../ui/TerrainUI";
 import { ActionMenu } from "../ui/ActionMenu";
+import { MoveTips } from "../ui/MoveTips";
+import { BuildTips } from "../ui/BuildTips";
 import { GuiBase } from "../ui/GuiBase";
 import { UIBase } from "../components/ui/common/UIBase";
 import { BuildMenu } from "../ui/BuildMenu";
@@ -9,6 +11,7 @@ import { BuildingMenu } from "../ui/BuildingMenu";
 import { StakeMenu } from "../ui/StakeMenu";
 import { StakingMenu } from "../ui/StakingMenu";
 import "../components/ui/UIBaseExtend";
+import { UIController } from "../components/controllers/UIController";
 
 export class UIScene extends Phaser.Scene {
   /**
@@ -36,7 +39,7 @@ export class UIScene extends Phaser.Scene {
   /**
    * show the action buttons player can do
    */
-  actionMenu: ActionMenu | undefined;
+  actionMenu?: ActionMenu;
 
   buildingMenu: BuildingMenu | undefined;
 
@@ -44,7 +47,7 @@ export class UIScene extends Phaser.Scene {
 
   stakingMenu: StakingMenu | undefined;
 
-  moveTips: GuiBase | undefined;
+  moveTips?: MoveTips;
   buildTips: GuiBase | undefined;
 
   buildMenu: BuildMenu | undefined;
@@ -86,32 +89,14 @@ export class UIScene extends Phaser.Scene {
 
   create() {
     this.characterInfo = new CharacterInfo(this);
-    // this.terrainUI = new TerrainUI(this);
+    this.terrainUI = new TerrainUI(this);
     this.actionMenu = new ActionMenu(this);
-    this.moveTips = new GuiBase(this, new UIBase(this));
-    this.moveTips.name = "MoveTips";
-    // this.buildMenu = new BuildMenu(this);
-    // this.buildTips = new GuiBase(this, new UIBase(this, 0, 0, {}));
-    // this.buildTips.name = "BuildTips";
-    // this.buildingMenu = new BuildingMenu(this);
+    this.moveTips = new MoveTips(this);
+    this.buildMenu = new BuildMenu(this);
+    this.buildTips = new BuildTips(this);
+    this.buildingMenu = new BuildingMenu(this);
     // this.stakeMenu = new StakeMenu(this);
     // this.stakingMenu = new StakingMenu(this);
-  }
-
-  /**
-   * Determines whether the current focus is on the UIScene based on whether each complex UI component is displayed or not.
-   * [Note] Display of some components like TerrainUI have no options or are not in the center of the screen does not affect the focus.
-   */
-  isFocusOn() {
-    if (
-      this.actionMenu?.isVisible ||
-      this.moveTips?.isVisible ||
-      this.buildMenu?.isVisible ||
-      this.buildTips?.isVisible ||
-      this.buildingMenu?.isVisible ||
-      this.stakeMenu?.isVisible ||
-      this.stakingMenu?.isVisible
-    )
-      return true;
+    UIController.init(this);
   }
 }

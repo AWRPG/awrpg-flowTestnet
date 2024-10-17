@@ -1,3 +1,4 @@
+import { UIController } from "../../controllers/UIController";
 import { UIBase, UIBaseConfig } from "./UIBase";
 import { UIConfig } from "./UIConfig";
 
@@ -81,6 +82,18 @@ export class UIList extends UIBase {
       this.itemIndex < this.itemsCount - 1
         ? this.itemIndex + 1
         : this.itemsCount - 1;
+  }
+
+  onConfirmPressed() {
+    super.onConfirmPressed();
+    if (this._item?.onConfirm) {
+      UIController.focus = this._item;
+      this._item.onConfirm();
+    }
+  }
+
+  onCancelPressed() {
+    super.onCancelPressed();
   }
 
   onItemSelected(value: UIBase | undefined) {

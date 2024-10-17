@@ -1,38 +1,54 @@
+import { GuiBase } from "../../ui/GuiBase";
 import { UIBase } from "../ui/common/UIBase";
-import { UIConfig } from "../ui/common/UIConfig";
 import { UIEvents } from "../ui/common/UIEvents";
+import { SceneObjectController } from "./SceneObjectController";
+import { UIScene } from "../../scenes/UIScene";
 
 /** UI control */
 export class UIController {
-  static scene: Phaser.Scene;
+  static scene: UIScene;
+  static flagUp: boolean = true;
+  private static _controllable: boolean = false;
 
   /** The UI that currently has the focus */
-  private static _focus: UIBase;
+  private static _focus?: UIBase;
 
-  static get focus(): UIBase {
+  static get focus(): UIBase | undefined {
     return this._focus;
   }
 
-  static set focus(ui: UIBase) {
+  static set focus(ui: UIBase | undefined) {
     if (this._focus === ui) return;
     if (this._focus) {
       this._focus.onBlur();
       this._focus.emit(UIEvents.FOCUS_OFF, this._focus);
     }
     this._focus = ui;
-    this._focus.emit(UIEvents.FOCUS_ON, this._focus);
-    this._focus.onFocus();
+    if (this._focus) {
+      this._focus.emit(UIEvents.FOCUS_ON, this._focus);
+      this._focus.onFocus();
+    }
   }
 
-  static listenStart(scene?: Phaser.Scene) {
+  static init(scene?: UIScene) {
     if (scene) this.scene = scene;
-    this.scene.input.keyboard?.on("keydown", this.onKeyDown, this);
   }
 
-  private static onKeyDown(event: KeyboardEvent) {
-    if (!this._focus || !this._focus.visible) return;
-    const key = event.key;
-    if (UIConfig.KEY_UP.includes(key)) this._focus.onUpPressed();
-    if (UIConfig.KEY_DOWN.includes(key)) this._focus.onDownPressed();
+  static getGui(name: string): GuiBase {
+    return (this.scene as any)[name];
+  }
+
+  static openGui(name: string) {
+    (this.scene as any)[name].show();
+    return (this.scene as any)[name];
+  }
+
+  static get controllable(): boolean {
+    return this._controllable;
+  }
+
+  static set controllable(value: boolean) {
+    this._controllable = value;
+    if (value === true) SceneObjectController.controllable = false;
   }
 }

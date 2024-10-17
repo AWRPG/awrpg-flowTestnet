@@ -14,7 +14,9 @@ export class TerrainUI extends GuiBase {
   constructor(scene: UIScene) {
     super(
       scene,
-      new Box(scene, "ui-box", 280, 128, {
+      new Box(scene, {
+        width: 280,
+        height: 128,
         alignModeName: ALIGNMODES.RIGHT_TOP,
         marginX: 8,
         marginY: 8,
@@ -23,7 +25,6 @@ export class TerrainUI extends GuiBase {
     this.setData("terrainName", "");
 
     this.terrainNameText = new UIText(this.scene, "", {
-      alignModeName: ALIGNMODES.LEFT_TOP,
       marginX: 16,
       marginY: 12,
       parent: this.rootUI,
@@ -31,11 +32,10 @@ export class TerrainUI extends GuiBase {
     });
 
     this.terrainInfoText = new UIText(this.scene, "", {
-      alignModeName: ALIGNMODES.LEFT_TOP,
       marginX: 16,
       marginY: 56,
       parent: this.rootUI,
-      wordWrap: 1024,
+      wordWrapWidth: 1024,
     });
   }
 
@@ -60,5 +60,10 @@ export class TerrainUI extends GuiBase {
       default:
         this.terrainInfoText.setText("");
     }
+  }
+
+  show(terrainName: string) {
+    super.show();
+    this.setData("terrainName", terrainName);
   }
 }

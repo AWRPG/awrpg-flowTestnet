@@ -9,6 +9,8 @@ export interface UIBaseConfig {
   marginY?: number;
   scale?: number;
   parent?: UIBase | undefined;
+  onConfirm?: () => void;
+  onCancel?: () => void;
 }
 
 /**
@@ -46,6 +48,11 @@ export class UIBase {
   /** Mouse over */
   hovering: boolean = false;
 
+  /**  */
+  onConfirm?: () => void;
+
+  onCancel?: () => void;
+
   /** */
   constructor(scene: Phaser.Scene, config: UIBaseConfig = {}) {
     this.texture = config.texture;
@@ -56,6 +63,8 @@ export class UIBase {
     // Creates the root container & init size and position
     this.root = new Phaser.GameObjects.Container(scene, 0, 0);
     this.parent = config.parent;
+    this.onConfirm = config.onConfirm;
+    this.onCancel = config.onCancel;
     this.setAutoScale(config);
     this.updatePosition();
 
@@ -348,6 +357,17 @@ export class UIBase {
   onBlur() {}
   onUpPressed() {}
   onDownPressed() {}
+  onLeftPressed() {}
+  onRightPressed() {}
+
+  onConfirmPressed() {
+    if (this.onConfirm) this.onConfirm();
+  }
+
+  onCancelPressed() {
+    if (this.onCancel) this.onCancel();
+  }
+
   onSelected() {}
   onUnSelected() {}
   onHover() {

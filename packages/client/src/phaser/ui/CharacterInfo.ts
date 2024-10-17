@@ -1,4 +1,4 @@
-import { GuiBase } from "../components/ui/common/GuiBase";
+import { GuiBase } from "./GuiBase";
 import { Box } from "../components/ui/Box";
 import { Avatar } from "../components/ui/Avatar";
 import { UIImage } from "../components/ui/common/UIImage";
@@ -9,9 +9,9 @@ import { Heading2 } from "../components/ui/Heading2";
 import { Heading3 } from "../components/ui/Heading3";
 import { HpBar } from "../components/ui/HpBar";
 import { SpBar } from "../components/ui/SpBar";
+import { Host } from "../objects/Host";
 
 export class CharacterInfo extends GuiBase {
-  rootUI: Box;
   avatar: UIImage;
   characterName: UIText;
   hpBar: HpBar;
@@ -22,17 +22,18 @@ export class CharacterInfo extends GuiBase {
   spNum: UIText;
 
   constructor(scene: Phaser.Scene) {
-    super(scene);
-    this.name = "CharacterInfo";
-    this.hidden();
+    super(
+      scene,
+      new Box(scene, {
+        alignModeName: ALIGNMODES.LEFT_BOTTOM,
+        width: 680,
+        height: 192,
+        marginX: 8,
+        marginY: 8,
+      })
+    );
 
-    this.rootUI = new Box(scene, {
-      alignModeName: ALIGNMODES.LEFT_BOTTOM,
-      width: 680,
-      height: 192,
-      marginX: 8,
-      marginY: 8,
-    });
+    this.name = "CharacterInfo";
 
     this.avatar = new Avatar(this.scene, "avatar-farmer-1-1", {
       alignModeName: ALIGNMODES.LEFT_BOTTOM,
@@ -90,5 +91,27 @@ export class CharacterInfo extends GuiBase {
       marginY: -20,
       parent: this.spBar,
     });
+  }
+
+  show(role: Host) {
+    super.show();
+    const hp = role.properties.get("BLOOD") ?? 0;
+    const maxHp = role.properties.get("maxBLOOD") ?? 0;
+    const sp = role.properties.get("STAMINA") ?? 0;
+    const maxSp = role.properties.get("maxSTAMINA") ?? 0;
+    this.hpNum.text = hp + "/" + maxHp;
+    this.hpBar.max = maxHp;
+    this.hpBar.value = hp;
+    this.spNum.text = sp + "/" + maxSp;
+    this.spBar.max = maxSp;
+    this.spBar.value = sp;
+
+    // this.hpBar.listenComponentValue(
+    //   role.components.PoolOf,
+    //   (value: any) => {
+    //     this.hpName.text = value.toString();
+    //   },
+    //   role.entity
+    // );
   }
 }

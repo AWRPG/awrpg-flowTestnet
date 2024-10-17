@@ -2,9 +2,9 @@ import { Entity, getComponentValue } from "@latticexyz/recs";
 import { ALIGNMODES, SOURCE } from "../../constants";
 import { Box } from "../components/ui/Box";
 import { Button } from "../components/ui/Button";
-import { UIText } from "../components/ui/common/UIText";
+import { UIList } from "../components/ui/common/UIList";
 import { UIScene } from "../scenes/UIScene";
-import { ButtonA } from "./buttons/ButtonA";
+import { ButtonA } from "../components/ui/ButtonA";
 import { GuiBase } from "./GuiBase";
 import { canRoleEnter, roleAndHostWithinRange } from "../../logics/building";
 import { getTargetTerrainData } from "../../logics/terrain";
@@ -13,12 +13,20 @@ import {
   getBuildingStakingIds,
 } from "../../logics/stake";
 import { Hex } from "viem";
+import { Box2 } from "../components/ui/Box2";
+import { Building } from "../objects/Building";
+import { UIController } from "../components/controllers/UIController";
+import { SceneObjectController } from "../components/controllers/SceneObjectController";
+import { MenuTitle } from "../components/ui/MenuTitle";
 
 export class BuildingMenu extends GuiBase {
+  list: UIList;
+  building?: Building;
+
   components: UIScene["components"];
   systemCalls: UIScene["systemCalls"];
 
-  building?: Entity;
+  _building?: Entity;
   source?: Entity;
   canEnter?: boolean;
   withinRange?: boolean;
@@ -29,7 +37,9 @@ export class BuildingMenu extends GuiBase {
   constructor(scene: UIScene) {
     super(
       scene,
-      new Box(scene, "ui-box", 360, 210, {
+      new Box(scene, {
+        width: 360,
+        height: 210,
         alignModeName: ALIGNMODES.MIDDLE_CENTER,
         marginX: 220,
       })
@@ -39,87 +49,88 @@ export class BuildingMenu extends GuiBase {
     this.systemCalls = scene.systemCalls;
     this.name = "BuildingMenu";
 
-    // Title Background
-    const titleBox = new Box(scene, "ui-box-title-out-side2", 178, 58, {
+    // Title
+    const titleBox = new Box2(scene, {
+      width: 178,
+      height: 58,
       alignModeName: ALIGNMODES.RIGHT_TOP,
       marginX: 8,
       marginY: -36,
       parent: this.rootUI,
-      leftWidth: 24,
-      rightWidth: 24,
-      topHeight: 24,
-      bottomHeight: 24,
     });
-
-    // Title text
-    new UIText(scene, "BUILDING", {
-      alignModeName: ALIGNMODES.MIDDLE_CENTER,
-      parent: titleBox,
-      fontColor: "#2D3E51",
-      fontSize: 32,
-    });
+    new MenuTitle(scene, "BUILDING", { parent: titleBox });
     // stake -> systemCalls. ["stake", "store"]
     // cook -> systemCalls. ["cook", "store"]
+
+    this.list = new UIList(scene, {
+      marginY: 28,
+      itemWidth: 260,
+      itemHeight: 48,
+      spacingY: 12,
+      parent: this.rootUI,
+      onCancel: () => {
+        this.hidden();
+        SceneObjectController.resetFocus();
+        SceneObjectController.controllable = true;
+      },
+    });
+    this.focusUI = this.list;
+  }
+
+  show(building?: Building) {
+    super.show();
+    this.building = building ?? this.building;
+    SceneObjectController.focus = this.building;
+    UIController.controllable = true;
+    this.update();
   }
 
   update() {
     const tileData = getTargetTerrainData(this.components, this.systemCalls);
-    this.building = tileData?.coordEntity as Entity;
+    this._building = tileData?.coordEntity as Entity;
     const { SelectedHost } = this.components;
     this.source = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
-    this.canEnter = this.building
-      ? canRoleEnter(this.components, this.source, this.building)
+    this.canEnter = this._building
+      ? canRoleEnter(this.components, this.source, this._building)
       : false;
     this.withinRange =
-      this.building && this.source
-        ? roleAndHostWithinRange(this.components, this.source, this.building)
+      this._building && this.source
+        ? roleAndHostWithinRange(this.components, this.source, this._building)
         : false;
     this.stakeTypes = getBuildingStakeOuputTypes(
       this.components,
-      this.building
+      this._building
     );
     this.stakingIds = getBuildingStakingIds(
       this.components,
-      this.building as Hex
+      this._building as Hex
     );
     this.updateButtons();
   }
 
   updateButtons() {
-    this.buttons.forEach((button) => {
-      button.button.destroyChildren();
-    });
-    this.buttons = [];
+    this.list.destroyChildren();
     let index = 0;
     if (this.stakeTypes.length > 0) {
       this.addStakeButton(index);
       index++;
     }
     if (this.stakingIds.length > 0) {
-      this.addStakingButton(index);
+      // this.addStakingButton(index);
       index++;
     }
-    this.currentButtonIndex = 0;
-    this.selectButton();
+    // this.selectButton();
   }
 
   addStakeButton(index: number) {
-    const button = new ButtonA(this.scene, "Stake", 260, 48, {
-      alignModeName: ALIGNMODES.LEFT_TOP,
-      marginY: 28 + index * 56,
-      parent: this.rootUI,
-      fontAlignMode: ALIGNMODES.LEFT_CENTER,
-    });
-    this.buttons.push({
-      name: "Stake",
-      button: button,
-      onClick: () => {
-        this.scene.scene.get("GameScene").playController.movable = false;
-        this.scene.buildingMenu?.hidden();
-        this.scene.stakeMenu?.show();
-        this.scene.stakeMenu?.update();
+    const button = new ButtonA(this.scene, {
+      text: "Stake",
+      onConfirm: () => {
+        this.hidden();
+        UIController.scene.stakeMenu?.show();
       },
     });
+    this.list.addItem(button);
   }
 
   addStakingButton(index: number) {

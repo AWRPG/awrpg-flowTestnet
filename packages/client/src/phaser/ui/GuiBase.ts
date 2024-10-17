@@ -1,5 +1,6 @@
 import { UIBase } from "../components/ui/common/UIBase";
 import { Button } from "../components/ui/Button";
+import { UIController } from "../components/controllers/UIController";
 
 /**
  * All the complex UI Components need to extend from this class.
@@ -38,6 +39,8 @@ export class GuiBase {
 
   resizeListener: Function | undefined;
 
+  private _focusUI?: UIBase;
+
   /**
    * Data listener events that depend on Phaser: https://newdocs.phaser.io/docs/3.80.0/Phaser.Data.Events.CHANGE_DATA
    */
@@ -58,26 +61,25 @@ export class GuiBase {
   /**
    * Show it
    */
-  show(hasFocus: boolean = true, ...params: unknown[]) {
+  show(...params: unknown[]) {
     if (!this.resizeListener) {
       this.resizeListener = (gameSize: Phaser.Structs.Size) => {
         // this.rootUI.updatePosition(gameSize);
       };
       this.scene.scale.on("resize", this.resizeListener);
     }
+    if (this.focusUI) UIController.focus = this.focusUI; // Set focus
     this.rootUI.root.setVisible(true);
     this.isVisible = true;
-    // if (hasFocus) this.scene.focusUI.push(this);
   }
 
   /**
    * Hide it
    */
-  hidden(foucsRemove: boolean = true, ...params: unknown[]) {
-    // const focusUI = this.scene.focusUI;
-    // if (foucsRemove && focusUI.at(-1) === this) focusUI.pop();
+  hidden(...params: unknown[]) {
     this.rootUI.root.setVisible(false);
     this.isVisible = false;
+    if (UIController.focus === this.focusUI) UIController.focus = undefined;
     this.scene.scale.off("resize", this.resizeListener);
     this.resizeListener = undefined;
   }
@@ -159,5 +161,13 @@ export class GuiBase {
     });
     // this.scene.focusUI.pop();
     this.hidden();
+  }
+
+  get focusUI(): UIBase | undefined {
+    return this._focusUI;
+  }
+
+  set focusUI(value: UIBase) {
+    this._focusUI = value;
   }
 }

@@ -14,6 +14,8 @@ import { SceneObject } from "./SceneObject";
 import { fromEntity } from "../../utils/encode";
 import { UIScene } from "../scenes/UIScene";
 import { Vector } from "../../utils/vector";
+import { UIController } from "../components/controllers/UIController";
+import { SceneObjectController } from "../components/controllers/SceneObjectController";
 
 /**
  * About the scene object with avatar such as character or building
@@ -114,6 +116,57 @@ export class Host extends SceneObject {
     // // let camera follow the selected role
     // const role = getComponentValue(components.SelectedHost, SOURCE)?.value;
     // if (role) this.follow();
+  }
+
+  onFocus() {
+    super.onFocus();
+    UIController.scene.characterInfo?.show(this);
+  }
+
+  onBlur() {
+    super.onBlur();
+    UIController.scene.characterInfo?.hidden();
+  }
+
+  onUpPressed() {
+    super.onUpPressed();
+    SceneObjectController.moveCursor(Direction.UP);
+  }
+  onDownPressed() {
+    super.onDownPressed();
+    SceneObjectController.moveCursor(Direction.DOWN);
+  }
+  onLeftPressed() {
+    super.onLeftPressed();
+    SceneObjectController.moveCursor(Direction.LEFT);
+  }
+  onRightPressed() {
+    super.onRightPressed();
+    SceneObjectController.moveCursor(Direction.RIGHT);
+  }
+
+  onConfirmPressed() {
+    super.onConfirmPressed();
+    if (UIController.scene.moveTips?.isVisible) {
+      if (this.movesUpdate()) {
+        UIController.scene.moveTips.hidden();
+        SceneObjectController.resetFocus();
+      }
+    } else if (UIController.scene.buildTips?.isVisible) {
+      UIController.scene.buildTips.hidden();
+      SceneObjectController.resetFocus();
+    }
+  }
+
+  onCancelPressed() {
+    super.onCancelPressed();
+    if (UIController.scene.moveTips?.isVisible) {
+      UIController.scene.moveTips.hidden();
+      UIController.scene.actionMenu?.show(this);
+    } else if (UIController.scene.buildTips?.isVisible) {
+      UIController.scene.buildTips.hidden();
+      UIController.scene.buildMenu?.show(this);
+    }
   }
 
   /**

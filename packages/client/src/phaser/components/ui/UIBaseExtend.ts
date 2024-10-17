@@ -67,12 +67,10 @@ UIBase.prototype.listenComponentValue = function <S extends Schema>(
   entity: Entity | undefined = undefined,
   index: number = 0
 ) {
-  console.log('listenComponentValue')
   if (!this.unsubscribes) return;
   if (typeof component === "string")
     component = (this.components as any)[component] as Component<S>;
   if (this.unsubscribes[index]) this.unsubscribes[index]();
-  console.log('listenComponentValue 3')
   this.unsubscribes[index] = listenComponentValue(
     component,
     entity ?? this.entity,
