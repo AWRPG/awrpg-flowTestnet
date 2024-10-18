@@ -11,10 +11,12 @@ import { Host } from "../objects/Host";
 import { UIController } from "../components/controllers/UIController";
 import { UIEvents } from "../components/ui/common/UIEvents";
 import { GameData } from "../components/GameData";
+import { Building } from "../../api/data";
 
 export class ConstructMenu extends GuiBase {
   list: UIList;
   img: UIImage;
+  text: UIText;
   role?: Host;
 
   constructor(scene: UIScene) {
@@ -76,7 +78,7 @@ export class ConstructMenu extends GuiBase {
     });
     this.list.addItem(item2);
 
-    const text = new UIText(this.scene, "SAFE", {
+    this.text = new UIText(this.scene, "SAFE", {
       alignModeName: ALIGNMODES.MIDDLE_TOP,
       marginX: 168,
       marginY: 32,
@@ -91,7 +93,7 @@ export class ConstructMenu extends GuiBase {
       alignModeName: ALIGNMODES.MIDDLE_TOP,
       marginX: 0,
       marginY: 48,
-      parent: text,
+      parent: this.text,
     });
     this.img.root.setAlpha(0.85);
 
@@ -107,10 +109,11 @@ export class ConstructMenu extends GuiBase {
 
   onListSelected() {
     if (this.list.itemIndex === undefined) return;
-    const data = GameData.getDataByIndex("buildings", this.list.itemIndex);
-    console.log(data);
-    const img = data["img"];
-    console.log(img);
-    this.img.setTexture(img);
+    const data = GameData.getDataByIndex(
+      "buildings",
+      this.list.itemIndex
+    ) as Building;
+    this.img.setTexture(data.img);
+    this.text.text = data.name.toUpperCase();
   }
 }
