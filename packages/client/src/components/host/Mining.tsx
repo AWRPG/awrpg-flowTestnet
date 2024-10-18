@@ -63,7 +63,7 @@ export function StartMining({ role }: { role: Entity }) {
 
   return (
     <button
-      className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start"
+      className="btn-blue"
       onClick={() => startMining(role as Hex, tileCoord)}
     >
       Start Mining
@@ -79,10 +79,7 @@ export function StopMining({ role }: { role: Entity }) {
   const { stopMining } = systemCalls;
 
   return (
-    <button
-      className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start"
-      onClick={() => stopMining(role as Hex)}
-    >
+    <button className="btn-blue" onClick={() => stopMining(role as Hex)}>
       Stop Mining
     </button>
   );

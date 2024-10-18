@@ -14,6 +14,7 @@ import { MintCostsDisplay } from "../Costs";
 
 /**
  * display all buildable types for a selectedHost & a selected tile (the lowerX & lowerY of the building)
+ * note: rn, buildable depends on tile to check for getCoord's adjacency; if taking tile out, need to add useHook Path change for selectedHost
  */
 export function Buildable({
   tile,
@@ -52,7 +53,7 @@ export function Buildable({
     if (!coord) return;
     return (
       <button
-        className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start"
+        className="btn-blue"
         onClick={() => {
           const coord = getCoord(toBuildType);
           if (!coord) return;

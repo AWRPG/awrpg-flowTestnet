@@ -43,7 +43,7 @@ export function SetTerrains({ tile }: { tile: Entity }) {
 
   return (
     <button
-      className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start"
+      className="btn-blue"
       onClick={() => setTerrainValues(gridCoord, terrainValues)}
     >
       Set Terrains to ALL PLAINs

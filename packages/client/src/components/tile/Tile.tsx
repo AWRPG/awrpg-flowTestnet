@@ -6,7 +6,7 @@ import { useEntityOnTile } from "../../logics/entity";
 import EntityName from "../EntityName";
 import { Role } from "../host/Role";
 import { Drop } from "./Drop";
-import { Buildable } from "./Buildable";
+import { Buildable } from "../building/Buildable";
 import { Host } from "../host/Host";
 import { SetTerrains } from "./SetTerrains";
 

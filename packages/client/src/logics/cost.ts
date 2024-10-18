@@ -70,6 +70,21 @@ export const getBurnCosts = (components: ClientComponents, burnType: Hex) => {
   return getComponentValue(components.BurnCosts, typeEntity)?.costs ?? [];
 };
 
+export const hasStakeCosts = (
+  components: ClientComponents,
+  role: Hex,
+  stakeType: Hex
+) => {
+  const costs = getStakeCosts(components, stakeType);
+  if (!costs) return false;
+  return hasCosts(components, role, costs as Hex[]);
+};
+
+export const getStakeCosts = (components: ClientComponents, stakeType: Hex) => {
+  const typeEntity = encodeTypeEntity(stakeType) as Entity;
+  return getComponentValue(components.StakeSpecs, typeEntity)?.inputs ?? [];
+};
+
 export const hasCosts = (
   components: ClientComponents,
   role: Hex,

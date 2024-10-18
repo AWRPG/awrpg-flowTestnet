@@ -85,7 +85,7 @@ export function FTLoot({
         {hexToString(erc20Type)}x{Number(balance)}
       </span>
       <button
-        className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start disabled:opacity-50"
+        className="btn-blue"
         disabled={!canPickup}
         onClick={() => pickupERC20(toHost as Hex, dropId, erc20Type, 1n, x, y)}
       >
@@ -110,7 +110,7 @@ export function NFTLoot({ entity, tile }: { entity: Entity; tile: Entity }) {
       <EntityName entity={entity} />
       <EntityPools entity={entity} />
       <button
-        className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start"
+        className="btn-blue"
         disabled={!canPickup}
         onClick={() => pickupERC721(toHost as Hex, dropId, entity as Hex, x, y)}
       >

@@ -3,9 +3,14 @@ import EntityName from "../EntityName";
 import { EntityPools } from "../host/Pool";
 import { Stored } from "./Stored";
 import { useMUD } from "../../MUDContext";
-import { getEntitySpecs, isBuildingMiner } from "../../logics/entity";
+import {
+  getEntitySpecs,
+  isBuildingMiner,
+  isBuildingStaker,
+} from "../../logics/entity";
 import { EnterBuilding } from "./StoreBuilding";
 import { MineBuilding } from "./MineBuilding";
+import { StakeBuilding } from "./StakeBuilding";
 
 /**
  * display building's name, pools, stored ft & nft, enterBuilding button
@@ -20,7 +25,7 @@ export function Building({ building }: { building: Entity }) {
   // check if building is miner type
   const isMiner = isBuildingMiner(components, building);
   // check if building is staking type
-
+  const isStaker = isBuildingStaker(components, building);
   // check if building is cooking type
 
   // check if building has swap
@@ -36,6 +41,7 @@ export function Building({ building }: { building: Entity }) {
         </>
       )}
       {isMiner && <MineBuilding building={building} />}
+      {isStaker && <StakeBuilding building={building} />}
     </div>
   );
 }

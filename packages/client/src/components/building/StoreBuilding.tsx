@@ -34,7 +34,7 @@ export function EnterBuilding({ building }: { building: Entity }) {
   return (
     <button
       onClick={() => enterBuilding(sourceHost as Hex, adjacentCoord)}
-      className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start"
+      className="btn-blue"
     >
       Enter
     </button>
@@ -68,7 +68,7 @@ export function InBuilding({ entity }: { entity: Entity }) {
       <button
         onClick={() => exitBuilding(entity as Hex, buildingCoord!, tileCoord!)}
         disabled={!buildingCoord}
-        className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start disabled:opacity-50"
+        className="btn-blue"
       >
         Exit
       </button>
