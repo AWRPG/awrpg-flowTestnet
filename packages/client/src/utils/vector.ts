@@ -77,3 +77,18 @@ export function getRectangleCoords(start: Vector, end: Vector) {
   }
   return coords;
 }
+
+export function getCoordsWithinRadius(coord: Vector, radius: number) {
+  const coordsWithinRadius = [];
+  for (let x = coord.x - radius; x <= coord.x + radius; x++) {
+    if (x < 0) continue;
+    for (let y = coord.y - radius; y <= coord.y + radius; y++) {
+      if (y < 0) continue;
+      const distance = Math.abs(coord.x - x) + Math.abs(coord.y - y);
+      if (distance <= radius) {
+        coordsWithinRadius.push({ x, y });
+      }
+    }
+  }
+  return coordsWithinRadius;
+}
