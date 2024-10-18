@@ -83,7 +83,7 @@ export function FTItem({
       </span>
       {isPlayer && canDrop && (
         <button
-          className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700"
+          className="btn-blue"
           onClick={() => dropERC20(host as Hex, erc20Type, 1n)}
         >
           Drop x1
@@ -91,7 +91,7 @@ export function FTItem({
       )}
       {isPlayer && (
         <button
-          className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700"
+          className="btn-blue"
           onClick={() => consumeERC20(host as Hex, erc20Type)}
         >
           Consume x1
@@ -124,16 +124,13 @@ export function NFTItem({
       <EntityName entity={entity} />
       <EntityPools entity={entity} />
       {isPlayer && canDrop && (
-        <button
-          className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start"
-          onClick={() => dropERC721(entity as Hex)}
-        >
+        <button className="btn-blue" onClick={() => dropERC721(entity as Hex)}>
           Drop
         </button>
       )}
       {isPlayer && (
         <button
-          className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start"
+          className="btn-blue"
           onClick={() => equip(entity as Hex, WEAPON)}
         >
           Equip as {hexToString(WEAPON)}
@@ -168,7 +165,7 @@ export function EquippedItem({
       <EntityPools entity={entity} />
       {isPlayer && (
         <button
-          className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start"
+          className="btn-blue"
           onClick={() => unequip(host as Hex, info.equipType)}
         >
           Unequip

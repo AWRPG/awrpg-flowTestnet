@@ -53,7 +53,7 @@ export function Buildable({
     if (!coord) return;
     return (
       <button
-        className="ml-2 px-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-700 self-start"
+        className="btn-blue"
         onClick={() => {
           const coord = getCoord(toBuildType);
           if (!coord) return;

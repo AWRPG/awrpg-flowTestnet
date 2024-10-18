@@ -5,7 +5,10 @@ import { useMUD } from "../../MUDContext";
 import { FTItem, NFTItem } from "../host/Bag";
 import { getEntitySpecs } from "../../logics/entity";
 
-// refactor from Bag
+/**
+ * display all nfts & fts stored in the building
+ * refactor from Bag, which display stuffs in a role
+ */
 export function Stored({ building }: { building: Entity }) {
   const { components } = useMUD();
   const { Owner, ContainerSpecs, StoredSize } = components;
