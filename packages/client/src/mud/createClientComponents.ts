@@ -61,6 +61,10 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     ConsoleMessage: defineComponent(world, {
       value: Type.String,
     }),
+    MockPath: defineComponent(world, {
+      toX: Type.Number,
+      toY: Type.Number
+    })
     ToggledOn: defineComponent(world, {
       value: Type.Boolean,
     }),

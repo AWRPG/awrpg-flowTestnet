@@ -3,7 +3,7 @@
  * for changes in the World state (using the System contracts).
  */
 
-import { Entity, getComponentValue, removeComponent } from "@latticexyz/recs";
+import { Entity, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
@@ -59,11 +59,13 @@ export function createSystemCalls(
 
   const move = async (host: Hex, moves: number[]) => {
     const tx = await worldContract.write.move([host, moves]);
+    // setComponent(MockPath, host, )
     await waitForTransaction(tx);
     // try {
     //   const tx = await worldContract.write.move([TEST, moves]);
     // } catch (error) {
     //   console.error("Transaction failed:", error);
+    // removeComponent(MockPath, host)
     // }
     removeComponent(Moves, host as Entity);
   };

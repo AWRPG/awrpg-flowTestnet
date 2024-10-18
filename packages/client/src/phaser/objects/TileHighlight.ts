@@ -163,7 +163,6 @@ export class TileHighlight extends SceneObject {
   setHighlight() {
     this.clearHighlight();
     this.highlightData.forEach((data) => {
-      console.log("data.type:", data.type);
       const highlight = new Phaser.GameObjects.Sprite(
         this.scene,
         data.x * this.tileSize,

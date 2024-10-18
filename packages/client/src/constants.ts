@@ -60,13 +60,6 @@ export const terrainTypeMapping = {
   [TerrainType.BUILDING]: "0" as Hex,
 };
 
-export const UI_NAME = {
-  ACTION_MENU: "ActionMenu",
-  MOVE_TIPS: "MoveTips",
-  BUILD_MENU: "BuildMenu",
-  BUILD_TIPS: "BuildTips",
-};
-
 export const HIGHLIGHT_MODE = {
   MOVE: "Move",
   BUILD: "Build",

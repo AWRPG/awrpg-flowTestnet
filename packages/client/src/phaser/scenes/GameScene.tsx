@@ -65,11 +65,14 @@ import { syncComputedComponents } from "../../mud/syncComputedComponents";
 import { Building } from "../objects/Building";
 import { Mine } from "../objects/Mine";
 import { UIScene } from "./UIScene";
-import { PlayerController } from "../components/controllers/PlayerController";
 import { getHostPosition } from "../../logics/path";
 import { isDropContainer, splitDropContainer } from "../../logics/drop";
 import { Drop } from "../objects/Drop";
 import { Cursor } from "../objects/Cursor";
+import { UIController } from "../components/controllers/UIController";
+import { SceneObjectController } from "../components/controllers/SceneObjectController";
+import { PlayerInput } from "../components/controllers/PlayerInput";
+import { GameData } from "../components/GameData";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -101,8 +104,6 @@ export class GameScene extends Phaser.Scene {
     frameHeight?: number;
   }[] = [];
 
-  playController: PlayerController | undefined;
-
   cursor: Cursor | undefined;
 
   constructor(
@@ -116,6 +117,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    GameData.preload(this);
     // tiles texture
     this.load.image("plain", "src/assets/tiles/Grass.png");
     this.load.image("mountain", "src/assets/tiles/Rock.png");
@@ -192,8 +194,9 @@ export class GameScene extends Phaser.Scene {
     const camera = this.cameras.main;
     camera.setZoom(3);
     this.createAnimations();
-    this.playController = new PlayerController(this, this.components);
     this.cursor = new Cursor(TARGET, this, this.components);
+    SceneObjectController.init(this);
+    PlayerInput.listenStart(this);
 
     /**
      * load/unload tile sprites on map; TileValue is a client component that is updated when character moves, which is handled by useSyncComputedComponents
@@ -281,6 +284,16 @@ export class GameScene extends Phaser.Scene {
       this.drops[entity] = new Drop(this, this.components, {
         entity,
       });
+    });
+
+    defineSystem(world, [Has(this.components.MockPath)], ({ entity, type }) => {
+      if (type === UpdateType.Exit) {
+        // const path = getComponentValue(Path, entity);
+        // if (!path) return;
+        // return this.hosts[entity]?.updatePath()
+      }
+      const path = getComponentValue(this.components.MockPath, entity);
+      // return this.hosts[entity]?.updatePath(path)
     });
 
     // role on map

@@ -2,12 +2,16 @@ import { SetupResult } from "../../mud/setup";
 import { CharacterInfo } from "../ui/CharacterInfo";
 import { TerrainUI } from "../ui/TerrainUI";
 import { ActionMenu } from "../ui/ActionMenu";
-import { UIManager } from "../ui/UIManager";
-import { UIBase } from "../components/ui/UIBase";
-import { BuildMenu } from "../ui/BuildMenu";
+import { MoveTips } from "../ui/MoveTips";
+import { ConstructTips } from "../ui/ConstructTips";
+import { GuiBase } from "../ui/GuiBase";
+import { UIBase } from "../components/ui/common/UIBase";
+import { ConstructMenu } from "../ui/ConstructMenu";
 import { BuildingMenu } from "../ui/BuildingMenu";
 import { StakeMenu } from "../ui/StakeMenu";
 import { StakingMenu } from "../ui/StakingMenu";
+import "../components/ui/UIBaseExtend";
+import { UIController } from "../components/controllers/UIController";
 
 export class UIScene extends Phaser.Scene {
   /**
@@ -16,20 +20,11 @@ export class UIScene extends Phaser.Scene {
   components: SetupResult["components"];
   systemCalls: SetupResult["systemCalls"];
   network: SetupResult["network"];
-  /**
-   * width of the window
-   */
-  width: number = 1280;
-
-  /**
-   * height of the window
-   */
-  height: number = 720;
 
   /**
    * the UI Components which is focused on
    */
-  focusUI: UIManager[] = [];
+  focusUI: GuiBase[] = [];
 
   /**
    * show the information of current host
@@ -44,7 +39,7 @@ export class UIScene extends Phaser.Scene {
   /**
    * show the action buttons player can do
    */
-  actionMenu: ActionMenu | undefined;
+  actionMenu?: ActionMenu;
 
   buildingMenu: BuildingMenu | undefined;
 
@@ -52,10 +47,10 @@ export class UIScene extends Phaser.Scene {
 
   stakingMenu: StakingMenu | undefined;
 
-  moveTips: UIManager | undefined;
-  buildTips: UIManager | undefined;
+  moveTips?: MoveTips;
+  constructTips: GuiBase | undefined;
 
-  buildMenu: BuildMenu | undefined;
+  constructMenu?: ConstructMenu;
 
   /**
    * @param setupResult
@@ -66,10 +61,6 @@ export class UIScene extends Phaser.Scene {
     this.components = setupResult.components;
     this.systemCalls = setupResult.systemCalls;
     this.network = setupResult.network;
-
-    // Get the size of game
-    this.width = Number(config.scale?.width);
-    this.height = Number(config.scale?.height);
   }
 
   preload() {
@@ -100,30 +91,12 @@ export class UIScene extends Phaser.Scene {
     this.characterInfo = new CharacterInfo(this);
     this.terrainUI = new TerrainUI(this);
     this.actionMenu = new ActionMenu(this);
-    this.moveTips = new UIManager(this, new UIBase(this, 0, 0, {}));
-    this.moveTips.name = "MoveTips";
-    this.buildMenu = new BuildMenu(this);
-    this.buildTips = new UIManager(this, new UIBase(this, 0, 0, {}));
-    this.buildTips.name = "BuildTips";
+    this.moveTips = new MoveTips(this);
+    this.constructMenu = new ConstructMenu(this);
+    this.constructTips = new ConstructTips(this);
     this.buildingMenu = new BuildingMenu(this);
-    this.stakeMenu = new StakeMenu(this);
-    this.stakingMenu = new StakingMenu(this);
-  }
-
-  /**
-   * Determines whether the current focus is on the UIScene based on whether each complex UI component is displayed or not.
-   * [Note] Display of some components like TerrainUI have no options or are not in the center of the screen does not affect the focus.
-   */
-  isFocusOn() {
-    if (
-      this.actionMenu?.isVisible ||
-      this.moveTips?.isVisible ||
-      this.buildMenu?.isVisible ||
-      this.buildTips?.isVisible ||
-      this.buildingMenu?.isVisible ||
-      this.stakeMenu?.isVisible ||
-      this.stakingMenu?.isVisible
-    )
-      return true;
+    // this.stakeMenu = new StakeMenu(this);
+    // this.stakingMenu = new StakingMenu(this);
+    UIController.init(this);
   }
 }
