@@ -13,6 +13,53 @@ import {
 import { Hex } from "viem";
 import { CostInfoType, getCostsInfo, hasCosts } from "./cost";
 import { unixTimeSecond } from "../utils/time";
+import { getStaking } from "../contract/hashes";
+import { useComponentValue } from "@latticexyz/react";
+import { getEntitySpecs } from "./entity";
+import useRerender from "../hooks/useRerender";
+
+export const useRemainedToClaim = (
+  components: ClientComponents,
+  stakingId: Entity
+) => {
+  useRerender();
+  const { StakingInfo, StakeSpecs } = components;
+  const lastUpdated = useComponentValue(StakingInfo, stakingId)?.lastUpdated;
+  console.log("lastUpdated", lastUpdated);
+  if (!lastUpdated) return;
+  const outputType = getComponentValue(StakingInfo, stakingId)!.outputType;
+  const encodedType = encodeTypeEntity(outputType as Hex) as Entity;
+  const timeCost = getComponentValue(StakeSpecs, encodedType)?.timeCost;
+  if (!timeCost) return;
+  return lastUpdated + timeCost - unixTimeSecond();
+};
+
+export const getRemainedToClaim = (
+  components: ClientComponents,
+  stakingId: Entity
+) => {
+  const { StakingInfo, StakeSpecs } = components;
+  const lastUpdated = getComponentValue(StakingInfo, stakingId)?.lastUpdated;
+  if (!lastUpdated) return;
+  const outputType = getComponentValue(StakingInfo, stakingId)!.outputType;
+  const encodedType = encodeTypeEntity(outputType as Hex) as Entity;
+  const timeCost = getComponentValue(StakeSpecs, encodedType)?.timeCost;
+  if (!timeCost) return;
+  return lastUpdated + timeCost - unixTimeSecond();
+};
+
+/**
+ * check if role has staking in building
+ */
+export const useHasStaking = (
+  components: ClientComponents,
+  role: Entity,
+  building: Entity
+) => {
+  const stakingId = getStaking(role as Hex, building as Hex) as Entity;
+  const stakingInfo = useComponentValue(components.StakingInfo, stakingId);
+  return stakingInfo !== undefined;
+};
 
 export const getBuildingStakeOuputTypes = (
   components: ClientComponents,
@@ -23,7 +70,6 @@ export const getBuildingStakeOuputTypes = (
   const outputTypes = [
     ...runQuery([HasValue(StakeSpecs, { buildingType: type })]),
   ];
-  console.log("outputTypes", outputTypes, type);
   return outputTypes.map(
     (outputType) => decodeTypeEntity(outputType as Hex) as Hex
   );

@@ -37,6 +37,7 @@ export const roleAndHostWithinRange = (
   return true;
 };
 
+// used to get coord to enter building, to stake, & to cook
 export const getRoleAndHostAdjacentCoord = (
   components: ClientComponents,
   role: Entity,

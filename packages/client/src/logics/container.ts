@@ -10,9 +10,49 @@ import { SetupNetworkResult } from "../mud/setupNetwork";
 import { Hex, pad } from "viem";
 import { encodeEntity } from "@latticexyz/store-sync/recs";
 import { getPool } from "../contract/hashes";
-import { encodeTypeEntity } from "../utils/encode";
+import { encodeTypeEntity, splitBytes32 } from "../utils/encode";
 import { ERC20_TYPES } from "../constants";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
+
+export function canStoreOutputs(
+  components: ClientComponents,
+  store: Entity,
+  outputs: Hex[]
+) {
+  const outputsSize = getOutputsSize(components, outputs);
+  const storedRemained = getStoreRemainedCapacity(components, store);
+  return outputsSize <= storedRemained;
+}
+
+/**
+ * get the total size of outputs, including erc721s
+ */
+export function getOutputsSize(components: ClientComponents, outputs: Hex[]) {
+  const { SizeSpecs } = components;
+  const outputsData = outputs.map((output) => splitBytes32(output));
+  const sizes = outputsData.map((output) => {
+    const size = Number(
+      getComponentValue(SizeSpecs, output.type as Entity)?.size ?? 0
+    );
+    // if amount is zero, it means it's an erc721
+    return output.amount === 0 ? size : size * output.amount;
+  });
+  return sizes.reduce((a, b) => a + b, 0);
+}
+
+/**
+ * get store's remained capacity
+ */
+export function getStoreRemainedCapacity(
+  components: ClientComponents,
+  store: Entity
+) {
+  const { StoredSize, ContainerSpecs } = components;
+  const storedSize = getComponentValue(StoredSize, store)?.value ?? 0n;
+  const capacity =
+    getEntitySpecs(components, ContainerSpecs, store)?.capacity ?? 0n;
+  return Number(capacity - storedSize);
+}
 
 export function canStoreERC721(
   components: ClientComponents,
@@ -113,8 +153,8 @@ export const getERC20Balance = (
   role: Hex,
   erc20Type: Hex
 ) => {
-  const store = getERC20Store(role, erc20Type);
-  return getBalance(components, store as Entity, erc20Type);
+  // const store = getERC20Store(role, erc20Type);
+  return getBalance(components, role as Entity, erc20Type);
 };
 
 // general usage for both pool & role

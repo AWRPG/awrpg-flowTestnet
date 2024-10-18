@@ -37,8 +37,23 @@ export function isHost(components: ClientComponents, entity: Entity) {
   );
 }
 
-export function isBuildingMiner(components: ClientComponents, entity: Entity) {
-  return getComponentValue(components.EntityType, entity)?.value === MINER;
+export function isBuildingMiner(
+  components: ClientComponents,
+  building: Entity
+) {
+  return getComponentValue(components.EntityType, building)?.value === MINER;
+}
+
+export function isBuildingStaker(
+  components: ClientComponents,
+  building: Entity
+) {
+  const { StakeSpecs, EntityType } = components;
+  const entityType = getComponentValue(EntityType, building)?.value as Hex;
+  const outputTypes = [
+    ...runQuery([HasValue(StakeSpecs, { buildingType: entityType })]),
+  ];
+  return outputTypes.length > 0;
 }
 
 export function isBuilding(components: ClientComponents, entity: Entity) {

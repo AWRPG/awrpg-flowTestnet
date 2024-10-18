@@ -55,6 +55,9 @@ export const PERCENTAGE_MINE = 10;
 export const MINER = toHex("MINER", { size: 16 });
 export const CUSTODIAN = toHex("CUSTODIAN", { size: 16 });
 
+// staking
+export const STAKING = toHex("STAKING", { size: 16 });
+
 // drop
 export const DROP = toHex("DROP", { size: 16 });
 
