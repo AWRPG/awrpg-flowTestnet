@@ -63,8 +63,8 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     }),
     MockPath: defineComponent(world, {
       toX: Type.Number,
-      toY: Type.Number
-    })
+      toY: Type.Number,
+    }),
     ToggledOn: defineComponent(world, {
       value: Type.Boolean,
     }),
