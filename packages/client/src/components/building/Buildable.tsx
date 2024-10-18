@@ -14,6 +14,7 @@ import { MintCostsDisplay } from "../Costs";
 
 /**
  * display all buildable types for a selectedHost & a selected tile (the lowerX & lowerY of the building)
+ * note: rn, buildable depends on tile to check for getCoord's adjacency; if taking tile out, need to add useHook Path change for selectedHost
  */
 export function Buildable({
   tile,
