@@ -87,6 +87,7 @@ export const TARGET = toHex("TARGET", { size: 32 }) as Entity;
 export const SELECTED = toHex("SELECTED", { size: 32 }) as Entity;
 export const OBSERVER = toHex("OBSERVER", { size: 32 }) as Entity;
 export const TO_BUILD = toHex("TO_BUILD", { size: 32 }) as Entity;
+export const OVERLAY = toHex("OVERLAY", { size: 32 }) as Entity;
 
 export const MENU = toHex("MENU", { size: 32 }) as Entity;
 export const MAIN_MENU = toHex("MAIN_MENU", { size: 32 }) as Entity;

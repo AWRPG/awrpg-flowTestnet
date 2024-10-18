@@ -65,5 +65,8 @@ export function createClientComponents({ components }: SetupNetworkResult) {
       toX: Type.Number,
       toY: Type.Number
     })
+    ToggledOn: defineComponent(world, {
+      value: Type.Boolean,
+    }),
   };
 }
