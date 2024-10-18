@@ -9,7 +9,7 @@ import {
   runQuery,
 } from "@latticexyz/recs";
 import { decodeTypeEntity, encodeTypeEntity } from "../utils/encode";
-import { Vector } from "../utils/vector";
+import { getCoordsWithinRadius, Vector } from "../utils/vector";
 import { getEntitySpecs, getTopHost } from "./entity";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { getTerrainEntityType, getTerrainType } from "./terrain";
@@ -190,6 +190,37 @@ export const canBuildFromLowerCoord = (
   const tileCoords = getRectangleCoordsStrict(coord, lowerCoord, width, height);
   if (!tileCoords) return false;
   return canBuildOnTiles(components, systemCalls, tileCoords, buildingType);
+};
+
+// get all coords that player can build building, {lowerCoord, adjacentCoord}[]
+export const getBuildableCoordsInfo = (
+  components: ClientComponents,
+  systemCalls: SystemCalls,
+  role: Entity,
+  buildingType: Hex
+) => {
+  const coord = getPathEntityPosition(components, role);
+  if (!coord) return;
+  const buildingSpecs = getComponentValue(
+    components.BuildingSpecs,
+    encodeTypeEntity(buildingType) as Entity
+  );
+  if (!buildingSpecs) return;
+  const { width, height } = buildingSpecs;
+  const lowerCoords = getCoordsWithinRadius(coord, Math.max(width, height));
+  const coordsInfo = lowerCoords
+    .map((lowerCoord) => ({
+      lowerCoord,
+      adjacentCoord: canBuildFromHost(
+        components,
+        systemCalls,
+        role,
+        lowerCoord,
+        buildingType
+      ),
+    }))
+    .filter(({ adjacentCoord }) => adjacentCoord);
+  return coordsInfo;
 };
 
 export const getRectangleCoordsStrict = (
