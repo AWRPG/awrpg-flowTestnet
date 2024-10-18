@@ -1,6 +1,21 @@
 import { Entity } from "@latticexyz/recs";
 import { encodeEntity } from "@latticexyz/store-sync/recs";
-import { Hex, decodeAbiParameters, encodePacked, pad, toHex, trim } from "viem";
+import {
+  Hex,
+  decodeAbiParameters,
+  encodePacked,
+  hexToString,
+  pad,
+  toHex,
+  trim,
+} from "viem";
+
+export function hexTypeToString(hex: Hex) {
+  return hexToString(hex)
+    .toLowerCase()
+    .replace(/[^\x20-\x7E]/g, "")
+    .trim();
+}
 
 export function toEntity(type: Hex, id: number | bigint) {
   return encodePacked(["bytes16", "uint128"], [type, BigInt(id)]);
