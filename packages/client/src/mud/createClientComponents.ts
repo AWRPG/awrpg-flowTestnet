@@ -61,5 +61,8 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     ConsoleMessage: defineComponent(world, {
       value: Type.String,
     }),
+    ToggledOn: defineComponent(world, {
+      value: Type.Boolean,
+    }),
   };
 }

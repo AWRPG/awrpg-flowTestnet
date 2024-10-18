@@ -18,6 +18,7 @@ import {
   TARGET_MENU,
   SWAP_CONTROL_MENU,
   SWAP_MENU,
+  OVERLAY,
 } from "../constants";
 import { Has, HasValue } from "@latticexyz/recs";
 // import PoolBars from "./PoolBars";
@@ -37,8 +38,10 @@ import SwapControlMenu from "./menu/SwapControlMenu";
 import SwapMenu from "./menu/SwapMenu";
 import { Role } from "./host/Role";
 import { Tile } from "./tile/Tile";
+import useHotkeys from "../hooks/useHotKeys";
 
 export default function Overlay() {
+  useHotkeys();
   const {
     components: {
       SelectedHost,
@@ -46,6 +49,7 @@ export default function Overlay() {
       SelectedEntity,
       ConsoleMessage,
       TargetTile,
+      ToggledOn,
     },
     network: { playerEntity },
   } = useMUD();
@@ -54,6 +58,8 @@ export default function Overlay() {
   const target = useComponentValue(SelectedHost, TARGET)?.value;
   const targetTile = useComponentValue(TargetTile, TARGET)?.value;
 
+  const toggled = useComponentValue(ToggledOn, OVERLAY)?.value ?? false;
+
   const menu = useComponentValue(SelectedEntity, MENU)?.value;
 
   const message = useComponentValue(ConsoleMessage, SOURCE)?.value;
@@ -61,6 +67,7 @@ export default function Overlay() {
   const playerHosts = useEntityQuery([
     HasValue(Commander, { value: playerEntity }),
   ]);
+  if (!toggled) return null;
 
   return (
     <div className="absolute h-full w-full pointer-events-none">
@@ -95,18 +102,7 @@ export default function Overlay() {
         <div className="absolute pointer-events-auto bottom-2 w-1/2 left-1/4 h-48">
           {message && <Console message={message} />}
         </div>
-        {/* {source && (
-          <div className="absolute pointer-events-auto top-2 left-2">
-            <HostPanel host={source} />
-          </div>
-        )} */}
-        {/* {target && (
-          <div className="absolute pointer-events-auto top-2 right-2">
-            <HostPanel host={target} />
-          </div>
-        )} */}
       </div>
-      {/* <BuilderPanelModal /> */}
     </div>
   );
 }
