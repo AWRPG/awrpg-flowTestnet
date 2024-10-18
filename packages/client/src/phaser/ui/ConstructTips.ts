@@ -11,13 +11,16 @@ import { UIController } from "../components/controllers/UIController";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { Host } from "../objects/Host";
 import { UIBase } from "../components/ui/common/UIBase";
-import { BuildingSpecs } from "../../api/data";
+import { BuildingData, BuildingSpecs } from "../../api/data";
+import { Hex } from "viem";
 
 /**
  * show the action buttons player can do
  */
 export class ConstructTips extends GuiBase {
   role?: Host;
+  buildingType?: Hex;
+  buildingSpecs?: BuildingSpecs;
 
   /** */
   constructor(scene: UIScene) {
@@ -25,8 +28,10 @@ export class ConstructTips extends GuiBase {
     this.name = "ConstructTips";
   }
 
-  show(role: Host, buildingSpecs: BuildingSpecs) {
+  show(role: Host, buildingType: Hex, buildingSpecs: BuildingSpecs) {
     super.show();
+    this.buildingType = buildingType;
+    this.buildingSpecs = buildingSpecs;
     this.role = role ?? this.role;
     if (!this.role) return;
     SceneObjectController.openTileHighlight(

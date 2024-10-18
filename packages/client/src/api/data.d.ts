@@ -1,4 +1,4 @@
-export interface Building {
+export interface BuildingData {
   id: number;
   type: string;
   name: string;

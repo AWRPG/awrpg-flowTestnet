@@ -37,23 +37,27 @@ export class Building extends SceneObject {
 
     const buildingType = getComponentValue(EntityType, entity)?.value;
     const buildingSpecs = getEntitySpecs(components, BuildingSpecs, entity)!;
-    const {width, height} = buildingSpecs;
+    const { width, height } = buildingSpecs;
     // console.log(buildingSpecs)
     // const buildingNumber = BUILDING_TYPES.indexOf(buildingType as Hex);
     // // buildingMapping[buildingNumber];
 
     this.tileX = this.tileCoord.x;
     this.tileY = this.tileCoord.y;
-    this.x = this.tileX * this.tileSize;
-    this.y = this.tileY * this.tileSize;
-    this.root.setPosition(this.x, this.y).setDepth(13).setScale(scale);
+    // this.x = this.tileX * this.tileSize;
+    // this.y = this.tileY * this.tileSize;
+    // this.root.setPosition(this.x, this.y);
+    this.root.setDepth(13).setScale(scale);
+
+    const offsetX = 0.5 / width;
+    const offsetY = 0.5 / height;
 
     this.buildingSprite = new Phaser.GameObjects.Sprite(
       this.scene,
       0,
       0,
       texture
-    ).setOrigin(0.5, 0.5);
+    ).setOrigin(offsetX, offsetY);
     this.root.add(this.buildingSprite);
   }
 
