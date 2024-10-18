@@ -11,6 +11,7 @@ import { UIController } from "../components/controllers/UIController";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { Host } from "../objects/Host";
 import { UIBase } from "../components/ui/common/UIBase";
+import { BuildingSpecs } from "../../api/data";
 
 /**
  * show the action buttons player can do
@@ -24,7 +25,7 @@ export class ConstructTips extends GuiBase {
     this.name = "ConstructTips";
   }
 
-  show(role?: Host) {
+  show(role: Host, buildingSpecs: BuildingSpecs) {
     super.show();
     this.role = role ?? this.role;
     if (!this.role) return;
@@ -33,8 +34,8 @@ export class ConstructTips extends GuiBase {
       1,
       HIGHLIGHT_MODE.BUILD,
       1,
-      2,
-      2
+      buildingSpecs.width,
+      buildingSpecs.height
     );
     SceneObjectController.controllable = true;
   }

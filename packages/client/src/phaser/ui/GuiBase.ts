@@ -1,6 +1,9 @@
 import { UIBase } from "../components/ui/common/UIBase";
 import { Button } from "../components/ui/Button";
 import { UIController } from "../components/controllers/UIController";
+import { UIScene } from "../scenes/UIScene";
+import { ClientComponents } from "../../mud/createClientComponents";
+import { SystemCalls } from "../../mud/createSystemCalls";
 
 /**
  * All the complex UI Components need to extend from this class.
@@ -9,7 +12,11 @@ export class GuiBase {
   /**
    * the UIScene
    */
-  scene: Phaser.Scene;
+  scene: UIScene;
+
+  components: ClientComponents;
+
+  systemCalls: SystemCalls;
 
   /**
    * The name is used for controllers to determine the current UI object
@@ -50,9 +57,11 @@ export class GuiBase {
    * @param scene
    * @param rootUI The base UI component that serves as the root node of the GuiBase
    */
-  constructor(scene: Phaser.Scene, rootUI: UIBase) {
+  constructor(scene: UIScene, rootUI: UIBase) {
     this.name = "GuiBase";
     this.scene = scene;
+    this.components = scene.components;
+    this.systemCalls = scene.SystemCalls;
     this.rootUI = rootUI;
     this.hidden(); // It will only be displayed when be called.
     this.rootUI.root.on("changedata", this.onDataChanged, this);

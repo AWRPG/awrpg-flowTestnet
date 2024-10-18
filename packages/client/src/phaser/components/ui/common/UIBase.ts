@@ -1,4 +1,5 @@
 import { ALIGNMODES } from "../../../../constants";
+import { UIEvents } from "./UIEvents";
 
 export interface UIBaseConfig {
   texture?: string | undefined;
@@ -365,6 +366,7 @@ export class UIBase {
   onRightPressed() {}
 
   onConfirmPressed() {
+    this.emit(UIEvents.CONFIRM, this);
     if (this.onConfirm) this.onConfirm();
   }
 

@@ -119,6 +119,14 @@ export class UIList extends UIBase {
 
   set items(value: UIBase[]) {
     this._items = value;
+    this._items.forEach((newItem, index) => {
+      newItem.parent = this;
+      newItem.setMargin(
+        this.itemIndentation,
+        (this.itemHeight + this.spacingY) * index
+      );
+    });
+    this.emit(UIEvents.CHANGE, this);
   }
 
   get itemWidth(): number {

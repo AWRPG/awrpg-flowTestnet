@@ -249,8 +249,8 @@ export class Host extends SceneObject {
   }
 
   setPropertyValue(type: Hex, entityId: number) {
-    const amount = getPoolAmount(this.components, this.entity as Hex, type);
-    const capacity = getPoolCapacity(this.components, this.entity as Hex, type);
+    const amount = getPoolAmount(this.components, this.entity, type);
+    const capacity = getPoolCapacity(this.components, this.entity, type);
     const typeName = hexToString(type, { size: 32 });
     this.properties.set(typeName, Number(amount));
     this.properties.set("max" + typeName, Number(capacity));

@@ -11,13 +11,17 @@ import { Host } from "../objects/Host";
 import { UIController } from "../components/controllers/UIController";
 import { UIEvents } from "../components/ui/common/UIEvents";
 import { GameData } from "../components/GameData";
-import { Building } from "../../api/data";
+import { Building, BuildingSpecs } from "../../api/data";
+import { Entity, getComponentValue } from "@latticexyz/recs";
+import { encodeTypeEntity } from "../../utils/encode";
+import { toHex } from "viem";
 
 export class ConstructMenu extends GuiBase {
   list: UIList;
   img: UIImage;
   text: UIText;
   role?: Host;
+  data: Building[];
 
   constructor(scene: UIScene) {
     super(
@@ -45,38 +49,12 @@ export class ConstructMenu extends GuiBase {
     });
     this.focusUI = this.list;
 
-    // const buttonsIndex = [
-    //   "Safe",
-    //   "Storehouse",
-    //   "Mining Field",
-    //   "Bridge",
-    //   "Node",
-    //   "Foundry",
-    //   "Fence",
-    // ];
-    // buttonsIndex.forEach((name) => {
-    //   this.list.addItem(new ButtonA(scene, { text: name }));
-    // });
-
-    const item1 = new ButtonA(scene, {
-      text: "mine shaft",
-      onConfirm: () => {
-        if (!this.role) return;
-        this.hidden();
-        UIController.scene.constructTips?.show(this.role);
-      },
+    this.data = GameData.getData("buildings") as Building[];
+    const items: ButtonA[] = [];
+    this.data.forEach((building) => {
+      items.push(new ButtonA(scene, { text: building.name }));
     });
-    this.list.addItem(item1);
-
-    const item2 = new ButtonA(scene, {
-      text: "safe",
-      onConfirm: () => {
-        if (!this.role) return;
-        this.hidden();
-        UIController.scene.constructTips?.show(this.role);
-      },
-    });
-    this.list.addItem(item2);
+    this.list.items = items;
 
     this.text = new UIText(this.scene, "SAFE", {
       alignModeName: ALIGNMODES.MIDDLE_TOP,
@@ -98,6 +76,7 @@ export class ConstructMenu extends GuiBase {
     this.img.root.setAlpha(0.85);
 
     this.list.on(UIEvents.SELECT_CHANGE, this.onListSelected, this);
+    this.list.on(UIEvents.CONFIRM, this.onListConfirm, this);
   }
 
   show(role?: Host) {
@@ -108,12 +87,25 @@ export class ConstructMenu extends GuiBase {
   }
 
   onListSelected() {
-    if (this.list.itemIndex === undefined) return;
-    const data = GameData.getDataByIndex(
-      "buildings",
-      this.list.itemIndex
-    ) as Building;
-    this.img.setTexture(data.img);
-    this.text.text = data.name.toUpperCase();
+    const index = this.list.itemIndex;
+    if (index === undefined) return;
+    this.img.setTexture(this.data[index].img);
+    this.text.text = this.data[index].name.toUpperCase();
+  }
+
+  onListConfirm() {
+    const index = this.list.itemIndex;
+    if (index === undefined || !this.role || !this.data) return;
+    this.hidden();
+    const buildingSpecs = this.getBuildingSpecs(this.data[index].type);
+    if (!buildingSpecs) return;
+    UIController.scene.constructTips?.show(this.role, buildingSpecs);
+  }
+
+  getBuildingSpecs(type: string): BuildingSpecs | undefined {
+    return getComponentValue(
+      this.components.BuildingSpecs,
+      encodeTypeEntity(toHex(type, { size: 16 })) as Entity
+    );
   }
 }
