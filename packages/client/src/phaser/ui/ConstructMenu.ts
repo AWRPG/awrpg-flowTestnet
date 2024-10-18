@@ -9,9 +9,12 @@ import { UIList } from "../components/ui/common/UIList";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { Host } from "../objects/Host";
 import { UIController } from "../components/controllers/UIController";
+import { UIEvents } from "../components/ui/common/UIEvents";
+import { GameData } from "../components/GameData";
 
 export class ConstructMenu extends GuiBase {
   list: UIList;
+  img: UIImage;
   role?: Host;
 
   constructor(scene: UIScene) {
@@ -38,6 +41,7 @@ export class ConstructMenu extends GuiBase {
         SceneObjectController.controllable = true;
       },
     });
+    this.focusUI = this.list;
 
     // const buttonsIndex = [
     //   "Safe",
@@ -51,8 +55,9 @@ export class ConstructMenu extends GuiBase {
     // buttonsIndex.forEach((name) => {
     //   this.list.addItem(new ButtonA(scene, { text: name }));
     // });
+
     const item1 = new ButtonA(scene, {
-      text: "Safe",
+      text: "mine shaft",
       onConfirm: () => {
         if (!this.role) return;
         this.hidden();
@@ -60,7 +65,16 @@ export class ConstructMenu extends GuiBase {
       },
     });
     this.list.addItem(item1);
-    this.focusUI = this.list;
+
+    const item2 = new ButtonA(scene, {
+      text: "safe",
+      onConfirm: () => {
+        if (!this.role) return;
+        this.hidden();
+        UIController.scene.constructTips?.show(this.role);
+      },
+    });
+    this.list.addItem(item2);
 
     const text = new UIText(this.scene, "SAFE", {
       alignModeName: ALIGNMODES.MIDDLE_TOP,
@@ -71,7 +85,7 @@ export class ConstructMenu extends GuiBase {
       parent: this.rootUI,
     });
 
-    const img = new UIImage(this.scene, "img-building-safe", {
+    this.img = new UIImage(this.scene, "img-building-safe", {
       width: 830 * 0.6,
       height: 741 * 0.6,
       alignModeName: ALIGNMODES.MIDDLE_TOP,
@@ -79,7 +93,9 @@ export class ConstructMenu extends GuiBase {
       marginY: 48,
       parent: text,
     });
-    img.root.setAlpha(0.85);
+    this.img.root.setAlpha(0.85);
+
+    this.list.on(UIEvents.SELECT_CHANGE, this.onListSelected, this);
   }
 
   show(role?: Host) {
@@ -87,5 +103,14 @@ export class ConstructMenu extends GuiBase {
     this.role = role ?? this.role;
     SceneObjectController.focus = this.role;
     UIController.controllable = true;
+  }
+
+  onListSelected() {
+    if (this.list.itemIndex === undefined) return;
+    const data = GameData.getDataByIndex("buildings", this.list.itemIndex);
+    console.log(data);
+    const img = data["img"];
+    console.log(img);
+    this.img.setTexture(img);
   }
 }

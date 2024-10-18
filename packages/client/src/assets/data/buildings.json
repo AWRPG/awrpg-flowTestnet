@@ -1,0 +1,12 @@
+[
+  {
+    "id": "0",
+    "name": "mine shaft",
+    "img": "img-building-mine-shaft"
+  },
+  {
+    "id": "1",
+    "name": "safe",
+    "img": "img-building-safe"
+  }
+]

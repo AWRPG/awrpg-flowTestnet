@@ -72,6 +72,7 @@ import { Cursor } from "../objects/Cursor";
 import { UIController } from "../components/controllers/UIController";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { PlayerInput } from "../components/controllers/PlayerInput";
+import { GameData } from "../components/GameData";
 
 export class GameScene extends Phaser.Scene {
   network: SetupResult["network"];
@@ -103,8 +104,6 @@ export class GameScene extends Phaser.Scene {
     frameHeight?: number;
   }[] = [];
 
-  playController: PlayerController | undefined;
-
   cursor: Cursor | undefined;
 
   constructor(
@@ -118,6 +117,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    GameData.preload(this);
     // tiles texture
     this.load.image("plain", "src/assets/tiles/Grass.png");
     this.load.image("mountain", "src/assets/tiles/Rock.png");

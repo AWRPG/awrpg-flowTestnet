@@ -1,6 +1,7 @@
 import { UIController } from "../../controllers/UIController";
 import { UIBase, UIBaseConfig } from "./UIBase";
 import { UIConfig } from "./UIConfig";
+import { UIEvents } from "./UIEvents";
 
 export interface UIListConfig extends UIBaseConfig {
   itemIndentation?: number;
@@ -63,6 +64,7 @@ export class UIList extends UIBase {
         (this.itemHeight + this.spacingY) * i
       );
     }
+    this.emit(UIEvents.CHANGE, this);
   }
 
   onFocus() {
@@ -97,6 +99,7 @@ export class UIList extends UIBase {
   }
 
   onItemSelected(value: UIBase | undefined) {
+    this.emit(UIEvents.SELECT_CHANGE, this);
     if (!value) return;
     value.onSelected();
   }
