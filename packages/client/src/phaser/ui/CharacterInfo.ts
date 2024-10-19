@@ -10,9 +10,23 @@ import { Heading3 } from "../components/ui/Heading3";
 import { HpBar } from "../components/ui/HpBar";
 import { SpBar } from "../components/ui/SpBar";
 import { Role } from "../objects/Role";
+import {
+  defineSystem,
+  defineUpdateSystem,
+  Entity,
+  getComponentValue,
+  Has,
+  setComponent,
+  UpdateType,
+} from "@latticexyz/recs";
+import { getBalanceEntity } from "../../logics/container";
+import { BLOOD, STAMINA } from "../../contract/constants";
+import { Hex } from "viem";
+import { decodeBalanceEntity } from "../../utils/encode";
 
 export class CharacterInfo extends GuiBase {
   avatar: UIImage;
+  role?: Entity;
   characterName: UIText;
   hpBar: HpBar;
   hpName: UIText;
@@ -20,6 +34,20 @@ export class CharacterInfo extends GuiBase {
   spBar: UISlider;
   spName: UIText;
   spNum: UIText;
+
+  // class data
+  blood: number = 0;
+  maxBlood: number = 0;
+  stamina: number = 0;
+  maxStamina: number = 0;
+  soul: number = 0;
+  maxSoul: number = 0;
+  attack: number = 0;
+  maxAttack: number = 0;
+  defense: number = 0;
+  maxDefense: number = 0;
+  speed: number = 0;
+  maxSpeed: number = 0;
 
   constructor(scene: Phaser.Scene) {
     super(
@@ -91,20 +119,16 @@ export class CharacterInfo extends GuiBase {
       marginY: -20,
       parent: this.spBar,
     });
+    this.createSystem();
   }
 
   show(role: Role) {
+    // initialize data
+    this.role = role.entity;
+    this.updateData();
+    this.updateDisplay();
+
     super.show();
-    const hp = role.properties.get("BLOOD") ?? 0;
-    const maxHp = role.properties.get("maxBLOOD") ?? 0;
-    const sp = role.properties.get("STAMINA") ?? 0;
-    const maxSp = role.properties.get("maxSTAMINA") ?? 0;
-    this.hpNum.text = hp + "/" + maxHp;
-    this.hpBar.max = maxHp;
-    this.hpBar.value = hp;
-    this.spNum.text = sp + "/" + maxSp;
-    this.spBar.max = maxSp;
-    this.spBar.value = sp;
 
     // this.hpBar.listenComponentValue(
     //   role.components.PoolOf,
@@ -113,5 +137,49 @@ export class CharacterInfo extends GuiBase {
     //   },
     //   role.entity
     // );
+  }
+
+  /**
+   * update (all) data every time 1 data changes, so as to save dev time
+   */
+  updateData() {
+    const { Balance } = this.scene.components;
+    const staminaEntity = getBalanceEntity(STAMINA, this.role as Hex);
+    this.stamina = Number(
+      getComponentValue(Balance, staminaEntity)?.value ?? 0n
+    );
+    const bloodEntity = getBalanceEntity(BLOOD, this.role as Hex);
+    this.blood = Number(getComponentValue(Balance, bloodEntity)?.value ?? 0n);
+  }
+
+  /**
+   * update display every time data changes
+   */
+  updateDisplay() {
+    this.hpNum.text = this.blood + "/" + this.maxBlood;
+    this.hpBar.max = this.maxBlood;
+    this.hpBar.value = this.blood;
+    this.spNum.text = this.stamina + "/" + this.maxStamina;
+    this.spBar.max = this.maxStamina;
+    this.spBar.value = this.stamina;
+  }
+
+  /**
+   * created in constructor(), to update data according to the query
+   */
+  createSystem() {
+    const { Balance } = this.scene.components;
+    const { world } = this.scene.network;
+
+    // update pool as long as the role is the same as the decoded entity
+    defineSystem(world, [Has(Balance)], ({ entity, type }) => {
+      if (type === UpdateType.Exit) return;
+      const { owner } = decodeBalanceEntity(entity);
+      if (!this.role || this.role !== (owner as Entity)) return;
+      this.updateData();
+      this.updateDisplay();
+    });
+
+    // TODO: add update max pool system
   }
 }
