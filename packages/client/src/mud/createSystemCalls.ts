@@ -3,7 +3,12 @@
  * for changes in the World state (using the System contracts).
  */
 
-import { Entity, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  removeComponent,
+  setComponent,
+} from "@latticexyz/recs";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
@@ -84,17 +89,24 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  /**
+   *
+   * @param host role entity to build building
+   * @param buildingType building type to build
+   * @param adjacentCoord coord that is adjacent to host & in building
+   * @param lowerCoord building's lower coord
+   */
   const buildBuilding = async (
     host: Hex,
     buildingType: Hex,
-    coord: Vector,
+    adjacentCoord: Vector,
     lowerCoord: Vector
   ) => {
     const tx = await worldContract.write.buildBuilding([
       host,
       buildingType,
-      coord.x,
-      coord.y,
+      adjacentCoord.x,
+      adjacentCoord.y,
       lowerCoord.x,
       lowerCoord.y,
     ]);

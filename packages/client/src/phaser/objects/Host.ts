@@ -250,8 +250,8 @@ export class Host extends SceneObject {
     this.systemCalls.buildBuilding(
       this.entity as Hex,
       buildingType,
-      lowerCoord,
-      adjacentCoord
+      adjacentCoord,
+      lowerCoord
     );
     return false;
   }
