@@ -5,7 +5,7 @@ import {
   movesToPositions,
 } from "../../logics/move";
 import { Entity, ComponentValue, getComponentValue } from "@latticexyz/recs";
-import { Hex, hexToString } from "viem";
+import { Hex, hexToString, toHex } from "viem";
 import { getPool } from "../../contract/hashes";
 import { getPoolAmount, getPoolCapacity } from "../../logics/pool";
 import { POOL_COLORS, POOL_TYPES, SOURCE } from "../../constants";
@@ -16,6 +16,11 @@ import { UIScene } from "../scenes/UIScene";
 import { Vector } from "../../utils/vector";
 import { UIController } from "../components/controllers/UIController";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
+import { BuildingData, BuildingSpecs } from "../../api/data";
+import {
+  canBuildFromHost,
+  getBuildableCoordsInfo,
+} from "../../logics/building";
 
 /**
  * About the scene object with avatar such as character or building
@@ -88,8 +93,6 @@ export class Host extends SceneObject {
     };
     this.tileX = path.toX;
     this.tileY = path.toY;
-    this.x = (this.tileX + 0.5) * this.tileSize;
-    this.y = (this.tileY + 0.5) * this.tileSize;
 
     this.root.setPosition(this.x, this.y).setDepth(13);
     // draw avatar & set animation
@@ -147,14 +150,23 @@ export class Host extends SceneObject {
 
   onConfirmPressed() {
     super.onConfirmPressed();
-    if (UIController.scene.moveTips?.isVisible) {
+    const uiscene = UIController.scene;
+
+    if (uiscene.moveTips?.isVisible) {
       if (this.movesUpdate()) {
-        UIController.scene.moveTips.hidden();
+        uiscene.moveTips.hidden();
         SceneObjectController.resetFocus();
       }
-    } else if (UIController.scene.constructTips?.isVisible) {
-      UIController.scene.constructTips.hidden();
-      SceneObjectController.resetFocus();
+    } else if (uiscene.constructTips?.isVisible) {
+      if (
+        this.construct(
+          uiscene.constructTips.buildingType!,
+          uiscene.constructTips.buildingSpecs!
+        )
+      ) {
+        uiscene.constructTips.hidden();
+        SceneObjectController.resetFocus();
+      }
     }
   }
 
@@ -217,6 +229,31 @@ export class Host extends SceneObject {
     this.isMoving = true;
     this.movesAnimation(moves);
     return true;
+  }
+
+  /**
+   * Construct a building
+   * If action success return true, else return false
+   */
+  construct(buildingType: Hex, buildingSpecs: BuildingSpecs): boolean {
+    const cursor = this.scene.cursor;
+    if (!cursor) return false;
+    const lowerCoord = { x: cursor.tileX, y: cursor.tileY };
+    const adjacentCoord = canBuildFromHost(
+      this.components,
+      this.systemCalls,
+      this.entity,
+      lowerCoord,
+      buildingType
+    );
+    if (!adjacentCoord) return false;
+    this.systemCalls.buildBuilding(
+      this.entity as Hex,
+      buildingType,
+      lowerCoord,
+      adjacentCoord
+    );
+    return false;
   }
 
   directionUpdate() {

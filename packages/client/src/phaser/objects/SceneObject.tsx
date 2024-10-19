@@ -4,6 +4,7 @@ import { GameScene } from "../scenes/GameScene";
 import { combineToEntity, Direction } from "../../logics/move";
 import { getHostPosition } from "../../logics/path";
 import { TARGET } from "../../constants";
+import { SystemCalls } from "../../mud/createSystemCalls";
 
 /**
  * The object perpare to scene
@@ -19,6 +20,8 @@ export class SceneObject {
    */
   components: ClientComponents;
 
+  systemCalls: SystemCalls;
+
   /**
    * which scene is this object in
    */
@@ -33,26 +36,6 @@ export class SceneObject {
    * tile size of the scene
    */
   tileSize: number;
-
-  /**
-   * position X by tile
-   */
-  tileX: number = 0;
-
-  /**
-   * position Y by tile
-   */
-  tileY: number = 0;
-
-  /**
-   * position x by pixel
-   */
-  x: number = 0;
-
-  /**
-   * position y by pixel
-   */
-  y: number = 0;
 
   /**
    * width by tile
@@ -99,6 +82,7 @@ export class SceneObject {
   constructor(entity: Entity, components: ClientComponents, scene: GameScene) {
     this.entity = entity;
     this.components = components;
+    this.systemCalls = scene.systemCalls;
     this.scene = scene;
     this.tileSize = scene.tileSize;
     this.root = this.scene.add.container(0, 0);
@@ -142,13 +126,13 @@ export class SceneObject {
     this.scene.cameras.main.startFollow(this.root, false);
   }
 
-  setTilePosition(x: number, y: number) {
-    this.tileX = x;
-    this.tileY = y;
-    this.x = (this.tileX + 0.5) * this.tileSize;
-    this.y = (this.tileY + 0.5) * this.tileSize;
-    this.root.setPosition(this.x, this.y);
-  }
+  // setTilePosition(x: number, y: number) {
+  //   this.tileX = x;
+  //   this.tileY = y;
+  //   this.x = (this.tileX + 0.5) * this.tileSize;
+  //   this.y = (this.tileY + 0.5) * this.tileSize;
+  //   this.root.setPosition(this.x, this.y);
+  // }
 
   setDepth(depth: number) {
     this.root.setDepth(depth);
@@ -210,5 +194,37 @@ export class SceneObject {
     // setComponent(this.components.TargetTile, TARGET, {
     //   value: combineToEntity(coord.x, coord.y),
     // });
+  }
+
+  get x() {
+    return this.root.x;
+  }
+
+  set x(value: number) {
+    this.root.x = value;
+  }
+
+  get y() {
+    return this.root.y;
+  }
+
+  set y(value: number) {
+    this.root.y = value;
+  }
+
+  get tileX() {
+    return this.x / this.tileSize - 0.5;
+  }
+
+  set tileX(value: number) {
+    this.x = (value + 0.5) * this.tileSize;
+  }
+
+  get tileY() {
+    return this.y / this.tileSize - 0.5;
+  }
+
+  set tileY(value: number) {
+    this.y = (value + 0.5) * this.tileSize;
   }
 }

@@ -5,7 +5,6 @@ import { ActionMenu } from "../ui/ActionMenu";
 import { MoveTips } from "../ui/MoveTips";
 import { ConstructTips } from "../ui/ConstructTips";
 import { GuiBase } from "../ui/GuiBase";
-import { UIBase } from "../components/ui/common/UIBase";
 import { ConstructMenu } from "../ui/ConstructMenu";
 import { BuildingMenu } from "../ui/BuildingMenu";
 import { StakeMenu } from "../ui/StakeMenu";
@@ -48,7 +47,8 @@ export class UIScene extends Phaser.Scene {
   stakingMenu: StakingMenu | undefined;
 
   moveTips?: MoveTips;
-  constructTips: GuiBase | undefined;
+
+  constructTips?: ConstructTips;
 
   constructMenu?: ConstructMenu;
 

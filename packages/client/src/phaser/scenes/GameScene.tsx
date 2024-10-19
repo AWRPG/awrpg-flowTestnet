@@ -412,12 +412,24 @@ export class GameScene extends Phaser.Scene {
   }
 
   loadBuilding(tileId: Entity, building: Entity) {
-    this.buildings[building]?.destroy();
-    this.buildings[building] = new Building(this, this.components, {
-      tileId,
-      entity: building,
-      onClick: () => this.sourceSelectHandler(building),
-    });
+    if (!this.buildings[building]) {
+      this.buildings[building] = new Building(this, this.components, {
+        tileId,
+        entity: building,
+        onClick: () => this.sourceSelectHandler(building),
+      });
+    } else {
+      const newTileCoord = splitFromEntity(tileId);
+      if (
+        newTileCoord.x < this.buildings[building].tileCoord.x ||
+        newTileCoord.y < this.buildings[building].tileCoord.y
+      ) {
+        this.buildings[building].tileId = tileId;
+        this.buildings[building].tileCoord = newTileCoord;
+        this.buildings[building].tileX = newTileCoord.x;
+        this.buildings[building].tileY = newTileCoord.y;
+      }
+    }
   }
 
   unloadBuilding(tileId: Entity) {
