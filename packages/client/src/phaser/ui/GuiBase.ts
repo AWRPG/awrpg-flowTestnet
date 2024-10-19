@@ -4,6 +4,7 @@ import { UIController } from "../components/controllers/UIController";
 import { UIScene } from "../scenes/UIScene";
 import { ClientComponents } from "../../mud/createClientComponents";
 import { SystemCalls } from "../../mud/createSystemCalls";
+import { SetupNetworkResult } from "../../mud/setupNetwork";
 
 /**
  * All the complex UI Components need to extend from this class.
@@ -15,6 +16,8 @@ export class GuiBase {
   scene: UIScene;
 
   components: ClientComponents;
+
+  network?: SetupNetworkResult;
 
   systemCalls: SystemCalls;
 
@@ -61,7 +64,8 @@ export class GuiBase {
     this.name = "GuiBase";
     this.scene = scene;
     this.components = scene.components;
-    this.systemCalls = scene.SystemCalls;
+    this.network = scene.network;
+    this.systemCalls = scene.systemCalls;
     this.rootUI = rootUI;
     this.hidden(); // It will only be displayed when be called.
     this.rootUI.root.on("changedata", this.onDataChanged, this);
