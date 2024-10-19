@@ -22,7 +22,7 @@ export class Mine extends SceneObject {
       onClick: () => void;
     }
   ) {
-    super(entity, components, scene);
+    super(scene, entity);
     this.entity = entity;
 
     this.gridCoord = splitFromEntity(entity);

@@ -22,7 +22,7 @@ export class Drop extends SceneObject {
       entity: Entity;
     }
   ) {
-    super(entity, components, scene);
+    super(scene, entity);
     const { EntityType } = components;
     this.entity = entity;
     const { tileX, tileY } = splitDropContainer(BigInt(entity));

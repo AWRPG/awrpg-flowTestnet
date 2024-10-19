@@ -9,7 +9,7 @@ import { Heading2 } from "../components/ui/Heading2";
 import { Heading3 } from "../components/ui/Heading3";
 import { HpBar } from "../components/ui/HpBar";
 import { SpBar } from "../components/ui/SpBar";
-import { Host } from "../objects/Host";
+import { Role } from "../objects/Role";
 
 export class CharacterInfo extends GuiBase {
   avatar: UIImage;
@@ -93,7 +93,7 @@ export class CharacterInfo extends GuiBase {
     });
   }
 
-  show(role: Host) {
+  show(role: Role) {
     super.show();
     const hp = role.properties.get("BLOOD") ?? 0;
     const maxHp = role.properties.get("maxBLOOD") ?? 0;

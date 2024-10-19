@@ -32,7 +32,7 @@ export class TileHighlight extends SceneObject {
     scene: GameScene,
     mode: string = HIGHLIGHT_MODE.MOVE
   ) {
-    super(entity, components, scene);
+    super(scene, entity);
     this.mode = mode;
     const path = getComponentValue(components.Path, entity) ?? null;
     if (!path) return;

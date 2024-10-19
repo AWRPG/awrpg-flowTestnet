@@ -7,7 +7,7 @@ import { ButtonA } from "../components/ui/ButtonA";
 import { UIImage } from "../components/ui/common/UIImage";
 import { UIList } from "../components/ui/common/UIList";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
-import { Host } from "../objects/Host";
+import { Role } from "../objects/Role";
 import { UIController } from "../components/controllers/UIController";
 import { UIEvents } from "../components/ui/common/UIEvents";
 import { GameData } from "../components/GameData";
@@ -20,7 +20,7 @@ export class ConstructMenu extends GuiBase {
   list: UIList;
   img: UIImage;
   text: UIText;
-  role?: Host;
+  role?: Role;
   data: BuildingData[];
 
   constructor(scene: UIScene) {
@@ -79,7 +79,7 @@ export class ConstructMenu extends GuiBase {
     this.list.on(UIEvents.CONFIRM, this.onListConfirm, this);
   }
 
-  show(role?: Host) {
+  show(role?: Role) {
     super.show();
     this.role = role ?? this.role;
     SceneObjectController.focus = this.role;

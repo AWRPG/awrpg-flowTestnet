@@ -2,18 +2,24 @@ import { UIBase } from "./common/UIBase";
 import { Component, Entity, Schema } from "@latticexyz/recs";
 import { listenComponentValue } from "../../../utils/listenComponentValue";
 import { ClientComponents } from "../../../mud/createClientComponents";
+import { SystemCalls } from "../../../mud/createSystemCalls";
 
 declare module "./common/UIBase" {
   interface UIBase {
-    /** [Readonly] The entity bound to this UI. Use 'setEntity()' if you need to change it. */
+    /** [Readonly] The entity bound to this UI. */
     _entity?: Entity | undefined;
     get entity(): Entity | undefined;
     set entity(value: Entity | undefined);
 
-    /** [Readonly] The components bound to this UI. Default to the components of scene. Use 'setEntity()' if you need to change it. */
+    /** [Readonly] The components bound to this UI. Default to the components of scene. */
     _components: ClientComponents;
     get components(): ClientComponents;
     set components(value: ClientComponents);
+
+    /** [Readonly] The systemCalls bound to this UI. Default to the systemCalls of scene. */
+    _systemCalls: SystemCalls;
+    get systemCalls(): SystemCalls;
+    set systemCalls(value: SystemCalls);
 
     /** For the Subscriptions if the game need to use */
     unsubscribes?: (() => void)[];
@@ -43,6 +49,15 @@ Object.defineProperty(UIBase.prototype, "components", {
   },
   set: function (value: ClientComponents) {
     this._components = value;
+  },
+});
+
+Object.defineProperty(UIBase.prototype, "systemCalls", {
+  get: function (): SystemCalls {
+    return this._systemCalls;
+  },
+  set: function (value: SystemCalls) {
+    this._systemCalls = value;
   },
 });
 

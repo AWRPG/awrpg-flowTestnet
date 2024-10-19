@@ -37,7 +37,7 @@ import {
   POOL_TYPES,
   TARGET,
 } from "../../constants";
-import { Host } from "../objects/Host";
+import { Role } from "../objects/Role";
 import {
   isBuilding,
   selectFirstHost,
@@ -95,7 +95,7 @@ export class GameScene extends Phaser.Scene {
   // tileId -> drop
   drops: Record<Entity, Drop> = {};
 
-  hosts: Record<Entity, Host> = {};
+  hosts: Record<Entity, Role> = {};
 
   hostTextures: {
     key: string;
@@ -243,7 +243,7 @@ export class GameScene extends Phaser.Scene {
       if (!currTileId) return;
       this.selectedTiles[entity] = currTileId;
       const tile = this.tiles[currTileId];
-      this.cursor?.moveAnimation(tile.x, tile.y);
+      this.cursor?.moveTo(tile.x, tile.y);
       // this.tiles[currTileId]?.select();
       // const pathCoords = calculatePathCoords(this.components, entity);
     });
@@ -303,7 +303,7 @@ export class GameScene extends Phaser.Scene {
         return delete this.hosts[entity];
       }
       this.hosts[entity]?.destroy();
-      this.hosts[entity] = new Host(this, this.components, {
+      this.hosts[entity] = new Role(this, this.components, {
         entity,
         isPlayer:
           getComponentValue(Commander, entity)?.value ===

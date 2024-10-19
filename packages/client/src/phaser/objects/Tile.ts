@@ -44,7 +44,7 @@ export class Tile extends SceneObject {
       onClick: () => void;
     }
   ) {
-    super(entity, components, scene);
+    super(scene, entity);
     this.tileValue = tileValue;
     const tileCoord = splitFromEntity(entity);
     this.tileX = tileCoord.x;
