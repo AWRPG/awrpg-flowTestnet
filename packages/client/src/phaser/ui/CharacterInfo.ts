@@ -19,11 +19,21 @@ import {
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
-import { getBalanceEntity } from "../../logics/container";
-import { BLOOD, STAMINA } from "../../contract/constants";
+import {
+  ATTACK,
+  BLOOD,
+  DEFENSE,
+  RANGE,
+  SOUL,
+  STAMINA,
+} from "../../contract/constants";
 import { Hex } from "viem";
-import { decodeBalanceEntity } from "../../utils/encode";
+import { decodeBalanceEntity, encodeTypeEntity } from "../../utils/encode";
+import { getEntityPoolsInfo } from "../../logics/pool";
 
+/**
+ * note: this phaesr ui mirrors Pool.tsx; can be an example to construct other "pool" phaer ui
+ */
 export class CharacterInfo extends GuiBase {
   avatar: UIImage;
   role?: Entity;
@@ -46,8 +56,8 @@ export class CharacterInfo extends GuiBase {
   maxAttack: number = 0;
   defense: number = 0;
   maxDefense: number = 0;
-  speed: number = 0;
-  maxSpeed: number = 0;
+  range: number = 0;
+  maxRange: number = 0;
 
   constructor(scene: Phaser.Scene) {
     super(
@@ -143,13 +153,39 @@ export class CharacterInfo extends GuiBase {
    * update (all) data every time 1 data changes, so as to save dev time
    */
   updateData() {
-    const { Balance } = this.scene.components;
-    const staminaEntity = getBalanceEntity(STAMINA, this.role as Hex);
-    this.stamina = Number(
-      getComponentValue(Balance, staminaEntity)?.value ?? 0n
-    );
-    const bloodEntity = getBalanceEntity(BLOOD, this.role as Hex);
-    this.blood = Number(getComponentValue(Balance, bloodEntity)?.value ?? 0n);
+    if (!this.role) return;
+    const poolsInfo = getEntityPoolsInfo(this.scene.components, this.role);
+    poolsInfo.forEach((poolInfo) => {
+      const { type, capacity, balance } = poolInfo;
+      switch (type) {
+        case BLOOD:
+          this.blood = balance;
+          this.maxBlood = capacity;
+          break;
+        case STAMINA:
+          this.stamina = balance;
+          this.maxStamina = capacity;
+          break;
+        case SOUL:
+          this.soul = balance;
+          this.maxSoul = capacity;
+          break;
+        case ATTACK:
+          this.attack = balance;
+          this.maxAttack = capacity;
+          break;
+        case DEFENSE:
+          this.defense = balance;
+          this.maxDefense = capacity;
+          break;
+        case RANGE:
+          this.range = balance;
+          this.maxRange = capacity;
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   /**
@@ -168,7 +204,7 @@ export class CharacterInfo extends GuiBase {
    * created in constructor(), to update data according to the query
    */
   createSystem() {
-    const { Balance } = this.scene.components;
+    const { Balance, EntityType } = this.scene.components;
     const { world } = this.scene.network;
 
     // update pool as long as the role is the same as the decoded entity
@@ -180,6 +216,11 @@ export class CharacterInfo extends GuiBase {
       this.updateDisplay();
     });
 
-    // TODO: add update max pool system
+    // update max pool when entity type changes
+    defineUpdateSystem(world, [Has(EntityType)], ({ entity }) => {
+      if (!this.role || this.role !== entity) return;
+      this.updateData();
+      this.updateDisplay();
+    });
   }
 }
