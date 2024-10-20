@@ -9,7 +9,7 @@ import { Heading2 } from "../components/ui/Heading2";
 import { Heading3 } from "../components/ui/Heading3";
 import { HpBar } from "../components/ui/HpBar";
 import { SpBar } from "../components/ui/SpBar";
-import { Host } from "../objects/Host";
+import { Role } from "../objects/Role";
 import {
   defineSystem,
   defineUpdateSystem,
@@ -122,7 +122,7 @@ export class CharacterInfo extends GuiBase {
     this.createSystem();
   }
 
-  show(role: Host) {
+  show(role: Role) {
     // initialize data
     this.role = role.entity;
     this.updateData();

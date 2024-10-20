@@ -4,7 +4,7 @@ import { getTargetTerrainData } from "../../logics/terrain";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { UIController } from "../components/controllers/UIController";
 import { Building } from "./Building";
-import { Host } from "./Host";
+import { Role } from "./Role";
 import { SceneObject } from "./SceneObject";
 
 export class Observer extends SceneObject {
@@ -44,7 +44,7 @@ export class Observer extends SceneObject {
           : undefined
       : undefined;
     if (type === "role") {
-      const entityObj: Host = this.scene.hosts[entity];
+      const entityObj: Role = this.scene.hosts[entity];
       if (entityObj.isMoving) return;
       SceneObjectController.focus = entityObj;
       if (entityObj.isPlayer) UIController.scene.actionMenu?.show(entityObj);

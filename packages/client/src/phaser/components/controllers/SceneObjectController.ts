@@ -28,7 +28,7 @@ import {
 } from "../../../logics/entity";
 import { getHostPosition } from "../../../logics/path";
 import { getTargetTerrainData, TileData } from "../../../logics/terrain";
-import { Host } from "../../objects/Host";
+import { Role } from "../../objects/Role";
 import { GuiBase } from "../../ui/GuiBase";
 import { SceneObject } from "../../objects/SceneObject";
 import { UIConfig } from "../ui/common/UIConfig";
@@ -47,11 +47,7 @@ export class SceneObjectController {
 
   static init(scene?: GameScene) {
     if (scene) this.scene = scene;
-    this.focus = this.observer = new ObserverObject(
-      OBSERVER,
-      this.scene.components,
-      this.scene
-    );
+    this.focus = this.observer = new ObserverObject(this.scene, OBSERVER);
   }
 
   static get focus(): SceneObject | undefined {

@@ -6,7 +6,7 @@ import { SceneObject } from "./SceneObject";
 export class Cursor extends SceneObject {
   cursor: Phaser.GameObjects.Sprite;
   constructor(entity: Entity, scene: GameScene, components: ClientComponents) {
-    super(entity, components, scene);
+    super(scene, entity);
 
     this.root.setPosition(this.x, this.y);
     this.cursor = new Phaser.GameObjects.Sprite(scene, 0, 0, "ui-cursor")

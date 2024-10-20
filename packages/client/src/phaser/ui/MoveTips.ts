@@ -9,14 +9,14 @@ import { ButtonA } from "../components/ui/ButtonA";
 import { MenuTitle } from "../components/ui/MenuTitle";
 import { UIController } from "../components/controllers/UIController";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
-import { Host } from "../objects/Host";
+import { Role } from "../objects/Role";
 import { UIBase } from "../components/ui/common/UIBase";
 
 /**
  * show the action buttons player can do
  */
 export class MoveTips extends GuiBase {
-  role?: Host;
+  role?: Role;
 
   /** */
   constructor(scene: UIScene) {
@@ -24,7 +24,7 @@ export class MoveTips extends GuiBase {
     this.name = "MoveTips";
   }
 
-  show(role?: Host) {
+  show(role?: Role) {
     super.show();
     this.role = role ?? this.role;
     if (!this.role) return;

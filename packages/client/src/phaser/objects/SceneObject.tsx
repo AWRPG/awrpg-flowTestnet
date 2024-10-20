@@ -11,7 +11,7 @@ import { SystemCalls } from "../../mud/createSystemCalls";
  */
 export class SceneObject {
   /**
-   * [MUD] components
+   * [MUD] entity
    */
   entity: Entity;
 
@@ -20,40 +20,43 @@ export class SceneObject {
    */
   components: ClientComponents;
 
+  /**
+   * [MUD] systemCalls
+   */
   systemCalls: SystemCalls;
 
   /**
-   * which scene is this object in
+   * Which scene is this object in
    */
   scene: GameScene;
 
   /**
-   * unique number in the scene [TODO]
-   */
-  index: number = 0;
-
-  /**
-   * tile size of the scene
+   * Tile size of the scene
    */
   tileSize: number;
 
   /**
-   * width by tile
+   * Width by tile
    */
   tileWidth: number = 1;
 
   /**
-   * height by tile
+   * Height by tile
    */
   tileHeight: number = 1;
 
   /**
-   * capable of being moved
+   * Capable of being moved
    */
   movable: boolean = false;
 
   /**
-   * the root object to the display
+   * Whether other objects can pass through this object
+   */
+  passable: boolean = true;
+
+  /**
+   * A empty gameObject as the root node
    */
   root: Phaser.GameObjects.Container;
 
@@ -63,7 +66,7 @@ export class SceneObject {
   accessories: Record<Entity, Phaser.GameObjects.Container> = {};
 
   /**
-   * the tween of move to effect
+   * The tween of move to effect
    */
   moveTween: Phaser.Tweens.Tween | Phaser.Tweens.TweenChain | undefined;
 
@@ -75,44 +78,36 @@ export class SceneObject {
   onCancel?: () => void;
 
   /**
-   * @param entity the scene object's entity
-   * @param components the world's components
    * @param scene the scene belong
+   * @param entity the scene object's entity
    */
-  constructor(entity: Entity, components: ClientComponents, scene: GameScene) {
-    this.entity = entity;
-    this.components = components;
-    this.systemCalls = scene.systemCalls;
+  constructor(scene: GameScene, entity: Entity) {
     this.scene = scene;
+    this.entity = entity;
+    this.components = scene.components;
+    this.systemCalls = scene.systemCalls;
     this.tileSize = scene.tileSize;
-    this.root = this.scene.add.container(0, 0);
+    this.root = scene.add.container(0, 0);
   }
 
   /**
-   * Tween effect to target coordinates
-   * @param toX
-   * @param toY
+   * Move to the target coord with tween
+   * @param toX target x coord
+   * @param toY target y coord
    */
-  moveAnimation(
+  moveTo(
     toX: number,
     toY: number,
-    duration: number = 75,
+    duration: number = 90,
     onComplete?: () => void
   ) {
-    if (this.moveTween) {
-      this.moveTween.destroy();
-      this.x = this.root.x;
-      this.y = this.root.y;
-      this.moveTween = undefined;
-    }
+    if (this.moveTween) this.moveTween.destroy();
     this.moveTween = this.scene.tweens.add({
-      targets: this.root,
+      targets: this,
       x: toX,
       y: toY,
       duration: duration,
       onComplete: () => {
-        this.x = toX;
-        this.y = toY;
         if (onComplete) onComplete();
       },
     });
@@ -126,13 +121,10 @@ export class SceneObject {
     this.scene.cameras.main.startFollow(this.root, false);
   }
 
-  // setTilePosition(x: number, y: number) {
-  //   this.tileX = x;
-  //   this.tileY = y;
-  //   this.x = (this.tileX + 0.5) * this.tileSize;
-  //   this.y = (this.tileY + 0.5) * this.tileSize;
-  //   this.root.setPosition(this.x, this.y);
-  // }
+  setTileCoords(x: number, y: number) {
+    this.tileX = x;
+    this.tileY = y;
+  }
 
   setDepth(depth: number) {
     this.root.setDepth(depth);

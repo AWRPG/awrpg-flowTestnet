@@ -29,7 +29,7 @@ export class Building extends SceneObject {
       scale?: number;
     }
   ) {
-    super(entity, components, scene);
+    super(scene, entity);
     const { EntityType, BuildingSpecs } = components;
     this.entity = entity;
     this.tileId = tileId;

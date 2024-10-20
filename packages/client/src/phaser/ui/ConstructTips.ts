@@ -9,7 +9,7 @@ import { ButtonA } from "../components/ui/ButtonA";
 import { MenuTitle } from "../components/ui/MenuTitle";
 import { UIController } from "../components/controllers/UIController";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
-import { Host } from "../objects/Host";
+import { Role } from "../objects/Role";
 import { UIBase } from "../components/ui/common/UIBase";
 import { BuildingData, BuildingSpecs } from "../../api/data";
 import { Hex } from "viem";
@@ -18,7 +18,7 @@ import { Hex } from "viem";
  * show the action buttons player can do
  */
 export class ConstructTips extends GuiBase {
-  role?: Host;
+  role?: Role;
   buildingType?: Hex;
   buildingSpecs?: BuildingSpecs;
 
@@ -28,7 +28,7 @@ export class ConstructTips extends GuiBase {
     this.name = "ConstructTips";
   }
 
-  show(role: Host, buildingType: Hex, buildingSpecs: BuildingSpecs) {
+  show(role: Role, buildingType: Hex, buildingSpecs: BuildingSpecs) {
     super.show();
     this.buildingType = buildingType;
     this.buildingSpecs = buildingSpecs;

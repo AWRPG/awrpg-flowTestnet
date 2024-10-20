@@ -9,14 +9,14 @@ import { ButtonA } from "../components/ui/ButtonA";
 import { MenuTitle } from "../components/ui/MenuTitle";
 import { UIController } from "../components/controllers/UIController";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
-import { Host } from "../objects/Host";
+import { Role } from "../objects/Role";
 
 /**
  * show the action buttons player can do
  */
 export class ActionMenu extends GuiBase {
   list: UIList;
-  role?: Host;
+  role?: Role;
 
   /** */
   constructor(scene: UIScene) {
@@ -86,7 +86,7 @@ export class ActionMenu extends GuiBase {
     this.focusUI = this.list;
   }
 
-  show(role?: Host) {
+  show(role?: Role) {
     super.show();
     this.role = role ?? this.role;
     SceneObjectController.focus = this.role;

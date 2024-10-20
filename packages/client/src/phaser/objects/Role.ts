@@ -25,7 +25,7 @@ import {
 /**
  * About the scene object with avatar such as character or building
  */
-export class Host extends SceneObject {
+export class Role extends SceneObject {
   /**
    * is the main character of player
    */
@@ -81,7 +81,7 @@ export class Host extends SceneObject {
       onClick: () => void;
     }
   ) {
-    super(entity, components, scene);
+    super(scene, entity);
     this.isPlayer = isPlayer;
     this.isMoving = false;
     this.properties = new Map();
@@ -91,10 +91,9 @@ export class Host extends SceneObject {
       toX: 0,
       toY: 0,
     };
-    this.tileX = path.toX;
-    this.tileY = path.toY;
+    this.setTileCoords(path.toX, path.toY);
 
-    this.root.setPosition(this.x, this.y).setDepth(13);
+    this.root.setDepth(13);
     // draw avatar & set animation
     this.direction =
       getComponentValue(components.RoleDirection, entity)?.value ??
@@ -158,12 +157,7 @@ export class Host extends SceneObject {
         SceneObjectController.resetFocus();
       }
     } else if (uiscene.constructTips?.isVisible) {
-      if (
-        this.construct(
-          uiscene.constructTips.buildingType!,
-          uiscene.constructTips.buildingSpecs!
-        )
-      ) {
+      if (this.construct(uiscene.constructTips.buildingType!)) {
         uiscene.constructTips.hidden();
         SceneObjectController.resetFocus();
       }
@@ -235,7 +229,7 @@ export class Host extends SceneObject {
    * Construct a building
    * If action success return true, else return false
    */
-  construct(buildingType: Hex, buildingSpecs: BuildingSpecs): boolean {
+  construct(buildingType: Hex): boolean {
     const cursor = this.scene.cursor;
     if (!cursor) return false;
     const lowerCoord = { x: cursor.tileX, y: cursor.tileY };
@@ -253,7 +247,8 @@ export class Host extends SceneObject {
       adjacentCoord,
       lowerCoord
     );
-    return false;
+    // [TODO] Need to add animation about construct here.
+    return true;
   }
 
   directionUpdate() {
