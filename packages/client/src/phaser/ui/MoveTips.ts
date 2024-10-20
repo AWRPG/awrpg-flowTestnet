@@ -30,15 +30,16 @@ export class MoveTips extends GuiBase {
     if (!this.role) return;
     SceneObjectController.openTileHighlight(this.role.entity);
     SceneObjectController.controllable = true;
-    // Temp Code
-    this.role.root.setAlpha(0.5);
-    SceneObjectController.scene.cursor?.setAccessory(this.role.entity, "role"); // Bundle hostObj to cursor
+    // this.role.alpha = 0.5;
+    SceneObjectController.scene.cursor?.setAccessory(this.role.entity); // Bundle hostObj to cursor
   }
 
   hidden() {
     super.hidden();
     if (this.role) {
+      // this.role.alpha = 1;
       SceneObjectController.closeTileHighlight(this.role.entity);
+      // SceneObjectController.scene.cursor?.putAccessoryOnScene(this.role.entity);
       SceneObjectController.scene.cursor?.clearAccessory(this.role.entity);
     }
   }

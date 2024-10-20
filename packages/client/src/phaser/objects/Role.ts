@@ -65,21 +65,18 @@ export class Role extends SceneObject {
 
   /**
    * @param scene the scene belong
-   * @param components the world's components
    * @param params others
    */
   constructor(
     scene: GameScene,
-    components: ClientComponents,
+    entity: Entity,
     {
-      entity,
-      isPlayer,
+      isPlayer = false,
       onClick,
     }: {
-      entity: Entity;
-      isPlayer: boolean;
-      onClick: () => void;
-    }
+      isPlayer?: boolean;
+      onClick?: () => void;
+    } = {}
   ) {
     super(scene, entity);
     this.isPlayer = isPlayer;
@@ -87,16 +84,16 @@ export class Role extends SceneObject {
     this.properties = new Map();
 
     // TODO: different obj has different position calc
-    const path = getComponentValue(components.Path, entity) ?? {
+    const path = getComponentValue(this.components.Path, entity) ?? {
       toX: 0,
       toY: 0,
     };
-    this.setTileCoords(path.toX, path.toY);
+    this.setTilePosition(path.toX, path.toY);
 
     this.root.setDepth(13);
     // draw avatar & set animation
     this.direction =
-      getComponentValue(components.RoleDirection, entity)?.value ??
+      getComponentValue(this.components.RoleDirection, entity)?.value ??
       Direction.DOWN;
     this.avatar = new Phaser.GameObjects.Sprite(
       this.scene,
@@ -182,7 +179,6 @@ export class Role extends SceneObject {
    */
   movesAnimation(moves: number[]) {
     this.doWalkAnimation();
-    this.root.setAlpha(1);
     const tweenConfig: unknown[] = [];
     moves.forEach((move: number) => {
       switch (move) {
@@ -202,7 +198,7 @@ export class Role extends SceneObject {
       tweenConfig.push({
         x: this.x,
         y: this.y,
-        duration: 75,
+        duration: 275,
       });
     });
     this.moveTween = this.scene.tweens.chain({
@@ -219,9 +215,9 @@ export class Role extends SceneObject {
   movesUpdate(): boolean {
     const moves = calculatePathMoves(this.components, this.entity);
     if (!moves || moves.length === 0 || moves.length > 20) return false;
-    this.scene.systemCalls.move(this.entity as Hex, moves as number[]);
+    this.systemCalls.move(this.entity as Hex, moves as number[]);
     this.isMoving = true;
-    this.movesAnimation(moves);
+    // this.movesAnimation(moves);
     return true;
   }
 

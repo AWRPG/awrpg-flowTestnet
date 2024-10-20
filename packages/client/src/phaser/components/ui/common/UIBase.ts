@@ -329,10 +329,35 @@ export class UIBase {
   }
 
   /**
-   * Remove and Destroy all Game Objects in the Container.
+   * Remove the child on the root container
    */
-  destroyChildren() {
+  remove(child: UIBase, destroyChild?: boolean): UIBase {
+    this.root.remove(child.root, destroyChild);
+    return this;
+  }
+
+  /**
+   * Removes the UI at the given position on the root container
+   */
+  removeAt(index: number, destroyChild?: boolean): UIBase {
+    this.root.removeAt(index, destroyChild);
+    return this;
+  }
+
+  /**
+   * Removes all childs from this Container.
+   */
+  removeAll(destroyChild?: boolean): UIBase {
+    this.root.removeAll(destroyChild);
+    return this;
+  }
+
+  /**
+   * Remove and Destroy all childs in the Container.
+   */
+  destroyChildren(): UIBase {
     this.root.removeAll(true);
+    return this;
   }
 
   get parent() {

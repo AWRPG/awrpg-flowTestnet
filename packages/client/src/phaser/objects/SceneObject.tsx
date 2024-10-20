@@ -5,6 +5,7 @@ import { combineToEntity, Direction } from "../../logics/move";
 import { getHostPosition } from "../../logics/path";
 import { TARGET } from "../../constants";
 import { SystemCalls } from "../../mud/createSystemCalls";
+import { Role } from "./Role";
 
 /**
  * The object perpare to scene
@@ -63,7 +64,7 @@ export class SceneObject {
   /**
    * Other scene objects can be added to the root of this object
    */
-  accessories: Record<Entity, Phaser.GameObjects.Container> = {};
+  accessories: Record<Entity, SceneObject> = {};
 
   /**
    * The tween of move to effect
@@ -121,13 +122,66 @@ export class SceneObject {
     this.scene.cameras.main.startFollow(this.root, false);
   }
 
-  setTileCoords(x: number, y: number) {
-    this.tileX = x;
-    this.tileY = y;
+  setPosition(x: number, y: number): SceneObject {
+    this.x = x;
+    this.y = y;
+    return this;
   }
 
-  setDepth(depth: number) {
+  setTilePosition(x: number, y: number): SceneObject {
+    this.tileX = x;
+    this.tileY = y;
+    return this;
+  }
+
+  setDepth(depth: number): SceneObject {
     this.root.setDepth(depth);
+    return this;
+  }
+
+  /**
+   * Mount several scene objects on the root container
+   */
+  add(children: SceneObject | SceneObject[]): SceneObject {
+    if (Array.isArray(children)) {
+      for (const i in children) this.root.add(children[i].root);
+    } else {
+      this.root.add(children.root);
+    }
+    return this;
+  }
+
+  /**
+   * Remove the scene object on the root container
+   */
+  remove(child: SceneObject, destroyChild?: boolean): SceneObject {
+    child.visible = false;
+    this.root.remove(child.root, destroyChild);
+    return this;
+  }
+
+  /**
+   * Removes the Game Object at the given position on the root container
+   */
+  removeAt(index: number, destroyChild?: boolean): SceneObject {
+    this.root.removeAt(index, destroyChild);
+    return this;
+  }
+
+  /**
+   * Removes all Game Objects from this Container.
+   */
+  removeAll(destroyChild?: boolean): SceneObject {
+    this.root.removeAll(destroyChild);
+    return this;
+  }
+
+  /**
+   * Removes and Destroy all Game Objects from this Container.
+   */
+  destroyChildren(): SceneObject {
+    this.root.removeAll(true);
+    return this;
   }
 
   onFocus() {}
@@ -155,37 +209,40 @@ export class SceneObject {
   }
 
   /**
-   *
+   * Add a scene object as accessory
+   * (Temp: Only for 'Role' now)
    * @param entity
-   * @param type
    */
-  setAccessory(entity: Entity, type: string) {
-    if (this.accessories[entity]) {
-      this.root.remove(this.accessories[entity], true);
-    }
-    let sceneObj;
-    if (type === "role") {
-      sceneObj = this.scene.hosts[entity];
-      sceneObj.doWalkAnimation();
-    } else if (type === "building") sceneObj = this.scene.buildings[entity];
-    else return;
-    const forkObjRoot = Phaser.Utils.Objects.Clone(
-      sceneObj.root
-    ) as Phaser.GameObjects.Container;
-    this.accessories[entity] = forkObjRoot.setPosition(0, 0).setAlpha(1);
-    this.root.add(this.accessories[entity]);
+  setAccessory(entity: Entity): SceneObject {
+    this.clearAccessory(entity);
+    // let sceneObj;
+    // sceneObj = this.scene.roles[entity];
+    // sceneObj.doWalkAnimation();
+
+    const fakeObj = new Role(this.scene, entity);
+    fakeObj.setPosition(0, 0).alpha = 0.75;
+    fakeObj.doWalkAnimation();
+    this.accessories[entity] = fakeObj;
+    this.add(fakeObj);
+    return this;
   }
 
-  clearAccessory(entity: Entity) {
-    if (this.accessories[entity]) {
-      this.root.remove(this.accessories[entity]);
-    }
-    this.scene.hosts[entity].root.setAlpha(1);
-    const coord = getHostPosition(this.components, this.scene.network, entity);
-    if (!coord) return;
-    // setComponent(this.components.TargetTile, TARGET, {
-    //   value: combineToEntity(coord.x, coord.y),
-    // });
+  /**  */
+  clearAccessory(entity: Entity): SceneObject {
+    if (!this.accessories[entity]) return this;
+    this.remove(this.accessories[entity], true);
+    delete this.accessories[entity];
+    return this;
+  }
+
+  putAccessoryOnScene(entity: Entity): SceneObject {
+    const accessory = this.accessories[entity];
+    if (!accessory) return this;
+    accessory.setPosition(this.x + accessory.x, this.y + accessory.y);
+    this.scene.add.existing(accessory.root);
+    // this.remove(accessory);
+    console.log(accessory)
+    return this;
   }
 
   get x() {
@@ -218,5 +275,21 @@ export class SceneObject {
 
   set tileY(value: number) {
     this.y = (value + 0.5) * this.tileSize;
+  }
+
+  get alpha() {
+    return this.root.alpha;
+  }
+
+  set alpha(value: number) {
+    this.root.setAlpha(value);
+  }
+
+  get visible() {
+    return this.root.visible;
+  }
+
+  set visible(value: boolean) {
+    this.root.setVisible(value);
   }
 }
