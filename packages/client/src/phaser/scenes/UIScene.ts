@@ -33,7 +33,7 @@ export class UIScene extends Phaser.Scene {
   /**
    * show the information of current terrain
    */
-  terrainUI: TerrainUI | undefined;
+  terrainUI?: TerrainUI;
 
   /**
    * show the action buttons player can do

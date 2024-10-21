@@ -155,7 +155,6 @@ export class SceneObject {
    * Remove the scene object on the root container
    */
   remove(child: SceneObject, destroyChild?: boolean): SceneObject {
-    child.visible = false;
     this.root.remove(child.root, destroyChild);
     return this;
   }
@@ -174,6 +173,10 @@ export class SceneObject {
   removeAll(destroyChild?: boolean): SceneObject {
     this.root.removeAll(destroyChild);
     return this;
+  }
+
+  destroy() {
+    this.root.destroy();
   }
 
   /**
@@ -209,40 +212,41 @@ export class SceneObject {
   }
 
   /**
-   * Add a scene object as accessory
-   * (Temp: Only for 'Role' now)
-   * @param entity
+   * Add a scene object as accessory (Temp: Only for 'Role' now)
+   * @param entity the entity of accessory
+   * @returns the accesory object
    */
   setAccessory(entity: Entity): SceneObject {
     this.clearAccessory(entity);
-    // let sceneObj;
-    // sceneObj = this.scene.roles[entity];
-    // sceneObj.doWalkAnimation();
-
     const fakeObj = new Role(this.scene, entity);
-    fakeObj.setPosition(0, 0).alpha = 0.75;
-    fakeObj.doWalkAnimation();
     this.accessories[entity] = fakeObj;
     this.add(fakeObj);
-    return this;
+    return fakeObj;
   }
 
-  /**  */
-  clearAccessory(entity: Entity): SceneObject {
-    if (!this.accessories[entity]) return this;
+  /**
+   * Remove the accessory
+   * @param entity the entity of accessory
+   */
+  clearAccessory(entity: Entity) {
+    if (!this.accessories[entity]) return;
     this.remove(this.accessories[entity], true);
+    this.accessories[entity].destroy();
     delete this.accessories[entity];
-    return this;
   }
 
-  putAccessoryOnScene(entity: Entity): SceneObject {
+  /**
+   * Put the accessory from parent to the scene
+   * @param entity the entity of accessory
+   * @returns the accesory object or undefined if not exist
+   */
+  putAccessory(entity: Entity): SceneObject | undefined {
     const accessory = this.accessories[entity];
-    if (!accessory) return this;
+    if (!accessory) return undefined;
+    this.remove(accessory);
     accessory.setPosition(this.x + accessory.x, this.y + accessory.y);
     this.scene.add.existing(accessory.root);
-    // this.remove(accessory);
-    console.log(accessory)
-    return this;
+    return accessory;
   }
 
   get x() {
@@ -261,6 +265,15 @@ export class SceneObject {
     this.root.y = value;
   }
 
+  get position(): { x: number; y: number } {
+    return { x: this.x, y: this.y };
+  }
+
+  set position({ x, y }: { x: number; y: number }) {
+    this.x = x;
+    this.y = y;
+  }
+
   get tileX() {
     return this.x / this.tileSize - 0.5;
   }
@@ -275,6 +288,15 @@ export class SceneObject {
 
   set tileY(value: number) {
     this.y = (value + 0.5) * this.tileSize;
+  }
+
+  get tilePosition(): { x: number; y: number } {
+    return { x: this.tileX, y: this.tileY };
+  }
+
+  set tilePosition({ x, y }: { x: number; y: number }) {
+    this.tileX = x;
+    this.tileY = y;
   }
 
   get alpha() {

@@ -127,33 +127,10 @@ export class Role extends SceneObject {
     UIController.scene.characterInfo?.hidden();
   }
 
-  onUpPressed() {
-    super.onUpPressed();
-    SceneObjectController.moveCursor(Direction.UP);
-  }
-  onDownPressed() {
-    super.onDownPressed();
-    SceneObjectController.moveCursor(Direction.DOWN);
-  }
-  onLeftPressed() {
-    super.onLeftPressed();
-    SceneObjectController.moveCursor(Direction.LEFT);
-  }
-  onRightPressed() {
-    super.onRightPressed();
-    SceneObjectController.moveCursor(Direction.RIGHT);
-  }
-
   onConfirmPressed() {
     super.onConfirmPressed();
     const uiscene = UIController.scene;
-
-    if (uiscene.moveTips?.isVisible) {
-      if (this.movesUpdate()) {
-        uiscene.moveTips.hidden();
-        SceneObjectController.resetFocus();
-      }
-    } else if (uiscene.constructTips?.isVisible) {
+    if (uiscene.constructTips?.isVisible) {
       if (this.construct(uiscene.constructTips.buildingType!)) {
         uiscene.constructTips.hidden();
         SceneObjectController.resetFocus();
@@ -163,10 +140,7 @@ export class Role extends SceneObject {
 
   onCancelPressed() {
     super.onCancelPressed();
-    if (UIController.scene.moveTips?.isVisible) {
-      UIController.scene.moveTips.hidden();
-      UIController.scene.actionMenu?.show(this);
-    } else if (UIController.scene.constructTips?.isVisible) {
+    if (UIController.scene.constructTips?.isVisible) {
       UIController.scene.constructTips.hidden();
       UIController.scene.constructMenu?.show(this);
     }
@@ -206,6 +180,7 @@ export class Role extends SceneObject {
       tweens: tweenConfig,
       onComplete: () => {
         this.doIdleAnimation();
+        SceneObjectController.scene.cursor?.clearAccessory(this.entity);
         this.avatar.setTint(0x808080);
       },
     });

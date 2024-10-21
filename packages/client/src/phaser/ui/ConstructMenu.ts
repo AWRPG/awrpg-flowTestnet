@@ -15,6 +15,7 @@ import { BuildingData, BuildingSpecs } from "../../api/data";
 import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
 import { encodeTypeEntity } from "../../utils/encode";
 import { Hex, toHex } from "viem";
+import { PlayerInput } from "../components/controllers/PlayerInput";
 
 export class ConstructMenu extends GuiBase {
   list: UIList;
@@ -44,7 +45,7 @@ export class ConstructMenu extends GuiBase {
       onCancel: () => {
         this.hidden();
         SceneObjectController.resetFocus();
-        SceneObjectController.controllable = true;
+        PlayerInput.onlyListenSceneObject();
       },
     });
     this.focusUI = this.list;
@@ -83,7 +84,7 @@ export class ConstructMenu extends GuiBase {
     super.show();
     this.role = role ?? this.role;
     SceneObjectController.focus = this.role;
-    UIController.controllable = true;
+    PlayerInput.onlyListenUI();
   }
 
   onListSelected() {

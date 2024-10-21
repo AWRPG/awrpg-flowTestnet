@@ -385,10 +385,22 @@ export class UIBase {
   //===========================================
   onFocus() {}
   onBlur() {}
-  onUpPressed() {}
-  onDownPressed() {}
-  onLeftPressed() {}
-  onRightPressed() {}
+  onUpPressed() {
+    this.emit(UIEvents.ARROW, this);
+    this.emit(UIEvents.UP, this);
+  }
+  onDownPressed() {
+    this.emit(UIEvents.ARROW, this);
+    this.emit(UIEvents.DOWN, this);
+  }
+  onLeftPressed() {
+    this.emit(UIEvents.ARROW, this);
+    this.emit(UIEvents.LEFT, this);
+  }
+  onRightPressed() {
+    this.emit(UIEvents.ARROW, this);
+    this.emit(UIEvents.RIGHT, this);
+  }
 
   onConfirmPressed() {
     this.emit(UIEvents.CONFIRM, this);
@@ -396,6 +408,7 @@ export class UIBase {
   }
 
   onCancelPressed() {
+    this.emit(UIEvents.CANCEL, this);
     if (this.onCancel) this.onCancel();
   }
 

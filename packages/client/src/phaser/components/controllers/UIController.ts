@@ -3,6 +3,8 @@ import { UIBase } from "../ui/common/UIBase";
 import { UIEvents } from "../ui/common/UIEvents";
 import { SceneObjectController } from "./SceneObjectController";
 import { UIScene } from "../../scenes/UIScene";
+import { getTargetTerrainData } from "../../../logics/terrain";
+import { terrainMapping } from "../../../constants";
 
 /** UI control */
 export class UIController {
@@ -49,6 +51,5 @@ export class UIController {
 
   static set controllable(value: boolean) {
     this._controllable = value;
-    if (value === true) SceneObjectController.controllable = false;
   }
 }

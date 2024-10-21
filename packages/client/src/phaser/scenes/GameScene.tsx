@@ -18,7 +18,6 @@ import {
   calculatePathCoords,
   combine,
   movesToPositions,
-  setNewTargetTile,
   getNewTargetTile,
   split,
   splitFromEntity,
@@ -104,7 +103,7 @@ export class GameScene extends Phaser.Scene {
     frameHeight?: number;
   }[] = [];
 
-  cursor: Cursor | undefined;
+  cursor?: Cursor;
 
   constructor(
     setupResult: SetupResult,
@@ -194,7 +193,7 @@ export class GameScene extends Phaser.Scene {
     const camera = this.cameras.main;
     camera.setZoom(3);
     this.createAnimations();
-    this.cursor = new Cursor(TARGET, this, this.components);
+    this.cursor = new Cursor(this, TARGET);
     SceneObjectController.init(this);
     PlayerInput.listenStart(this);
 
@@ -314,6 +313,7 @@ export class GameScene extends Phaser.Scene {
         this.roles[entity].isMoving = false;
         this.roles[entity].avatar.clearTint();
         this.roles[entity].moveTween?.destroy();
+        this.cursor?.clearAccessory(entity);
       }
       // update tile highlight
       if (this.tileHighlights[entity]) {

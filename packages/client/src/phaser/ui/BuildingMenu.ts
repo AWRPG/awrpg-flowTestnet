@@ -18,6 +18,7 @@ import { Building } from "../objects/Building";
 import { UIController } from "../components/controllers/UIController";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { MenuTitle } from "../components/ui/MenuTitle";
+import { PlayerInput } from "../components/controllers/PlayerInput";
 
 export class BuildingMenu extends GuiBase {
   list: UIList;
@@ -71,7 +72,7 @@ export class BuildingMenu extends GuiBase {
       onCancel: () => {
         this.hidden();
         SceneObjectController.resetFocus();
-        SceneObjectController.controllable = true;
+        PlayerInput.onlyListenSceneObject();
       },
     });
     this.focusUI = this.list;
@@ -81,7 +82,7 @@ export class BuildingMenu extends GuiBase {
     super.show();
     this.building = building ?? this.building;
     SceneObjectController.focus = this.building;
-    UIController.controllable = true;
+    PlayerInput.onlyListenUI();
     this.update();
   }
 

@@ -1,5 +1,5 @@
 import { isBuilding, isRole } from "../../logics/entity";
-import { Direction, setNewTargetTile } from "../../logics/move";
+import { Direction } from "../../logics/move";
 import { getTargetTerrainData } from "../../logics/terrain";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { UIController } from "../components/controllers/UIController";
@@ -8,24 +8,21 @@ import { Role } from "./Role";
 import { SceneObject } from "./SceneObject";
 
 export class Observer extends SceneObject {
-  // cursorMoveInterval: number = 125;
-  // cursorLastDate: number = 0;
-
   onUpPressed() {
     super.onUpPressed();
-    SceneObjectController.moveCursor(Direction.UP);
+    SceneObjectController.setTargetTilePosition(Direction.UP);
   }
   onDownPressed() {
     super.onDownPressed();
-    SceneObjectController.moveCursor(Direction.DOWN);
+    SceneObjectController.setTargetTilePosition(Direction.DOWN);
   }
   onLeftPressed() {
     super.onLeftPressed();
-    SceneObjectController.moveCursor(Direction.LEFT);
+    SceneObjectController.setTargetTilePosition(Direction.LEFT);
   }
   onRightPressed() {
     super.onRightPressed();
-    SceneObjectController.moveCursor(Direction.RIGHT);
+    SceneObjectController.setTargetTilePosition(Direction.RIGHT);
   }
 
   onConfirmPressed() {
