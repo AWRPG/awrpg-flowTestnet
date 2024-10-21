@@ -30,6 +30,7 @@ import {
 import { Hex } from "viem";
 import { decodeBalanceEntity, encodeTypeEntity } from "../../utils/encode";
 import { getEntityPoolsInfo } from "../../logics/pool";
+import { getEntitySpecs } from "../../logics/entity";
 
 /**
  * note: this phaesr ui mirrors Pool.tsx; can be an example to construct other "pool" phaer ui
@@ -45,7 +46,8 @@ export class CharacterInfo extends GuiBase {
   spName: UIText;
   spNum: UIText;
 
-  // class data
+  // --- class data ---
+  // pools data
   blood: number = 0;
   maxBlood: number = 0;
   stamina: number = 0;
@@ -58,6 +60,10 @@ export class CharacterInfo extends GuiBase {
   maxDefense: number = 0;
   range: number = 0;
   maxRange: number = 0;
+  // stored size, capacity, and size
+  capacity: number = 0;
+  storedSize: number = 0;
+  size: number = 0;
 
   constructor(scene: Phaser.Scene) {
     super(
@@ -153,7 +159,18 @@ export class CharacterInfo extends GuiBase {
    * update (all) data every time 1 data changes, so as to save dev time
    */
   updateData() {
+    const components = this.scene.components;
+    const { ContainerSpecs, SizeSpecs, StoredSize } = components;
     if (!this.role) return;
+    this.capacity = Number(
+      getEntitySpecs(components, ContainerSpecs, this.role)?.capacity ?? 0n
+    );
+    this.size = Number(
+      getEntitySpecs(components, SizeSpecs, this.role)?.size ?? 0n
+    );
+    this.storedSize = Number(
+      getComponentValue(StoredSize, this.role)?.value ?? 0n
+    );
     const poolsInfo = getEntityPoolsInfo(this.scene.components, this.role);
     poolsInfo.forEach((poolInfo) => {
       const { type, capacity, balance } = poolInfo;
@@ -204,7 +221,7 @@ export class CharacterInfo extends GuiBase {
    * created in constructor(), to update data according to the query
    */
   createSystem() {
-    const { Balance, EntityType } = this.scene.components;
+    const { Balance, EntityType, StoredSize } = this.scene.components;
     const { world } = this.scene.network;
 
     // update pool as long as the role is the same as the decoded entity
@@ -216,8 +233,15 @@ export class CharacterInfo extends GuiBase {
       this.updateDisplay();
     });
 
-    // update max pool when entity type changes
+    // update max pool, capacity, & size when entitType changes
     defineUpdateSystem(world, [Has(EntityType)], ({ entity }) => {
+      if (!this.role || this.role !== entity) return;
+      this.updateData();
+      this.updateDisplay();
+    });
+
+    // update entity stored size
+    defineUpdateSystem(world, [Has(StoredSize)], ({ entity }) => {
       if (!this.role || this.role !== entity) return;
       this.updateData();
       this.updateDisplay();
