@@ -38,7 +38,6 @@ export class ConstructTips extends GuiBase {
     this.buildingSpecs = buildingSpecs;
     this.role = role ?? this.role;
 
-    console.log(this.role);
     if (!this.role) return;
     SceneObjectController.openTileHighlight(
       this.role.entity,
@@ -52,8 +51,8 @@ export class ConstructTips extends GuiBase {
   }
 
   hidden() {
-    super.hidden();
     this.offMenuListen();
+    super.hidden();
     if (this.role) {
       SceneObjectController.closeTileHighlight(this.role.entity);
     }

@@ -74,8 +74,8 @@ export class MoveTips extends GuiBase {
   }
 
   hidden() {
-    super.hidden();
     this.offMenuListen();
+    super.hidden();
   }
 
   onUp() {
@@ -111,7 +111,7 @@ export class MoveTips extends GuiBase {
 
   onConfirm() {
     if (!this.role) return;
-
+    
     // get the steps to move
     const moves = calculatePathMoves(this.components, this.role.entity);
     if (!moves || moves.length === 0 || moves.length > 20) return;
