@@ -4,10 +4,12 @@ import { UIConfig } from "../ui/common/UIConfig";
 import { UIEvents } from "../ui/common/UIEvents";
 import { UIController } from "./UIController";
 import { SceneObjectController } from "./SceneObjectController";
+import { SceneObject } from "../../objects/SceneObject";
 
 export class PlayerInput {
   static scene: Phaser.Scene;
   static flagUp: boolean = true;
+  static monoFocus: boolean = true;
 
   static listenStart(scene?: Phaser.Scene) {
     if (scene) this.scene = scene;
@@ -15,14 +17,28 @@ export class PlayerInput {
     this.scene.input.keyboard?.on("keyup", this.onKeyUp, this);
   }
 
+  static onlyListenUI() {
+    SceneObjectController.controllable = false;
+    UIController.controllable = true;
+  }
+
+  static onlyListenSceneObject() {
+    UIController.controllable = false;
+    SceneObjectController.controllable = true;
+  }
+
   private static onKeyDown(event: KeyboardEvent) {
     // if (!this.flagUp) return;
     this.flagUp = false;
     const key = event.key;
-    const focus = (
-      UIController.controllable ? UIController : SceneObjectController
-    ).focus;
-    if (!focus) return;
+    const focusUI = UIController.focus;
+    const focusSceneObj = SceneObjectController.focus;
+    if (focusUI && UIController.controllable) this.emitKeyDown(focusUI, key);
+    if (focusSceneObj && SceneObjectController.controllable)
+      this.emitKeyDown(focusSceneObj, key);
+  }
+
+  private static emitKeyDown(focus: UIBase | SceneObject, key: string) {
     if (UIConfig.KEY_UP.includes(key)) focus.onUpPressed();
     if (UIConfig.KEY_DOWN.includes(key)) focus.onDownPressed();
     if (UIConfig.KEY_LEFT.includes(key)) focus.onLeftPressed();

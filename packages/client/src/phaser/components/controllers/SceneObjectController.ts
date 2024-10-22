@@ -18,7 +18,10 @@ import {
   HIGHLIGHT_MODE,
   POOL_TYPES,
 } from "../../../constants";
-import { setNewTargetTile, combineToEntity } from "../../../logics/move";
+import {
+  setNewTargetTilebyDirection,
+  combineToEntity,
+} from "../../../logics/move";
 import { TileHighlight } from "../../objects/TileHighlight";
 import {
   isBuilding,
@@ -34,9 +37,11 @@ import { SceneObject } from "../../objects/SceneObject";
 import { UIConfig } from "../ui/common/UIConfig";
 import { Observer as ObserverObject } from "../../objects/Observer";
 import { UIController } from "./UIController";
+import { Cursor } from "../../objects/Cursor";
 
 export class SceneObjectController {
   static scene: GameScene;
+  static cursor?: Cursor;
   static cursorMoveInterval: number = 125;
   static cursorLastDate: number = 0;
   static observer?: ObserverObject;
@@ -47,6 +52,7 @@ export class SceneObjectController {
 
   static init(scene?: GameScene) {
     if (scene) this.scene = scene;
+    this.cursor = this.scene.cursor;
     this.focus = this.observer = new ObserverObject(this.scene, OBSERVER);
   }
 
@@ -71,20 +77,13 @@ export class SceneObjectController {
 
   static set controllable(value: boolean) {
     this._controllable = value;
-    if (value === true) UIController.controllable = false;
   }
 
   /** */
-  static moveCursor(direction: number) {
+  static setTargetTilePosition(direction: number) {
     if (Date.now() - this.cursorLastDate < this.cursorMoveInterval) return; // check time interval
     this.cursorLastDate = Date.now();
-    setNewTargetTile(this.scene.components, direction);
-    const tileData = getTargetTerrainData(
-      this.scene.components,
-      this.scene.systemCalls
-    );
-    if (tileData)
-      UIController.scene.terrainUI?.show(terrainMapping[tileData.terrainType]);
+    setNewTargetTilebyDirection(this.scene.components, direction);
   }
 
   /**

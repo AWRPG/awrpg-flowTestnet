@@ -18,7 +18,6 @@ import {
   calculatePathCoords,
   combine,
   movesToPositions,
-  setNewTargetTile,
   getNewTargetTile,
   split,
   splitFromEntity,
@@ -95,7 +94,7 @@ export class GameScene extends Phaser.Scene {
   // tileId -> drop
   drops: Record<Entity, Drop> = {};
 
-  hosts: Record<Entity, Role> = {};
+  roles: Record<Entity, Role> = {};
 
   hostTextures: {
     key: string;
@@ -104,7 +103,7 @@ export class GameScene extends Phaser.Scene {
     frameHeight?: number;
   }[] = [];
 
-  cursor: Cursor | undefined;
+  cursor?: Cursor;
 
   constructor(
     setupResult: SetupResult,
@@ -194,7 +193,7 @@ export class GameScene extends Phaser.Scene {
     const camera = this.cameras.main;
     camera.setZoom(3);
     this.createAnimations();
-    this.cursor = new Cursor(TARGET, this, this.components);
+    this.cursor = new Cursor(this, TARGET);
     SceneObjectController.init(this);
     PlayerInput.listenStart(this);
 
@@ -290,26 +289,36 @@ export class GameScene extends Phaser.Scene {
       if (type === UpdateType.Exit) {
         // const path = getComponentValue(Path, entity);
         // if (!path) return;
-        // return this.hosts[entity]?.updatePath()
+        // return this.roles[entity]?.updatePath()
       }
       const path = getComponentValue(this.components.MockPath, entity);
-      // return this.hosts[entity]?.updatePath(path)
+      // return this.roles[entity]?.updatePath(path)
     });
 
     // role on map
     defineSystem(world, [Has(Path), Has(Commander)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
-        this.hosts[entity]?.destroy();
-        return delete this.hosts[entity];
+        this.roles[entity]?.destroy();
+        return delete this.roles[entity];
+      } else if (!this.roles[entity]) {
+        this.roles[entity] = new Role(this, entity, {
+          isPlayer:
+            getComponentValue(Commander, entity)?.value ===
+            this.network.playerEntity,
+          onClick: () => this.sourceSelectHandler(entity),
+        });
+      } else {
+        const role = this.roles[entity];
+        role.isMoving = false;
+        if (role.moveTween) {
+          role.moveTween.timeScale = 1.25;
+        } else {
+          role.initState();
+          const path = getComponentValue(Path, entity);
+          if (path) role.setTilePosition(path.toX, path.toY);
+        }
       }
-      this.hosts[entity]?.destroy();
-      this.hosts[entity] = new Role(this, this.components, {
-        entity,
-        isPlayer:
-          getComponentValue(Commander, entity)?.value ===
-          this.network.playerEntity,
-        onClick: () => this.sourceSelectHandler(entity),
-      });
+      // update tile highlight
       if (this.tileHighlights[entity]) {
         this.tileHighlights[entity].clearHighlight();
         delete this.tileHighlights[entity];
@@ -336,7 +345,7 @@ export class GameScene extends Phaser.Scene {
       ({ entity, type }) => {
         const role = getComponentValue(Owner, entity)?.value as Entity;
         if (!role) return;
-        this.hosts[role]?.updateProperties();
+        this.roles[role]?.updateProperties();
       }
     );
 

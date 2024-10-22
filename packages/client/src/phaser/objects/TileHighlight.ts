@@ -8,7 +8,7 @@ import {
   GRID_SIZE,
   TileTerrainMap,
 } from "../../logics/terrain";
-import { combineToEntity } from "../../logics/move";
+import { combineToEntity, Direction } from "../../logics/move";
 import { HIGHLIGHT_MODE, TerrainType } from "../../constants";
 
 export class TileHighlight extends SceneObject {
@@ -187,6 +187,43 @@ export class TileHighlight extends SceneObject {
       obj.destroy();
     });
     this.highlightObjs = [];
+  }
+
+  clearPartHighlight(coords: { x: number; y: number }[]) {
+    this.highlightObjs.forEach((highlight) => {
+      let leftFlag = false;
+      coords.forEach((coord) => {
+        if (
+          highlight.x / this.tileSize === coord.x &&
+          highlight.y / this.tileSize === coord.y
+        ) {
+          leftFlag = true;
+        }
+      });
+      if (!leftFlag) {
+        highlight.alpha = 0.5;
+        this.scene.tweens.add({
+          targets: highlight,
+          scale: highlight.scale * 0.8,
+          alpha: 0,
+          duration: 200,
+          onComplete: () => highlight.destroy(),
+        });
+      }
+    });
+  }
+
+  changeTypeByCoords(type: string, coords: { x: number; y: number }[]) {
+    this.highlightObjs.forEach((highlight) => {
+      coords.forEach((coord) => {
+        if (
+          highlight.x / this.tileSize === coord.x &&
+          highlight.y / this.tileSize === coord.y
+        ) {
+          highlight.setTexture("ui-highlight-" + type);
+        }
+      });
+    });
   }
 
   show(alpha: number = 1) {

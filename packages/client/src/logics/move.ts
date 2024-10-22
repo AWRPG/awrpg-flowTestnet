@@ -66,7 +66,7 @@ export const canMoveAcrossTile = (
   if (!tileEntity) return true;
   if (isRole(components, tileEntity)) return true;
   const canBuilding = canMoveToBuilding(components, tileEntity, host);
-  console.log("canMoveAcrossTile", tileId, tileEntity, canBuilding);
+  // console.log("canMoveAcrossTile", tileId, tileEntity, canBuilding);
   return canBuilding;
 };
 
@@ -142,18 +142,30 @@ export const calculatePathCoords = (
     targetCoord,
     terrains_building
   );
-  console.log("pathCoords", pathCoords);
 
   return pathCoords;
 };
 
 // set new target coord from direction
-export const setNewTargetTile = (
+export const setNewTargetTilebyDirection = (
   components: ClientComponents,
   direction: Direction
 ) => {
   const coord = getNewTargetTile(components, direction);
   if (!coord) return;
+  setComponent(components.TargetTile, TARGET, {
+    value: combineToEntity(coord.x, coord.y),
+  });
+  return coord;
+};
+
+export const setNewTargetTile = (
+  components: ClientComponents,
+  coord: {
+    x: number;
+    y: number;
+  }
+) => {
   setComponent(components.TargetTile, TARGET, {
     value: combineToEntity(coord.x, coord.y),
   });

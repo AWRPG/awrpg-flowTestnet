@@ -10,6 +10,7 @@ import { MenuTitle } from "../components/ui/MenuTitle";
 import { UIController } from "../components/controllers/UIController";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { Role } from "../objects/Role";
+import { PlayerInput } from "../components/controllers/PlayerInput";
 
 /**
  * show the action buttons player can do
@@ -53,14 +54,14 @@ export class ActionMenu extends GuiBase {
       onCancel: () => {
         this.hidden();
         SceneObjectController.resetFocus();
-        SceneObjectController.controllable = true;
+        PlayerInput.onlyListenSceneObject();
       },
     });
     const item1 = new ButtonA(scene, {
       text: "Move",
       onConfirm: () => {
         this.hidden();
-        if (this.role) UIController.scene.moveTips?.show(this.role);
+        if (this.role) UIController.scene.moveTips?.show(this.role, this);
       },
     });
     this.list.addItem(item1);
@@ -90,6 +91,6 @@ export class ActionMenu extends GuiBase {
     super.show();
     this.role = role ?? this.role;
     SceneObjectController.focus = this.role;
-    UIController.controllable = true;
+    PlayerInput.onlyListenUI();
   }
 }
