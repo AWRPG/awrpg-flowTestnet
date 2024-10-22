@@ -94,12 +94,8 @@ export class Role extends SceneObject {
 
     // draw avatar & set animation
     this.direction = Direction.DOWN;
-    this.avatar = new Phaser.GameObjects.Sprite(
-      this.scene,
-      0,
-      0,
-      "host-farmer1"
-    ).setOrigin(0.46, 0.7);
+    this.avatar = new Phaser.GameObjects.Sprite(scene, 0, 0, "host-farmer1");
+    this.avatar.setOrigin(0.46, 0.7);
     this.root.add(this.avatar);
 
     this.initState();
@@ -120,17 +116,6 @@ export class Role extends SceneObject {
   onBlur() {
     super.onBlur();
     UIController.scene.characterInfo?.hidden();
-  }
-
-  onConfirmPressed() {
-    super.onConfirmPressed();
-    const uiscene = UIController.scene;
-    if (uiscene.constructTips?.isVisible) {
-      if (this.construct(uiscene.constructTips.buildingType!)) {
-        uiscene.constructTips.hidden();
-        SceneObjectController.resetFocus();
-      }
-    }
   }
 
   onCancelPressed() {

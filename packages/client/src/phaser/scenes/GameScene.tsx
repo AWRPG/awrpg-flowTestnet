@@ -422,7 +422,7 @@ export class GameScene extends Phaser.Scene {
 
   loadBuilding(tileId: Entity, building: Entity) {
     if (!this.buildings[building]) {
-      this.buildings[building] = new Building(this, this.components, {
+      this.buildings[building] = new Building(this, {
         tileId,
         entity: building,
         onClick: () => this.sourceSelectHandler(building),

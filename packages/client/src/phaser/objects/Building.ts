@@ -14,7 +14,6 @@ export class Building extends SceneObject {
 
   constructor(
     scene: GameScene,
-    components: ClientComponents,
     {
       tileId,
       entity,
@@ -23,22 +22,27 @@ export class Building extends SceneObject {
       scale = 1,
     }: {
       tileId: Entity;
-      onClick: () => void;
       entity: Entity;
+      onClick?: () => void;
       texture?: string;
       scale?: number;
     }
   ) {
     super(scene, entity);
-    const { EntityType, BuildingSpecs } = components;
+    const { EntityType, BuildingSpecs } = this.components;
     this.entity = entity;
     this.tileId = tileId;
     this.tileCoord = splitFromEntity(tileId);
 
     const buildingType = getComponentValue(EntityType, entity)?.value;
-    const buildingSpecs = getEntitySpecs(components, BuildingSpecs, entity)!;
+    const buildingSpecs = getEntitySpecs(
+      this.components,
+      BuildingSpecs,
+      entity
+    )!;
+
     const { width, height } = buildingSpecs;
-    // console.log(buildingSpecs)
+
     // const buildingNumber = BUILDING_TYPES.indexOf(buildingType as Hex);
     // // buildingMapping[buildingNumber];
 
