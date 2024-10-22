@@ -74,6 +74,8 @@ export class SceneObject {
   /** Mouse over */
   hovering: boolean = false;
 
+  fake: boolean = false;
+
   onConfirm?: () => void;
 
   onCancel?: () => void;
@@ -219,6 +221,7 @@ export class SceneObject {
   setAccessory(entity: Entity): SceneObject {
     this.clearAccessory(entity);
     const fakeObj = new Role(this.scene, entity);
+    fakeObj.fake = true;
     this.accessories[entity] = fakeObj;
     this.add(fakeObj);
     return fakeObj;

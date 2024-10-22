@@ -66,7 +66,7 @@ export const canMoveAcrossTile = (
   if (!tileEntity) return true;
   if (isRole(components, tileEntity)) return true;
   const canBuilding = canMoveToBuilding(components, tileEntity, host);
-  console.log("canMoveAcrossTile", tileId, tileEntity, canBuilding);
+  // console.log("canMoveAcrossTile", tileId, tileEntity, canBuilding);
   return canBuilding;
 };
 

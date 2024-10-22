@@ -308,12 +308,15 @@ export class GameScene extends Phaser.Scene {
           onClick: () => this.sourceSelectHandler(entity),
         });
       } else {
-        const path = getComponentValue(Path, entity);
-        if (path) this.roles[entity].setTilePosition(path.toX, path.toY);
-        this.roles[entity].isMoving = false;
-        this.roles[entity].avatar.clearTint();
-        this.roles[entity].moveTween?.destroy();
-        this.cursor?.clearAccessory(entity);
+        const role = this.roles[entity];
+        role.isMoving = false;
+        if (role.moveTween) {
+          role.moveTween.timeScale = 1.25;
+        } else {
+          role.initState();
+          const path = getComponentValue(Path, entity);
+          if (path) role.setTilePosition(path.toX, path.toY);
+        }
       }
       // update tile highlight
       if (this.tileHighlights[entity]) {

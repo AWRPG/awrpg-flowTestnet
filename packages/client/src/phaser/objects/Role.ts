@@ -82,6 +82,7 @@ export class Role extends SceneObject {
     this.isPlayer = isPlayer;
     this.isMoving = false;
     this.properties = new Map();
+    this.updateProperties();
 
     // TODO: different obj has different position calc
     const path = getComponentValue(this.components.Path, entity) ?? {
@@ -89,12 +90,10 @@ export class Role extends SceneObject {
       toY: 0,
     };
     this.setTilePosition(path.toX, path.toY);
-
     this.root.setDepth(13);
+
     // draw avatar & set animation
-    this.direction =
-      getComponentValue(this.components.RoleDirection, entity)?.value ??
-      Direction.DOWN;
+    this.direction = Direction.DOWN;
     this.avatar = new Phaser.GameObjects.Sprite(
       this.scene,
       0,
@@ -102,19 +101,15 @@ export class Role extends SceneObject {
       "host-farmer1"
     ).setOrigin(0.46, 0.7);
     this.root.add(this.avatar);
+
+    this.initState();
+  }
+
+  initState() {
+    this.moveTween?.destroy();
+    delete this.moveTween;
     this.doIdleAnimation();
-
-    // add the bars of properties on the host
-    // POOL_TYPES.forEach((type, index) => {
-    //   this.properties[type] = this.makePoolBar(type, index);
-    // });
-    // const uiScene = this.scene.scene.get("UIScene") as UIScene;
-    // this.root.on("changedata", uiScene.onDataChanged, uiScene);
-    this.updateProperties();
-
-    // // let camera follow the selected role
-    // const role = getComponentValue(components.SelectedHost, SOURCE)?.value;
-    // if (role) this.follow();
+    this.avatar.clearTint();
   }
 
   onFocus() {
@@ -154,46 +149,45 @@ export class Role extends SceneObject {
   movesAnimation(moves: number[]) {
     this.doWalkAnimation();
     const tweenConfig: unknown[] = [];
+    let tileX = this.tileX;
+    let tileY = this.tileY;
     moves.forEach((move: number) => {
       switch (move) {
         case Direction.UP:
-          this.y -= this.tileSize;
+          tileY -= 1;
           break;
         case Direction.DOWN:
-          this.y += this.tileSize;
+          tileY += 1;
           break;
         case Direction.LEFT:
-          this.x -= this.tileSize;
+          this.avatar.flipX = true;
+          this.avatar.setOrigin(0.54, 0.7);
+          tileX -= 1;
           break;
         case Direction.RIGHT:
-          this.x += this.tileSize;
+          this.avatar.flipX = false;
+          this.avatar.setOrigin(0.46, 0.7);
+          tileX += 1;
           break;
       }
       tweenConfig.push({
-        x: this.x,
-        y: this.y,
-        duration: 275,
+        tileX,
+        tileY,
+        duration: 175,
       });
     });
     this.moveTween = this.scene.tweens.chain({
-      targets: this.root,
+      targets: this,
       tweens: tweenConfig,
       onComplete: () => {
-        this.doIdleAnimation();
-        SceneObjectController.scene.cursor?.clearAccessory(this.entity);
-        this.avatar.setTint(0x808080);
+        if (this.isMoving) {
+          this.avatar.setTint(0x808080);
+          delete this.moveTween;
+        } else {
+          this.initState();
+        }
       },
     });
-  }
-
-  // triggered whenever Moves component is updated
-  movesUpdate(): boolean {
-    const moves = calculatePathMoves(this.components, this.entity);
-    if (!moves || moves.length === 0 || moves.length > 20) return false;
-    this.systemCalls.move(this.entity as Hex, moves as number[]);
-    this.isMoving = true;
-    // this.movesAnimation(moves);
-    return true;
   }
 
   /**
@@ -227,26 +221,23 @@ export class Role extends SceneObject {
   }
 
   doWalkAnimation() {
-    this.direction =
-      getComponentValue(this.components.RoleDirection, this.entity)?.value ??
-      Direction.DOWN;
-    if (this.direction === Direction.LEFT) this.avatar.flipX = true;
-    if (this.direction === Direction.RIGHT) this.avatar.flipX = false;
     return this.avatar.play("host-farmer1-walk-right");
   }
 
   doIdleAnimation() {
-    this.direction =
-      getComponentValue(this.components.RoleDirection, this.entity)?.value ??
-      Direction.DOWN;
-    if (this.direction === Direction.LEFT) this.avatar.flipX = true;
-    if (this.direction === Direction.RIGHT) this.avatar.flipX = false;
+    // this.direction =
+    //   getComponentValue(this.components.RoleDirection, this.entity)?.value ??
+    //   Direction.DOWN;
+    // if (this.direction === Direction.LEFT) this.avatar.flipX = true;
+    // if (this.direction === Direction.RIGHT) this.avatar.flipX = false;
     return this.avatar.play("host-farmer1-idle-right");
   }
 
   destroy() {
-    this.scene.tileHighlights[this.entity]?.hide();
-    delete this.scene.tileHighlights[this.entity];
+    if (!this.fake) {
+      this.scene.tileHighlights[this.entity]?.hide();
+      delete this.scene.tileHighlights[this.entity];
+    }
     this.moveTween?.destroy();
     this.avatar.destroy();
   }

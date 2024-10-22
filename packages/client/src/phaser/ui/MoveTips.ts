@@ -78,10 +78,6 @@ export class MoveTips extends GuiBase {
     PlayerInput.onlyListenUI();
   }
 
-  hidden() {
-    super.hidden();
-  }
-
   onUp() {
     SceneObjectController.setTargetTilePosition(Direction.UP);
     this.onARROW();
@@ -126,14 +122,19 @@ export class MoveTips extends GuiBase {
     // Flag the role state
     this.role.isMoving = true;
 
-    // Put the fork object on Scene
-    SceneObjectController.cursor?.putAccessory(this.role.entity);
+    // Clear the fake role
+    SceneObjectController.cursor?.clearAccessory(this.role.entity);
 
-    // Close the GUI
+    // Update tile highlight
     const highlights =
       SceneObjectController.scene.tileHighlights[this.role.entity];
     if (this.path) highlights.clearPartHighlight(this.path);
     else SceneObjectController.closeTileHighlight(this.role.entity);
+
+    // Play move animation
+    this.role.movesAnimation(moves);
+
+    // Close the GUI
     this.hidden();
 
     // Scene focus back to the observer
