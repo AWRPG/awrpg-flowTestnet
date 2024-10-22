@@ -23,7 +23,7 @@ import { Vector } from "../../utils/vector";
  */
 export class Tile extends SceneObject {
   // tile: Phaser.GameObjects.Sprite;
-  tileSrpites: Record<number, Phaser.GameObjects.GameObject> = {};
+  tileSprites: Record<number, Phaser.GameObjects.Image> = {};
   tileValue: string[];
   terrain: number = 0;
 
@@ -62,9 +62,9 @@ export class Tile extends SceneObject {
             this.y + (this.tileSize * (Math.random() + 0.5)) / 2,
             "pine_12"
           )
-          .setOrigin(0.5, 1)
-          .setDepth(index + 5);
-        this.tileSrpites[index] = tileSprite;
+          .setOrigin(0.5, 1);
+        this.tileSprites[index] = tileSprite;
+        // this.root.bringToTop(tileSprite)
       } else {
         const tileSprite = new Phaser.GameObjects.Image(
           this.scene,
@@ -78,7 +78,7 @@ export class Tile extends SceneObject {
           .on("pointerdown", () => {
             // console.log(texture, frame);
           });
-        this.tileSrpites[index] = tileSprite;
+        this.tileSprites[index] = tileSprite;
         this.root.add(tileSprite);
       }
     });
@@ -105,7 +105,7 @@ export class Tile extends SceneObject {
   }
 
   destroy() {
-    Object.values(this.tileSrpites).forEach((sprite) => sprite.destroy());
+    Object.values(this.tileSprites).forEach((sprite) => sprite.destroy());
     this.cursor?.destroy();
   }
 }
