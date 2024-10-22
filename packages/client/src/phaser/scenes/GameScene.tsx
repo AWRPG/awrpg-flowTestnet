@@ -196,6 +196,7 @@ export class GameScene extends Phaser.Scene {
     this.cursor = new Cursor(this, TARGET);
     SceneObjectController.init(this);
     PlayerInput.listenStart(this);
+    this.scale.on("resize", this.resizeListener, this);
 
     /**
      * load/unload tile sprites on map; TileValue is a client component that is updated when character moves, which is handled by useSyncComputedComponents
@@ -527,4 +528,9 @@ export class GameScene extends Phaser.Scene {
   //     });
   //   }
   // }
+
+  resizeListener(gameSize: Phaser.Structs.Size) {
+    console.log(gameSize);
+    this.cameras.resize(gameSize.width, gameSize.height);
+  }
 }

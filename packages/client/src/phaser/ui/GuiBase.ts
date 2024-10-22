@@ -68,7 +68,7 @@ export class GuiBase {
   show(...params: unknown[]) {
     if (!this.resizeListener) {
       this.resizeListener = (gameSize: Phaser.Structs.Size) => {
-        // this.rootUI.updatePosition(gameSize);
+        this.rootUI.updatePosition();
       };
       this.scene.scale.on("resize", this.resizeListener);
     }
