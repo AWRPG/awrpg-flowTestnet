@@ -5,6 +5,7 @@ import { UIScene } from "../scenes/UIScene";
 import { ClientComponents } from "../../mud/createClientComponents";
 import { SystemCalls } from "../../mud/createSystemCalls";
 import { SetupNetworkResult } from "../../mud/setupNetwork";
+import { UIEvents } from "../components/ui/common/UIEvents";
 
 /**
  * All the complex UI Components need to extend from this class.
@@ -16,10 +17,8 @@ export class GuiBase {
   scene: UIScene;
 
   components: ClientComponents;
-
-  network?: SetupNetworkResult;
-
   systemCalls: SystemCalls;
+  network: SetupNetworkResult;
 
   /**
    * The name is used for controllers to determine the current UI object
@@ -37,19 +36,16 @@ export class GuiBase {
    */
   rootUI: UIBase;
 
-  /**
-   * Controllers need to determine the current focus based on whether a button list exists.
-   */
-  buttons: { name: string; button: Button; onClick: () => void }[] = [];
-
-  /**
-   * The index of button list
-   */
-  currentButtonIndex: number = 0;
-
   resizeListener: Function | undefined;
 
   private _focusUI?: UIBase;
+
+  onUp(): void;
+  onDown(): void;
+  onLeft(): void;
+  onRight(): void;
+  onConfirm(): void;
+  onCancel(): void;
 
   /**
    * Data listener events that depend on Phaser: https://newdocs.phaser.io/docs/3.80.0/Phaser.Data.Events.CHANGE_DATA
@@ -97,6 +93,24 @@ export class GuiBase {
     this.resizeListener = undefined;
   }
 
+  onMenuListen(ui: UIBase = this.rootUI) {
+    ui.on(UIEvents.UP, this.onUp, this);
+    ui.on(UIEvents.DOWN, this.onDown, this);
+    ui.on(UIEvents.LEFT, this.onLeft, this);
+    ui.on(UIEvents.RIGHT, this.onRight, this);
+    ui.on(UIEvents.CONFIRM, this.onConfirm, this);
+    ui.on(UIEvents.CANCEL, this.onCancel, this);
+  }
+
+  offMenuListen(ui: UIBase = this.rootUI) {
+    ui.on(UIEvents.UP, this.onUp, this);
+    ui.on(UIEvents.DOWN, this.onDown, this);
+    ui.on(UIEvents.LEFT, this.onLeft, this);
+    ui.on(UIEvents.RIGHT, this.onRight, this);
+    ui.on(UIEvents.CONFIRM, this.onConfirm, this);
+    ui.on(UIEvents.CANCEL, this.onCancel, this);
+  }
+
   /**
    * Set data on the rootUI of it, you can call 'getData' to use the data.
    * @param key The key to set the value for. Or an object of key value pairs. If an object the data argument is ignored.
@@ -112,68 +126,6 @@ export class GuiBase {
    */
   getData(key: string) {
     return this.rootUI.root.getData(key);
-  }
-
-  /**
-   * Set the index of current button
-   */
-  setButtonIndex(index: number) {
-    if (!this.buttons) return;
-    index = Math.ceil(index);
-    if (index >= this.buttons.length || index < 0) return;
-    this.currentButtonIndex = index;
-  }
-
-  /**
-   * Move the index of current button to the previous button of this.buttons
-   */
-  prevButton() {
-    if (!this.buttons) return;
-    this.unSelectButton();
-    this.currentButtonIndex--;
-    if (this.currentButtonIndex < 0)
-      this.currentButtonIndex = this.buttons.length - 1;
-    this.selectButton();
-  }
-
-  /**
-   * Move the index of current button to the next button of this.buttons
-   */
-  nextButton() {
-    if (!this.buttons) return;
-    this.unSelectButton();
-    this.currentButtonIndex++;
-    if (this.currentButtonIndex >= this.buttons.length)
-      this.currentButtonIndex = 0;
-    this.selectButton();
-  }
-
-  /**
-   * Change the effect of button to unselected (logic not included)
-   */
-  unSelectButton() {
-    if (!this.buttons) return;
-    const button = this.buttons[this.currentButtonIndex].button;
-    button.skin.show();
-    button.selectedSkin.hidden();
-  }
-
-  /**
-   * Change the effect of button to selected (logic not included)
-   */
-  selectButton() {
-    if (!this.buttons) return;
-    const button = this.buttons[this.currentButtonIndex].button;
-    button.skin.hidden();
-    button.selectedSkin.show();
-  }
-
-  backButton() {
-    this.buttons.forEach((button) => {
-      button.button.destroyChildren();
-    });
-    // this.scene.focusUI.pop();
-    this.hidden();
   }
 
   get focusUI(): UIBase | undefined {

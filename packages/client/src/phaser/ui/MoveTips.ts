@@ -43,12 +43,6 @@ export class MoveTips extends GuiBase {
     );
     this.name = "MoveTips";
     this.focusUI = this.rootUI;
-    this.rootUI.on(UIEvents.UP, this.onUp, this);
-    this.rootUI.on(UIEvents.DOWN, this.onDown, this);
-    this.rootUI.on(UIEvents.LEFT, this.onLeft, this);
-    this.rootUI.on(UIEvents.RIGHT, this.onRight, this);
-    this.rootUI.on(UIEvents.CONFIRM, this.onConfirm, this);
-    this.rootUI.on(UIEvents.CANCEL, this.onCancel, this);
 
     new UIText(scene, "[WASD] / [Arrow] move\n [F] confirm   [X] cancel", {
       fontFamily: "ThaleahFat",
@@ -65,6 +59,7 @@ export class MoveTips extends GuiBase {
 
   show(role: Role, prevGui?: GuiBase) {
     super.show();
+    this.onMenuListen();
     this.role = role;
     this.prevGui = prevGui;
     // Bundle a fork object of role to cursor
@@ -76,6 +71,11 @@ export class MoveTips extends GuiBase {
     fakeObj.doWalkAnimation();
     SceneObjectController.openTileHighlight(role.entity);
     PlayerInput.onlyListenUI();
+  }
+
+  hidden() {
+    super.hidden();
+    this.offMenuListen();
   }
 
   onUp() {
