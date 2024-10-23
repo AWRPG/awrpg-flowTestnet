@@ -69,7 +69,7 @@ export class Building extends SceneObject {
     const dw = this.buildingSprite.displayWidth;
     const dh = this.buildingSprite.displayHeight;
     const offsetX = (dw + (1 - width) * this.tileSize) / (2 * dw);
-    const offsetY = (dh + (1 - height) * this.tileSize) / (2 * dh);
+    const offsetY = (dh + (height - 1) * this.tileSize) / (2 * dh);
     console.log(offsetX, offsetY);
     this.buildingSprite.setOrigin(offsetX, offsetY);
     this.root.add(this.buildingSprite);
