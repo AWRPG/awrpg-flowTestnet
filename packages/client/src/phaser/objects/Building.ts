@@ -59,15 +59,19 @@ export class Building extends SceneObject {
     this.tileY = this.tileCoord.y;
     this.root.setDepth(13).setScale(scale);
 
-    const offsetX = 0.5 / width;
-    const offsetY = 1 - 0.5 / height;
-
     this.buildingSprite = new Phaser.GameObjects.Sprite(
       this.scene,
       0,
       0,
       texture
-    ).setOrigin(offsetX, offsetY);
+    );
+
+    const dw = this.buildingSprite.displayWidth;
+    const dh = this.buildingSprite.displayHeight;
+    const offsetX = (dw + (1 - width) * this.tileSize) / (2 * dw);
+    const offsetY = (dh + (1 - height) * this.tileSize) / (2 * dh);
+    console.log(offsetX, offsetY);
+    this.buildingSprite.setOrigin(offsetX, offsetY);
     this.root.add(this.buildingSprite);
   }
 

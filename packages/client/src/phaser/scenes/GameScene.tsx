@@ -444,7 +444,7 @@ export class GameScene extends Phaser.Scene {
       const newTileCoord = splitFromEntity(tileId);
       if (
         newTileCoord.x < this.buildings[building].tileCoord.x ||
-        newTileCoord.y > this.buildings[building].tileCoord.y
+        newTileCoord.y < this.buildings[building].tileCoord.y
       ) {
         this.buildings[building].tileId = tileId;
         this.buildings[building].tileCoord = newTileCoord;

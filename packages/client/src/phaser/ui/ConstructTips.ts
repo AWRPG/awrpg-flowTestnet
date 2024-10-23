@@ -83,7 +83,11 @@ export class ConstructTips extends GuiBase {
       height: this.buildingSpecs.height,
     });
     this.fake.flickerEffect();
-    SceneObjectController.cursor?.add(this.fake);
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) {
+      cursor.add(this.fake);
+      this.onArrow(cursor.tileX, cursor.tileY);
+    }
 
     this.onMenuListen();
     PlayerInput.onlyListenUI();
@@ -99,26 +103,26 @@ export class ConstructTips extends GuiBase {
 
   onUp() {
     const cursor = SceneObjectController.scene.cursor;
-    if (cursor) this.onARROW(cursor.tileX, cursor.tileY - 1);
+    if (cursor) this.onArrow(cursor.tileX, cursor.tileY - 1);
     SceneObjectController.setTargetTilePosition(Direction.UP);
   }
   onDown() {
     const cursor = SceneObjectController.scene.cursor;
-    if (cursor) this.onARROW(cursor.tileX, cursor.tileY + 1);
+    if (cursor) this.onArrow(cursor.tileX, cursor.tileY + 1);
     SceneObjectController.setTargetTilePosition(Direction.DOWN);
   }
   onLeft() {
     const cursor = SceneObjectController.scene.cursor;
-    if (cursor) this.onARROW(cursor.tileX - 1, cursor.tileY);
+    if (cursor) this.onArrow(cursor.tileX - 1, cursor.tileY);
     SceneObjectController.setTargetTilePosition(Direction.LEFT);
   }
   onRight() {
     const cursor = SceneObjectController.scene.cursor;
-    if (cursor) this.onARROW(cursor.tileX + 1, cursor.tileY);
+    if (cursor) this.onArrow(cursor.tileX + 1, cursor.tileY);
     SceneObjectController.setTargetTilePosition(Direction.RIGHT);
   }
 
-  onARROW(tileX: number, tileY: number) {
+  onArrow(tileX: number, tileY: number) {
     if (!this.role || !this.buildingType) return;
     const canbuild = canBuildFromHost(
       this.components,
