@@ -51,7 +51,7 @@ export class Tile extends SceneObject {
     this.tileY = tileCoord.y;
     this.x = (this.tileX + 0.5) * this.tileSize;
     this.y = (this.tileY + 0.5) * this.tileSize;
-    this.root.setPosition(this.x, this.y).setDepth(1);
+    this.setPosition(this.x, this.y).setDepth(1);
 
     tileValue.forEach((tile, index) => {
       const [texture, frame] = tile.split("&");
@@ -64,7 +64,6 @@ export class Tile extends SceneObject {
           )
           .setOrigin(0.5, 1);
         this.tileSprites[index] = tileSprite;
-        // this.root.bringToTop(tileSprite)
       } else {
         const tileSprite = new Phaser.GameObjects.Image(
           this.scene,

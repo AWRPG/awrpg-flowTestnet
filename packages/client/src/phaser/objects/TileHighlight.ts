@@ -40,8 +40,8 @@ export class TileHighlight extends SceneObject {
     this.tileY = path.toY;
     this.x = (this.tileX + 0.5) * this.tileSize;
     this.y = (this.tileY + 0.5) * this.tileSize;
-    this.root.setPosition(this.x, this.y).setDepth(10);
-    this.root.setVisible(false);
+    this.setPosition(this.x, this.y).setDepth(5000);
+    this.visible = false;
   }
 
   calcHighlight({
@@ -190,6 +190,7 @@ export class TileHighlight extends SceneObject {
   }
 
   clearPartHighlight(coords: { x: number; y: number }[]) {
+    this.setDepth(2);
     this.highlightObjs.forEach((highlight) => {
       let leftFlag = false;
       coords.forEach((coord) => {
