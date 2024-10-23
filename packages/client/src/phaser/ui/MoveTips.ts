@@ -27,7 +27,6 @@ import { PlayerInput } from "../components/controllers/PlayerInput";
  */
 export class MoveTips extends GuiBase {
   role?: Role;
-  prevGui?: GuiBase;
   path?: Coord[] | null;
 
   /** */
@@ -62,7 +61,7 @@ export class MoveTips extends GuiBase {
     this.onMenuListen();
     this.role = role;
     this.prevGui = prevGui;
-    // Bundle a fork object of role to cursor
+    // Bundle a copy of role to cursor
     const fakeObj = SceneObjectController.cursor?.setAccessory(
       this.role.entity
     ) as Role;
@@ -74,8 +73,8 @@ export class MoveTips extends GuiBase {
   }
 
   hidden() {
-    super.hidden();
     this.offMenuListen();
+    super.hidden();
   }
 
   onUp() {
@@ -147,7 +146,7 @@ export class MoveTips extends GuiBase {
     this.hidden();
     this.prevGui?.show();
 
-    // Clear fork object
+    // Clear copy object
     if (!this.role) return;
     SceneObjectController.closeTileHighlight(this.role.entity);
     SceneObjectController.cursor?.clearAccessory(this.role.entity);

@@ -101,7 +101,7 @@ export class ConstructMenu extends GuiBase {
     const type = toHex(this.data[index].type, { size: 16 });
     const buildingSpecs = this.getBuildingSpecs(type);
     if (!buildingSpecs) return;
-    UIController.scene.constructTips?.show(this.role, type, buildingSpecs);
+    UIController.scene.constructTips?.show(this.role, this.data[index], this);
   }
 
   getBuildingSpecs(type: Hex): BuildingSpecs | undefined {

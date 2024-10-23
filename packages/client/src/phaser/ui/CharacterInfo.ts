@@ -1,3 +1,4 @@
+import { UIScene } from "../scenes/UIScene";
 import { GuiBase } from "./GuiBase";
 import { Box } from "../components/ui/Box";
 import { Avatar } from "../components/ui/Avatar";
@@ -65,7 +66,7 @@ export class CharacterInfo extends GuiBase {
   storedSize: number = 0;
   size: number = 0;
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: UIScene) {
     super(
       scene,
       new Box(scene, {

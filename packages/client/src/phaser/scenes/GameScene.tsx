@@ -196,6 +196,7 @@ export class GameScene extends Phaser.Scene {
     this.cursor = new Cursor(this, TARGET);
     SceneObjectController.init(this);
     PlayerInput.listenStart(this);
+    this.scale.on("resize", this.resizeListener, this);
 
     /**
      * load/unload tile sprites on map; TileValue is a client component that is updated when character moves, which is handled by useSyncComputedComponents
@@ -323,6 +324,8 @@ export class GameScene extends Phaser.Scene {
         this.tileHighlights[entity].clearHighlight();
         delete this.tileHighlights[entity];
       }
+      // sort
+      this.sortDepth();
     });
 
     // // building on map
@@ -422,7 +425,7 @@ export class GameScene extends Phaser.Scene {
 
   loadBuilding(tileId: Entity, building: Entity) {
     if (!this.buildings[building]) {
-      this.buildings[building] = new Building(this, this.components, {
+      this.buildings[building] = new Building(this, {
         tileId,
         entity: building,
         onClick: () => this.sourceSelectHandler(building),
@@ -439,6 +442,8 @@ export class GameScene extends Phaser.Scene {
         this.buildings[building].tileY = newTileCoord.y;
       }
     }
+    // sort
+    this.sortDepth();
   }
 
   unloadBuilding(tileId: Entity) {
@@ -464,6 +469,58 @@ export class GameScene extends Phaser.Scene {
   }
 
   update() {}
+
+  sortDepth() {
+    const sceneObjects: {
+      entity: Entity;
+      id: number;
+      y: number;
+      type: "building" | "role" | "tile";
+    }[] = [];
+    for (const entity in this.tiles) {
+      const tileSprites = this.tiles[entity as Entity].tileSprites;
+      for (const index in tileSprites) {
+        sceneObjects.push({
+          entity: entity as Entity,
+          id: Number(index),
+          y: tileSprites[index].y,
+          type: "tile",
+        });
+      }
+    }
+    for (const entity in this.roles) {
+      sceneObjects.push({
+        entity: entity as Entity,
+        id: 0,
+        y: this.roles[entity as Entity].y,
+        type: "role",
+      });
+    }
+    for (const entity in this.buildings) {
+      sceneObjects.push({
+        entity: entity as Entity,
+        id: 0,
+        y: this.buildings[entity as Entity].y,
+        type: "building",
+      });
+    }
+    sceneObjects.sort((a, b) => a.y - b.y);
+
+    let depth = 11;
+
+    sceneObjects.forEach((entityInfo, index) => {
+      const { entity, type } = entityInfo;
+      if (index > 0 && sceneObjects[index - 1].y < entityInfo.y) depth++;
+      if (type === "building") {
+        this.buildings[entity as Entity].setDepth(index + 10);
+      } else if (type === "role") {
+        this.roles[entity as Entity].setDepth(index + 10);
+      } else if (type === "tile") {
+        const tileSprites = this.tiles[entity as Entity].tileSprites;
+        tileSprites[entityInfo.id].setDepth(index + 10);
+      }
+    });
+  }
 
   createAnimations() {
     // host
@@ -527,4 +584,9 @@ export class GameScene extends Phaser.Scene {
   //     });
   //   }
   // }
+
+  resizeListener(gameSize: Phaser.Structs.Size) {
+    console.log(gameSize);
+    this.cameras.resize(gameSize.width, gameSize.height);
+  }
 }

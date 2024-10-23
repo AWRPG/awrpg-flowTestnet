@@ -40,12 +40,7 @@ export class GuiBase {
 
   private _focusUI?: UIBase;
 
-  onUp(): void;
-  onDown(): void;
-  onLeft(): void;
-  onRight(): void;
-  onConfirm(): void;
-  onCancel(): void;
+  prevGui?: GuiBase;
 
   /**
    * Data listener events that depend on Phaser: https://newdocs.phaser.io/docs/3.80.0/Phaser.Data.Events.CHANGE_DATA
@@ -73,7 +68,7 @@ export class GuiBase {
   show(...params: unknown[]) {
     if (!this.resizeListener) {
       this.resizeListener = (gameSize: Phaser.Structs.Size) => {
-        // this.rootUI.updatePosition(gameSize);
+        this.rootUI.updatePosition();
       };
       this.scene.scale.on("resize", this.resizeListener);
     }
@@ -103,12 +98,12 @@ export class GuiBase {
   }
 
   offMenuListen(ui: UIBase = this.rootUI) {
-    ui.on(UIEvents.UP, this.onUp, this);
-    ui.on(UIEvents.DOWN, this.onDown, this);
-    ui.on(UIEvents.LEFT, this.onLeft, this);
-    ui.on(UIEvents.RIGHT, this.onRight, this);
-    ui.on(UIEvents.CONFIRM, this.onConfirm, this);
-    ui.on(UIEvents.CANCEL, this.onCancel, this);
+    ui.off(UIEvents.UP, this.onUp, this);
+    ui.off(UIEvents.DOWN, this.onDown, this);
+    ui.off(UIEvents.LEFT, this.onLeft, this);
+    ui.off(UIEvents.RIGHT, this.onRight, this);
+    ui.off(UIEvents.CONFIRM, this.onConfirm, this);
+    ui.off(UIEvents.CANCEL, this.onCancel, this);
   }
 
   /**
@@ -135,4 +130,11 @@ export class GuiBase {
   set focusUI(value: UIBase) {
     this._focusUI = value;
   }
+
+  onUp() {}
+  onDown() {}
+  onLeft() {}
+  onRight() {}
+  onConfirm() {}
+  onCancel() {}
 }

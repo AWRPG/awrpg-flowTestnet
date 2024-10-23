@@ -40,7 +40,7 @@ export class TileHighlight extends SceneObject {
     this.tileY = path.toY;
     this.x = (this.tileX + 0.5) * this.tileSize;
     this.y = (this.tileY + 0.5) * this.tileSize;
-    this.root.setPosition(this.x, this.y).setDepth(12);
+    this.root.setPosition(this.x, this.y).setDepth(10);
     this.root.setVisible(false);
   }
 
