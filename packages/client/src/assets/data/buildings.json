@@ -1,16 +1,16 @@
 [
   {
     "id": "0",
-    "type": "MINER",
-    "name": "mine shaft",
-    "img": "img-building-mine-shaft",
+    "type": "SAFE",
+    "name": "safe",
+    "img": "img-building-safe",
     "sceneImg": "safe"
   },
   {
     "id": "1",
-    "type": "SAFE",
-    "name": "safe",
-    "img": "img-building-safe",
+    "type": "MINER",
+    "name": "mine shaft",
+    "img": "img-building-mine-shaft",
     "sceneImg": "safe"
   },
   {
