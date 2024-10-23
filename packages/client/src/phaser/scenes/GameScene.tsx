@@ -142,6 +142,7 @@ export class GameScene extends Phaser.Scene {
     this.load.image("node", "src/assets/tiles/Node.png");
     // this.load.image("foundry", "src/assets/tiles/Foundry.png");
     this.load.image("safe", "src/assets/tiles/Safe.png");
+    this.load.image("mine-shaft", "src/assets/hosts/mine-shaft.png");
 
     // player texture
     this.hostTextures = [
@@ -443,7 +444,7 @@ export class GameScene extends Phaser.Scene {
       const newTileCoord = splitFromEntity(tileId);
       if (
         newTileCoord.x < this.buildings[building].tileCoord.x ||
-        newTileCoord.y < this.buildings[building].tileCoord.y
+        newTileCoord.y > this.buildings[building].tileCoord.y
       ) {
         this.buildings[building].tileId = tileId;
         this.buildings[building].tileCoord = newTileCoord;
@@ -549,7 +550,7 @@ export class GameScene extends Phaser.Scene {
     sceneObjects.forEach((entityInfo, index) => {
       const { x, y, type } = entityInfo;
       if (type === "role") {
-        for (let i = index + 1; ; i++) {
+        for (let i = index + 1; sceneObjects[i]; i++) {
           if (Math.round(sceneObjects[i].x) === Math.round(x)) {
             if (sceneObjects[i].type === "tile" && sceneObjects[i].y <= y + 4) {
               const tileSprites =

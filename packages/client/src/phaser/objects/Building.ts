@@ -5,6 +5,9 @@ import { SceneObject } from "./SceneObject";
 import { Vector } from "../../utils/vector";
 import { splitFromEntity } from "../../logics/move";
 import { getEntitySpecs } from "../../logics/entity";
+import { GameData } from "../components/GameData";
+import { BuildingData } from "../../api/data";
+import { Hex, hexToString } from "viem";
 
 export class Building extends SceneObject {
   tileId: Entity;
@@ -18,7 +21,7 @@ export class Building extends SceneObject {
       tileId,
       entity,
       onClick,
-      texture = "safe",
+      texture,
       scale = 1,
     }: {
       tileId: Entity;
@@ -34,7 +37,13 @@ export class Building extends SceneObject {
     this.tileId = tileId;
     this.tileCoord = splitFromEntity(tileId);
 
-    const buildingType = getComponentValue(EntityType, entity)?.value;
+    const buildingType = getComponentValue(EntityType, entity)?.value as Hex;
+    const buildingData = GameData.getDataByType(
+      "buildings",
+      hexToString(buildingType).replace(/\0/g, "") ?? "SAFE"
+    ) as BuildingData;
+    if (!texture) texture = buildingData.sceneImg;
+
     const buildingSpecs = getEntitySpecs(
       this.components,
       BuildingSpecs,
@@ -48,13 +57,10 @@ export class Building extends SceneObject {
 
     this.tileX = this.tileCoord.x;
     this.tileY = this.tileCoord.y;
-    // this.x = this.tileX * this.tileSize;
-    // this.y = this.tileY * this.tileSize;
-    // this.root.setPosition(this.x, this.y);
     this.root.setDepth(13).setScale(scale);
 
     const offsetX = 0.5 / width;
-    const offsetY = 0.5 / height;
+    const offsetY = 1 - 0.5 / height;
 
     this.buildingSprite = new Phaser.GameObjects.Sprite(
       this.scene,

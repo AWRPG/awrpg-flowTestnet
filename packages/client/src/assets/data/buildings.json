@@ -11,7 +11,7 @@
     "type": "MINER",
     "name": "mine shaft",
     "img": "img-building-mine-shaft",
-    "sceneImg": "safe"
+    "sceneImg": "mine-shaft"
   },
   {
     "id": "2",
