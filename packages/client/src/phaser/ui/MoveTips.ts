@@ -21,6 +21,7 @@ import {
 import { Hex } from "viem";
 import { Coord } from "../../utils/pathFinding";
 import { PlayerInput } from "../components/controllers/PlayerInput";
+import { MAX_MOVES } from "../../contract/constants";
 
 /**
  * show the action buttons player can do
@@ -105,7 +106,7 @@ export class MoveTips extends GuiBase {
       this.role.entity
     );
     // path length limit = move length limit + 1
-    if (!this.path || this.path.length > 20 + 1) return;
+    if (!this.path || this.path.length > MAX_MOVES + 1) return;
     this.path.forEach((coord) => {
       coord.x -= this.role?.tileX ?? 0;
       coord.y -= this.role?.tileY ?? 0;
@@ -122,7 +123,7 @@ export class MoveTips extends GuiBase {
       this.systemCalls,
       this.role.entity
     );
-    if (!moves || moves.length === 0 || moves.length > 20) return;
+    if (!moves || moves.length === 0 || moves.length > MAX_MOVES) return;
 
     // Post to chain
     this.systemCalls.move(this.role.entity as Hex, moves as number[]);
