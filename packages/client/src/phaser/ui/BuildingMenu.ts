@@ -24,9 +24,6 @@ export class BuildingMenu extends GuiBase {
   list: UIList;
   building?: Building;
 
-  components: UIScene["components"];
-  systemCalls: UIScene["systemCalls"];
-
   _building?: Entity;
   source?: Entity;
   canEnter?: boolean;
@@ -45,9 +42,6 @@ export class BuildingMenu extends GuiBase {
         marginX: 220,
       })
     );
-
-    this.components = scene.components;
-    this.systemCalls = scene.systemCalls;
     this.name = "BuildingMenu";
 
     // Title

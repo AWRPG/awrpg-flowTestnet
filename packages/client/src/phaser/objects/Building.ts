@@ -20,13 +20,11 @@ export class Building extends SceneObject {
     {
       tileId,
       entity,
-      onClick,
       texture,
       scale = 1,
     }: {
       tileId: Entity;
       entity: Entity;
-      onClick?: () => void;
       texture?: string;
       scale?: number;
     }
@@ -70,7 +68,6 @@ export class Building extends SceneObject {
     const dh = this.buildingSprite.displayHeight;
     const offsetX = (dw + (1 - width) * this.tileSize) / (2 * dw);
     const offsetY = (dh + (height - 1) * this.tileSize) / (2 * dh);
-    console.log(offsetX, offsetY);
     this.buildingSprite.setOrigin(offsetX, offsetY);
     this.root.add(this.buildingSprite);
   }

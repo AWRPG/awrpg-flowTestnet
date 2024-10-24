@@ -10,6 +10,7 @@ import {
 } from "../../logics/terrain";
 import { combineToEntity, Direction } from "../../logics/move";
 import { HIGHLIGHT_MODE, TerrainType } from "../../constants";
+import { canBuildFromHost } from "../../logics/building";
 
 export class TileHighlight extends SceneObject {
   /**
@@ -61,7 +62,7 @@ export class TileHighlight extends SceneObject {
     } else if (this.mode === HIGHLIGHT_MODE.BUILD) {
       const terrains = this.getTerrains(distance, width, height); // Distance: the side
       terrains.forEach((terrain) => {
-        const type =
+        let type =
           terrain.terrainType === TerrainType.NONE ||
           terrain.terrainType === TerrainType.OCEAN ||
           terrain.terrainType === TerrainType.FOREST ||
@@ -78,6 +79,10 @@ export class TileHighlight extends SceneObject {
               Math.max(Math.abs(yTemp) - height + 1, 0)
         )
           return;
+        const tileId = combineToEntity(terrain.x, terrain.y);
+        const something = getComponentValue(this.components.TileEntity, tileId)
+          ?.value as Entity;
+        if (something) type = "error";
         this.highlightData.push({
           x: xTemp,
           y: yTemp,

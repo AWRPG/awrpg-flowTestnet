@@ -438,7 +438,6 @@ export class GameScene extends Phaser.Scene {
       this.buildings[building] = new Building(this, {
         tileId,
         entity: building,
-        onClick: () => this.sourceSelectHandler(building),
       });
     } else {
       const newTileCoord = splitFromEntity(tileId);
