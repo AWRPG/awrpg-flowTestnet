@@ -11,7 +11,8 @@ export class Cursor extends SceneObject {
     this.cursor = new Phaser.GameObjects.Sprite(scene, 0, 0, "ui-cursor")
       .setScale(0.5)
       .play("ui-cursor-active");
-    this.root.add(this.cursor).setDepth(5000);
+    this.root.add(this.cursor);
+    this.setDepth(5001);
     this.follow();
   }
 

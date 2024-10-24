@@ -51,20 +51,20 @@ export class Tile extends SceneObject {
     this.tileY = tileCoord.y;
     this.x = (this.tileX + 0.5) * this.tileSize;
     this.y = (this.tileY + 0.5) * this.tileSize;
-    this.root.setPosition(this.x, this.y).setDepth(1);
+    this.setPosition(this.x, this.y).setDepth(1);
 
     tileValue.forEach((tile, index) => {
       const [texture, frame] = tile.split("&");
       if (texture === "pine_12") {
-        const tileSprite = this.scene.add
-          .image(
-            this.x + (this.tileSize * (Math.random() - 0.5)) / 2,
-            this.y + (this.tileSize * (Math.random() + 0.5)) / 2,
-            "pine_12"
-          )
-          .setOrigin(0.5, 1);
+        const tileSprite = this.scene.add.image(
+          this.x + (this.tileSize * (Math.random() - 0.5)) / 2,
+          this.y + (this.tileSize * (Math.random() + 0.5)) / 2,
+          "pine_12"
+        );
+        // const originY = 1 - this.tileSize / (2 * tileSprite.displayHeight);
+        const originY = 0.93;
+        tileSprite.setOrigin(0.5, originY);
         this.tileSprites[index] = tileSprite;
-        // this.root.bringToTop(tileSprite)
       } else {
         const tileSprite = new Phaser.GameObjects.Image(
           this.scene,

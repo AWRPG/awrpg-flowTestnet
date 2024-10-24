@@ -106,6 +106,7 @@ export class Role extends SceneObject {
     delete this.moveTween;
     this.doIdleAnimation();
     this.avatar.clearTint();
+    this.scene.sortFlag = true; // sort rendering order
   }
 
   onFocus() {
@@ -159,6 +160,9 @@ export class Role extends SceneObject {
         tileX,
         tileY,
         duration: 175,
+        onStart: () => {
+          this.scene.sortFlag = true; // sort rendering order
+        },
       });
     });
     this.moveTween = this.scene.tweens.chain({
@@ -167,6 +171,7 @@ export class Role extends SceneObject {
       onComplete: () => {
         if (this.isMoving) {
           this.avatar.setTint(0x808080);
+          this.scene.sortFlag = true; // sort rendering order
           delete this.moveTween;
         } else {
           this.initState();

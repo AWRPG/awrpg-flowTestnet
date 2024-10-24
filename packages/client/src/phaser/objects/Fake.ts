@@ -15,8 +15,16 @@ export class Fake extends SceneObject {
     super(scene, entity);
     this.fake = true;
     this.sprite = new GameObjects.Sprite(scene, 0, 0, config.texture);
-    const offsetX = config.width ? 0.5 / config.width : 0;
-    const offsetY = config.height ? 0.5 / config.height : 0;
+    let offsetX = 0;
+    let offsetY = 0;
+    if (config.width) {
+      const dw = this.sprite.displayWidth;
+      offsetX = (dw + (1 - config.width) * this.tileSize) / (2 * dw);
+    }
+    if (config.height) {
+      const dh = this.sprite.displayHeight;
+      offsetY = (dh + (1 - config.height) * this.tileSize) / (2 * dh);
+    }
     this.sprite.setOrigin(offsetX, offsetY);
     this.root.add(this.sprite);
   }

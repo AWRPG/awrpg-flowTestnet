@@ -44,7 +44,11 @@ import {
 } from "../../logics/entity";
 import { POOL, STAMINA, BLOOD } from "../../contract/constants";
 import { Hex, toHex, hexToString } from "viem";
-import { compileGridTerrainValues, GRID_SIZE } from "../../logics/terrain";
+import {
+  compileGridTerrainValues,
+  getTerrainFromTerrainValue,
+  GRID_SIZE,
+} from "../../logics/terrain";
 import { Tile } from "../objects/Tile";
 import grass_0_png from "../../assets/tiles/terrains/grass_0.png";
 import grass_2_png from "../../assets/tiles/terrains/grass_2.png";
@@ -81,6 +85,9 @@ export class GameScene extends Phaser.Scene {
   tileSize = 16;
   minZoomLevel = 1.5;
   maxZoomLevel = 4;
+
+  sortLastDate: number = 0;
+  sortFlag: boolean = false;
 
   tilesLayer0: Record<Entity, Phaser.GameObjects.Sprite> = {};
   tiles: Record<Entity, Tile> = {};
@@ -134,7 +141,8 @@ export class GameScene extends Phaser.Scene {
     // this.load.image("fence", "src/assets/tiles/Fence.png");
     this.load.image("node", "src/assets/tiles/Node.png");
     // this.load.image("foundry", "src/assets/tiles/Foundry.png");
-    this.load.image("safe", "src/assets/tiles/Safe.png");
+    this.load.image("safe", "src/assets/hosts/safe.png");
+    this.load.image("mine-shaft", "src/assets/hosts/mine-shaft.png");
 
     // player texture
     this.hostTextures = [
@@ -208,6 +216,8 @@ export class GameScene extends Phaser.Scene {
         // (type === UpdateType.Enter)
         const value = getComponentValue(TileValue, entity)!.value;
         this.loadTile(entity, value);
+        // sort
+        this.sortFlag = true;
       }
     });
 
@@ -314,9 +324,9 @@ export class GameScene extends Phaser.Scene {
         if (role.moveTween) {
           role.moveTween.timeScale = 1.25;
         } else {
-          role.initState();
           const path = getComponentValue(Path, entity);
           if (path) role.setTilePosition(path.toX, path.toY);
+          role.initState();
         }
       }
       // update tile highlight
@@ -324,8 +334,6 @@ export class GameScene extends Phaser.Scene {
         this.tileHighlights[entity].clearHighlight();
         delete this.tileHighlights[entity];
       }
-      // sort
-      this.sortDepth();
     });
 
     // // building on map
@@ -340,6 +348,8 @@ export class GameScene extends Phaser.Scene {
         return this.unloadTileEntity(entity);
       }
       this.loadTileEntity(entity);
+      // sort
+      this.sortFlag = true;
     });
 
     defineSystem(
@@ -428,13 +438,12 @@ export class GameScene extends Phaser.Scene {
       this.buildings[building] = new Building(this, {
         tileId,
         entity: building,
-        onClick: () => this.sourceSelectHandler(building),
       });
     } else {
       const newTileCoord = splitFromEntity(tileId);
       if (
         newTileCoord.x < this.buildings[building].tileCoord.x ||
-        newTileCoord.y < this.buildings[building].tileCoord.y
+        newTileCoord.y > this.buildings[building].tileCoord.y
       ) {
         this.buildings[building].tileId = tileId;
         this.buildings[building].tileCoord = newTileCoord;
@@ -442,8 +451,6 @@ export class GameScene extends Phaser.Scene {
         this.buildings[building].tileY = newTileCoord.y;
       }
     }
-    // sort
-    this.sortDepth();
   }
 
   unloadBuilding(tileId: Entity) {
@@ -468,31 +475,46 @@ export class GameScene extends Phaser.Scene {
     this.unloadTileEntity(entity);
   }
 
-  update() {}
+  update() {
+    if (this.sortFlag) {
+      const date = Date.now();
+      if (date > this.sortLastDate + 150) {
+        this.sortLastDate = date;
+        this.sortFlag = false;
+        this.sortDepth();
+      }
+    }
+  }
 
   sortDepth() {
     const sceneObjects: {
       entity: Entity;
       id: number;
+      x: number;
       y: number;
       type: "building" | "role" | "tile";
     }[] = [];
+
     for (const entity in this.tiles) {
-      const tileSprites = this.tiles[entity as Entity].tileSprites;
+      const tile = this.tiles[entity as Entity];
+      const tileSprites = tile.tileSprites;
       for (const index in tileSprites) {
-        sceneObjects.push({
-          entity: entity as Entity,
-          id: Number(index),
-          y: tileSprites[index].y,
-          type: "tile",
-        });
+        if (tileSprites[index].texture.key === "pine_12")
+          sceneObjects.push({
+            entity: entity as Entity,
+            id: Number(index),
+            x: tile.tileX,
+            y: tile.tileY,
+            type: "tile",
+          });
       }
     }
     for (const entity in this.roles) {
       sceneObjects.push({
         entity: entity as Entity,
         id: 0,
-        y: this.roles[entity as Entity].y,
+        x: this.roles[entity as Entity].tileX,
+        y: this.roles[entity as Entity].tileY,
         type: "role",
       });
     }
@@ -500,24 +522,44 @@ export class GameScene extends Phaser.Scene {
       sceneObjects.push({
         entity: entity as Entity,
         id: 0,
-        y: this.buildings[entity as Entity].y,
+        x: this.buildings[entity as Entity].tileX,
+        y: this.buildings[entity as Entity].tileY,
         type: "building",
       });
     }
+
     sceneObjects.sort((a, b) => a.y - b.y);
-
     let depth = 11;
-
     sceneObjects.forEach((entityInfo, index) => {
-      const { entity, type } = entityInfo;
-      if (index > 0 && sceneObjects[index - 1].y < entityInfo.y) depth++;
+      const { entity, id, y, type } = entityInfo;
+      if (index > 0 && sceneObjects[index - 1].y < y) depth++;
       if (type === "building") {
-        this.buildings[entity as Entity].setDepth(index + 10);
+        this.buildings[entity as Entity].setDepth(depth);
       } else if (type === "role") {
-        this.roles[entity as Entity].setDepth(index + 10);
+        this.roles[entity as Entity].setDepth(depth);
       } else if (type === "tile") {
         const tileSprites = this.tiles[entity as Entity].tileSprites;
-        tileSprites[entityInfo.id].setDepth(index + 10);
+        tileSprites[id].setDepth(depth);
+        tileSprites[id].setAlpha(1);
+      }
+    });
+    this.cursor?.setDepth(Math.max(5001, depth++));
+
+    sceneObjects.sort((a, b) => Math.round(a.x) - Math.round(b.x));
+    sceneObjects.forEach((entityInfo, index) => {
+      const { x, y, type } = entityInfo;
+      if (type === "role") {
+        for (let i = index + 1; sceneObjects[i]; i++) {
+          if (Math.round(sceneObjects[i].x) === Math.round(x)) {
+            if (sceneObjects[i].type === "tile" && sceneObjects[i].y <= y + 4) {
+              const tileSprites =
+                this.tiles[sceneObjects[i].entity as Entity].tileSprites;
+              tileSprites[sceneObjects[i].id].setAlpha(0.25);
+            }
+          } else {
+            break;
+          }
+        }
       }
     });
   }

@@ -16,8 +16,7 @@ import { Hex, toHex } from "viem";
 import { PlayerInput } from "../components/controllers/PlayerInput";
 import { Direction, setNewTargetTile } from "../../logics/move";
 import { Fake } from "../objects/Fake";
-import { Entity } from "@latticexyz/recs";
-import { encodeTypeEntity } from "../../utils/encode";
+import { canBuildFromHost } from "../../logics/building";
 
 /**
  * show the action buttons player can do
@@ -27,13 +26,32 @@ export class ConstructTips extends GuiBase {
   buildingData?: BuildingData;
   buildingType?: Hex;
   buildingSpecs?: BuildingSpecs;
-  fake: Fake;
+  fake?: Fake;
 
-  /** */
   constructor(scene: UIScene) {
-    super(scene, new UIBase(scene));
+    super(
+      scene,
+      new Box2(scene, {
+        width: 660,
+        height: 90,
+        marginY: 20,
+        alignModeName: ALIGNMODES.MIDDLE_TOP,
+      })
+    );
     this.name = "ConstructTips";
     this.focusUI = this.rootUI;
+
+    new UIText(scene, "[WASD] / [Arrow] move cursor\n [F] Build   [X] Cancel", {
+      fontFamily: "ThaleahFat",
+      fontSize: 32,
+      fontColor: "#233",
+      textAlign: "center",
+      lineSpacing: 12,
+      alignModeName: ALIGNMODES.MIDDLE_TOP,
+      marginY: 16,
+      fontStyle: "500",
+      parent: this.rootUI,
+    });
   }
 
   show(role: Role, buildingData: BuildingData, prevGui?: GuiBase) {
@@ -65,7 +83,11 @@ export class ConstructTips extends GuiBase {
       height: this.buildingSpecs.height,
     });
     this.fake.flickerEffect();
-    SceneObjectController.cursor?.add(this.fake);
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) {
+      cursor.add(this.fake);
+      this.onArrow(cursor.tileX, cursor.tileY);
+    }
 
     this.onMenuListen();
     PlayerInput.onlyListenUI();
@@ -80,26 +102,40 @@ export class ConstructTips extends GuiBase {
   }
 
   onUp() {
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) this.onArrow(cursor.tileX, cursor.tileY - 1);
     SceneObjectController.setTargetTilePosition(Direction.UP);
-    this.onARROW();
   }
   onDown() {
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) this.onArrow(cursor.tileX, cursor.tileY + 1);
     SceneObjectController.setTargetTilePosition(Direction.DOWN);
-    this.onARROW();
   }
   onLeft() {
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) this.onArrow(cursor.tileX - 1, cursor.tileY);
     SceneObjectController.setTargetTilePosition(Direction.LEFT);
-    this.onARROW();
   }
   onRight() {
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) this.onArrow(cursor.tileX + 1, cursor.tileY);
     SceneObjectController.setTargetTilePosition(Direction.RIGHT);
-    this.onARROW();
   }
 
-  onARROW() {
-    if (!this.role) return;
-    const highlights =
-      SceneObjectController.scene.tileHighlights[this.role.entity];
+  onArrow(tileX: number, tileY: number) {
+    if (!this.role || !this.buildingType) return;
+    const canbuild = canBuildFromHost(
+      this.components,
+      this.systemCalls,
+      this.role.entity,
+      { x: tileX, y: tileY },
+      this.buildingType
+    );
+    if (canbuild) {
+      this.fake?.sprite?.clearTint();
+    } else {
+      this.fake?.sprite?.setTint(0xff0000);
+    }
   }
 
   onConfirm() {

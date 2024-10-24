@@ -85,6 +85,10 @@ export class UIScene extends Phaser.Scene {
     this.load.image("btn_decor4", "src/assets/ui/btn_decor4.png");
     this.load.image("btn_select_skin", "src/assets/ui/btn_select_skin.png");
     this.load.image("img-building-safe", "src/assets/imgs/buildings/safe.png");
+    this.load.image(
+      "img-building-mine-shaft",
+      "src/assets/imgs/buildings/mine-shaft.png"
+    );
   }
 
   create() {

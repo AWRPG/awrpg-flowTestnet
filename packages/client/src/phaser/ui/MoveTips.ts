@@ -79,22 +79,22 @@ export class MoveTips extends GuiBase {
 
   onUp() {
     SceneObjectController.setTargetTilePosition(Direction.UP);
-    this.onARROW();
+    this.onArrow();
   }
   onDown() {
     SceneObjectController.setTargetTilePosition(Direction.DOWN);
-    this.onARROW();
+    this.onArrow();
   }
   onLeft() {
     SceneObjectController.setTargetTilePosition(Direction.LEFT);
-    this.onARROW();
+    this.onArrow();
   }
   onRight() {
     SceneObjectController.setTargetTilePosition(Direction.RIGHT);
-    this.onARROW();
+    this.onArrow();
   }
 
-  onARROW() {
+  onArrow() {
     if (!this.role) return;
     const highlights =
       SceneObjectController.scene.tileHighlights[this.role.entity];

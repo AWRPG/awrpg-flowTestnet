@@ -1,3 +1,5 @@
+import { BuildingData } from "../../api/data";
+
 export class GameData {
   static scene: Phaser.Scene;
   static preload(scene: Phaser.Scene) {
@@ -12,5 +14,10 @@ export class GameData {
   static getDataByIndex(filename: string, index: number) {
     const data = this.getData(filename);
     return data[index];
+  }
+
+  static getDataByType(filename: string, type: string) {
+    const data = this.getData(filename) as Array<any>;
+    return data.find((item) => item.type === type);
   }
 }
