@@ -73,9 +73,10 @@ export const canMoveAcrossTile = (
 // calc moves to move from role's curr position -> target tile coord
 export const calculatePathMoves = (
   components: ClientComponents,
+  systemCalls: SystemCalls,
   role: Entity
 ) => {
-  const pathCoords = calculatePathCoords(components, role);
+  const pathCoords = calculatePathCoords(components, systemCalls, role);
   if (!pathCoords) return;
   const moves = coordsToMoves(pathCoords);
   if (!moves) return;
@@ -104,6 +105,7 @@ export const pathToMove = (from: Vector, to: Vector): Direction => {
 // calc coords to move from role's curr position -> target tile coord
 export const calculatePathCoords = (
   components: ClientComponents,
+  systemCalls: SystemCalls,
   role: Entity
 ) => {
   const { TargetTile, Path } = components;
@@ -121,28 +123,39 @@ export const calculatePathCoords = (
     x: Math.floor(sourceCoord.x / GRID_SIZE),
     y: Math.floor(sourceCoord.y / GRID_SIZE),
   };
+  // if targetCoord cannot move to, return
+  if (!canMoveTo(components, systemCalls, targetCoord)) return;
   // calculate gridCoords as any coords between source and target
-  const gridCoords = getRectangleCoords(sourceGridCoord, targetGridCoord);
-  let terrains: TileTerrainMap[] = [];
-  gridCoords.forEach((coord) => {
-    const gridId = combineToEntity(coord.x, coord.y);
-    terrains = terrains.concat(getGridTerrains(components, gridId));
-  });
-  // check if terrain has a building to walk on
-  const terrains_building = terrains.map((terrain) => {
-    const tileId = combineToEntity(terrain.x, terrain.y);
-    if (canMoveAcrossTile(components, tileId, role)) return terrain;
-    return {
-      ...terrain,
-      terrainType: TerrainType.BUILDING,
-    };
-  });
-  const pathCoords = dijkstraPathfinding(
-    sourceCoord,
-    targetCoord,
-    terrains_building
-  );
-
+  let extra = 0; // extra coords to check
+  const extra_max = 4;
+  let pathCoords = null;
+  while (extra <= extra_max && !pathCoords) {
+    const gridCoords = getRectangleCoords(
+      sourceGridCoord,
+      targetGridCoord,
+      extra
+    );
+    let terrains: TileTerrainMap[] = [];
+    gridCoords.forEach((coord) => {
+      const gridId = combineToEntity(coord.x, coord.y);
+      terrains = terrains.concat(getGridTerrains(components, gridId));
+    });
+    // check if terrain has a building to walk on
+    const terrains_building = terrains.map((terrain) => {
+      const tileId = combineToEntity(terrain.x, terrain.y);
+      if (canMoveAcrossTile(components, tileId, role)) return terrain;
+      return {
+        ...terrain,
+        terrainType: TerrainType.BUILDING,
+      };
+    });
+    pathCoords = dijkstraPathfinding(
+      sourceCoord,
+      targetCoord,
+      terrains_building
+    );
+    extra++;
+  }
   return pathCoords;
 };
 

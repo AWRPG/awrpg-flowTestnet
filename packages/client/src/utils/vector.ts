@@ -63,15 +63,16 @@ export function dotVectors(vector1: Vector, vector2: Vector) {
   return vector1.x * vector2.x + vector1.y * vector2.y;
 }
 
-export function getRectangleCoords(start: Vector, end: Vector) {
+// get coords of the rectangle formed by the start and end points and extra
+export function getRectangleCoords(start: Vector, end: Vector, extra = 0) {
   const minX = Math.min(start.x, end.x);
   const minY = Math.min(start.y, end.y);
   const maxX = Math.max(start.x, end.x);
   const maxY = Math.max(start.y, end.y);
 
   const coords: Vector[] = [];
-  for (let x = minX; x <= maxX; x++) {
-    for (let y = minY; y <= maxY; y++) {
+  for (let x = minX - extra; x <= maxX + extra; x++) {
+    for (let y = minY - extra; y <= maxY + extra; y++) {
       coords.push({ x, y });
     }
   }

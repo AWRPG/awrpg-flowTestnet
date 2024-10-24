@@ -99,8 +99,13 @@ export class MoveTips extends GuiBase {
     const highlights =
       SceneObjectController.scene.tileHighlights[this.role.entity];
     if (this.path) highlights.changeTypeByCoords("move", this.path);
-    this.path = calculatePathCoords(this.components, this.role.entity);
-    if (!this.path || this.path.length > 20) return;
+    this.path = calculatePathCoords(
+      this.components,
+      this.systemCalls,
+      this.role.entity
+    );
+    // path length limit = move length limit + 1
+    if (!this.path || this.path.length > 20 + 1) return;
     this.path.forEach((coord) => {
       coord.x -= this.role?.tileX ?? 0;
       coord.y -= this.role?.tileY ?? 0;
@@ -112,7 +117,11 @@ export class MoveTips extends GuiBase {
     if (!this.role) return;
 
     // get the steps to move
-    const moves = calculatePathMoves(this.components, this.role.entity);
+    const moves = calculatePathMoves(
+      this.components,
+      this.systemCalls,
+      this.role.entity
+    );
     if (!moves || moves.length === 0 || moves.length > 20) return;
 
     // Post to chain
