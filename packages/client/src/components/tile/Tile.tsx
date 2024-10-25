@@ -20,7 +20,7 @@ export function Tile({ tile }: { tile: Entity }) {
   const entity = useEntityOnTile(components, tile);
 
   return (
-    <div className="flex flex-col space-y-3 w-96 bg-white">
+    <div className="flex flex-col space-y-3 w-auto bg-white">
       <SetTerrains tile={tile} />
       {entity && <Host host={entity} />}
       <Drop tile={tile} />

@@ -35,10 +35,10 @@ export function Building({ building }: { building: Entity }) {
       <EntityName entity={building} />
       <EntityPools entity={building} />
       {canStore && (
-        <>
+        <div className="flex flex-col">
           <Stored building={building} />
           <EnterBuilding building={building} />
-        </>
+        </div>
       )}
       {isMiner && <MineBuilding building={building} />}
       {isStaker && <StakeBuilding building={building} />}
