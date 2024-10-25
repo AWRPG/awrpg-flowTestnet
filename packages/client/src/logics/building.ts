@@ -74,9 +74,7 @@ export const canRoleEnter = (
   role: Entity,
   building: Entity
 ) => {
-  const roleType = getComponentValue(components.EntityType, role)?.value;
-  const entityType = encodeTypeEntity(roleType as Hex) as Entity;
-  return canStoreERC721(components, entityType, building);
+  return canStoreERC721(components, role, building);
 };
 
 // can only exit when owner is a TileEntity value

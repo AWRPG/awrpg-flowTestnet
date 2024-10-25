@@ -3,15 +3,15 @@ import { useMUD } from "../../MUDContext";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { SOURCE, TARGET } from "../../constants";
 import {
-  canRoleEnter,
   getBuildingCoordToExit,
   getRoleAndHostAdjacentCoord,
   roleAndHostWithinRange,
 } from "../../logics/building";
-import { ContractFunctionExecutionError, Hex } from "viem";
+import { Hex } from "viem";
 import { splitFromEntity } from "../../logics/move";
 import EntityName from "../EntityName";
 import { canMoveTo } from "../../logics/map";
+import { canStoreERC721 } from "../../logics/container";
 
 /**
  * display enter building button; check if 1) role is adjacent to the building, 2) role can enter the building
@@ -24,7 +24,7 @@ export function EnterBuilding({ building }: { building: Entity }) {
   useComponentValue(Path, sourceHost);
   useComponentValue(StoredSize, building);
   if (!sourceHost) return null;
-  const canEnter = canRoleEnter(components, sourceHost, building);
+  const canEnter = canStoreERC721(components, sourceHost, building);
   const adjacentCoord = getRoleAndHostAdjacentCoord(
     components,
     sourceHost,
