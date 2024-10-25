@@ -9,5 +9,7 @@ pragma solidity >=0.8.24;
  * @dev This interface is automatically generated from the corresponding system contract. Do not edit manually.
  */
 interface IStorageSystem {
-  function transferERC20(bytes16 itemType, bytes32 from, bytes32 to, uint128 amount) external;
+  function transferERC20(bytes16 itemType, uint32 fromX, uint32 fromY, uint32 toX, uint32 toY, uint128 amount) external;
+
+  function transferERC721(uint32 fromX, uint32 fromY, uint32 toX, uint32 toY, bytes32 erc721) external;
 }
