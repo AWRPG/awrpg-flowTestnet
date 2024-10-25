@@ -37,6 +37,23 @@ export const roleAndHostWithinRange = (
   return true;
 };
 
+// use to get coords to transfer; can also adapted to get coords to enter, to stake, to cook?
+export const getHostsAdjacentCoord = (
+  components: ClientComponents,
+  hostA: Entity,
+  hostB: Entity
+) => {
+  const hostAPositions = getTileEntityPositions(components, hostA);
+  const hostBPositions = getTileEntityPositions(components, hostB);
+  if (!hostAPositions || !hostBPositions) return;
+  const adjacentPositions = hostAPositions.flatMap((hostAPosition) =>
+    hostBPositions
+      .filter((hostBPosition) => adjacent(hostAPosition, hostBPosition))
+      .map((hostBPosition) => ({ hostAPosition, hostBPosition }))
+  );
+  return adjacentPositions.length > 0 ? adjacentPositions[0] : undefined;
+};
+
 // used to get coord to enter building, to stake, & to cook
 export const getRoleAndHostAdjacentCoord = (
   components: ClientComponents,
