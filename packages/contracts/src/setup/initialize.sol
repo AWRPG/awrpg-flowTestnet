@@ -45,7 +45,7 @@ function initHostTypes() {
   DefineTypes.defineHost(MINER, 1000 * 5, 1200 * 5);
   DefineTypes.defineHost(CAULDRON, 1000, 1200);
   DefineTypes.defineHost(FIELD, 1000, 1200);
-  DefineTypes.defineHost(SAFE, 1000 * 5, 1200 * 5);
+  DefineTypes.defineHost(SAFE, 600, 1200);
   DefineTypes.defineHost(FOUNDRY, 1000, 1200);
 }
 
@@ -142,7 +142,7 @@ function initBuildingTypes() {
   );
   DefineTypes.defineBuilding(
     SAFE,
-    BuildingSpecsData({ width: 2, height: 2, canMove: true, terrainType: PLAIN }),
+    BuildingSpecsData({ width: 2, height: 2, canMove: false, terrainType: PLAIN }),
     compileTwoTypes(STAMINA, WOOD, 10, 0),
     compileOneType(STAMINA, 100),
     compileOneType(WOOD, 4)
