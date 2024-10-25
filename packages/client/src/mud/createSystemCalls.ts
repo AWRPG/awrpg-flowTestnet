@@ -119,16 +119,29 @@ export function createSystemCalls(
   };
 
   const transferERC20 = async (
-    from: Hex,
-    to: Hex,
+    from: Vector,
+    to: Vector,
     itemType: Hex,
     amount: bigint
   ) => {
     const tx = await worldContract.write.transferERC20([
       itemType,
-      from,
-      to,
+      from.x,
+      from.y,
+      to.x,
+      to.y,
       amount,
+    ]);
+    await waitForTransaction(tx);
+  };
+
+  const transferERC721 = async (from: Vector, to: Vector, entity: Hex) => {
+    const tx = await worldContract.write.transferERC721([
+      from.x,
+      from.y,
+      to.x,
+      to.y,
+      entity,
     ]);
     await waitForTransaction(tx);
   };
@@ -314,6 +327,7 @@ export function createSystemCalls(
     buildBuilding,
     consumeERC20,
     transferERC20,
+    transferERC721,
     setSwapRatio,
     swapERC20,
     setTerrainValues,
