@@ -2,10 +2,11 @@ import { UIBase, UIBaseConfig } from "./UIBase";
 
 export interface UIImageConfig extends UIBaseConfig {
   nineSlice?: number | number[];
+  frame?: any;
 }
 
 export class UIImage extends UIBase {
-  image: Phaser.GameObjects.Image | Phaser.GameObjects.NineSlice;
+  image: Phaser.GameObjects.Sprite | Phaser.GameObjects.NineSlice;
 
   constructor(
     scene: Phaser.Scene,
@@ -34,7 +35,7 @@ export class UIImage extends UIBase {
         bottomHeight
       ).setOrigin(0, 0); // [TODO] Make new nine slice way can let the side loop like the tilemap
     } else {
-      this.image = new Phaser.GameObjects.Image(scene, 0, 0, texture);
+      this.image = new Phaser.GameObjects.Sprite(scene, 0, 0, texture);
       this.image.setOrigin(0, 0);
       this.image.setDisplaySize(
         this.displayWidth / this.scale,
@@ -90,6 +91,28 @@ export class UIImage extends UIBase {
     }
   }
 
+  play(
+    key:
+      | string
+      | Phaser.Animations.Animation
+      | Phaser.Types.Animations.PlayAnimationConfig,
+    ignoreIfPlaying?: boolean
+  ) {
+    if (this.image instanceof Phaser.GameObjects.NineSlice) return;
+    this.image.play(key, ignoreIfPlaying);
+  }
+
+  playAfterDelay(
+    key:
+      | string
+      | Phaser.Animations.Animation
+      | Phaser.Types.Animations.PlayAnimationConfig,
+    delay: number
+  ) {
+    if (this.image instanceof Phaser.GameObjects.NineSlice) return;
+    this.image.playAfterDelay(key, delay);
+  }
+
   //===========================================
   //    Simplified writing for ease of use
   //===========================================
@@ -113,13 +136,8 @@ export class UIImage extends UIBase {
     this.image.setFlipY(value);
   }
 
-  get imageWidth() {
-    return this.image.displayWidth;
-  }
-
-  set imageWidth(value: number) {
-    // this.image.x -= value - this.image.displayWidth;
-    this.image.displayWidth = value;
-    // this.displayWidth = value;
+  get anims(): Phaser.Animations.AnimationState | undefined {
+    if (this.image instanceof Phaser.GameObjects.NineSlice) return undefined;
+    return this.image.anims;
   }
 }

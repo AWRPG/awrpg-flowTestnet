@@ -2,7 +2,7 @@ import { ALIGNMODES } from "../../../../constants";
 import { UIEmitter } from "./UIEmitter";
 
 export interface UIBaseConfig {
-  texture?: string | undefined;
+  texture?: string | Phaser.Textures.Texture;
   alignModeName?: string;
   width?: number;
   height?: number;

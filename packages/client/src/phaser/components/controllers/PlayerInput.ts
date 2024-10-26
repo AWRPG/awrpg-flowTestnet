@@ -45,6 +45,7 @@ export class PlayerInput {
     if (UIConfig.KEY_RIGHT.includes(key)) focus.onRightPressed();
     if (UIConfig.KEY_CONFIRM.includes(key)) focus.onConfirmPressed();
     if (UIConfig.KEY_CANCEL.includes(key)) focus.onCancelPressed();
+    if (UIConfig.KEY_MENU.includes(key)) focus.onMenuPressed();
   }
 
   private static onKeyUp(event: KeyboardEvent) {

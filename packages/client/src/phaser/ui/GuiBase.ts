@@ -27,7 +27,7 @@ export class GuiBase {
 
   /**
    * [only read] Determine if the current object is displayed
-   * If you want to change the visible state, you need to use the show() and hide() controls.
+   * If you want to change the visible state, you need to use the show() and hidden() controls.
    */
   isVisible: boolean = false;
 
@@ -58,7 +58,8 @@ export class GuiBase {
     this.network = scene.network;
     this.systemCalls = scene.systemCalls;
     this.rootUI = rootUI;
-    this.hidden(); // It will only be displayed when be called.
+    // It will only be displayed when be called.
+    this.handleHidden();
     this.rootUI.root.on("changedata", this.onDataChanged, this);
   }
 
@@ -77,15 +78,19 @@ export class GuiBase {
     this.isVisible = true;
   }
 
-  /**
-   * Hide it
-   */
-  hidden(...params: unknown[]) {
+  handleHidden() {
     this.rootUI.root.setVisible(false);
     this.isVisible = false;
     if (UIController.focus === this.focusUI) UIController.focus = undefined;
     this.scene.scale.off("resize", this.resizeListener);
     this.resizeListener = undefined;
+  }
+
+  /**
+   * Hide it
+   */
+  hidden(...params: unknown[]) {
+    this.handleHidden();
   }
 
   onMenuListen(ui: UIBase = this.rootUI) {

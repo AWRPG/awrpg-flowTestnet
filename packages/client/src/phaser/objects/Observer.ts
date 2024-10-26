@@ -9,6 +9,13 @@ import { Role } from "./Role";
 import { SceneObject } from "./SceneObject";
 
 export class Observer extends SceneObject {
+  onMenuPressed() {
+    super.onMenuPressed();
+    const menu = UIController.scene.mainMenu;
+    if (!menu) return;
+    menu.show();
+  }
+
   onUpPressed() {
     super.onUpPressed();
     SceneObjectController.setTargetTilePosition(Direction.UP);

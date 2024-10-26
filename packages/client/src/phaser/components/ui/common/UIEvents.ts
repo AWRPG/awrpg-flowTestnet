@@ -10,4 +10,5 @@ export class UIEvents {
   static DOWN: string = "UI_Down";
   static LEFT: string = "UI_Left";
   static RIGHT: string = "UI_Right";
+  static MENU: string = "UI_Menu";
 }

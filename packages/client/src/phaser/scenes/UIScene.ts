@@ -11,6 +11,7 @@ import { StakeMenu } from "../ui/StakeMenu";
 import { StakingMenu } from "../ui/StakingMenu";
 import "../components/ui/UIBaseExtend";
 import { UIController } from "../components/controllers/UIController";
+import { MainMenu } from "../ui/mainMenu/MainMenu";
 
 export class UIScene extends Phaser.Scene {
   /**
@@ -25,10 +26,12 @@ export class UIScene extends Phaser.Scene {
    */
   focusUI: GuiBase[] = [];
 
+  mainMenu?: MainMenu;
+
   /**
    * show the information of current host
    */
-  characterInfo: CharacterInfo | undefined;
+  characterInfo?: CharacterInfo;
 
   /**
    * show the information of current terrain
@@ -40,7 +43,7 @@ export class UIScene extends Phaser.Scene {
    */
   actionMenu?: ActionMenu;
 
-  buildingMenu: BuildingMenu | undefined;
+  buildingMenu?: BuildingMenu;
 
   stakeMenu: StakeMenu | undefined;
 
@@ -65,6 +68,16 @@ export class UIScene extends Phaser.Scene {
 
   preload() {
     this.load.image("ui-empty", "src/assets/ui/empty.png");
+    for (let i = 1; i <= 5; i++) {
+      this.load.image(
+        `ui-book-open${i}`,
+        `src/assets/ui/main-menu/open/${i}.png`
+      );
+      this.load.image(
+        `ui-book-close${i}`,
+        `src/assets/ui/main-menu/close/${i}.png`
+      );
+    }
     this.load.image("ui-box", "src/assets/ui/box_1.png");
     this.load.image(
       "ui-box-title-in-side2",
@@ -92,6 +105,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   create() {
+    this.mainMenu = new MainMenu(this);
     this.characterInfo = new CharacterInfo(this);
     this.terrainUI = new TerrainUI(this);
     this.actionMenu = new ActionMenu(this);

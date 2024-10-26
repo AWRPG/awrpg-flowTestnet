@@ -125,6 +125,10 @@ export class UIEmitter {
     if (this.onCancel) this.onCancel();
   }
 
+  onMenuPressed() {
+    this.emit(UIEvents.MENU, this);
+  }
+
   onSelected() {}
   onUnSelected() {}
   onHover() {
