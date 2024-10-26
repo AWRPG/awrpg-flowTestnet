@@ -1,6 +1,6 @@
 import { UIBase } from "./common/UIBase";
 import { Component, Entity, Schema } from "@latticexyz/recs";
-import { listenComponentValue } from "../../../utils/listenComponentValue";
+import { listenComponentValue } from "../../../utils/pecs";
 import { ClientComponents } from "../../../mud/createClientComponents";
 import { SystemCalls } from "../../../mud/createSystemCalls";
 

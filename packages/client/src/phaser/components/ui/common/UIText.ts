@@ -245,7 +245,7 @@ export class UIText extends UIBase {
   //===========================================
   //    Simplified writing for ease of use
   //===========================================
-  get text() {
+  get text(): string {
     return this.textObj.text;
   }
 
