@@ -11,6 +11,7 @@ export function getPool(role: Hex, poolType: Hex) {
 }
 
 export function getCustodian(building: Hex) {
+  // pad(building, { dir: "left" });
   return keccak256(
     encodeAbiParameters(
       [{ type: "bytes32" }, { type: "bytes16" }],

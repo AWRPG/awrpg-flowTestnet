@@ -1,4 +1,9 @@
-import { Entity, getComponentValue, HasValue } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  HasValue,
+  runQuery,
+} from "@latticexyz/recs";
 import { ClientComponents } from "../mud/createClientComponents";
 import { getCustodian } from "../contract/hashes";
 import { Hex } from "viem";
@@ -36,5 +41,15 @@ export const useEntitiesInCustodian = (
   const { Owner } = components;
   const custodian = getCustodian(host as Hex) as Entity;
   const entities = useEntityQuery([HasValue(Owner, { value: custodian })]);
+  return entities as Entity[];
+};
+
+export const getEntitiesInCustodian = (
+  components: ClientComponents,
+  host: Entity
+) => {
+  const { Owner } = components;
+  const custodian = getCustodian(host as Hex) as Entity;
+  const entities = [...runQuery([HasValue(Owner, { value: custodian })])];
   return entities as Entity[];
 };
