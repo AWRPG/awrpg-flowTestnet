@@ -11,6 +11,7 @@ import { Hex, hexToString } from "viem";
 
 export class Building extends SceneObject {
   tileId: Entity;
+  data: BuildingData;
   buildingSprite: Phaser.GameObjects.Sprite;
   entity: Entity;
   tileCoord: Vector;
@@ -36,11 +37,11 @@ export class Building extends SceneObject {
     this.tileCoord = splitFromEntity(tileId);
 
     const buildingType = getComponentValue(EntityType, entity)?.value as Hex;
-    const buildingData = GameData.getDataByType(
+    this.data = GameData.getDataByType(
       "buildings",
       hexToString(buildingType).replace(/\0/g, "") ?? "SAFE"
     ) as BuildingData;
-    if (!texture) texture = buildingData.sceneImg;
+    if (!texture) texture = this.data.sceneImg;
 
     const buildingSpecs = getEntitySpecs(
       this.components,

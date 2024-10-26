@@ -11,6 +11,9 @@ import {
 import { combineToEntity, Direction } from "../../logics/move";
 import { HIGHLIGHT_MODE, TerrainType } from "../../constants";
 import { canBuildFromHost } from "../../logics/building";
+import { MAX_MOVES } from "../../contract/constants";
+import { isRole, isBuilding } from "../../logics/entity";
+import { getEntityOnCoord } from "../../logics/map";
 
 export class TileHighlight extends SceneObject {
   /**
@@ -46,7 +49,7 @@ export class TileHighlight extends SceneObject {
   }
 
   calcHighlight({
-    distance = 20,
+    distance = MAX_MOVES,
     width = 1,
     height = 1,
   }: {
@@ -59,6 +62,24 @@ export class TileHighlight extends SceneObject {
       const terrains = this.getTerrains(distance, width, height); // Get terrains by the distance
       const passableTiles = this.getPassableTiles(terrains, distance);
       this.highlightData = this.floodFill(distance, passableTiles); // Get the reachable area
+      this.highlightData = this.highlightData.filter((data) => {
+        const something = getEntityOnCoord(this.components, {
+          x: data.x + this.tileX,
+          y: data.y + this.tileY,
+        });
+        if (something) {
+          const type = isRole(this.components, something)
+            ? "role"
+            : isBuilding(this.components, something)
+              ? "building"
+              : "other";
+          if (type === "building") {
+            data.type = "enter";
+          }
+          return type !== "role";
+        }
+        return true;
+      });
     } else if (this.mode === HIGHLIGHT_MODE.BUILD) {
       const terrains = this.getTerrains(distance, width, height); // Distance: the side
       terrains.forEach((terrain) => {
@@ -79,9 +100,11 @@ export class TileHighlight extends SceneObject {
               Math.max(Math.abs(yTemp) - height + 1, 0)
         )
           return;
-        const tileId = combineToEntity(terrain.x, terrain.y);
-        const something = getComponentValue(this.components.TileEntity, tileId)
-          ?.value as Entity;
+
+        const something = getEntityOnCoord(this.components, {
+          x: terrain.x,
+          y: terrain.y,
+        });
         if (something) type = "error";
         this.highlightData.push({
           x: xTemp,
@@ -174,6 +197,7 @@ export class TileHighlight extends SceneObject {
         data.y * this.tileSize,
         "ui-highlight-" + (data.type ?? "move")
       );
+      highlight.setData("type", data.type ?? "move");
       highlight.setScale(0);
       this.highlightObjs.push(highlight);
       this.root.add(highlight);
@@ -216,6 +240,20 @@ export class TileHighlight extends SceneObject {
           onComplete: () => highlight.destroy(),
         });
       }
+    });
+  }
+
+  recoveryType(coords: { x: number; y: number }[]) {
+    this.highlightObjs.forEach((highlight) => {
+      coords.forEach((coord) => {
+        if (
+          highlight.x / this.tileSize === coord.x &&
+          highlight.y / this.tileSize === coord.y
+        ) {
+          const type = highlight.getData("type");
+          highlight.setTexture("ui-highlight-" + type);
+        }
+      });
     });
   }
 

@@ -62,6 +62,34 @@ export class UIImage extends UIBase {
     return this;
   }
 
+  setSlices(
+    width?: number,
+    height?: number,
+    leftWidth?: number,
+    rightWidth?: number,
+    topHeight?: number,
+    bottomHeight?: number,
+    skipScale9?: boolean
+  ) {
+    if (this.image instanceof Phaser.GameObjects.NineSlice) {
+      this.setAutoScale({
+        width: width ?? this.image.width,
+        height: height ?? this.image.height,
+        texture: this.image.texture.key,
+      });
+      this.image.setSlices(
+        width ?? this.image.width,
+        height ?? this.image.height,
+        leftWidth ?? this.image.leftWidth,
+        rightWidth ?? this.image.rightWidth,
+        topHeight ?? this.image.topHeight,
+        bottomHeight ?? this.image.bottomHeight,
+        skipScale9
+      );
+      this.updatePosition();
+    }
+  }
+
   //===========================================
   //    Simplified writing for ease of use
   //===========================================
@@ -83,5 +111,15 @@ export class UIImage extends UIBase {
   set flipY(value: boolean) {
     if (this.image instanceof Phaser.GameObjects.NineSlice) return;
     this.image.setFlipY(value);
+  }
+
+  get imageWidth() {
+    return this.image.displayWidth;
+  }
+
+  set imageWidth(value: number) {
+    // this.image.x -= value - this.image.displayWidth;
+    this.image.displayWidth = value;
+    // this.displayWidth = value;
   }
 }

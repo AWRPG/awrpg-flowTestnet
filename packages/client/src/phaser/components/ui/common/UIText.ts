@@ -101,6 +101,7 @@ export class UIText extends UIBase {
    */
   setText(value: string | string[]): UIText {
     this.textObj.setText(value);
+    this.updatePosition();
     this.adjustTextPositon();
     return this;
   }
@@ -113,6 +114,7 @@ export class UIText extends UIBase {
    */
   appendText(value: string | string[], addCR?: boolean): UIText {
     this.textObj.appendText(value, addCR);
+    this.updatePosition();
     this.adjustTextPositon();
     return this;
   }

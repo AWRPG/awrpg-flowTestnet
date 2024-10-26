@@ -14,7 +14,7 @@ export function EntityPools({ entity }: { entity: Entity }) {
       {/* <div className="text-sm font-bold">Pool Stats:</div> */}
       {pools.map(({ type, capacity }) => (
         <div key={type} className="flex flex-row">
-          <span>{hexToString(type)}: </span>
+          <span>{hexToString(type).toLowerCase().replace(/[^\x20-\x7E]/g, "").trim()}: </span>
           <PoolAmount entity={entity} poolType={type} />
           <span>/{capacity}</span>
         </div>

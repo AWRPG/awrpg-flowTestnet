@@ -173,6 +173,7 @@ export class GameScene extends Phaser.Scene {
     this.load.image("ui-highlight-move", "src/assets/ui/highlight_move.png");
     this.load.image("ui-highlight-build", "src/assets/ui/highlight_build.png");
     this.load.image("ui-highlight-error", "src/assets/ui/highlight_error.png");
+    this.load.image("ui-highlight-enter", "src/assets/ui/highlight_enter.png");
     this.load.spritesheet("ui-highlight", "src/assets/ui/highlight.png", {
       frameWidth: 32,
       frameHeight: 32,

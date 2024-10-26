@@ -19,15 +19,16 @@ import { UIController } from "../components/controllers/UIController";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { MenuTitle } from "../components/ui/MenuTitle";
 import { PlayerInput } from "../components/controllers/PlayerInput";
+import { BuildingData } from "../../api/data";
 
 export class BuildingMenu extends GuiBase {
   list: UIList;
+  title: MenuTitle;
+  titleBox: Box2;
+
   building?: Building;
 
-  _building?: Entity;
   source?: Entity;
-  canEnter?: boolean;
-  withinRange?: boolean;
 
   stakeTypes: Hex[] = [];
   stakingIds: Entity[] = [];
@@ -45,7 +46,7 @@ export class BuildingMenu extends GuiBase {
     this.name = "BuildingMenu";
 
     // Title
-    const titleBox = new Box2(scene, {
+    this.titleBox = new Box2(scene, {
       width: 178,
       height: 58,
       alignModeName: ALIGNMODES.RIGHT_TOP,
@@ -53,7 +54,15 @@ export class BuildingMenu extends GuiBase {
       marginY: -36,
       parent: this.rootUI,
     });
-    new MenuTitle(scene, "BUILDING", { parent: titleBox });
+    this.title = new MenuTitle(scene, "BUILDING", { parent: this.titleBox });
+    // this.title = new MenuTitle(scene, "BUILDING", {
+    //   width: 178,
+    //   height: 58,
+    //   alignModeName: ALIGNMODES.RIGHT_TOP,
+    //   marginX: 8,
+    //   marginY: -26,
+    //   parent: this.rootUI,
+    // });
     // stake -> systemCalls. ["stake", "store"]
     // cook -> systemCalls. ["cook", "store"]
 
@@ -81,26 +90,10 @@ export class BuildingMenu extends GuiBase {
   }
 
   update() {
-    const tileData = getTargetTerrainData(this.components, this.systemCalls);
-    this._building = tileData?.coordEntity as Entity;
-    const { SelectedHost } = this.components;
-    this.source = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
-    this.canEnter = this._building
-      ? canRoleEnter(this.components, this.source, this._building)
-      : false;
-    this.withinRange =
-      this._building && this.source
-        ? roleAndHostWithinRange(this.components, this.source, this._building)
-        : false;
-    this.stakeTypes = getBuildingStakeOuputTypes(
-      this.components,
-      this._building
-    );
-    this.stakingIds = getBuildingStakingIds(
-      this.components,
-      this._building as Hex
-    );
-    this.updateButtons();
+    if (!this.building) return;
+    const name = this.building.data.name.toUpperCase();
+    this.titleBox.setSlices(48 + name.length * 18);
+    this.title.text = name;
   }
 
   updateButtons() {

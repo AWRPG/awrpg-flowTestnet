@@ -315,6 +315,7 @@ export class UIBase {
    */
   setDisplaySize(width: number, height: number): UIBase {
     this.root.setDisplaySize(width, height);
+    this.updatePosition();
     return this;
   }
 
@@ -350,6 +351,10 @@ export class UIBase {
   removeAll(destroyChild?: boolean): UIBase {
     this.root.removeAll(destroyChild);
     return this;
+  }
+
+  destroy() {
+    this.root.destroy();
   }
 
   /**

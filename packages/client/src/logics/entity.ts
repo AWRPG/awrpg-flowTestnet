@@ -99,6 +99,11 @@ export function selectNextHost(
   setComponent(SelectedHost, SOURCE, { value: hosts[nextIndex] });
 }
 
+export function selectHost(components: ClientComponents, hostEntity: Entity) {
+  const { SelectedHost, Commander } = components;
+  setComponent(SelectedHost, SOURCE, { value: hostEntity });
+}
+
 export function getTopHost(
   components: ClientComponents,
   network: SetupNetworkResult,
