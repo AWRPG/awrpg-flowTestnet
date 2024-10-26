@@ -1,5 +1,5 @@
 import { ALIGNMODES } from "../../../../constants";
-import { UIEvents } from "./UIEvents";
+import { UIEmitter } from "./UIEmitter";
 
 export interface UIBaseConfig {
   texture?: string | undefined;
@@ -19,10 +19,7 @@ export interface UIBaseConfig {
  * The most basic UI components
  * There is only one root node inherited, which can be used as a container.
  */
-export class UIBase {
-  /** A empty gameObject as the root node*/
-  root: Phaser.GameObjects.Container;
-
+export class UIBase extends UIEmitter {
   /** The key, or instance of the Texture this Game Object will use to render with, as stored in the Texture Manager.*/
   texture: string | undefined;
 
@@ -47,29 +44,19 @@ export class UIBase {
   /** The global y position of root @readonly */
   globalY: number = 0;
 
-  /** Mouse over */
-  hovering: boolean = false;
-
   disable: boolean;
-
-  /**  */
-  onConfirm?: () => void;
-
-  onCancel?: () => void;
 
   /** */
   constructor(scene: Phaser.Scene, config: UIBaseConfig = {}) {
+    super(scene, config.onConfirm, config.onCancel);
     this.texture = config.texture;
     this.alignModeName = config.alignModeName ?? ALIGNMODES.LEFT_TOP;
     this.marginX = config.marginX ?? 0;
     this.marginY = config.marginY ?? 0;
     this.disable = config.disable ?? false;
 
-    // Creates the root container & init size and position
-    this.root = new Phaser.GameObjects.Container(scene, 0, 0);
+    // Init size and position
     this.parent = config.parent;
-    this.onConfirm = config.onConfirm;
-    this.onCancel = config.onCancel;
     this.setAutoScale(config);
     this.updatePosition();
 
@@ -194,74 +181,6 @@ export class UIBase {
   }
 
   /**
-   * Add a listener for a given event.
-   * @param event The event name.
-   * @param fn The listener function.
-   * @param context The context to invoke the listener with. Default this.
-   */
-  on(event: string | symbol, fn: Function, context?: any): UIBase {
-    this.root.on(event, fn, context);
-    return this;
-  }
-
-  /**
-   * Add a one-time listener for a given event.
-   * @param event The event name.
-   * @param fn The listener function.
-   * @param context The context to invoke the listener with. Default this.
-   */
-  once(event: string | symbol, fn: Function, context?: any): UIBase {
-    this.root.once(event, fn, context);
-    return this;
-  }
-
-  /**
-   * Remove the listeners of a given event or all listeners
-   * @param event The event name.
-   * @param fn Only remove the listeners that match this function.
-   * @param context Only remove the listeners that have this context.
-   * @param once Only remove one-time listeners.
-   */
-  off(
-    event?: string | symbol,
-    fn?: Function,
-    context?: any,
-    once?: boolean
-  ): UIBase {
-    if (event) {
-      this.root.off(event, fn, context, once);
-    } else {
-      this.root.removeAllListeners();
-    }
-    return this;
-  }
-
-  /**
-   * Return the listeners registered for a given event.
-   * @param event The event name.
-   */
-  listeners(event: string | symbol): Function[] {
-    return this.root.listeners(event);
-  }
-
-  /**
-   * Return the number of listeners listening to a given event.
-   * @param event The event name.
-   */
-  listenerCount(event: string | symbol): number {
-    return this.root.listenerCount(event);
-  }
-
-  /**
-   * Calls each of the listeners registered for a given event.
-   * @param event The event name.
-   * @param args Additional arguments that will be passed to the event handler.
-   */
-  emit(event: string | symbol, ...args: any[]): boolean {
-    return this.root.emit(event, ...args);
-  }
-
-  /**
    * Change the position. Considered unchanged by default.
    * Considering alignment and such, it's not recommended to use it directly
    * unless you're pretty sure there's no problem with the location.
@@ -383,47 +302,6 @@ export class UIBase {
     } else {
       this.scene.add.existing(this.root);
     }
-  }
-
-  //===========================================
-  //    About the listeners
-  //===========================================
-  onFocus() {}
-  onBlur() {}
-  onUpPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.UP, this);
-  }
-  onDownPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.DOWN, this);
-  }
-  onLeftPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.LEFT, this);
-  }
-  onRightPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.RIGHT, this);
-  }
-
-  onConfirmPressed() {
-    this.emit(UIEvents.CONFIRM, this);
-    if (this.onConfirm) this.onConfirm();
-  }
-
-  onCancelPressed() {
-    this.emit(UIEvents.CANCEL, this);
-    if (this.onCancel) this.onCancel();
-  }
-
-  onSelected() {}
-  onUnSelected() {}
-  onHover() {
-    this.hovering = true;
-  }
-  onUnHover() {
-    this.hovering = false;
   }
 
   //===========================================
