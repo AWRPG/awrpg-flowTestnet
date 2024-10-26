@@ -17,6 +17,8 @@ import {
   Entity,
   getComponentValue,
   Has,
+  HasValue,
+  runQuery,
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
@@ -32,6 +34,8 @@ import { Hex } from "viem";
 import { decodeBalanceEntity, encodeTypeEntity } from "../../utils/encode";
 import { getEntityPoolsInfo } from "../../logics/pool";
 import { getEntitySpecs } from "../../logics/entity";
+import { getERC20Balances } from "../../logics/container";
+import { getEntitiesInCustodian } from "../../logics/custodian";
 
 /**
  * note: this phaesr ui mirrors Pool.tsx; can be an example to construct other "pool" phaer ui
@@ -65,6 +69,14 @@ export class CharacterInfo extends GuiBase {
   capacity: number = 0;
   storedSize: number = 0;
   size: number = 0;
+
+  // ---- bag items data ----
+  // erc721 entities
+  erc721Entities: Entity[] = [];
+  // erc20 entityType & amount;
+  erc20Items: { type: Hex; amount: number }[] = [];
+  // equipments
+  equipments: Entity[] = [];
 
   constructor(scene: UIScene) {
     super(
@@ -137,6 +149,8 @@ export class CharacterInfo extends GuiBase {
       parent: this.spBar,
     });
     this.createSystem();
+
+    this.createBagSystem();
   }
 
   show(role: Role) {
@@ -144,6 +158,9 @@ export class CharacterInfo extends GuiBase {
     this.role = role.entity;
     this.updateData();
     this.updateDisplay();
+
+    // bag
+    this.updateBagData();
 
     super.show();
 
@@ -206,6 +223,27 @@ export class CharacterInfo extends GuiBase {
     });
   }
 
+  updateBagData() {
+    const components = this.scene.components;
+    const { Owner } = components;
+    if (!this.role) return;
+    // erc721
+    this.erc721Entities = [
+      ...runQuery([HasValue(Owner, { value: this.role })]),
+    ];
+    // erc20
+    this.erc20Items = getERC20Balances(components, this.role as Hex).map(
+      (item) => {
+        return { type: item.erc20Type, amount: Number(item.balance) };
+      }
+    );
+    // equipment
+    this.equipments = getEntitiesInCustodian(components, this.role);
+    console.log("erc721: ", this.erc721Entities);
+    console.log("erc20: ", this.erc20Items);
+    console.log("equipments: ", this.equipments);
+  }
+
   /**
    * update display every time data changes
    */
@@ -245,6 +283,25 @@ export class CharacterInfo extends GuiBase {
     defineUpdateSystem(world, [Has(StoredSize)], ({ entity }) => {
       if (!this.role || this.role !== entity) return;
       this.updateData();
+      this.updateDisplay();
+    });
+  }
+
+  createBagSystem() {
+    const { StoredSize, Equipment } = this.scene.components;
+    const { world } = this.scene.network;
+
+    // erc721 & erc20; different from pools, which do not change StoredSize
+    defineSystem(world, [Has(StoredSize)], () => {
+      this.updateBagData();
+      this.updateDisplay();
+    });
+
+    // equipment
+    defineSystem(world, [Has(Equipment)], ({ entity, type }) => {
+      const { owner } = decodeBalanceEntity(entity);
+      if (!this.role || this.role !== (owner as Entity)) return;
+      this.updateBagData();
       this.updateDisplay();
     });
   }
