@@ -2,6 +2,7 @@ import { UIButton, UIButtonConfig } from "./common/UIButton";
 import { UIImage } from "./common/UIImage";
 import { UIText } from "./common/UIText";
 import { ALIGNMODES } from "../../../constants";
+import { BookListText } from "./BookListText";
 
 export class ButtonA extends UIButton {
   constructor(scene: Phaser.Scene, config: UIButtonConfig = {}) {
@@ -14,7 +15,7 @@ export class ButtonA extends UIButton {
       fontColor: "#2D3E51",
       hoverSkinTexture: "btn_select_skin",
       clickedSkinTexture: "btn_select_skin",
-      skinNineSlice: 16,
+      nineSlice: 16,
       ...config,
     });
 

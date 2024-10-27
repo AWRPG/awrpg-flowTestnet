@@ -6,7 +6,7 @@ import { ALIGNMODES } from "../../../../constants";
 export interface UIButtonConfig extends UITextConfig {
   text?: string;
   skinTexture?: string;
-  skinNineSlice?: number | number[];
+  nineSlice?: number | number[];
   hoverSkinTexture?: string;
   hoverSkinNineSlice?: number | number[];
   clickedSkinTexture?: string;
@@ -26,6 +26,7 @@ export class UIButton extends UIBase {
     config.alignModeName = undefined;
     config.marginX = 0;
     config.marginY = 0;
+    config.parent = this;
 
     this.skin = this.initSkin(config);
     this.hoverSkin = this.initHoverSkin(config);
@@ -36,43 +37,25 @@ export class UIButton extends UIBase {
   }
 
   initSkin(config: UIButtonConfig): UIImage {
-    return new UIImage(this.scene, config.skinTexture!, {
-      parent: this,
-      nineSlice: config.skinNineSlice,
-      ...config,
-    });
+    const texture = config.skinTexture!;
+    return new UIImage(this.scene, texture, config);
   }
 
   initHoverSkin(config: UIButtonConfig): UIImage {
-    return new UIImage(
-      this.scene,
-      config.hoverSkinTexture ?? config.skinTexture!,
-      {
-        parent: this,
-        nineSlice: config.hoverSkinNineSlice ?? config.skinNineSlice,
-        ...config,
-      }
-    );
+    const texture = config.hoverSkinTexture ?? config.skinTexture!;
+    config.nineSlice = config.hoverSkinNineSlice ?? config.nineSlice;
+    return new UIImage(this.scene, texture, config);
   }
 
   initClickedSkin(config: UIButtonConfig): UIImage {
-    return new UIImage(
-      this.scene,
-      config.clickedSkinTexture ?? config.skinTexture!,
-      {
-        parent: this,
-        nineSlice: config.clickedSkinNineSlice ?? config.skinNineSlice,
-        ...config,
-      }
-    );
+    const texture = config.clickedSkinTexture ?? config.skinTexture!;
+    config.nineSlice = config.clickedSkinNineSlice ?? config.nineSlice;
+    return new UIImage(this.scene, texture, config);
   }
 
   initContent(config: UIButtonConfig): UIText {
-    return new UIText(this.scene, config.text ?? "", {
-      ...config,
-      alignModeName: config.alignModeName ?? ALIGNMODES.LEFT_CENTER,
-      parent: this,
-    });
+    config.alignModeName = ALIGNMODES.LEFT_CENTER;
+    return new UIText(this.scene, config.text ?? "", config);
   }
 
   onSelected() {

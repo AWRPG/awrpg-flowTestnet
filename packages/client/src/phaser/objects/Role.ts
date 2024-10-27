@@ -121,7 +121,7 @@ export class Role extends SceneObject {
 
   onCancelPressed() {
     super.onCancelPressed();
-    if (UIController.scene.constructTips?.isVisible) {
+    if (UIController.scene.constructTips?.visible) {
       UIController.scene.constructTips.hidden();
       UIController.scene.constructMenu?.show(this);
     }

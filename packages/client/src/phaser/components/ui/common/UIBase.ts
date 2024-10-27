@@ -1,6 +1,13 @@
 import { ALIGNMODES } from "../../../../constants";
 import { UIEmitter } from "./UIEmitter";
 
+export const StandardGameSize = {
+  maxWidth: 2240,
+  maxHeight: 1260,
+  minWidth: 1600,
+  minHeight: 900,
+};
+
 export interface UIBaseConfig {
   texture?: string | Phaser.Textures.Texture;
   alignModeName?: string;
@@ -11,6 +18,7 @@ export interface UIBaseConfig {
   scale?: number;
   parent?: UIBase | undefined;
   disable?: boolean;
+  antiZoom?: boolean;
   onConfirm?: () => void;
   onCancel?: () => void;
 }
@@ -46,19 +54,31 @@ export class UIBase extends UIEmitter {
 
   disable: boolean;
 
+  naturalWidth: number = -1;
+  naturalHeight: number = -1;
+
+  zoom: number = 1;
+
+  antiZoom: boolean;
+
   /** */
   constructor(scene: Phaser.Scene, config: UIBaseConfig = {}) {
     super(scene, config.onConfirm, config.onCancel);
-    this.texture = config.texture;
+    this.texture =
+      typeof config.texture === "object" ? config.texture.key : config.texture;
     this.alignModeName = config.alignModeName ?? ALIGNMODES.LEFT_TOP;
     this.marginX = config.marginX ?? 0;
     this.marginY = config.marginY ?? 0;
     this.disable = config.disable ?? false;
+    this.antiZoom = config.antiZoom ?? false;
 
     // Init size and position
     this.parent = config.parent;
     this.setAutoScale(config);
-    this.updatePosition();
+    if (this.antiZoom) {
+      this.resizeListener(scene.game.scale.gameSize);
+      this.scene.scale.on("resize", this.resizeListener, this);
+    } else this.updatePosition();
 
     // Mounts the root on the specified object
     this.init();
@@ -115,11 +135,25 @@ export class UIBase extends UIEmitter {
         config.height !== undefined
           ? config.height
           : textureObj?.source[0]?.height ?? 324;
-      this.root.setSize(width, height);
-      this.root.setDisplaySize(width, height);
+      this.setSize(width, height);
+      this.setDisplaySize(width, height);
     }
-    if (config.scale !== undefined) this.root.setScale(config.scale);
+    if (config.scale !== undefined) this.setScale(config.scale);
     return this;
+  }
+
+  resizeListener(gameSize: Phaser.Structs.Size) {
+    if (this.naturalWidth === -1 && this.naturalHeight === -1) return;
+    const zoom = Phaser.Math.Clamp(
+      gameSize.width / StandardGameSize.maxWidth,
+      StandardGameSize.minWidth / StandardGameSize.maxWidth,
+      1
+    );
+    this.root.setDisplaySize(
+      Math.ceil(this.naturalWidth / zoom),
+      Math.ceil(this.naturalHeight / zoom)
+    );
+    this.updatePosition();
   }
 
   /**
@@ -127,42 +161,44 @@ export class UIBase extends UIEmitter {
    */
   updatePosition() {
     const referObj = this.parent ?? this.scene.scale;
+    const marginX = this.marginX * this.zoom;
+    const marginY = this.marginY * this.zoom;
     switch (this.alignModeName) {
       case ALIGNMODES.LEFT_CENTER:
-        this.x = this.marginX;
-        this.y = referObj.height / 2 + this.marginY - this.displayHeight / 2;
+        this.x = marginX;
+        this.y = referObj.height / 2 + marginY - this.displayHeight / 2;
         break;
       case ALIGNMODES.LEFT_BOTTOM:
-        this.x = this.marginX;
-        this.y = referObj.height - this.marginY - this.displayHeight;
+        this.x = marginX;
+        this.y = referObj.height - marginY - this.displayHeight;
         break;
       case ALIGNMODES.RIGHT_TOP:
-        this.x = referObj.width - this.marginX - this.displayWidth;
-        this.y = this.marginY;
+        this.x = referObj.width - marginX - this.displayWidth;
+        this.y = marginY;
         break;
       case ALIGNMODES.RIGHT_CENTER:
-        this.x = referObj.width - this.marginX - this.displayWidth;
-        this.y = referObj.height / 2 + this.marginY - this.displayHeight / 2;
+        this.x = referObj.width - marginX - this.displayWidth;
+        this.y = referObj.height / 2 + marginY - this.displayHeight / 2;
         break;
       case ALIGNMODES.RIGHT_BOTTOM:
-        this.x = referObj.width - this.marginX - this.displayWidth;
-        this.y = referObj.height - this.marginY - this.displayHeight;
+        this.x = referObj.width - marginX - this.displayWidth;
+        this.y = referObj.height - marginY - this.displayHeight;
         break;
       case ALIGNMODES.MIDDLE_TOP:
-        this.x = referObj.width / 2 + this.marginX - this.displayWidth / 2;
-        this.y = this.marginY;
+        this.x = referObj.width / 2 + marginX - this.displayWidth / 2;
+        this.y = marginY;
         break;
       case ALIGNMODES.MIDDLE_CENTER:
-        this.x = referObj.width / 2 + this.marginX - this.displayWidth / 2;
-        this.y = referObj.height / 2 + this.marginY - this.displayHeight / 2;
+        this.x = referObj.width / 2 + marginX - this.displayWidth / 2;
+        this.y = referObj.height / 2 + marginY - this.displayHeight / 2;
         break;
       case ALIGNMODES.MIDDLE_BOTTOM:
-        this.x = referObj.width / 2 + this.marginX - this.displayWidth / 2;
-        this.y = referObj.height - this.marginY - this.displayHeight;
+        this.x = referObj.width / 2 + marginX - this.displayWidth / 2;
+        this.y = referObj.height - marginY - this.displayHeight;
         break;
       default:
-        this.x = this.marginX;
-        this.y = this.marginY;
+        this.x = marginX;
+        this.y = marginY;
         break;
     }
     this.updateGlobalPosition();
@@ -233,6 +269,8 @@ export class UIBase extends UIEmitter {
    * @param height The height of this Game Object.
    */
   setDisplaySize(width: number, height: number): UIBase {
+    this.naturalWidth = width / this.zoom;
+    this.naturalHeight = height / this.zoom;
     this.root.setDisplaySize(width, height);
     this.updatePosition();
     return this;
@@ -245,7 +283,25 @@ export class UIBase extends UIEmitter {
    */
   setScale(x?: number, y?: number): UIBase {
     this.root.setScale(x, y);
+    this.naturalWidth = this.root.displayWidth / this.zoom;
+    this.naturalHeight = this.root.displayHeight / this.zoom;
     return this;
+  }
+
+  /**
+   * The depth of this Game Object within the Scene.
+   * @param value — The depth of this Game Object. Ensure this value is only ever a number data-type.
+   */
+  setDepth(value: number): UIBase {
+    this.root.setDepth(value);
+    return this;
+  }
+
+  /**
+   * Use for the child of Guibase who open the autoZoom
+   */
+  setZoom(value: number) {
+    this.zoom = value;
   }
 
   /**
@@ -273,6 +329,7 @@ export class UIBase extends UIEmitter {
   }
 
   destroy() {
+    this.scene.scale.off("resize", this.resizeListener, this);
     this.root.destroy();
   }
 

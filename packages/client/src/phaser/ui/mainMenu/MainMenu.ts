@@ -6,9 +6,21 @@ import { UIEvents } from "../../components/ui/common/UIEvents";
 import { UIImage } from "../../components/ui/common/UIImage";
 import { PlayerInput } from "../../components/controllers/PlayerInput";
 import { SceneObjectController } from "../../components/controllers/SceneObjectController";
+import { Heading2 } from "../../components/ui/Heading2";
+import { Home } from "./Home";
+import { Roles } from "./Roles";
+import { MainMenuTitle } from "../../components/ui/MainMenuTitle";
+import { StandardGameSize } from "../../components/ui/common/UIBase";
 
 export class MainMenu extends GuiBase {
   book: UIImage;
+  bookTitle: Heading2;
+  tabs: UIBase;
+  home: Home;
+  roles: Roles;
+
+  bookWidth: number;
+  bookHeight: number;
   openFrame: Phaser.Types.Animations.AnimationFrame[] = [];
   closeFrame: Phaser.Types.Animations.AnimationFrame[] = [];
 
@@ -16,24 +28,41 @@ export class MainMenu extends GuiBase {
     super(
       scene,
       new UIBase(scene, {
-        width: scene.game.scale.width,
-        height: scene.game.scale.height,
+        width: StandardGameSize.maxWidth,
+        height: StandardGameSize.maxHeight,
         alignModeName: ALIGNMODES.MIDDLE_CENTER,
-      })
+      }),
+      {
+        autoZoom: true,
+      }
     );
     this.name = "MainMenu";
     this.focusUI = this.rootUI;
+    this.rootUI.setDepth(10);
 
-    const bookWidth = Math.min(896 * 2, this.rootUI.width * 0.8);
-    const bookHeight = Math.min(720 * 2, bookWidth * 0.8);
+    //===========================================
+    //    Background
+    //===========================================
+    this.bookWidth = 1792;
+    this.bookHeight = 1440;
 
     this.book = new UIImage(scene, "ui-book-open1", {
-      width: bookWidth,
-      height: bookHeight,
+      width: this.bookWidth,
+      height: this.bookHeight,
       alignModeName: ALIGNMODES.MIDDLE_CENTER,
       parent: this.rootUI,
     });
     this.book.alpha = 0;
+
+    this.bookTitle = new Heading2(scene, "AUTONOMOUS\nWORLD", {
+      alignModeName: ALIGNMODES.MIDDLE_CENTER,
+      textAlign: "center",
+      fontColor: "#c0875b",
+      fontSize: this.bookWidth / 30,
+      lineSpacing: 12,
+      marginY: -this.bookWidth / 30,
+      parent: this.book,
+    });
 
     for (let i = 1; i <= 5; i++) {
       this.openFrame.push({ key: `ui-book-open${i}` });
@@ -49,6 +78,37 @@ export class MainMenu extends GuiBase {
       frames: this.closeFrame,
       frameRate: 30,
     });
+
+    //===========================================
+    //    Pages
+    //===========================================
+    this.home = new Home(scene, this);
+    this.roles = new Roles(scene, this);
+
+    //===========================================
+    //    Others
+    //===========================================
+    this.tabs = new UIBase(scene, {
+      parent: this.book,
+      height: this.bookHeight / 4,
+      alignModeName: ALIGNMODES.RIGHT_CENTER,
+      marginX: Math.ceil(this.bookWidth * 0.08),
+    });
+    this.tabs.visible = false;
+    const tab1 = new UIImage(scene, "ui-book-tab", {
+      width: (this.bookWidth / 896) * 64,
+      height: (this.bookHeight / 720) * 33,
+      parent: this.tabs,
+      alignModeName: ALIGNMODES.RIGHT_TOP,
+    });
+    new UIImage(scene, "ui-book-tab-role", {
+      width: tab1.height * 0.5,
+      height: tab1.height * 0.5,
+      parent: tab1,
+      alignModeName: ALIGNMODES.MIDDLE_CENTER,
+      marginY: -tab1.height * 0.1,
+      marginX: -tab1.width * 0.06,
+    });
   }
 
   show() {
@@ -60,24 +120,41 @@ export class MainMenu extends GuiBase {
       alpha: 1,
       duration: 100,
     });
+    this.scene.tweens.add({
+      targets: this.bookTitle,
+      alpha: 1,
+      duration: 100,
+    });
+    this.book.image.once("animationstart", () => {
+      this.bookTitle.alpha = 0;
+    });
     this.book.image.once("animationcomplete", () => {
       // Must begin listening after animation complete
+      this.tabs.show();
+      this.roles.show();
       PlayerInput.onlyListenUI();
       this.rootUI.on(UIEvents.MENU, this.hidden, this);
     });
-    this.book.playAfterDelay("openBook", 200);
+    this.book.playAfterDelay("openBook", 300);
   }
 
   hidden() {
     const anims = this.book.anims;
     if (anims?.isPlaying) return;
     this.rootUI.off(UIEvents.MENU, this.hidden, this);
+    this.roles.hidden();
+    this.tabs.hidden();
+    this.book.image.once("animationstart", () => {
+      setTimeout(() => {
+        this.bookTitle.alpha = 1;
+      }, 110);
+    });
     this.book.image.once("animationcomplete", () => {
       this.scene.tweens.add({
         targets: this.book,
         alpha: 0,
-        delay: 20,
-        duration: 280,
+        delay: 120,
+        duration: 180,
         onComplete: () => {
           super.hidden();
           SceneObjectController.resetFocus();

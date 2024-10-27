@@ -78,6 +78,16 @@ export class UIScene extends Phaser.Scene {
         `src/assets/ui/main-menu/close/${i}.png`
       );
     }
+    this.load.image("ui-book-tab", "src/assets/ui/main-menu/tabs/2.png");
+    this.load.image(
+      "ui-book-tab-selected",
+      "src/assets/ui/main-menu/tabs/3.png"
+    );
+    this.load.image(
+      "ui-book-tab-role",
+      "src/assets/ui/main-menu/tabs/role.png"
+    );
+
     this.load.image("ui-box", "src/assets/ui/box_1.png");
     this.load.image(
       "ui-box-title-in-side2",

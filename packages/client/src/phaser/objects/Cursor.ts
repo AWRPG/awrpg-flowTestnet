@@ -23,6 +23,6 @@ export class Cursor extends SceneObject {
     onComplete?: () => void
   ) {
     super.moveTo(toX, toY, duration, onComplete);
-    UIController.scene.terrainUI?.update();
+    UIController.scene?.terrainUI?.update();
   }
 }

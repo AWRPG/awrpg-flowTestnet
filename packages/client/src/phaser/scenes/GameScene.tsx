@@ -629,7 +629,6 @@ export class GameScene extends Phaser.Scene {
   // }
 
   resizeListener(gameSize: Phaser.Structs.Size) {
-    console.log(gameSize);
     this.cameras.resize(gameSize.width, gameSize.height);
   }
 }
