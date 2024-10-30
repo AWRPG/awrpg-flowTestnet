@@ -12,6 +12,9 @@ import { Box } from "../../components/ui/Box";
 import { BookListButton } from "../../components/ui/BookListButton";
 import { Heading3 } from "../../components/ui/Heading3";
 import { MainMenuTitle } from "../../components/ui/MainMenuTitle";
+import { runQuery, HasValue } from "@latticexyz/recs";
+import { fromEntity } from "../../../utils/encode";
+import { Hex, hexToString } from "viem";
 
 export class Roles extends DoublePage {
   rolesList: UIList;
@@ -35,10 +38,21 @@ export class Roles extends DoublePage {
     });
     this.focusUI = this.rolesList;
 
-    for (let i = 0; i < 25; i++) {
+    const hosts = [
+      ...runQuery([
+        HasValue(this.components.Commander, {
+          value: this.network.playerEntity,
+        }),
+      ]),
+    ];
+
+    for (let i = 0; i < hosts.length; i++) {
+      const { type, id } = fromEntity(hosts[i] as Hex);
+      const name = hexToString(type).replace(/\0/g, "");
+      console.log(hosts[i]);
       let item = new BookListButton(scene, {
         width: this.rolesList.itemWidth,
-        text: "Host " + i.toString(),
+        text: name + id.toString(),
       });
       this.rolesList.addItem(item);
     }
