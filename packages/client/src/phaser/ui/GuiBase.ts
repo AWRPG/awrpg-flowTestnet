@@ -1,5 +1,4 @@
 import { UIBase } from "../components/ui/common/UIBase";
-import { Button } from "../components/ui/Button";
 import { UIController } from "../components/controllers/UIController";
 import { UIScene } from "../scenes/UIScene";
 import { ClientComponents } from "../../mud/createClientComponents";
@@ -100,10 +99,6 @@ export class GuiBase {
         1
       );
       this.rootUI.setZoom(zoom);
-      this.rootUI.setDisplaySize(
-        Math.ceil(this.rootUI.naturalWidth * zoom),
-        Math.ceil(this.rootUI.naturalHeight * zoom)
-      );
     } else {
       this.rootUI.updatePosition();
     }

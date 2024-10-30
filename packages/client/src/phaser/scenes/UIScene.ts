@@ -87,6 +87,8 @@ export class UIScene extends Phaser.Scene {
       "ui-book-tab-role",
       "src/assets/ui/main-menu/tabs/role.png"
     );
+    this.load.image("list-slider-track", "src/assets/ui/list-slider-track.png");
+    this.load.image("list-slider-thumb", "src/assets/ui/list-slider-thumb.png");
 
     this.load.image("ui-box", "src/assets/ui/box_1.png");
     this.load.image(

@@ -39,7 +39,7 @@ export class DoublePage extends GuiBase {
     // Page
     this.pageW = 580;
     this.pageH = 720;
-    this.left = new Box(scene, {
+    this.left = new UIBase(scene, {
       width: this.pageW,
       height: this.pageH,
       parent: this.rootUI,
@@ -62,7 +62,7 @@ export class DoublePage extends GuiBase {
     if (!titleNameRight) this.titleR.visible = false;
 
     // Content
-    this.contentW = Math.ceil(this.pageW * 0.8);
+    this.contentW = Math.ceil(this.pageW * 1);
     this.contentL = new UIBase(scene, {
       width: this.contentW,
       height: titleNameLeft ? Math.ceil(this.pageH * 0.8) : this.pageH,

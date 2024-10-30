@@ -1,7 +1,8 @@
 import { UIController } from "../../controllers/UIController";
 import { UIBase, UIBaseConfig } from "./UIBase";
-import { UIConfig } from "./UIConfig";
 import { UIEvents } from "./UIEvents";
+import { UISlider } from "./UISlider";
+import { ALIGNMODES } from "../../../../constants";
 
 export interface UIListConfig extends UIBaseConfig {
   itemIndentation?: number;
@@ -25,6 +26,7 @@ export class UIList extends UIBase {
   protected _itemIndex: number = -1;
 
   /** list items */
+  itemsContainer: UIBase;
   protected _items: UIBase[] = [];
 
   /** the width of each item */
@@ -33,14 +35,55 @@ export class UIList extends UIBase {
   /** the height of each item */
   protected _itemHeight: number = 32;
 
+  sliderX?: UISlider;
+  sliderY?: UISlider;
+
   /** */
   constructor(scene: Phaser.Scene, config: UIListConfig = {}) {
     super(scene, config);
+    this.itemsContainer = new UIBase(this.scene, {
+      parent: this,
+      width: config.width,
+      height: config.height,
+    });
     this.itemIndentation = config.itemIndentation ?? 0;
     this.itemWidth = config.itemWidth ?? 0;
     this.itemHeight = config.itemHeight ?? 0;
     this.spacingX = config.spacingX ?? 0;
     this.spacingY = config.spacingY ?? 0;
+    if (this.overflow === "scroll") {
+      this.createViewport();
+      this.sliderX = new UISlider(
+        scene,
+        "list-slider-track",
+        undefined,
+        "list-slider-thumb",
+        {
+          width: 32,
+          height: this.displayHeight,
+          trackNineSlice: [16, 16],
+          filledTrackNineSlice: [16, 16],
+          alignModeName: ALIGNMODES.RIGHT_TOP,
+          parent: this,
+          vertical: true,
+          thumbWidth: 32,
+          thumbHeight: 32,
+          thumbAlignMode: 1,
+        }
+      );
+    }
+  }
+
+  createViewport() {
+    this.viewport = new Phaser.GameObjects.Graphics(this.scene);
+    // this.viewport = this.scene.add.graphics().setDepth(12);
+    this.updateViewport();
+    // this.viewport?.fillStyle(0xffffff, 0.75);
+    this.mask = new Phaser.Display.Masks.GeometryMask(
+      this.scene,
+      this.viewport
+    );
+    this.itemsContainer.root.setMask(this.mask);
   }
 
   /**
@@ -49,7 +92,7 @@ export class UIList extends UIBase {
    * @param index If other UI for this index, the other UI will be shifted back in order.
    */
   addItem(item: UIBase, index?: number) {
-    item.parent = this;
+    item.parent = this.itemsContainer;
     if (index === undefined) index = this.items.length;
     else if (index < 0) index += this.items.length;
     if (index < 0) index = 0;
@@ -99,6 +142,13 @@ export class UIList extends UIBase {
   }
 
   onItemSelected(value: UIBase | undefined) {
+    // scroll
+    if (this.sliderX) {
+      this.sliderX.max = this.itemsCount - 1;
+      this.sliderX.value = this.itemIndex;
+      this.updateScroll();
+    }
+    // logic
     this.emit(UIEvents.SELECT_CHANGE, this);
     if (!value) return;
     value.onSelected();
@@ -107,6 +157,23 @@ export class UIList extends UIBase {
   onItemUnSelected(value: UIBase | undefined) {
     if (!value) return;
     value.onUnSelected();
+  }
+
+  updateScroll() {
+    const itemY = this.item?.y ?? 0;
+    const past =
+      itemY +
+      this.itemHeight -
+      this.itemsContainer.configHeight / this.itemsContainer.zoom;
+    if (past > -this.itemsContainer.y / this.itemsContainer.zoom) {
+      this.itemsContainer.y = -past * this.itemsContainer.zoom;
+    } else if (itemY < -this.itemsContainer.y / this.itemsContainer.zoom) {
+      this.itemsContainer.y = -itemY * this.itemsContainer.zoom;
+    }
+  }
+
+  setZoom(value: number) {
+    super.setZoom(value);
   }
 
   get itemsCount(): number {
@@ -120,7 +187,7 @@ export class UIList extends UIBase {
   set items(value: UIBase[]) {
     this._items = value;
     this._items.forEach((newItem, index) => {
-      newItem.parent = this;
+      newItem.parent = this.itemsContainer;
       newItem.setMargin(
         this.itemIndentation,
         (this.itemHeight + this.spacingY) * index

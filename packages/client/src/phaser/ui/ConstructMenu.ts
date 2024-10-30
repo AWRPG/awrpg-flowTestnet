@@ -38,7 +38,7 @@ export class ConstructMenu extends GuiBase {
     // Init the action button list
     this.list = new UIList(scene, {
       marginY: 28,
-      itemWidth: 260,
+      itemWidth: 328,
       itemHeight: 48,
       spacingY: 12,
       parent: this.rootUI,

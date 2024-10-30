@@ -101,7 +101,7 @@ export class UIEmitter {
 
   //==================================================================
   //    About the triggers
-  //    The config of keys is in the UIEvents.ts file
+  //    The config of keys is in the UIConfig.ts file
   //==================================================================
   /**
    * When focus is gained

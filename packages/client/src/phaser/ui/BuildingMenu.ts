@@ -1,7 +1,6 @@
 import { Entity, getComponentValue } from "@latticexyz/recs";
 import { ALIGNMODES, SOURCE } from "../../constants";
 import { Box } from "../components/ui/Box";
-import { Button } from "../components/ui/Button";
 import { UIList } from "../components/ui/common/UIList";
 import { UIScene } from "../scenes/UIScene";
 import { ButtonA } from "../components/ui/ButtonA";
@@ -68,7 +67,7 @@ export class BuildingMenu extends GuiBase {
 
     this.list = new UIList(scene, {
       marginY: 28,
-      itemWidth: 260,
+      itemWidth: 328,
       itemHeight: 48,
       spacingY: 12,
       parent: this.rootUI,

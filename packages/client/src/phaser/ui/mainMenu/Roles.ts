@@ -22,12 +22,13 @@ export class Roles extends DoublePage {
     const zoom = StandardGameSize.maxWidth;
 
     this.rolesList = new UIList(scene, {
-      itemWidth: this.contentW,
+      width: Math.ceil(this.contentW * 0.99),
+      height: 512,
+      itemWidth: this.contentW * 0.92,
       itemHeight: 32,
       spacingY: 6,
-      marginX: -48,
       parent: this.contentL,
-      alignModeName: ALIGNMODES.LEFT_TOP,
+      overflow: "scroll",
       onCancel: () => {
         parent.hidden();
       },
@@ -36,8 +37,7 @@ export class Roles extends DoublePage {
 
     for (let i = 0; i < 25; i++) {
       let item = new BookListButton(scene, {
-        width: this.contentW,
-        height: 32,
+        width: this.rolesList.itemWidth,
         text: "Host " + i.toString(),
       });
       this.rolesList.addItem(item);
