@@ -3,6 +3,7 @@ import { UIBase } from "./UIBase";
 import { UIText, UITextConfig } from "./UIText";
 import { ALIGNMODES } from "../../../../constants";
 
+/** The config for UIButton */
 export interface UIButtonConfig extends UITextConfig {
   text?: string;
   skinTexture?: string;
@@ -13,27 +14,45 @@ export interface UIButtonConfig extends UITextConfig {
   clickedSkinNineSlice?: number | number[];
 }
 
+/** The basic component of the button in UI */
 export class UIButton extends UIBase {
+  /** The skin of the button on unselected */
   skin: UIImage;
+  /** The skin of the button on hoving */
   hoverSkin: UIImage;
+  /** The skin of the button on selected */
   clickedSkin: UIImage;
+  /** The text content of the button */
   content: UIText;
 
+  /** */
   constructor(scene: Phaser.Scene, config: UIButtonConfig = {}) {
     config.skinTexture = config.skinTexture ?? "ui-empty";
     super(scene, { texture: config.skinTexture, ...config });
 
+    // Clear the config just for the root
     config.alignModeName = undefined;
+    config.scale = undefined;
     config.marginX = 0;
     config.marginY = 0;
+
+    // Update the parent to this
     config.parent = this;
 
+    // Init the skins and text
     this.skin = this.initSkin(config);
     this.hoverSkin = this.initHoverSkin(config);
     this.hoverSkin.hidden();
     this.clickedSkin = this.initClickedSkin(config);
     this.clickedSkin.hidden();
     this.content = this.initContent(config);
+  }
+
+  //==================================================================
+  //    Init
+  //==================================================================
+  init() {
+    super.init();
   }
 
   initSkin(config: UIButtonConfig): UIImage {
@@ -43,14 +62,14 @@ export class UIButton extends UIBase {
 
   initHoverSkin(config: UIButtonConfig): UIImage {
     const texture = config.hoverSkinTexture ?? config.skinTexture!;
-    config.nineSlice = config.hoverSkinNineSlice ?? config.nineSlice;
-    return new UIImage(this.scene, texture, config);
+    const nineSlice = config.hoverSkinNineSlice ?? config.nineSlice;
+    return new UIImage(this.scene, texture, { ...config, nineSlice });
   }
 
   initClickedSkin(config: UIButtonConfig): UIImage {
     const texture = config.clickedSkinTexture ?? config.skinTexture!;
-    config.nineSlice = config.clickedSkinNineSlice ?? config.nineSlice;
-    return new UIImage(this.scene, texture, config);
+    const nineSlice = config.clickedSkinNineSlice ?? config.nineSlice;
+    return new UIImage(this.scene, texture, { ...config, nineSlice });
   }
 
   initContent(config: UIButtonConfig): UIText {
@@ -58,6 +77,10 @@ export class UIButton extends UIBase {
     return new UIText(this.scene, config.text ?? "", config);
   }
 
+  //==================================================================
+  //    Triggers
+  //==================================================================
+  /** When the button is selected */
   onSelected() {
     super.onSelected();
     this.clickedSkin.show();
@@ -65,6 +88,7 @@ export class UIButton extends UIBase {
     this.hoverSkin.hidden();
   }
 
+  /** When the button is unselected */
   onUnSelected() {
     super.onUnSelected();
     if (this.hovering) {
@@ -77,6 +101,9 @@ export class UIButton extends UIBase {
     this.clickedSkin.hidden();
   }
 
+  //==================================================================
+  //    Getter / Setter
+  //==================================================================
   get skinTexture() {
     return this.skin.texture ?? "";
   }

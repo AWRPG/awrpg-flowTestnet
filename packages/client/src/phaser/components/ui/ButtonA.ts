@@ -2,12 +2,14 @@ import { UIButton, UIButtonConfig } from "./common/UIButton";
 import { UIImage } from "./common/UIImage";
 import { UIText } from "./common/UIText";
 import { ALIGNMODES } from "../../../constants";
-import { BookListText } from "./BookListText";
 
+/**
+ * For the normal menu such as ActionMenu
+ */
 export class ButtonA extends UIButton {
   constructor(scene: Phaser.Scene, config: UIButtonConfig = {}) {
     super(scene, {
-      width: 260,
+      width: 328,
       height: 48,
       fontFamily: "ThaleahFat",
       fontSize: 36,
@@ -69,15 +71,18 @@ export class ButtonA extends UIButton {
   }
 
   initSkin(config: UIButtonConfig): UIImage {
-    return super.initSkin({ ...config, marginX: 68 });
+    const width = config.width ? config.width - 68 : 192;
+    return super.initSkin({ ...config, marginX: 68, width });
   }
 
   initHoverSkin(config: UIButtonConfig): UIImage {
-    return super.initHoverSkin({ ...config, marginX: 68 });
+    const width = config.width ? config.width - 68 : 192;
+    return super.initHoverSkin({ ...config, marginX: 68, width });
   }
 
   initClickedSkin(config: UIButtonConfig): UIImage {
-    return super.initClickedSkin({ ...config, marginX: 68 });
+    const width = config.width ? config.width - 68 : 192;
+    return super.initClickedSkin({ ...config, marginX: 68, width });
   }
 
   initContent(config: UIButtonConfig): UIText {
