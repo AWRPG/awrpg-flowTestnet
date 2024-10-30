@@ -4,7 +4,6 @@ import { Box } from "../components/ui/Box";
 import { Avatar } from "../components/ui/Avatar";
 import { UIImage } from "../components/ui/common/UIImage";
 import { UIText } from "../components/ui/common/UIText";
-import { UISlider } from "../components/ui/common/UISlider";
 import { ALIGNMODES } from "../../constants";
 import { Heading2 } from "../components/ui/Heading2";
 import { Heading3 } from "../components/ui/Heading3";
@@ -19,7 +18,6 @@ import {
   Has,
   HasValue,
   runQuery,
-  setComponent,
   UpdateType,
 } from "@latticexyz/recs";
 import {
@@ -31,7 +29,7 @@ import {
   STAMINA,
 } from "../../contract/constants";
 import { Hex } from "viem";
-import { decodeBalanceEntity, encodeTypeEntity } from "../../utils/encode";
+import { decodeBalanceEntity } from "../../utils/encode";
 import { getEntityPoolsInfo } from "../../logics/pool";
 import { getEntitySpecs } from "../../logics/entity";
 import { getERC20Balances } from "../../logics/container";
@@ -47,7 +45,7 @@ export class CharacterInfo extends GuiBase {
   hpBar: HpBar;
   hpName: UIText;
   hpNum: UIText;
-  spBar: UISlider;
+  spBar: SpBar;
   spName: UIText;
   spNum: UIText;
 
@@ -109,10 +107,11 @@ export class CharacterInfo extends GuiBase {
 
     this.hpBar = new HpBar(this.scene, {
       width: 358,
-      height: 30,
+      height: 24,
       marginX: 268,
       marginY: 78,
       parent: this.rootUI,
+      maskMode: false,
     });
 
     this.hpName = new Heading3(this.scene, "HP", {
@@ -130,7 +129,7 @@ export class CharacterInfo extends GuiBase {
 
     this.spBar = new SpBar(this.scene, {
       width: 358,
-      height: 30,
+      height: 24,
       marginX: 268,
       marginY: 140,
       parent: this.rootUI,

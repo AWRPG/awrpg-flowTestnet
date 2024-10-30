@@ -1,22 +1,25 @@
 import { UISlider, UISliderConfig } from "./common/UISlider";
-import { Hex } from "viem";
 import { Entity } from "@latticexyz/recs";
 import { getPoolAmount, getPoolCapacity } from "../../../logics/pool";
 import { POOL_TYPES } from "../../../constants";
 
 export class HpBar extends UISlider {
   constructor(scene: Phaser.Scene, config: UISliderConfig = {}) {
-    super(scene, "bar_empty", "bar_red", null, config);
+    super(scene, "bar_empty", "bar_red", undefined, {
+      trackNineSlice: 6,
+      filledTrackNineSlice: 6,
+      ...config,
+    });
   }
 
   updateComponentValues(entity?: Entity) {
     if (!this.components || !this.entity) return;
     if (entity && entity !== this.entity) return;
     this.max = Number(
-      getPoolCapacity(this.components, this.entity as Hex, POOL_TYPES[2])
+      getPoolCapacity(this.components, this.entity, POOL_TYPES[2])
     );
     this.value = Number(
-      getPoolAmount(this.components, this.entity as Hex, POOL_TYPES[2])
+      getPoolAmount(this.components, this.entity, POOL_TYPES[2])
     );
   }
 

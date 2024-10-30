@@ -1,5 +1,7 @@
+import { UIImage } from "./UIImage";
 import { UIBase, UIBaseConfig } from "./UIBase";
 import { GameObjects } from "phaser";
+import { ALIGNMODES } from "../../../../constants";
 
 export interface UISliderConfig extends UIBaseConfig {
   min?: number; // default 0
@@ -7,15 +9,12 @@ export interface UISliderConfig extends UIBaseConfig {
   defaultValue?: number; // default same to max
   step?: number; // default 1
   vertical?: boolean; // default false
-  trackMode?: number; // 0: NineSlice, 1: Sprite, default 0
   trackNineSlice?: number | number[];
   trackWidth?: number;
   trackHeight?: number;
-  filledTrackMode?: number; // 0: NineSlice, 1: Sprite, default 0
   filledTrackNineSlice?: number | number[];
   filledTrackWidth?: number;
   filledTrackHeight?: number;
-  thumbMode?: number; // 0: Image, 1: Sprite, default 0
   thumbAlignMode?: number; // 0: left, 1: middle, 2: right, default 1
   thumbWidth?: number;
   thumbHeight?: number;
@@ -27,152 +26,198 @@ export interface UISliderConfig extends UIBaseConfig {
  * Graphical display of numerical percentages such as blood bars, stamina slots
  */
 export class UISlider extends UIBase {
-  track: GameObjects.NineSlice | GameObjects.Sprite; // The empty part of the slider
+  protected _min: number;
+  protected _max: number;
+  protected _value: number;
+
+  track: UIImage; // The empty part of the slider
   trackTexture: string;
-  trackMode: number; // 0: NineSlice, 1: Sprite
 
-  filledTrack: GameObjects.NineSlice | GameObjects.Sprite; // The filled part of the slider
-  filledTrackTexture: string;
-  filledTrackMode: number; // 0: NineSlice, 1: Sprite
+  filledTrack?: UIImage; // The filled part of the slider
+  filledTrackTexture?: string;
 
-  thumb: GameObjects.Image | GameObjects.Sprite | null = null; // The handle that's used to change the slider value.
-  thumbTexture: string | null;
-  thumbMode: number = 0; // 0: Image, 1: Sprite
+  thumb?: UIImage; // The handle that's used to change the slider value.
+  thumbTexture?: string;
   thumbAlignMode: number = 0; // 0: left, 1: middle, 2: right
 
-  private _min: number;
-  private _max: number;
-  private _value: number;
   step: number;
-  vertical: boolean;
+  vertical: boolean = false;
   maskMode: boolean;
+  filledMaskGraphics?: Phaser.GameObjects.Graphics;
+  filledMask?: Phaser.Display.Masks.GeometryMask;
   onChange?: () => void;
 
   constructor(
     scene: Phaser.Scene,
-    trackTexture: string,
-    filledTrackTexture: string,
-    thumbTexture: string | null,
+    trackTexture: string = "ui-empty",
+    filledTrackTexture: string = "ui-empty",
+    thumbTexture?: string,
     config: UISliderConfig = {}
   ) {
     super(scene, { texture: trackTexture, ...config });
+    this.vertical = config.vertical ?? false;
 
-    // empty track
+    config.alignModeName = undefined;
+    config.scale = undefined;
+    config.marginX = 0;
+    config.marginY = 0;
+    config.parent = this;
+
+    // Init empty track
     this.trackTexture = trackTexture;
-    this.trackMode = config.trackMode ?? 0;
-    if (this.trackMode === 0) {
-      const { trackNineSlice = 0 } = config;
-      const [leftWidth = 0, rightWidth = 0, topHeight = 0, bottomHeight = 0] =
-        Array.isArray(trackNineSlice) ? trackNineSlice : [trackNineSlice];
-      this.track = new GameObjects.NineSlice(
-        scene,
-        0,
-        0,
-        this.trackTexture,
-        undefined,
-        config.trackWidth ?? this.displayWidth / this.scale,
-        config.trackHeight ?? this.displayHeight / this.scale,
-        leftWidth,
-        rightWidth,
-        topHeight,
-        bottomHeight
-      );
-    } else {
-      this.track = new GameObjects.Sprite(scene, 0, 0, this.trackTexture);
-      this.track.setDisplaySize(
-        this.displayWidth / this.scale,
-        this.displayHeight / this.scale
-      );
-    }
-    this.track.setOrigin(0, 0);
-    this.root.add(this.track);
+    this.track = this.initTrack(
+      config,
+      trackTexture,
+      config.trackNineSlice,
+      config.trackWidth,
+      config.trackHeight
+    );
 
-    // filled track
+    // Init filled track
     this.filledTrackTexture = filledTrackTexture;
-    this.filledTrackMode = config.filledTrackMode ?? 0;
-    if (this.filledTrackMode === 0) {
-      const { filledTrackNineSlice = 0 } = config;
-      const [leftWidth = 0, rightWidth = 0, topHeight = 0, bottomHeight = 0] =
-        Array.isArray(filledTrackNineSlice)
-          ? filledTrackNineSlice
-          : [filledTrackNineSlice];
-      this.filledTrack = new GameObjects.NineSlice(
-        scene,
-        0,
-        0,
-        this.filledTrackTexture,
-        undefined,
-        config.filledTrackWidth ?? this.displayWidth / this.scale,
-        config.filledTrackHeight ?? this.displayHeight / this.scale,
-        leftWidth,
-        rightWidth,
-        topHeight,
-        bottomHeight
-      );
-    } else {
-      this.filledTrack = new GameObjects.Sprite(
-        scene,
-        0,
-        0,
-        this.filledTrackTexture
-      );
-      this.filledTrack.setDisplaySize(
-        this.displayWidth / this.scale,
-        this.displayHeight / this.scale
-      );
-    }
-    this.filledTrack.setOrigin(0, 0);
-    this.root.add(this.filledTrack);
+    this.filledTrack = this.initTrack(
+      config,
+      filledTrackTexture,
+      config.filledTrackNineSlice,
+      config.filledTrackWidth,
+      config.filledTrackHeight
+    );
 
-    // thumb
+    // Init thumb
     this.thumbTexture = thumbTexture;
-    if (this.thumbTexture !== null) {
-      this.thumbMode = config.thumbMode ?? 0;
-      if (this.thumbMode === 0) {
-        this.thumb = new GameObjects.Image(
-          scene,
-          0,
-          0,
-          this.filledTrackTexture
-        );
-      } else {
-        this.thumb = new GameObjects.Sprite(scene, 0, 0, this.thumbTexture);
-      }
+    if (thumbTexture) {
+      this.thumb = this.initThumb(
+        config,
+        thumbTexture,
+        config.thumbWidth,
+        config.thumbHeight
+      );
       this.thumbAlignMode = config.thumbAlignMode ?? 0;
-      if (this.thumbAlignMode === 0) this.thumb.setOrigin(0, 0.5);
-      else if (this.thumbAlignMode === 1) this.thumb.setOrigin(0.5, 0.5);
-      else this.thumb.setOrigin(1, 0.5);
-      this.root.add(this.thumb);
+
+      const offsetY =
+        (this.thumb.displayHeight - this.track.displayHeight) /
+        (2 * this.thumb.displayHeight);
+
+      if (this.thumbAlignMode === 0) {
+        if (this.vertical) {
+          this.thumb.image.setOrigin(offsetY, 1);
+        } else {
+          this.thumb.image.setOrigin(0, offsetY);
+        }
+      } else if (this.thumbAlignMode === 1) {
+        if (this.vertical) {
+          this.thumb.image.setOrigin(offsetY, 0.5);
+        } else {
+          this.thumb.image.setOrigin(0.5, offsetY);
+        }
+      } else {
+        if (this.vertical) {
+          this.thumb.image.setOrigin(offsetY, 0);
+        } else {
+          this.thumb.image.setOrigin(1, offsetY);
+        }
+      }
     }
 
-    // states
+    // Init states
     this._min = config.min ?? 0;
     this._max = config.max ?? 100;
     this._value = config.defaultValue ?? this.max;
     this.step = config.step ?? 1;
-    this.vertical = config.vertical ?? false;
+
+    // Init the mask of filled track
     this.maskMode = config.maskMode ?? true;
+    if (this.maskMode) {
+      this.filledMaskGraphics = new GameObjects.Graphics(this.scene);
+      this.filledMask = new Phaser.Display.Masks.GeometryMask(
+        this.scene,
+        this.filledMaskGraphics
+      );
+      this.filledTrack?.image.setMask(this.filledMask);
+    }
+
+    // Update the filled track & the thumb
+    this.updateFilledTrack();
+  }
+
+  //==================================================================
+  //    Init
+  //==================================================================
+  /** Init the track or the filled track */
+  initTrack(
+    config: UISliderConfig,
+    texture: string,
+    nineSlice?: number | number[],
+    width?: number,
+    height?: number
+  ): UIImage {
+    width = width ?? this.width;
+    height = height ?? this.height;
+    const track = new UIImage(this.scene, texture, {
+      ...config,
+      nineSlice,
+      width: this.vertical ? height : width,
+      height: this.vertical ? width : height,
+      alignModeName: ALIGNMODES.LEFT_TOP,
+    });
+    if (this.vertical) {
+      track.image.setRotation(Math.PI / 2);
+      track.image.x += this.width;
+    }
+    return track;
+  }
+
+  /** Init the thumb */
+  initThumb(
+    config: UISliderConfig,
+    texture: string,
+    width?: number,
+    height?: number
+  ) {
+    return new UIImage(this.scene, texture, {
+      ...config,
+      width,
+      height,
+      alignModeName: ALIGNMODES.LEFT_TOP,
+    });
+  }
+
+  //==================================================================
+  //    Update
+  //==================================================================
+  updateGlobalPosition() {
+    super.updateGlobalPosition();
     this.updateFilledTrack();
   }
 
   updateFilledTrack() {
+    if (!this.filledTrack) return;
     const fillRatio = (this.value - this.min) / (this.max - this.min);
-    const filledWidth = this.track.width * fillRatio;
-    if (this.maskMode) {
-      const maskGraphics = new GameObjects.Graphics(this.scene);
-      maskGraphics.fillRect(0, 0, filledWidth, this.displayHeight);
-      maskGraphics.x = this.globalX;
-      maskGraphics.y = this.globalY;
-      const mask = new Phaser.Display.Masks.GeometryMask(
-        this.scene,
-        maskGraphics
+    const filledWidth = this.track.displayWidth * fillRatio;
+    if (this.filledMaskGraphics) {
+      this.filledMaskGraphics.clear();
+      this.filledMaskGraphics.fillRect(
+        0,
+        0,
+        filledWidth * this.globalScaleX,
+        this.track.displayHeight * this.globalScaleY
       );
-      this.filledTrack.setMask(mask);
+      this.filledMaskGraphics.setPosition(this.globalX, this.globalY);
     } else {
-      this.filledTrack.setDisplaySize(filledWidth, this.track.height);
+      this.filledTrack.setDisplaySize(
+        filledWidth,
+        this.displayHeight / this.scale
+      );
+    }
+    if (this.thumb) {
+      if (this.vertical) this.thumb.setPosition(0, filledWidth);
+      else this.thumb.setPosition(filledWidth, 0);
     }
   }
 
+  //==================================================================
+  //    Getter / Setter
+  //==================================================================
   get value() {
     return this._value;
   }
