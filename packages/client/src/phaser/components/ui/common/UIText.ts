@@ -116,13 +116,8 @@ export class UIText extends UIBase {
   }
 
   resizeListener(gameSize: Phaser.Structs.Size) {
-    const zoom = Phaser.Math.Clamp(
-      gameSize.width / StandardGameSize.maxWidth,
-      StandardGameSize.minWidth / StandardGameSize.maxWidth,
-      1
-    );
-    this.root.setScale(1 / zoom);
-    console.log(1 / zoom)
+    super.resizeListener(gameSize);
+    this.root.setScale(this.zoom);
     this.updatePosition();
     if (this.textObj) this.adjustTextPositon();
   }
