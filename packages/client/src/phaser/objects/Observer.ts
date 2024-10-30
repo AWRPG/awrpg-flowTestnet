@@ -51,8 +51,11 @@ export class Observer extends SceneObject {
     if (type === "role") {
       const entityObj: Role = this.scene.roles[entity];
       if (entityObj.isMoving) return;
-      SceneObjectController.focus = entityObj;
-      if (entityObj.isPlayer) UIController.scene.actionMenu?.show(entityObj);
+      if (entityObj.isPlayer) {
+        SceneObjectController.focus = entityObj;
+        UIController.scene.actionMenu?.show(entityObj);
+      } else {
+      }
       this.updateSelectedHost(entityObj.entity);
     } else if (type === "building") {
       const building: Building = this.scene.buildings[entity];
