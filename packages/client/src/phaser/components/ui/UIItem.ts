@@ -1,14 +1,15 @@
 import { UIBase } from "./common/UIBase";
+import { UIButton, UIButtonConfig } from "./common/UIButton";
 import { UIImage, UIImageConfig } from "./common/UIImage";
 import { UIText } from "./common/UIText";
 import { Heading3 } from "./Heading3";
 import { ALIGNMODES } from "../../../constants";
 
-export interface UIItemConfig extends UIImageConfig {
+export interface UIItemConfig extends UIButtonConfig {
   amount?: number;
 }
 
-export class UIItem extends UIBase {
+export class UIItem extends UIButton {
   bg: UIImage;
   itemType?: string;
   icon?: UIImage;
@@ -21,8 +22,11 @@ export class UIItem extends UIBase {
     config: UIItemConfig = {}
   ) {
     super(scene, {
-      width: 260,
+      width: 328,
       height: 48,
+      hoverSkinTexture: "btn_select_skin",
+      clickedSkinTexture: "btn_select_skin",
+      nineSlice: 16,
       ...config,
     });
     this.bg = new UIImage(scene, "bag-icon-bg", {
@@ -35,7 +39,7 @@ export class UIItem extends UIBase {
     this.amount = config.amount ?? 0;
     this.nameText = new Heading3(scene, this.itemType ?? "", {
       parent: this,
-      marginX: 56,
+      marginX: 68,
       fontSize: 24,
       alignModeName: ALIGNMODES.LEFT_CENTER,
     });
@@ -48,7 +52,7 @@ export class UIItem extends UIBase {
     const textX = new Heading3(scene, "X", {
       parent: this,
       fontSize: 14,
-      marginX: (this.amountText.textObj.width / 4 + 16),
+      marginX: this.amountText.textObj.width / 4 + 16,
       alignModeName: ALIGNMODES.RIGHT_CENTER,
     });
     if (itemType) {
@@ -56,6 +60,9 @@ export class UIItem extends UIBase {
     } else {
       this.amountText.visible = false;
     }
+
+    this.root.bringToTop(this.hoverSkin.root);
+    this.root.bringToTop(this.clickedSkin.root);
   }
 
   initIcon(texture: string) {
@@ -75,5 +82,15 @@ export class UIItem extends UIBase {
   set iconTexture(value: string) {
     if (!this.icon) this.initIcon(value);
     else this.icon.setTexture(value);
+  }
+
+  initHoverSkin(config: UIButtonConfig): UIImage {
+    const width = config.width ? config.width - 56 : 192;
+    return super.initHoverSkin({ ...config, marginX: 56, width });
+  }
+
+  initClickedSkin(config: UIButtonConfig): UIImage {
+    const width = config.width ? config.width - 56 : 192;
+    return super.initClickedSkin({ ...config, marginX: 56, width });
   }
 }

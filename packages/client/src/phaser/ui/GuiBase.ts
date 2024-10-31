@@ -144,6 +144,7 @@ export class GuiBase {
   }
 
   set focusUI(value: UIBase) {
+    if (UIController.focus === this._focusUI) UIController.focus = value;
     this._focusUI = value;
   }
 

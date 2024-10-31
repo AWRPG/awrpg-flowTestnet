@@ -33,7 +33,7 @@ export class Roles extends DoublePage {
       height: 512,
       itemWidth: this.contentW - 48,
       itemHeight: 32,
-      spacingY: 6,
+      spacingY: 12,
       parent: this.contentL,
       overflow: "scroll",
       onCancel: () => {
@@ -78,9 +78,12 @@ export class Roles extends DoublePage {
     this.rolesList.items = items;
     this.rolesList.on(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
     this.rolesList.itemIndex = 0;
+    this.bag.on(UIEvents.LEFT, this.onLeft, this);
+    this.rolesList.on(UIEvents.RIGHT, this.onRight, this);
   }
 
   hidden() {
+    this.offMenuListen(this.rolesList);
     this.rolesList.off(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
     super.hidden();
   }
@@ -125,5 +128,21 @@ export class Roles extends DoublePage {
       this.bag.addItem(item);
     });
     itemsCount += erc20Items.length;
+  }
+
+  onLeft() {
+    super.onLeft();
+    this.bag.onItemUnSelected(this.bag.item);
+    this.focusUI = this.rolesList;
+    if (this.rolesList.item) this.rolesList.onItemSelected(this.rolesList.item);
+    else this.rolesList.itemIndex = 0;
+  }
+
+  onRight() {
+    super.onRight();
+    this.rolesList.onItemUnSelected(this.rolesList.item);
+    this.focusUI = this.bag;
+    if (this.bag.item) this.bag.itemIndex = this.bag.itemIndex;
+    else this.bag.itemIndex = 0;
   }
 }
