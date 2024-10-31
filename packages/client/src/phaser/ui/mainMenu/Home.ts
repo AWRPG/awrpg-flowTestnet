@@ -14,8 +14,8 @@ import { MainMenuTitle } from "../../components/ui/MainMenuTitle";
 
 export class Home extends DoublePage {
   address: Heading3;
-  constructor(parent: GuiBase) {
-    super(parent, "Front");
+  constructor(scene: UIScene, parent: GuiBase) {
+    super(scene, parent, "Front");
     this.name = "MainMenuHome";
 
     this.contentL.setAlignMode(ALIGNMODES.MIDDLE_CENTER);

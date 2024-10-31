@@ -1,5 +1,5 @@
 import { ALIGNMODES } from "../../../../constants";
-import { UIEmitter } from "./UIEmitter";
+import { UIEmitter, UIEmitterConfig } from "./UIEmitter";
 
 export const StandardGameSize = {
   maxWidth: 2240,
@@ -8,7 +8,7 @@ export const StandardGameSize = {
   minHeight: 900,
 };
 
-export interface UIBaseConfig {
+export interface UIBaseConfig extends UIEmitterConfig {
   texture?: string | Phaser.Textures.Texture;
   alignModeName?: string;
   width?: number;
@@ -20,8 +20,6 @@ export interface UIBaseConfig {
   overflow?: string;
   disable?: boolean;
   antiZoom?: boolean;
-  onConfirm?: () => void;
-  onCancel?: () => void;
 }
 
 /**
@@ -85,7 +83,7 @@ export class UIBase extends UIEmitter {
 
   /** */
   constructor(scene: Phaser.Scene, config: UIBaseConfig = {}) {
-    super(scene, config.onConfirm, config.onCancel);
+    super(scene, config);
     this.texture =
       typeof config.texture === "object" ? config.texture.key : config.texture;
     this.alignModeName = config.alignModeName ?? ALIGNMODES.LEFT_TOP;
@@ -436,6 +434,7 @@ export class UIBase extends UIEmitter {
    * Removes all childs from this Container.
    */
   removeAll(destroyChild?: boolean): UIBase {
+    this.children = [];
     this.root.removeAll(destroyChild);
     return this;
   }
@@ -444,6 +443,7 @@ export class UIBase extends UIEmitter {
    * Remove and Destroy all childs in the Container.
    */
   destroyChildren(): UIBase {
+    this.children = [];
     this.root.removeAll(true);
     return this;
   }

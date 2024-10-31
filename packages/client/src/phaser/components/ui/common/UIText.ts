@@ -113,6 +113,7 @@ export class UIText extends UIBase {
     }
     this.textObj.x = offsetX;
     this.textObj.y = offsetY;
+    // this.setSize(this.textObj.width / 4, this.textObj.height / 4);
   }
 
   resizeListener(gameSize: Phaser.Structs.Size) {

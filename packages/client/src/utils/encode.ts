@@ -11,10 +11,7 @@ import {
 } from "viem";
 
 export function hexTypeToString(hex: Hex) {
-  return hexToString(hex)
-    .toLowerCase()
-    .replace(/[^\x20-\x7E]/g, "")
-    .trim();
+  return hexToString(hex).toLowerCase().replace(/\0/g, "");
 }
 
 export function toEntity(type: Hex, id: number | bigint) {

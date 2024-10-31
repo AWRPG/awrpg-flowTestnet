@@ -53,7 +53,7 @@ export class UIList extends UIBase {
     this.spacingY = config.spacingY ?? 0;
     if (this.overflow === "scroll") {
       this.createViewport();
-      this.sliderX = new UISlider(
+      this.sliderY = new UISlider(
         scene,
         "list-slider-track",
         undefined,
@@ -110,6 +110,44 @@ export class UIList extends UIBase {
     this.emit(UIEvents.CHANGE, this);
   }
 
+  removeItem(item: UIBase): boolean {
+    this._items.forEach((_item, index) => {
+      if (_item === item) {
+        this._items.splice(index, 1);
+        this.itemsContainer.remove(_item);
+        for (let i = index; i < this.items.length; i++) {
+          this.items[i].setMargin(
+            this.itemIndentation,
+            (this.itemHeight + this.spacingY) * i
+          );
+        }
+        this.emit(UIEvents.CHANGE, this);
+        return true;
+      }
+    });
+    return false;
+  }
+
+  removeItemByIndex(index: number, num: number = 1): boolean {
+    const removedItems = this._items.splice(index, num);
+    this.itemsContainer.remove(removedItems);
+    for (let i = index; i < this.items.length; i++) {
+      this.items[i].setMargin(
+        this.itemIndentation,
+        (this.itemHeight + this.spacingY) * i
+      );
+    }
+    if (removedItems?.length > 0) {
+      this.emit(UIEvents.CHANGE, this);
+      return true;
+    }
+    return false;
+  }
+
+  removeAllItems() {
+    this.items = [];
+  }
+
   onFocus() {
     if (this._itemIndex < 0 && this.itemsCount > 0) this.itemIndex = 0;
     else if (this._itemIndex >= this.itemsCount)
@@ -143,9 +181,9 @@ export class UIList extends UIBase {
 
   onItemSelected(value: UIBase | undefined) {
     // scroll
-    if (this.sliderX) {
-      this.sliderX.max = this.itemsCount - 1;
-      this.sliderX.value = this.itemIndex;
+    if (this.sliderY) {
+      this.sliderY.max = this.itemsCount - 1;
+      this.sliderY.value = this.itemIndex;
       this.updateScroll();
     }
     // logic
@@ -186,6 +224,7 @@ export class UIList extends UIBase {
 
   set items(value: UIBase[]) {
     this._items = value;
+    this.itemsContainer.destroyChildren();
     this._items.forEach((newItem, index) => {
       newItem.parent = this.itemsContainer;
       newItem.setMargin(

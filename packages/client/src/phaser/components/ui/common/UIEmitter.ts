@@ -1,5 +1,13 @@
 import { UIEvents } from "./UIEvents";
 
+export interface UIEmitterConfig {
+  data?: unknown;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+  onSelect?: () => void;
+  onUnSelect?: () => void;
+}
+
 /**
  * The most basic UI components, about the lisenters & triggers.
  * In AWRPG, it's also the parent class of SceneObject.
@@ -7,6 +15,9 @@ import { UIEvents } from "./UIEvents";
 export class UIEmitter {
   /** A empty gameObject as the root node */
   root: Phaser.GameObjects.Container;
+
+  /** Anything you want to save */
+  data: unknown;
 
   /** Record mouse hover or not */
   hovering: boolean = false;
@@ -17,15 +28,20 @@ export class UIEmitter {
   /** Save the function that will be executed when the cancel key is pressed */
   onCancel?: () => void;
 
-  constructor(
-    scene: Phaser.Scene,
-    onConfirm?: () => void,
-    onCancel?: () => void
-  ) {
+  /** Save the function that will be executed when it's selected in list */
+  onSelect?: () => void;
+
+  /** Save the function that will be executed when it's is unselected in list */
+  onUnSelect?: () => void;
+
+  constructor(scene: Phaser.Scene, config: UIEmitterConfig = {}) {
     // Create the root container
     this.root = new Phaser.GameObjects.Container(scene, 0, 0);
-    this.onConfirm = onConfirm;
-    this.onCancel = onCancel;
+    this.data = config.data;
+    this.onConfirm = config.onConfirm;
+    this.onCancel = config.onCancel;
+    this.onSelect = config.onSelect;
+    this.onUnSelect = config.onUnSelect;
   }
 
   //==================================================================
@@ -171,12 +187,16 @@ export class UIEmitter {
   /**
    * When item has been selected (UIList)
    */
-  onSelected() {}
+  onSelected() {
+    if (this.onSelect) this.onSelect();
+  }
 
   /**
    * When item has been unselected (UIList)
    */
-  onUnSelected() {}
+  onUnSelected() {
+    if (this.onUnSelect) this.onUnSelect();
+  }
 
   /**
    * When hovering the mouse
