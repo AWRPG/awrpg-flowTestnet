@@ -32,8 +32,7 @@ export class Mine extends SceneObject {
     };
 
     this.mineSprite = scene.add
-      .tileSprite(position.x, position.y, 0, 0, "node")
-      .setScale(0.5)
+      .tileSprite(position.x, position.y, 0, 0, "mine")
       .setDepth(5);
   }
 
