@@ -73,11 +73,7 @@ export class UIImage extends UIBase {
     skipScale9?: boolean
   ) {
     if (this.image instanceof Phaser.GameObjects.NineSlice) {
-      this.setAutoScale({
-        width: width ?? this.image.width,
-        height: height ?? this.image.height,
-        texture: this.image.texture.key,
-      });
+      this.setSize(width ?? this.width, height ?? this.height);
       this.image.setSlices(
         width ?? this.image.width,
         height ?? this.image.height,
