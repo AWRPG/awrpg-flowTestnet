@@ -12,7 +12,12 @@ import { Box } from "../../components/ui/Box";
 import { BookListButton } from "../../components/ui/BookListButton";
 import { Heading3 } from "../../components/ui/Heading3";
 import { MainMenuTitle } from "../../components/ui/MainMenuTitle";
-import { runQuery, HasValue, Entity } from "@latticexyz/recs";
+import {
+  runQuery,
+  HasValue,
+  Entity,
+  getComponentValue,
+} from "@latticexyz/recs";
 import { fromEntity } from "../../../utils/encode";
 import { Hex } from "viem";
 import { hexTypeToString } from "../../../utils/encode";
@@ -20,6 +25,8 @@ import { UIItem } from "../../components/ui/UIItem";
 import { getERC20Balances } from "../../../logics/container";
 import { selectHost } from "../../../logics/entity";
 import { getEntitiesInCustodian } from "../../../logics/custodian";
+import { getHostPosition } from "../../../logics/path";
+import { setNewTargetTile } from "../../../logics/move";
 
 export class Roles extends DoublePage {
   rolesList: UIList;
@@ -82,6 +89,7 @@ export class Roles extends DoublePage {
       items.push(item);
     }
     this.rolesList.items = items;
+    this.rolesList.on(UIEvents.CONFIRM, this.onRolesListConfirm, this);
     this.rolesList.on(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
     this.rolesList.itemIndex = 0;
     this.bag.on(UIEvents.LEFT, this.onLeft, this);
@@ -90,8 +98,21 @@ export class Roles extends DoublePage {
 
   hidden() {
     this.offMenuListen(this.rolesList);
+    this.rolesList.off(UIEvents.CONFIRM, this.onRolesListConfirm, this);
     this.rolesList.off(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
     super.hidden();
+  }
+
+  /** Camera to the position of selected role */
+  onRolesListConfirm() {
+    const item = this.rolesList.item;
+    if (!item) return;
+    const role = item.data as Entity;
+    selectHost(this.components, role);
+    const rolePosition = getHostPosition(this.components, this.network, role);
+    if (rolePosition) {
+      setNewTargetTile(this.components, rolePosition);
+    }
   }
 
   /** Choose the role to watch details */
@@ -103,7 +124,6 @@ export class Roles extends DoublePage {
     const item = this.rolesList.item;
     if (!item) return;
     const role = item.data as Entity;
-    selectHost(this.components, role);
 
     let itemsCount = 0;
 
