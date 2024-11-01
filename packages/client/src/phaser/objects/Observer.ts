@@ -1,4 +1,4 @@
-import { Entity } from "@latticexyz/recs";
+import { Entity, setComponent } from "@latticexyz/recs";
 import { isBuilding, isRole, selectHost } from "../../logics/entity";
 import { Direction } from "../../logics/move";
 import { getTargetTerrainData } from "../../logics/terrain";
@@ -7,6 +7,7 @@ import { UIController } from "../components/controllers/UIController";
 import { Building } from "./Building";
 import { Role } from "./Role";
 import { SceneObject } from "./SceneObject";
+import { TARGET } from "../../constants";
 
 export class Observer extends SceneObject {
   onMenuPressed() {
@@ -61,7 +62,10 @@ export class Observer extends SceneObject {
       const building: Building = this.scene.buildings[entity];
       SceneObjectController.focus = building;
       UIController.scene.buildingMenu?.show(building);
-      this.updateSelectedHost(building.entity);
+      // this.updateSelectedHost(building.entity);
+      setComponent(this.components.SelectedHost, TARGET, {
+        value: building.entity,
+      });
     }
   }
 

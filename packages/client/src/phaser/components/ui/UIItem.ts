@@ -7,6 +7,7 @@ import { ALIGNMODES } from "../../../constants";
 
 export interface UIItemConfig extends UIButtonConfig {
   amount?: number;
+  id?: number;
 }
 
 export class UIItem extends UIButton {
@@ -15,6 +16,7 @@ export class UIItem extends UIButton {
   icon?: UIImage;
   amountText: UIText;
   amount: number;
+  id?: number;
   nameText: UIText;
   constructor(
     scene: Phaser.Scene,
@@ -36,13 +38,18 @@ export class UIItem extends UIButton {
     });
 
     this.itemType = itemType;
+    this.id = config.id;
     this.amount = config.amount ?? 0;
-    this.nameText = new Heading3(scene, this.itemType ?? "", {
-      parent: this,
-      marginX: 68,
-      fontSize: 24,
-      alignModeName: ALIGNMODES.LEFT_CENTER,
-    });
+    this.nameText = new Heading3(
+      scene,
+      (this.itemType ?? "") + (this.id ? " #" + this.id : ""),
+      {
+        parent: this,
+        marginX: 68,
+        fontSize: 24,
+        alignModeName: ALIGNMODES.LEFT_CENTER,
+      }
+    );
     this.amountText = new Heading3(scene, this.amount.toString(), {
       parent: this,
       marginX: 12,

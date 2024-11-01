@@ -18,6 +18,8 @@ import { Hex } from "viem";
 import { hexTypeToString } from "../../../utils/encode";
 import { UIItem } from "../../components/ui/UIItem";
 import { getERC20Balances } from "../../../logics/container";
+import { selectHost } from "../../../logics/entity";
+import { getEntitiesInCustodian } from "../../../logics/custodian";
 
 export class Roles extends DoublePage {
   rolesList: UIList;
@@ -52,10 +54,14 @@ export class Roles extends DoublePage {
       spacingY: 12,
       parent: this.contentR,
       overflow: "scroll",
+      onCancel: () => {
+        parent.hidden();
+      },
     });
   }
 
   show() {
+    this.focusUI = this.rolesList;
     super.show();
     const roles = [
       ...runQuery([
@@ -97,6 +103,7 @@ export class Roles extends DoublePage {
     const item = this.rolesList.item;
     if (!item) return;
     const role = item.data as Entity;
+    selectHost(this.components, role);
 
     let itemsCount = 0;
 
@@ -109,6 +116,7 @@ export class Roles extends DoublePage {
       const item = new UIItem(this.scene, itemType, {
         width: this.contentW - 48,
         amount: 1,
+        id: Number(id),
       });
       this.bag.addItem(item);
     });
@@ -128,6 +136,19 @@ export class Roles extends DoublePage {
       this.bag.addItem(item);
     });
     itemsCount += erc20Items.length;
+
+    const equipments = getEntitiesInCustodian(this.components, role);
+    equipments.forEach((equipment) => {
+      const { type, id } = fromEntity(equipment as Hex);
+      const itemType = hexTypeToString(type);
+      const item = new UIItem(this.scene, itemType, {
+        width: this.contentW - 48,
+        amount: 1,
+        id: Number(id),
+      });
+      this.bag.addItem(item);
+    });
+    itemsCount += equipments.length;
   }
 
   onLeft() {
