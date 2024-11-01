@@ -56,8 +56,9 @@ export function createSystemCalls(
     return Math.floor(noise * 100);
   };
 
-  const spawnHero = async () => {
-    const tx = await worldContract.write.spawnHero();
+  const spawnHero = async (name?: string) => {
+    name = name ?? "Hero";
+    const tx = await worldContract.write.spawnHero([name]);
     await waitForTransaction(tx);
     selectNextHost(components, playerEntity);
   };
