@@ -52,6 +52,8 @@ export class CharacterInfo extends GuiBase {
   spNum: UIText;
 
   // --- class data ---
+  // name
+  hostName: string = "";
   // pools data
   blood: number = 0;
   maxBlood: number = 0;
@@ -101,7 +103,7 @@ export class CharacterInfo extends GuiBase {
       parent: this.rootUI,
     });
 
-    this.characterName = new Heading2(this.scene, "Brief Kandle", {
+    this.characterName = new Heading2(this.scene, this.hostName, {
       marginX: 268,
       marginY: 12,
       parent: this.rootUI,
@@ -178,8 +180,9 @@ export class CharacterInfo extends GuiBase {
    */
   updateData() {
     const components = this.scene.components;
-    const { ContainerSpecs, SizeSpecs, StoredSize } = components;
+    const { ContainerSpecs, SizeSpecs, StoredSize, HostName } = components;
     if (!this.role) return;
+    this.hostName = getComponentValue(HostName, this.role)?.name ?? "";
     this.capacity = Number(
       getEntitySpecs(components, ContainerSpecs, this.role)?.capacity ?? 0n
     );
@@ -254,6 +257,7 @@ export class CharacterInfo extends GuiBase {
     this.spNum.text = this.stamina + "/" + this.maxStamina;
     this.spBar.max = this.maxStamina;
     this.spBar.value = this.stamina;
+    this.characterName.text = this.hostName;
   }
 
   /**
