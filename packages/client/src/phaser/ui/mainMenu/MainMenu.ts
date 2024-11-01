@@ -54,13 +54,13 @@ export class MainMenu extends GuiBase {
     });
     this.book.alpha = 0;
 
-    this.bookTitle = new Heading2(scene, "AUTONOMOUS\nWORLD", {
+    this.bookTitle = new Heading2(scene, "ABYSS\nWORLD\nBOOK", {
       alignModeName: ALIGNMODES.MIDDLE_CENTER,
       textAlign: "center",
       fontColor: "#c0875b",
-      fontSize: this.bookWidth / 30,
+      fontSize: this.bookWidth / 18,
       lineSpacing: 12,
-      marginY: -this.bookWidth / 30,
+      marginY: 0,
       parent: this.book,
     });
 
@@ -147,13 +147,13 @@ export class MainMenu extends GuiBase {
     this.book.image.once("animationstart", () => {
       setTimeout(() => {
         this.bookTitle.alpha = 1;
-      }, 110);
+      }, 210);
     });
     this.book.image.once("animationcomplete", () => {
       this.scene.tweens.add({
         targets: this.book,
         alpha: 0,
-        delay: 120,
+        delay: 220,
         duration: 180,
         onComplete: () => {
           super.hidden();
