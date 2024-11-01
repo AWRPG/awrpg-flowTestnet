@@ -26,12 +26,12 @@ contract PostDeploy is Script {
     // Start broadcasting transactions from the deployer account
     vm.startBroadcast(deployerPrivateKey);
     initializeTypes();
-    (uint32 x, uint32 y, bytes32 hero) = world.spawnHero();
+    (uint32 x, uint32 y, bytes32 hero) = world.spawnHero("Alice");
     ContainerLogic._mint(BERRY, hero, 200);
     ContainerLogic._mint(WOOD, hero, 600);
     bytes32 sword = EntityLogic._mint(SWORD, hero);
     // EquipmentLogic._equip(sword);
-    (, , bytes32 hero2) = world.spawnHero();
+    (, , bytes32 hero2) = world.spawnHero("Bob");
     ContainerLogic._mint(BERRY, hero2, 10);
     world.buildBuilding(hero, SAFE, x - 1, y, x - 2, y - 1);
     HeroLogic._spawn(bytes32(uint256(1)));

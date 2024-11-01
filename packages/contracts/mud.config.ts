@@ -93,6 +93,13 @@ export default defineWorld({
       },
       key: ["entityType"],
     },
+    HostName: {
+      schema: {
+        hostId: "bytes32",
+        name: "string",
+      },
+      key: ["hostId"],
+    },
     // ----- equipment -----
     Equipment: {
       schema: {

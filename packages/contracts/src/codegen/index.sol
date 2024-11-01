@@ -20,6 +20,7 @@ import { Terrain } from "./tables/Terrain.sol";
 import { TileEntity } from "./tables/TileEntity.sol";
 import { Position, PositionData } from "./tables/Position.sol";
 import { StatsSpecs } from "./tables/StatsSpecs.sol";
+import { HostName } from "./tables/HostName.sol";
 import { Equipment } from "./tables/Equipment.sol";
 import { RemovedCoord } from "./tables/RemovedCoord.sol";
 import { TerrainSpecs, TerrainSpecsData } from "./tables/TerrainSpecs.sol";
