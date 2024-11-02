@@ -57,7 +57,9 @@ export class ListMenu extends GuiBase {
     this.list.off(UIEvents.SELECT_CHANGE, this.onSelected, this);
     this.list.off(UIEvents.CONFIRM, this.onConfirm, this);
     super.hidden();
-    if (prev) this.prevGui?.show();
+    if (prev) {
+      this.prevGui?.show();
+    }
   }
 
   updateList(datas: unknown[] = []) {

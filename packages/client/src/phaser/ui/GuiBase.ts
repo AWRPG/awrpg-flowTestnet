@@ -97,6 +97,11 @@ export class GuiBase {
     this.rootUI.root.off("changedata", this.onDataChanged, this);
   }
 
+  destroy() {
+    this.rootUI.destroyChildren();
+    this.rootUI.destroy();
+  }
+
   resizeListener(gameSize: Phaser.Structs.Size) {
     if (this.autoZoom) {
       const zoom = Phaser.Math.Clamp(

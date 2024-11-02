@@ -443,6 +443,9 @@ export class UIBase extends UIEmitter {
    * Remove and Destroy all childs in the Container.
    */
   destroyChildren(): UIBase {
+    this.children.forEach((child) => {
+      child.destroy();
+    });
     this.children = [];
     this.root.removeAll(true);
     return this;

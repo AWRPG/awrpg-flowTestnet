@@ -20,14 +20,18 @@ import { MenuTitle } from "../components/ui/MenuTitle";
 import { PlayerInput } from "../components/controllers/PlayerInput";
 import { BuildingData } from "../../api/data";
 import { RolesMoveout } from "./ListMenu/RolesMoveout";
+import { Mine } from "./ListMenu/Mine";
 import { ListMenu } from "./common/ListMenu";
 import { getEntitySpecs } from "../../logics/entity";
 import { getHostsInHost } from "../../logics/sceneObject";
+import { Heading3 } from "../components/ui/Heading3";
 
 export class BuildingMenu extends GuiBase {
   list: UIList;
   title: MenuTitle;
   titleBox: Box2;
+  tips?: Heading3;
+
   subMenu?: ListMenu;
 
   building?: Building;
@@ -71,6 +75,7 @@ export class BuildingMenu extends GuiBase {
       parent: this.rootUI,
       onCancel: () => {
         this.hidden();
+        this.exit();
         SceneObjectController.resetFocus();
         PlayerInput.onlyListenSceneObject();
       },
@@ -87,6 +92,18 @@ export class BuildingMenu extends GuiBase {
     this.updateList();
   }
 
+  hidden() {
+    super.hidden();
+  }
+
+  exit() {
+    this.subMenu?.destroy();
+    delete this.subMenu;
+    this.list.removeAllItems();
+    this.tips?.destroy();
+    delete this.tips;
+  }
+
   updateTitle() {
     if (!this.building) return;
     const name = this.building.data.name.toUpperCase();
@@ -95,10 +112,10 @@ export class BuildingMenu extends GuiBase {
   }
 
   updateList() {
-    this.list.removeAllItems();
+    this.exit();
     if (!this.building) return;
 
-    // Leave
+    // [Button] Leave
     const canStore = getEntitySpecs(
       this.components,
       this.components.ContainerSpecs,
@@ -107,24 +124,41 @@ export class BuildingMenu extends GuiBase {
       ? true
       : false;
     if (canStore) {
-      const item_leave = new ButtonA(this.scene, {
-        text: "Move out",
-        onConfirm: () => {
-          this.hidden();
-          this.subMenu?.hidden(false);
-          this.subMenu = new RolesMoveout(this.scene);
-          this.subMenu.show(
-            this,
-            getHostsInHost(this.components, this.building!.entity),
-            this.building!
-          );
-        },
-      });
-      this.list.addItem(item_leave);
+      const hosts = getHostsInHost(this.components, this.building!.entity);
+      if (hosts?.length > 0) {
+        const item_leave = new ButtonA(this.scene, {
+          text: "Move out",
+          onConfirm: () => {
+            this.hidden();
+            this.subMenu?.hidden(false);
+            this.subMenu = new RolesMoveout(this.scene);
+            this.subMenu.show(this, hosts, this.building!);
+          },
+        });
+        this.list.addItem(item_leave);
+
+        // [Button] Mine
+        const item_mine = new ButtonA(this.scene, {
+          text: "Mine",
+          onConfirm: () => {
+            this.hidden();
+            this.subMenu?.hidden(false);
+            this.subMenu = new Mine(this.scene);
+            this.subMenu.show(this, hosts, this.building!);
+          },
+        });
+        this.list.addItem(item_mine);
+      }
     }
 
-    // Select the first item
+    // Select the first item or show the tips
     if (this.list.itemsCount > 0) this.list.itemIndex = 0;
+    else {
+      this.tips = new Heading3(this.scene, "Nothing to interact with it.", {
+        parent: this.rootUI,
+        alignModeName: ALIGNMODES.MIDDLE_CENTER,
+      });
+    }
   }
 
   updateButtons() {

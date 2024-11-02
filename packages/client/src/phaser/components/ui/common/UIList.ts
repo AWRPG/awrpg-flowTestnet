@@ -146,6 +146,8 @@ export class UIList extends UIBase {
 
   removeAllItems() {
     this.items = [];
+    this._item = undefined;
+    this._itemIndex = -1;
   }
 
   onFocus() {
@@ -177,6 +179,9 @@ export class UIList extends UIBase {
 
   onCancelPressed() {
     super.onCancelPressed();
+    if (!this._item?.disable && this._item?.onCancel) {
+      // this._item.onCancel();
+    }
   }
 
   onItemSelected(value: UIBase | undefined) {
