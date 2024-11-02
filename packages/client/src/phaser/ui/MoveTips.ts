@@ -202,7 +202,7 @@ export class MoveTips extends GuiBase {
     }
 
     // Clear the fake role
-    SceneObjectController.cursor?.clearAccessory(this.role.entity);
+    cursor.clearAccessory(this.role.entity);
 
     // Update tile highlight
     const highlights =

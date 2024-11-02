@@ -7,6 +7,12 @@ import { SetupNetworkResult } from "../../mud/setupNetwork";
 import { UIEvents } from "../components/ui/common/UIEvents";
 import { StandardGameSize } from "../components/ui/common/UIBase";
 
+export interface GuiBaseConfig {
+  autoZoom?: boolean;
+  visible?: boolean;
+  onConfirm?: () => void;
+}
+
 /**
  * All the complex UI Components need to extend from this class.
  */
@@ -36,6 +42,8 @@ export class GuiBase {
 
   autoZoom: boolean;
 
+  config: GuiBaseConfig;
+
   /**
    * Data listener events that depend on Phaser: https://newdocs.phaser.io/docs/3.80.0/Phaser.Data.Events.CHANGE_DATA
    */
@@ -55,11 +63,7 @@ export class GuiBase {
    * @param scene
    * @param rootUI The base UI component that serves as the root node of the GuiBase
    */
-  constructor(
-    scene: UIScene,
-    rootUI: UIBase,
-    config: { autoZoom?: boolean; visible?: boolean } = {}
-  ) {
+  constructor(scene: UIScene, rootUI: UIBase, config: GuiBaseConfig = {}) {
     this.name = "GuiBase";
     this.scene = scene;
     this.components = scene.components;
@@ -68,6 +72,8 @@ export class GuiBase {
     this.rootUI = rootUI;
     this.visible = config.visible ?? false;
     this.autoZoom = config.autoZoom ?? false;
+    this.config = config;
+    if (config.onConfirm) this.onConfirm = config.onConfirm;
   }
 
   /**

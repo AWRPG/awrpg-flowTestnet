@@ -27,6 +27,7 @@ import { selectHost } from "../../../logics/entity";
 import { getEntitiesInCustodian } from "../../../logics/custodian";
 import { getHostPosition } from "../../../logics/path";
 import { setNewTargetTile } from "../../../logics/move";
+import { getHosts } from "../../../logics/sceneObject";
 
 export class Roles extends DoublePage {
   rolesList: UIList;
@@ -70,28 +71,21 @@ export class Roles extends DoublePage {
   show() {
     this.focusUI = this.rolesList;
     super.show();
-    const roles = [
-      ...runQuery([
-        HasValue(this.components.Commander, {
-          value: this.network.playerEntity,
-        }),
-      ]),
-    ];
-    const items = [];
-    for (let i = 0; i < roles.length; i++) {
-      const { type, id } = fromEntity(roles[i] as Hex);
-      const name = hexTypeToString(type);
+
+    const roles = getHosts(this.components, this.network);
+    const items: UIBase[] = [];
+    roles.forEach((role) => {
       const item = new BookListButton(this.scene, {
         width: this.rolesList.itemWidth,
-        text: name + " " + id.toString(),
-        data: roles[i],
+        text: role.name + " " + role.id.toString(),
+        data: role,
       });
       items.push(item);
-    }
+    });
     this.rolesList.items = items;
     this.rolesList.on(UIEvents.CONFIRM, this.onRolesListConfirm, this);
     this.rolesList.on(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
-    this.rolesList.itemIndex = 0;
+    if (this.rolesList.itemsCount > 0) this.rolesList.itemIndex = 0;
     this.bag.on(UIEvents.LEFT, this.onLeft, this);
     this.rolesList.on(UIEvents.RIGHT, this.onRight, this);
   }
@@ -107,7 +101,7 @@ export class Roles extends DoublePage {
   onRolesListConfirm() {
     const item = this.rolesList.item;
     if (!item) return;
-    const role = item.data as Entity;
+    const role = item.data.entity as Entity;
     selectHost(this.components, role);
     const rolePosition = getHostPosition(this.components, this.network, role);
     if (rolePosition) {
@@ -123,10 +117,9 @@ export class Roles extends DoublePage {
     // Add
     const item = this.rolesList.item;
     if (!item) return;
-    const role = item.data as Entity;
+    const role = item.data.entity as Entity;
 
     let itemsCount = 0;
-
     const erc721Entities = [
       ...runQuery([HasValue(this.components.Owner, { value: role })]),
     ];

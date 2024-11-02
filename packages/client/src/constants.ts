@@ -62,6 +62,7 @@ export const terrainTypeMapping = {
 export const HIGHLIGHT_MODE = {
   MOVE: "Move",
   BUILD: "Build",
+  MOVEOUT: "Moveout",
 };
 
 export const POOL_TYPES = [SOUL, STAMINA, BLOOD];

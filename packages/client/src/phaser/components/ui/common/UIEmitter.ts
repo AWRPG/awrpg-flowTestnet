@@ -17,7 +17,7 @@ export class UIEmitter {
   root: Phaser.GameObjects.Container;
 
   /** Anything you want to save */
-  data: unknown;
+  data: any;
 
   /** Record mouse hover or not */
   hovering: boolean = false;

@@ -5,14 +5,14 @@ import { ClientComponents } from "../../mud/createClientComponents";
 import { GameScene } from "../scenes/GameScene";
 import {
   getGridTerrains,
+  getTerrainType,
   GRID_SIZE,
   TileTerrainMap,
 } from "../../logics/terrain";
-import { combineToEntity, Direction } from "../../logics/move";
+import { combineToEntity } from "../../logics/move";
 import { HIGHLIGHT_MODE, TerrainType } from "../../constants";
-import { canBuildFromHost } from "../../logics/building";
 import { MAX_MOVES } from "../../contract/constants";
-import { isRole, isBuilding } from "../../logics/entity";
+import { isRole, isBuilding, getEntitySpecs } from "../../logics/entity";
 import { getEntityOnCoord } from "../../logics/map";
 
 export class TileHighlight extends SceneObject {
@@ -38,7 +38,15 @@ export class TileHighlight extends SceneObject {
   ) {
     super(scene, entity);
     this.mode = mode;
-    const path = getComponentValue(components.Path, entity) ?? null;
+    // On the scene or in a building
+    const path =
+      getComponentValue(components.Path, entity) ??
+      (this.scene.cursor
+        ? {
+            toX: this.scene.cursor.tileX,
+            toY: this.scene.cursor.tileY,
+          }
+        : null);
     if (!path) return;
     this.tileX = path.toX;
     this.tileY = path.toY;
@@ -113,7 +121,68 @@ export class TileHighlight extends SceneObject {
           type,
         });
       });
+    } else if (this.mode === HIGHLIGHT_MODE.MOVEOUT) {
+      const entity = getEntityOnCoord(this.components, {
+        x: this.tileX,
+        y: this.tileY,
+      });
+      // const buildingType = getComponentValue(this.components.EntityType, entity)
+      //   ?.value as Hex;
+      const terrains: TileTerrainMap[] = this.getTilesAroundBuilding(entity);
+      this.highlightData = terrains
+        .filter((terrain) => {
+          if (
+            terrain.terrainType === TerrainType.NONE ||
+            terrain.terrainType === TerrainType.OCEAN ||
+            terrain.terrainType === TerrainType.FOREST ||
+            terrain.terrainType === TerrainType.MOUNTAIN
+          ) {
+            return false;
+          } else {
+            const something = getEntityOnCoord(this.components, {
+              x: terrain.x,
+              y: terrain.y,
+            });
+            if (something) return false;
+            return true;
+          }
+        })
+        .map((terrain) => {
+          return {
+            x: terrain.x - (this.scene.cursor?.tileX ?? 0),
+            y: terrain.y - (this.scene.cursor?.tileY ?? 0),
+            distance: 0,
+            type: "enter",
+          };
+        });
     }
+  }
+
+  getTilesAroundBuilding(entity: Entity) {
+    const building = this.scene.buildings[entity];
+    const buildingSpecs = getEntitySpecs(
+      this.components,
+      this.components.BuildingSpecs,
+      entity
+    );
+    if (!buildingSpecs) return [];
+
+    // the building object's position is based on the left-bottom corner
+    const { width, height } = buildingSpecs;
+    const tiles: TileTerrainMap[] = [];
+    for (let i = -1; i <= width; i++) {
+      for (let j = -height; j <= 1; j++) {
+        if (i >= 0 && i < width && j > -height && j < 1) continue; // Avoid building self
+        const x = building.tileX + i;
+        const y = building.tileY + j;
+        const terrainType = getTerrainType(this.components, this.systemCalls, {
+          x,
+          y,
+        });
+        tiles.push({ x, y, terrainType });
+      }
+    }
+    return tiles;
   }
 
   getTerrains(

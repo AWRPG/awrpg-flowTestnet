@@ -19,11 +19,16 @@ import { SceneObjectController } from "../components/controllers/SceneObjectCont
 import { MenuTitle } from "../components/ui/MenuTitle";
 import { PlayerInput } from "../components/controllers/PlayerInput";
 import { BuildingData } from "../../api/data";
+import { RolesMoveout } from "./ListMenu/RolesMoveout";
+import { ListMenu } from "./common/ListMenu";
+import { getEntitySpecs } from "../../logics/entity";
+import { getHostsInHost } from "../../logics/sceneObject";
 
 export class BuildingMenu extends GuiBase {
   list: UIList;
   title: MenuTitle;
   titleBox: Box2;
+  subMenu?: ListMenu;
 
   building?: Building;
 
@@ -54,14 +59,7 @@ export class BuildingMenu extends GuiBase {
       parent: this.rootUI,
     });
     this.title = new MenuTitle(scene, "BUILDING", { parent: this.titleBox });
-    // this.title = new MenuTitle(scene, "BUILDING", {
-    //   width: 178,
-    //   height: 58,
-    //   alignModeName: ALIGNMODES.RIGHT_TOP,
-    //   marginX: 8,
-    //   marginY: -26,
-    //   parent: this.rootUI,
-    // });
+
     // stake -> systemCalls. ["stake", "store"]
     // cook -> systemCalls. ["cook", "store"]
 
@@ -85,14 +83,48 @@ export class BuildingMenu extends GuiBase {
     this.building = building ?? this.building;
     SceneObjectController.focus = this.building;
     PlayerInput.onlyListenUI();
-    this.update();
+    this.updateTitle();
+    this.updateList();
   }
 
-  update() {
+  updateTitle() {
     if (!this.building) return;
     const name = this.building.data.name.toUpperCase();
     this.titleBox.setSlices(48 + name.length * 18);
     this.title.text = name;
+  }
+
+  updateList() {
+    this.list.removeAllItems();
+    if (!this.building) return;
+
+    // Leave
+    const canStore = getEntitySpecs(
+      this.components,
+      this.components.ContainerSpecs,
+      this.building.entity
+    )
+      ? true
+      : false;
+    if (canStore) {
+      const item_leave = new ButtonA(this.scene, {
+        text: "Move out",
+        onConfirm: () => {
+          this.hidden();
+          this.subMenu?.hidden(false);
+          this.subMenu = new RolesMoveout(this.scene);
+          this.subMenu.show(
+            this,
+            getHostsInHost(this.components, this.building!.entity),
+            this.building!
+          );
+        },
+      });
+      this.list.addItem(item_leave);
+    }
+
+    // Select the first item
+    if (this.list.itemsCount > 0) this.list.itemIndex = 0;
   }
 
   updateButtons() {

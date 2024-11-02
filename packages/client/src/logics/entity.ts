@@ -122,6 +122,17 @@ export function getTopHost(
   }
 }
 
+export function getHostsEntity(
+  components: ClientComponents,
+  network: SetupNetworkResult
+): Entity[] {
+  return [
+    ...runQuery([
+      HasValue(components.Commander, { value: network.playerEntity }),
+    ]),
+  ];
+}
+
 export const getEntityOnTile = (
   components: ClientComponents,
   tileId: Entity
