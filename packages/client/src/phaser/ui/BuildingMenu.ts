@@ -26,11 +26,16 @@ import { BuildingData } from "../../api/data";
 import { RolesMoveout } from "./ListMenu/RolesMoveout";
 import { Mine } from "./ListMenu/Mine";
 import { ListMenu } from "./common/ListMenu";
-import { getEntitySpecs, isBuildingMiner } from "../../logics/entity";
+import {
+  getEntitySpecs,
+  isBuildingMiner,
+  isBuildingStaker,
+} from "../../logics/entity";
 import { getHostsInHost } from "../../logics/sceneObject";
 import { Heading3 } from "../components/ui/Heading3";
 import { splitFromEntity } from "../../logics/move";
 import { hasMineFromTile } from "../../logics/mining";
+import { FarmingMenu } from "./ListMenu/FarmingMenu";
 
 export class BuildingMenu extends GuiBase {
   list: UIList;
@@ -120,19 +125,20 @@ export class BuildingMenu extends GuiBase {
   updateList() {
     this.exit();
     if (!this.building) return;
+    const entity = this.building.entity;
 
     // [Button] Leave
     const canStore = getEntitySpecs(
       this.components,
       this.components.ContainerSpecs,
-      this.building.entity
+      entity
     )
       ? true
       : false;
     if (canStore) {
       const hosts = getHostsInHost(
         this.components,
-        this.building!.entity,
+        entity,
         this.network.playerEntity
       );
       if (hosts?.length > 0) {
@@ -149,15 +155,8 @@ export class BuildingMenu extends GuiBase {
       }
 
       // [Button] Mine
-      const isMinerType = isBuildingMiner(
-        this.components,
-        this.building.entity!
-      );
-      if (isMinerType) {
-        const tileIds = getAllBuildingTileIds(
-          this.components,
-          this.building.entity! as Hex
-        );
+      if (isBuildingMiner(this.components, entity)) {
+        const tileIds = getAllBuildingTileIds(this.components, entity as Hex);
         const tileId = tileIds.filter((tileId) =>
           hasMineFromTile(this.systemCalls, splitFromEntity(tileId))
         )[0];
@@ -175,6 +174,20 @@ export class BuildingMenu extends GuiBase {
           this.list.addItem(item_mine);
         }
       }
+
+      // [Button] Farming
+      if (this.building?.data.type === "FIELD") {
+        const item_farming = new ButtonA(this.scene, {
+          text: "Staking",
+          onConfirm: () => {
+            this.hidden();
+            this.subMenu?.hidden(false);
+            this.subMenu = new FarmingMenu(this.scene);
+            this.subMenu.show(this, hosts, this.building!);
+          },
+        });
+        this.list.addItem(item_farming);
+      }
     }
 
     // Select the first item or show the tips
@@ -187,49 +200,49 @@ export class BuildingMenu extends GuiBase {
     }
   }
 
-  updateButtons() {
-    this.list.destroyChildren();
-    let index = 0;
-    if (this.stakeTypes.length > 0) {
-      this.addStakeButton(index);
-      index++;
-    }
-    if (this.stakingIds.length > 0) {
-      // this.addStakingButton(index);
-      index++;
-    }
-    // this.selectButton();
-  }
+  // updateButtons() {
+  //   this.list.destroyChildren();
+  //   let index = 0;
+  //   if (this.stakeTypes.length > 0) {
+  //     this.addStakeButton(index);
+  //     index++;
+  //   }
+  //   if (this.stakingIds.length > 0) {
+  //     // this.addStakingButton(index);
+  //     index++;
+  //   }
+  //   // this.selectButton();
+  // }
 
-  addStakeButton(index: number) {
-    const button = new ButtonA(this.scene, {
-      text: "Stake",
-      onConfirm: () => {
-        this.hidden();
-        UIController.scene.stakeMenu?.show();
-      },
-    });
-    this.list.addItem(button);
-  }
+  // addStakeButton(index: number) {
+  //   const button = new ButtonA(this.scene, {
+  //     text: "Stake",
+  //     onConfirm: () => {
+  //       this.hidden();
+  //       UIController.scene.stakeMenu?.show();
+  //     },
+  //   });
+  //   this.list.addItem(button);
+  // }
 
-  addStakingButton(index: number) {
-    const button = new ButtonA(this.scene, "staking", 260, 48, {
-      alignModeName: ALIGNMODES.LEFT_TOP,
-      marginY: 28 + index * 56,
-      parent: this.rootUI,
-      fontAlignMode: ALIGNMODES.LEFT_CENTER,
-    });
-    this.buttons.push({
-      name: "staking",
-      button: button,
-      onClick: () => {
-        this.scene.scene.get("GameScene").playController.movable = false;
-        this.scene.buildingMenu?.hidden();
-        this.scene.stakingMenu?.show();
-        this.scene.stakingMenu?.update();
-      },
-    });
-  }
+  // addStakingButton(index: number) {
+  //   const button = new ButtonA(this.scene, "staking", 260, 48, {
+  //     alignModeName: ALIGNMODES.LEFT_TOP,
+  //     marginY: 28 + index * 56,
+  //     parent: this.rootUI,
+  //     fontAlignMode: ALIGNMODES.LEFT_CENTER,
+  //   });
+  //   this.buttons.push({
+  //     name: "staking",
+  //     button: button,
+  //     onClick: () => {
+  //       this.scene.scene.get("GameScene").playController.movable = false;
+  //       this.scene.buildingMenu?.hidden();
+  //       this.scene.stakingMenu?.show();
+  //       this.scene.stakingMenu?.update();
+  //     },
+  //   });
+  // }
 
   // selectButton() {
   //   const button = this.buttons[this.currentButtonIndex]?.button;

@@ -94,6 +94,15 @@ export class UIList extends UIBase {
     super.destroy();
   }
 
+  updateItemSize() {
+    this.items.forEach((item, index) => {
+      item.setMargin(
+        this.itemIndentation,
+        (this.itemHeight + this.spacingY) * index
+      );
+    });
+  }
+
   /**
    * Add a child item to items.
    * @param item the UI to add
@@ -262,6 +271,7 @@ export class UIList extends UIBase {
 
   set itemHeight(value: number) {
     this._itemHeight = value;
+    this.updateItemSize();
   }
 
   get item(): UIBase | undefined {

@@ -25,7 +25,7 @@ export const useRemainedToClaim = (
   useRerender();
   const { StakingInfo, StakeSpecs } = components;
   const lastUpdated = useComponentValue(StakingInfo, stakingId)?.lastUpdated;
-  console.log("lastUpdated", lastUpdated);
+  // console.log("lastUpdated", lastUpdated);
   if (!lastUpdated) return;
   const outputType = getComponentValue(StakingInfo, stakingId)!.outputType;
   const encodedType = encodeTypeEntity(outputType as Hex) as Entity;

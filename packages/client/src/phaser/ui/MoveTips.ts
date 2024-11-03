@@ -28,6 +28,7 @@ import { canStoreERC721 } from "../../logics/container";
 export class MoveTips extends GuiBase {
   role?: Role;
   path?: Coord[] | null;
+  tipsText: string;
 
   /** */
   constructor(scene: UIScene) {
@@ -41,6 +42,9 @@ export class MoveTips extends GuiBase {
     );
     this.name = "MoveTips";
     this.focusUI = this.rootUI;
+
+    this.tipsText =
+      "Please move to the adjacent tile before entering a building!";
 
     const box2 = new Box2(scene, {
       width: 660,
@@ -85,15 +89,11 @@ export class MoveTips extends GuiBase {
   }
 
   showTips() {
-    const enterTips = new Heading2(
-      this.scene,
-      "Please move to the adjacent tile before entering a building!",
-      {
-        alignModeName: ALIGNMODES.MIDDLE_CENTER,
-        marginY: -100,
-        parent: this.rootUI,
-      }
-    );
+    const enterTips = new Heading2(this.scene, this.tipsText, {
+      alignModeName: ALIGNMODES.MIDDLE_CENTER,
+      marginY: -100,
+      parent: this.rootUI,
+    });
     enterTips.alpha = 0;
     enterTips.alpha = 0;
     const y = enterTips.y;
@@ -182,19 +182,25 @@ export class MoveTips extends GuiBase {
           this.role.entity,
           something
         );
-        const adjacentCoord = getRoleAndHostAdjacentCoord(
-          this.components,
-          this.role.entity,
-          something
-        );
-        if (canEnter && adjacentCoord) {
-          this.systemCalls.enterBuilding(
-            this.role.entity as Hex,
-            adjacentCoord
+        if (canEnter) {
+          const adjacentCoord = getRoleAndHostAdjacentCoord(
+            this.components,
+            this.role.entity,
+            something
           );
-        }
-        // move + build [TODO]
-        else {
+          if (adjacentCoord) {
+            this.systemCalls.enterBuilding(
+              this.role.entity as Hex,
+              adjacentCoord
+            );
+          } else {
+            this.tipsText =
+              "Please move to the adjacent tile before entering a building!";
+            this.showTips();
+            return;
+          }
+        } else {
+          this.tipsText = "You can't enter this building!";
           this.showTips();
           return;
         }

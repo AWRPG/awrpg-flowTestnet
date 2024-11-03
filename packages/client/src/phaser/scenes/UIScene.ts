@@ -132,6 +132,10 @@ export class UIScene extends Phaser.Scene {
       "img-building-mine-shaft",
       "src/assets/imgs/buildings/mine-shaft.png"
     );
+    this.load.image(
+      "img-building-field",
+      "src/assets/imgs/buildings/field.png"
+    );
   }
 
   create() {

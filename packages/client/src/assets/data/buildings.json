@@ -19,5 +19,12 @@
     "name": "cauldron",
     "img": "img-building-safe",
     "sceneImg": "safe"
+  },
+  {
+    "id": "3",
+    "type": "FIELD",
+    "name": "field",
+    "img": "img-building-safe",
+    "sceneImg": "field"
   }
 ]
