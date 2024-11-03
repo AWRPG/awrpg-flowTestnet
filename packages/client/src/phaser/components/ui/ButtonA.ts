@@ -7,6 +7,8 @@ import { ALIGNMODES } from "../../../constants";
  * For the normal menu such as ActionMenu
  */
 export class ButtonA extends UIButton {
+  text1?: UIText;
+
   constructor(scene: Phaser.Scene, config: UIButtonConfig = {}) {
     super(scene, {
       width: 328,
@@ -20,8 +22,6 @@ export class ButtonA extends UIButton {
       nineSlice: 16,
       ...config,
     });
-
-    if (this.disable) this.alpha = 0.5;
 
     // Underline
     new UIImage(scene, "btn_decor1", {
@@ -87,5 +87,11 @@ export class ButtonA extends UIButton {
 
   initContent(config: UIButtonConfig): UIText {
     return super.initContent({ ...config, marginX: 82 });
+  }
+
+  setDisable(value: boolean) {
+    super.setDisable(value);
+    if (value) this.alpha = 0.5;
+    else this.alpha = 1;
   }
 }

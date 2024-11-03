@@ -32,6 +32,7 @@ export function listenComponentValue<S extends Schema>(
   return () => subscription.unsubscribe();
 }
 
+// [TODO maybe]
 export function useEntityQuery(
   fragments: QueryFragment[],
   options?: { updateOnValueChange?: boolean }

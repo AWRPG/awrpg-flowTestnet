@@ -1,6 +1,11 @@
 import { Hex } from "viem";
 import { ClientComponents } from "../mud/createClientComponents";
-import { Entity, getComponentValue, HasValue } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  HasValue,
+  runQuery,
+} from "@latticexyz/recs";
 import { SystemCalls } from "../mud/createSystemCalls";
 import {
   DOWN_LIMIT_MINE,
@@ -41,6 +46,17 @@ export const useAllMinings = (
   const roleIds = useEntityQuery([
     HasValue(MiningInfo, { buildingId: building }),
   ]);
+  return roleIds;
+};
+
+export const getAllMinings = (
+  components: ClientComponents,
+  building: Entity
+) => {
+  const { MiningInfo } = components;
+  const roleIds = [
+    ...runQuery([HasValue(MiningInfo, { buildingId: building })]),
+  ];
   return roleIds;
 };
 

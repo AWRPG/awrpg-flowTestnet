@@ -5,7 +5,11 @@ import { UIList } from "../components/ui/common/UIList";
 import { UIScene } from "../scenes/UIScene";
 import { ButtonA } from "../components/ui/ButtonA";
 import { GuiBase } from "./GuiBase";
-import { canRoleEnter, roleAndHostWithinRange } from "../../logics/building";
+import {
+  canRoleEnter,
+  roleAndHostWithinRange,
+  getAllBuildingTileIds,
+} from "../../logics/building";
 import { getTargetTerrainData } from "../../logics/terrain";
 import {
   getBuildingStakeOuputTypes,
@@ -22,9 +26,11 @@ import { BuildingData } from "../../api/data";
 import { RolesMoveout } from "./ListMenu/RolesMoveout";
 import { Mine } from "./ListMenu/Mine";
 import { ListMenu } from "./common/ListMenu";
-import { getEntitySpecs } from "../../logics/entity";
+import { getEntitySpecs, isBuildingMiner } from "../../logics/entity";
 import { getHostsInHost } from "../../logics/sceneObject";
 import { Heading3 } from "../components/ui/Heading3";
+import { splitFromEntity } from "../../logics/move";
+import { hasMineFromTile } from "../../logics/mining";
 
 export class BuildingMenu extends GuiBase {
   list: UIList;
@@ -124,7 +130,11 @@ export class BuildingMenu extends GuiBase {
       ? true
       : false;
     if (canStore) {
-      const hosts = getHostsInHost(this.components, this.building!.entity);
+      const hosts = getHostsInHost(
+        this.components,
+        this.building!.entity,
+        this.network.playerEntity
+      );
       if (hosts?.length > 0) {
         const item_leave = new ButtonA(this.scene, {
           text: "Move out",
@@ -136,18 +146,34 @@ export class BuildingMenu extends GuiBase {
           },
         });
         this.list.addItem(item_leave);
+      }
 
-        // [Button] Mine
-        const item_mine = new ButtonA(this.scene, {
-          text: "Mine",
-          onConfirm: () => {
-            this.hidden();
-            this.subMenu?.hidden(false);
-            this.subMenu = new Mine(this.scene);
-            this.subMenu.show(this, hosts, this.building!);
-          },
-        });
-        this.list.addItem(item_mine);
+      // [Button] Mine
+      const isMinerType = isBuildingMiner(
+        this.components,
+        this.building.entity!
+      );
+      if (isMinerType) {
+        const tileIds = getAllBuildingTileIds(
+          this.components,
+          this.building.entity! as Hex
+        );
+        const tileId = tileIds.filter((tileId) =>
+          hasMineFromTile(this.systemCalls, splitFromEntity(tileId))
+        )[0];
+        // Have any tiles can mine
+        if (tileId) {
+          const item_mine = new ButtonA(this.scene, {
+            text: "Mine",
+            onConfirm: () => {
+              this.hidden();
+              this.subMenu?.hidden(false);
+              this.subMenu = new Mine(this.scene);
+              this.subMenu.show(this, hosts, this.building!, tileId);
+            },
+          });
+          this.list.addItem(item_mine);
+        }
       }
     }
 

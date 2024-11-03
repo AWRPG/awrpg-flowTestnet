@@ -2,6 +2,7 @@ import { UIEvents } from "./UIEvents";
 
 export interface UIEmitterConfig {
   data?: unknown;
+  disable?: boolean;
   onConfirm?: () => void;
   onCancel?: () => void;
   onSelect?: () => void;
@@ -22,6 +23,9 @@ export class UIEmitter {
   /** Record mouse hover or not */
   hovering: boolean = false;
 
+  /** Indicates that the UI is currently in an unusable state, such as the button */
+  _disable: boolean = false;
+
   /** Save the function that will be executed when the confirm key is pressed */
   onConfirm?: () => void;
 
@@ -38,6 +42,7 @@ export class UIEmitter {
     // Create the root container
     this.root = new Phaser.GameObjects.Container(scene, 0, 0);
     this.data = config.data;
+    this.disable = config.disable ?? false;
     this.onConfirm = config.onConfirm;
     this.onCancel = config.onCancel;
     this.onSelect = config.onSelect;
@@ -112,7 +117,8 @@ export class UIEmitter {
    * @param args Additional arguments that will be passed to the event handler.
    */
   emit(event: string | symbol, ...args: any[]): boolean {
-    return this.root.emit(event, ...args);
+    if (!this.disable) return this.root.emit(event, ...args);
+    else return false;
   }
 
   //==================================================================
@@ -133,38 +139,39 @@ export class UIEmitter {
    * When pressing the up key
    */
   onUpPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.UP, this);
+    if (!this.disable) this.emit(UIEvents.ARROW, this);
+    if (!this.disable) this.emit(UIEvents.UP, this);
   }
 
   /**
    * When pressing the down key
    */
   onDownPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.DOWN, this);
+    if (!this.disable) this.emit(UIEvents.ARROW, this);
+    if (!this.disable) this.emit(UIEvents.DOWN, this);
   }
 
   /**
    * When pressing the left key
    */
   onLeftPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.LEFT, this);
+    if (!this.disable) this.emit(UIEvents.ARROW, this);
+    if (!this.disable) this.emit(UIEvents.LEFT, this);
   }
 
   /**
    * When pressing the right key
    */
   onRightPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.RIGHT, this);
+    if (!this.disable) this.emit(UIEvents.ARROW, this);
+    if (!this.disable) this.emit(UIEvents.RIGHT, this);
   }
 
   /**
    * When confirm key is pressed
    */
   onConfirmPressed() {
+    if (this.disable) return;
     this.emit(UIEvents.CONFIRM, this);
     if (this.onConfirm) this.onConfirm();
   }
@@ -173,6 +180,7 @@ export class UIEmitter {
    * When cancel key is pressed
    */
   onCancelPressed() {
+    if (this.disable) return;
     this.emit(UIEvents.CANCEL, this);
     if (this.onCancel) this.onCancel();
   }
@@ -181,6 +189,7 @@ export class UIEmitter {
    * When the menu key is pressed
    */
   onMenuPressed() {
+    if (this.disable) return;
     this.emit(UIEvents.MENU, this);
   }
 
@@ -188,6 +197,7 @@ export class UIEmitter {
    * When item has been selected (UIList)
    */
   onSelected() {
+    if (this.disable) return;
     if (this.onSelect) this.onSelect();
   }
 
@@ -195,6 +205,7 @@ export class UIEmitter {
    * When item has been unselected (UIList)
    */
   onUnSelected() {
+    if (this.disable) return;
     if (this.onUnSelect) this.onUnSelect();
   }
 
@@ -210,5 +221,17 @@ export class UIEmitter {
    */
   onUnHover() {
     this.hovering = false;
+  }
+
+  get disable() {
+    return this._disable;
+  }
+
+  set disable(value: boolean) {
+    this.setDisable(value);
+  }
+
+  setDisable(value: boolean) {
+    this._disable = value;
   }
 }

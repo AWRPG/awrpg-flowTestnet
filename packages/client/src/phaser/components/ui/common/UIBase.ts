@@ -18,7 +18,6 @@ export interface UIBaseConfig extends UIEmitterConfig {
   scale?: number;
   parent?: UIBase | undefined;
   overflow?: string;
-  disable?: boolean;
   antiZoom?: boolean;
 }
 
@@ -44,9 +43,6 @@ export class UIBase extends UIEmitter {
 
   /** The vertical distance (px) to the align position @readonly */
   marginY: number;
-
-  /** Indicates that the UI is currently in an unusable state, such as the button */
-  disable: boolean;
 
   /** Counteracting the zoom adaptive scaling effect */
   antiZoom: boolean;
@@ -89,7 +85,6 @@ export class UIBase extends UIEmitter {
     this.alignModeName = config.alignModeName ?? ALIGNMODES.LEFT_TOP;
     this.marginX = config.marginX ?? 0;
     this.marginY = config.marginY ?? 0;
-    this.disable = config.disable ?? false;
     this.antiZoom = config.antiZoom ?? false;
     this.overflow = config.overflow ?? "auto";
     // Init size and position
@@ -198,6 +193,9 @@ export class UIBase extends UIEmitter {
         break;
     }
     this.updateGlobalPosition();
+    for (let child in this.children) {
+      this.children[child].updatePosition();
+    }
   }
 
   /**
@@ -216,9 +214,6 @@ export class UIBase extends UIEmitter {
     this.globalY = this.parent
       ? this.parent.globalY + this.y * this.parent.globalScaleX
       : this.y;
-    for (let child in this.children) {
-      this.children[child].updateGlobalPosition();
-    }
     this.updateViewport();
   }
 

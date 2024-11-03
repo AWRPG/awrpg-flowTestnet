@@ -1,7 +1,7 @@
 import { UIScene } from "../../scenes/UIScene";
 import { GuiBase, GuiBaseConfig } from "../GuiBase";
 import { ALIGNMODES } from "../../../constants";
-import { UIBase } from "../../components/ui/common/UIBase";
+import { UIBase, UIBaseConfig } from "../../components/ui/common/UIBase";
 import { Box } from "../../components/ui/Box";
 import { UIEvents } from "../../components/ui/common/UIEvents";
 import { UIList } from "../../components/ui/common/UIList";
@@ -12,20 +12,24 @@ import { ButtonA } from "../../components/ui/ButtonA";
 export class ListMenu extends GuiBase {
   list: UIList;
   title: Heading2;
-  constructor(scene: UIScene, title: string, config?: GuiBaseConfig) {
+  constructor(
+    scene: UIScene,
+    title: string,
+    config?: GuiBaseConfig,
+    rootUIconfig: UIBaseConfig = {}
+  ) {
     super(
       scene,
       new Box(scene, {
-        width: 520,
-        height: 680,
-        alignModeName: ALIGNMODES.MIDDLE_CENTER,
+        width: rootUIconfig.width ?? 520,
+        height: rootUIconfig.height ?? 680,
+        alignModeName: rootUIconfig.alignModeName ?? ALIGNMODES.MIDDLE_CENTER,
       }),
       config
     );
     this.name = "ListMenu";
-
     this.title = new Heading2(scene, title, {
-      width: 520,
+      width: this.rootUI.displayWidth,
       height: 200,
       marginY: 24,
       alignModeName: ALIGNMODES.MIDDLE_TOP,
@@ -34,7 +38,8 @@ export class ListMenu extends GuiBase {
 
     // Init the list
     this.list = new UIList(scene, {
-      itemWidth: 520,
+      width: this.rootUI.displayWidth - 24,
+      itemWidth: this.rootUI.displayWidth - 24,
       itemHeight: 48,
       marginY: 96,
       spacingY: 12,
@@ -64,18 +69,22 @@ export class ListMenu extends GuiBase {
 
   updateList(datas: unknown[] = []) {
     const items: UIBase[] = [];
+
     datas.forEach((data) => {
       const item = new ButtonA(this.scene, {
-        width: this.list.width - 68,
+        width: this.list.displayWidth,
         text: this.spliceText(data),
         fontStyle: "400",
         data,
       });
+      this.modifyItem(item);
       items.push(item);
     });
     this.items = items;
     if (this.list.itemsCount > 0) this.list.itemIndex = 0;
   }
+
+  modifyItem(item: ButtonA) {}
 
   spliceText(data: unknown) {
     return "You need to use spliceText()";

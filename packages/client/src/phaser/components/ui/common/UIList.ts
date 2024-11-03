@@ -87,6 +87,14 @@ export class UIList extends UIBase {
   }
 
   /**
+   * Destroy all listeners and the root node
+   */
+  destroy() {
+    this.removeAllItems();
+    super.destroy();
+  }
+
+  /**
    * Add a child item to items.
    * @param item the UI to add
    * @param index If other UI for this index, the other UI will be shifted back in order.

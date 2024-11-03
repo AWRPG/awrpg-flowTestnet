@@ -71,6 +71,14 @@ UIBase.prototype.init = function () {
   this.components = (this.scene as any).components;
 };
 
+const originalDestroy = UIBase.prototype.destroy;
+UIBase.prototype.destroy = function () {
+  if (this.unsubscribes) {
+    this.unsubscribes.forEach((unsubscribes) => unsubscribes());
+  }
+  originalDestroy.call(this);
+};
+
 /**
  * Listener for AWRPG
  * @callback

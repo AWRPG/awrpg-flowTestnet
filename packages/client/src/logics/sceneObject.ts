@@ -16,6 +16,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { getHostsEntity } from "./entity";
 import { hexTypeToString } from "../utils/encode";
 import { getERC721s } from "./container";
+import { getAllMinings } from "./mining";
 
 export function getHosts(
   components: ClientComponents,
@@ -35,7 +36,11 @@ export function getHosts(
   });
 }
 
-export function getHostsInHost(components: ClientComponents, store: Entity) {
+export function getHostsByOwner(
+  components: ClientComponents,
+  store: Entity,
+  player?: Entity
+) {
   const hostsEntity = getERC721s(components, store);
   return hostsEntity
     .map((entity) => {
@@ -46,8 +51,49 @@ export function getHostsInHost(components: ClientComponents, store: Entity) {
         entity,
         type: hexTypeToString(type),
         id: Number(id),
+        state: "",
         name,
       };
     })
-    .filter((erc721) => erc721.type === "host");
+    .filter(
+      (erc721) =>
+        erc721.type === "host" &&
+        getComponentValue(components.Commander, erc721.entity)?.value === player
+    );
+}
+
+/** Add the hosts have started mining in the building */
+export function getHostsMiningByBuilding(
+  components: ClientComponents,
+  store: Entity,
+  player?: Entity
+) {
+  const hostsEntity2 = getAllMinings(components, store);
+  return hostsEntity2
+    .map((entity) => {
+      const { type, id } = fromEntity(entity as Hex);
+      const name =
+        getComponentValue(components.HostName, entity)?.name ?? "無名氏";
+      return {
+        entity,
+        type: hexTypeToString(type),
+        id: Number(id),
+        state: "mining",
+        name,
+      };
+    })
+    .filter(
+      (host) =>
+        getComponentValue(components.Commander, host.entity)?.value === player
+    );
+}
+
+export function getHostsInHost(
+  components: ClientComponents,
+  store: Entity,
+  player?: Entity
+) {
+  const hosts1 = getHostsByOwner(components, store, player);
+  const hosts2 = getHostsMiningByBuilding(components, store, player);
+  return hosts1.concat(hosts2);
 }
