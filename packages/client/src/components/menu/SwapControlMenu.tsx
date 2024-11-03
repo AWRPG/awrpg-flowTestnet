@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import EntityName from "../EntityName";
 import ItemContainer from "../ItemContainer";
 import useMenuKeys from "../../hooks/useMenuKeys";
+import { hexTypeToString } from "../../utils/encode";
 
 export type SelectedSwapType = {
   fromType: Hex;
@@ -75,7 +76,7 @@ export function SwapsList({
   );
   const [selected, setSelected] = useState(0);
   const selections = swaps.map((swap, index) => ({
-    name: `${hexToString(swap.fromType)} (${swap.denom}) -> ${hexToString(swap.toType)} (${swap.num}) with ${availableToAmounts[index]} ${hexToString(swap.toType)} available`,
+    name: `${hexTypeToString(swap.fromType)} (${swap.denom}) -> ${hexTypeToString(swap.toType)} (${swap.num}) with ${availableToAmounts[index]} ${hexTypeToString(swap.toType)} available`,
     disabled: false,
     onClick: () => {
       setSelectedSwap(swap);
@@ -146,7 +147,7 @@ export function SwapEdit({
   const [num, setNum] = useState(selectedSwap!.num);
   const [denom, setDenom] = useState(selectedSwap!.denom);
 
-  const message = `Set a swap: ${hexToString(fromType)} (${denom}) -> ${hexToString(toType)} (${num})`;
+  const message = `Set a swap: ${hexTypeToString(fromType)} (${denom}) -> ${hexTypeToString(toType)} (${num})`;
   useEffect(() => {
     setComponent(ConsoleMessage, SOURCE, { value: message });
   }, [message]);
@@ -154,7 +155,7 @@ export function SwapEdit({
   const [selected, setSelected] = useState(0);
   const selections = [
     {
-      name: `from: <${hexToString(fromType)}>`,
+      name: `from: <${hexTypeToString(fromType)}>`,
       onRight: () =>
         setFromType(() => {
           const index = erc20Types.indexOf(fromType);
@@ -169,7 +170,7 @@ export function SwapEdit({
         }),
     },
     {
-      name: `${hexToString(fromType)} amount: <${denom}>`,
+      name: `${hexTypeToString(fromType)} amount: <${denom}>`,
       onRight: () => setDenom(denom + 1),
       onLeft: () =>
         setDenom(() => {
@@ -178,7 +179,7 @@ export function SwapEdit({
         }),
     },
     {
-      name: `to: <${hexToString(toType)}>`,
+      name: `to: <${hexTypeToString(toType)}>`,
       onRight: () =>
         setToType(() => {
           const index = erc20Types.indexOf(toType);
@@ -193,7 +194,7 @@ export function SwapEdit({
         }),
     },
     {
-      name: `${hexToString(toType)} amount:  <${num}>`,
+      name: `${hexTypeToString(toType)} amount:  <${num}>`,
       onRight: () => setNum(num + 1),
       onLeft: () => setNum(num - 1),
     },

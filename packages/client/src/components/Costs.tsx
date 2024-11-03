@@ -1,5 +1,5 @@
 import { Entity, getComponentValue } from "@latticexyz/recs";
-import { encodeTypeEntity, fromEntity } from "../utils/encode";
+import { encodeTypeEntity, fromEntity, hexTypeToString } from "../utils/encode";
 import { Hex, hexToString } from "viem";
 import { useMUD } from "../MUDContext";
 
@@ -25,7 +25,7 @@ export function CostsDisplay({ costs }: { costs: Hex[] }) {
     <div className="flex flex-col text-sm">
       {costsInfo.map((cost, i) => (
         <div key={i}>
-          {hexToString(cost.type)}: {Number(cost.id)}
+          {hexTypeToString(cost.type)}: {Number(cost.id)}
         </div>
       ))}
     </div>

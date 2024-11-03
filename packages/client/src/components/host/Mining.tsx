@@ -10,6 +10,7 @@ import { splitFromEntity } from "../../logics/move";
 import { useComponentValue } from "@latticexyz/react";
 import { canStoreERC20Amount } from "../../logics/container";
 import { BERRY } from "../../contract/constants";
+import { hexTypeToString } from "../../utils/encode";
 
 /**
  * display MiningInfo & StopButton if isPlayer; if !isMining, return null
@@ -46,7 +47,7 @@ export function MiningInfo({ role }: { role: Entity }) {
   amount = amount < maxAmount ? amount : maxAmount;
   return (
     <div>
-      Mined {hexToString(resourceType)}: {amount}/max: {maxAmount}
+      Mined {hexTypeToString(resourceType)}: {amount}/max: {maxAmount}
     </div>
   );
 }

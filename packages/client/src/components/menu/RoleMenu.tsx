@@ -27,6 +27,7 @@ import {
 } from "../../logics/pool";
 import HealthBar from "../HealthBar";
 import EntityName from "../EntityName";
+import { hexTypeToString } from "../../utils/encode";
 
 export type SelectionType = {
   content: JSX.Element;
@@ -59,7 +60,7 @@ export default function RoleMenu() {
           value={Number(balance)}
           fillColor={POOL_COLORS_STRING[type] ?? "white"}
           maxValue={Number(capacity)}
-          text={hexToString(type)}
+          text={hexTypeToString(type)}
         />
       ),
       onClick: () => {},

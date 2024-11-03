@@ -8,6 +8,7 @@ import { getRoleAndHostAdjacentCoord } from "../../logics/building";
 import { hasMintCosts } from "../../logics/cost";
 import { encodeTypeEntity } from "../../utils/encode";
 import { CostsDisplay } from "../Costs";
+import { hexTypeToString } from "../../utils/encode";
 
 /**
  * display all stakeable outputTypes of a staker building for role to stake
@@ -59,7 +60,7 @@ export function StakeableInfo({ outputType }: { outputType: Hex }) {
   const { timeCost, inputs, outputs } = stakeSpecs;
   return (
     <div className="flex flex-col">
-      <span>output: {hexToString(outputType)}</span>
+      <span>output: {hexTypeToString(outputType)}</span>
       <span>timeCost: {timeCost}</span>
       <div className="flex flex-row">
         <span>inputs: </span>
