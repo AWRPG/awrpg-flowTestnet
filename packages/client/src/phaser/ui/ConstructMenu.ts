@@ -44,8 +44,7 @@ export class ConstructMenu extends GuiBase {
       parent: this.rootUI,
       onCancel: () => {
         this.hidden();
-        SceneObjectController.resetFocus();
-        PlayerInput.onlyListenSceneObject();
+        this.prevGui?.show();
       },
     });
     this.focusUI = this.list;
@@ -80,9 +79,10 @@ export class ConstructMenu extends GuiBase {
     this.list.on(UIEvents.CONFIRM, this.onListConfirm, this);
   }
 
-  show(role?: Role) {
+  show(role?: Role, prevGui?: GuiBase) {
     super.show();
     this.role = role ?? this.role;
+    this.prevGui = prevGui ?? this.prevGui;
     SceneObjectController.focus = this.role;
     PlayerInput.onlyListenUI();
   }

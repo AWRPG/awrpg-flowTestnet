@@ -74,10 +74,7 @@ export class ActionMenu extends GuiBase {
       text: "Construct",
       onConfirm: () => {
         this.hidden();
-        if (this.role) UIController.scene.constructMenu?.show(this.role);
-      },
-      onCancel: () => {
-        this.show();
+        if (this.role) UIController.scene.constructMenu?.show(this.role, this);
       },
     });
     this.list.addItem(item2);
