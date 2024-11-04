@@ -188,7 +188,6 @@ export class FarmingMenu extends ListMenu {
     if (this.hasStaking) {
       this.stakingId = getStaking(role as Hex, entity as Hex) as Entity;
       const idToOut = getComponentValue(StakingInfo, this.stakingId);
-      console.log(this.stakingId);
       if (!idToOut) {
         new Heading3(this.scene, "It's already being used by other heros!", {
           parent: this.rootUI,

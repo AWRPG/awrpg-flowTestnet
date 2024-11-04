@@ -28,10 +28,13 @@ import { getEntitiesInCustodian } from "../../../logics/custodian";
 import { getHostPosition } from "../../../logics/path";
 import { setNewTargetTile } from "../../../logics/move";
 import { getHosts } from "../../../logics/sceneObject";
+import { ItemUseMenu } from "../ListMenu/ItemUseMenu";
+import { ItemData } from "../../../api/data";
 
 export class Roles extends DoublePage {
   rolesList: UIList;
   bag: UIList;
+  itemUseMenu?: ItemUseMenu;
   constructor(scene: UIScene, parent: GuiBase) {
     super(scene, parent, "Roles", "Bag");
     this.name = "MainMenuRoles";
@@ -86,6 +89,7 @@ export class Roles extends DoublePage {
     this.rolesList.on(UIEvents.CONFIRM, this.onRolesListConfirm, this);
     this.rolesList.on(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
     if (this.rolesList.itemsCount > 0) this.rolesList.itemIndex = 0;
+    this.bag.on(UIEvents.CONFIRM, this.onBagConfirm, this);
     this.bag.on(UIEvents.LEFT, this.onLeft, this);
     this.rolesList.on(UIEvents.RIGHT, this.onRight, this);
   }
@@ -109,9 +113,30 @@ export class Roles extends DoublePage {
     }
   }
 
+  onBagConfirm() {
+    const item = this.bag.item as UIItem;
+    const role = this.rolesList.item?.data.entity as Entity;
+    if (!item || !role || !item.itemType) return;
+    // Show item using menu
+    const itemData: ItemData = {
+      type: item.itemType,
+      entity: item.entity,
+      id: item.id,
+      amount: item.amount,
+    };
+    if (this.itemUseMenu) {
+      this.itemUseMenu.destroy();
+      delete this.itemUseMenu;
+    }
+    this.itemUseMenu = new ItemUseMenu(this.scene, itemData, role);
+    this.itemUseMenu.show();
+    this.itemUseMenu.rootUI.setPosition(item.globalX, item.globalY + 48);
+  }
+
   /** Choose the role to watch details */
   onRolesListSelected() {
     // Clear
+    const oldBagIndex = this.bag.itemIndex;
     this.bag.removeAllItems();
 
     // Add
@@ -130,6 +155,7 @@ export class Roles extends DoublePage {
         width: this.contentW - 48,
         amount: 1,
         id: Number(id),
+        entity: entity,
       });
       this.bag.addItem(item);
     });
@@ -145,6 +171,7 @@ export class Roles extends DoublePage {
       const item = new UIItem(this.scene, itemType, {
         width: this.contentW - 48,
         amount: erc20Item.amount,
+        entity: erc20Item.type as Entity,
       });
       this.bag.addItem(item);
     });
@@ -158,10 +185,19 @@ export class Roles extends DoublePage {
         width: this.contentW - 48,
         amount: 1,
         id: Number(id),
+        entity: equipment,
       });
       this.bag.addItem(item);
     });
     itemsCount += equipments.length;
+
+    if (this.focusUI === this.bag) {
+      if (oldBagIndex >= 0) {
+        if (itemsCount >= oldBagIndex) this.bag.itemIndex = oldBagIndex;
+        else this.bag.itemIndex = itemsCount;
+      } else if (itemsCount > 0) this.bag.itemIndex = 0;
+      else this.bag.itemIndex = -1;
+    }
   }
 
   onLeft() {

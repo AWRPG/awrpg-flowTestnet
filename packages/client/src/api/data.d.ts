@@ -12,3 +12,11 @@ export interface BuildingSpecs {
   canMove: boolean;
   terrainType: Hex;
 }
+
+export interface ItemData {
+  type: string;
+  entity?: Entity;
+  id?: number;
+  amount?: number;
+  state?: string;
+}

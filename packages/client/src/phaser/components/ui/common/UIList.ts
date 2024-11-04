@@ -263,6 +263,7 @@ export class UIList extends UIBase {
 
   set itemWidth(value: number) {
     this._itemWidth = value;
+    this.updateItemSize();
   }
 
   get itemHeight(): number {

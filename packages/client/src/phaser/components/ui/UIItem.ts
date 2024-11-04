@@ -4,10 +4,12 @@ import { UIImage, UIImageConfig } from "./common/UIImage";
 import { UIText } from "./common/UIText";
 import { Heading3 } from "./Heading3";
 import { ALIGNMODES } from "../../../constants";
+import { Entity } from "@latticexyz/recs";
 
 export interface UIItemConfig extends UIButtonConfig {
   amount?: number;
   id?: number;
+  entity?: Entity;
 }
 
 export class UIItem extends UIButton {
@@ -40,6 +42,7 @@ export class UIItem extends UIButton {
     this.itemType = itemType;
     this.id = config.id;
     this.amount = config.amount ?? 0;
+    this.entity = config.entity;
     this.nameText = new Heading3(
       scene,
       (this.itemType ?? "") + (this.id ? " #" + this.id : ""),
