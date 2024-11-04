@@ -140,6 +140,7 @@ export class ItemUseMenu extends ListMenu {
         this.scene.mainMenu?.roles.onRolesListSelected();
       },
     });
+    if (this.data.state === "equipped") item_drop.disable = true;
     items.push(item_drop);
 
     const item_drop2 = new ButtonA(this.scene, {
