@@ -94,7 +94,7 @@ export class UIBase extends UIEmitter {
     this.setAutoScale(config);
     if (this.antiZoom) {
       this.resizeListener(scene.game.scale.gameSize);
-      this.scene.scale.on("resize", this.resizeListener, this);
+      this.scene?.scale.on("resize", this.resizeListener, this);
     } else this.updatePosition();
 
     if (this.overflow === "hidden") {
@@ -450,7 +450,7 @@ export class UIBase extends UIEmitter {
    * Destroy all listeners and the root node
    */
   destroy() {
-    this.scene.scale.off("resize", this.resizeListener, this);
+    this.scene?.scale.off("resize", this.resizeListener, this);
     this.off();
     this.root.destroy();
   }

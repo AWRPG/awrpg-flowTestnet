@@ -11,7 +11,6 @@ import {
   getComponentValue,
   runQuery,
   HasValue,
-  Type,
 } from "@latticexyz/recs";
 import { ListMenu } from "../common/ListMenu";
 import { Building } from "../../objects/Building";
@@ -28,7 +27,10 @@ import { hasMintCosts } from "../../../logics/cost";
 import { getStaking } from "../../../contract/hashes";
 import { unixTimeSecond } from "../../../utils/time";
 import { UIController } from "../../components/controllers/UIController";
-import { canStoreOutputs } from "../../../logics/container";
+import {
+  canStoreERC20Amount,
+  canStoreOutputs,
+} from "../../../logics/container";
 
 interface Data {
   entity: Entity;
@@ -98,6 +100,7 @@ export class FarmingMenu extends ListMenu {
 
   stakingId?: Entity;
   remained: number = 999;
+  inputsType?: Hex[];
 
   constructor(scene: UIScene, config?: GuiBaseConfig) {
     super(scene, "Select a crop to stake", config, {
@@ -169,7 +172,7 @@ export class FarmingMenu extends ListMenu {
 
   updateList(datas: unknown[] = []) {
     if (!this.isPlayer) {
-      new Heading3(this.scene, "You have to choose your host nearby first!", {
+      new Heading3(this.scene, "You have to choose your hero nearby first!", {
         parent: this.rootUI,
         alignModeName: ALIGNMODES.MIDDLE_CENTER,
       });
@@ -177,16 +180,23 @@ export class FarmingMenu extends ListMenu {
     }
     if (!this.building) return;
     const entity = this.building.entity;
-    const { StakeSpecs, SelectedHost, StakingInfo } = this.components;
+    const { StakeSpecs, SelectedHost, StakingInfo, StoredSize } =
+      this.components;
     const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
     const items: UIBase[] = [];
 
     if (this.hasStaking) {
       this.stakingId = getStaking(role as Hex, entity as Hex) as Entity;
-      const outputType = getComponentValue(
-        StakingInfo,
-        this.stakingId
-      )!.outputType;
+      const idToOut = getComponentValue(StakingInfo, this.stakingId);
+      console.log(this.stakingId);
+      if (!idToOut) {
+        new Heading3(this.scene, "It's already being used by other heros!", {
+          parent: this.rootUI,
+          alignModeName: ALIGNMODES.MIDDLE_CENTER,
+        });
+        return;
+      }
+      const outputType = idToOut.outputType;
       const encodedType = encodeTypeEntity(outputType as Hex) as Entity;
       const stakeSpecs = getComponentValue(StakeSpecs, encodedType);
       if (stakeSpecs) {

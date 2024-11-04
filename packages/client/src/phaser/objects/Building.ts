@@ -1,4 +1,9 @@
-import { Entity, getComponentValue } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  runQuery,
+  HasValue,
+} from "@latticexyz/recs";
 import { ClientComponents } from "../../mud/createClientComponents";
 import { GameScene } from "../scenes/GameScene";
 import { SceneObject } from "./SceneObject";
@@ -8,6 +13,10 @@ import { getEntitySpecs } from "../../logics/entity";
 import { GameData } from "../components/GameData";
 import { BuildingData } from "../../api/data";
 import { Hex, hexToString } from "viem";
+import { getStaking } from "../../contract/hashes";
+import { SOURCE } from "../../constants";
+import { encodeTypeEntity } from "../../utils/encode";
+import { unixTimeSecond } from "../../utils/time";
 
 export class Building extends SceneObject {
   tileId: Entity;
@@ -15,6 +24,8 @@ export class Building extends SceneObject {
   buildingSprite: Phaser.GameObjects.Sprite;
   entity: Entity;
   tileCoord: Vector;
+
+  fieldSi: number = 0;
 
   constructor(
     scene: GameScene,
@@ -71,9 +82,52 @@ export class Building extends SceneObject {
     const offsetY = (dh + (height - 1) * this.tileSize) / (2 * dh);
     this.buildingSprite.setOrigin(offsetX, offsetY);
     this.root.add(this.buildingSprite);
+
+    if (this.data.type === "FIELD") {
+      this.fieldSi = setInterval(() => {
+        this.updateField();
+      }, 1200);
+      this.updateField();
+    }
+  }
+
+  updateField() {
+    const { StakingInfo, SelectedHost, StakeSpecs } = this.components;
+    const hasStaking =
+      [...runQuery([HasValue(StakingInfo, { building: this.entity })])].length >
+      0;
+    if (hasStaking) {
+      const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
+      if (!role) return;
+      const stakingId = getStaking(role as Hex, this.entity as Hex) as Entity;
+      if (!stakingId) return;
+      const lastUp = getComponentValue(StakingInfo, stakingId)?.lastUpdated;
+      if (!lastUp) return;
+      const outputType = getComponentValue(StakingInfo, stakingId)!.outputType;
+      const encodedType = encodeTypeEntity(outputType as Hex) as Entity;
+      const timeCost = getComponentValue(StakeSpecs, encodedType)?.timeCost;
+      if (!timeCost) return;
+      const time = lastUp + timeCost - unixTimeSecond();
+      const remained = time > 0 ? time : 0;
+      if (remained === 0) {
+        this.texture = this.data.sceneImg + "-berry-2";
+      } else {
+        this.texture = this.data.sceneImg + "-berry-1";
+      }
+    } else {
+      this.texture = this.data.sceneImg;
+    }
   }
 
   destroy() {
     this.buildingSprite.destroy();
+  }
+
+  get texture(): string {
+    return this.buildingSprite.texture.key;
+  }
+
+  set texture(value: string) {
+    if (value !== this.texture) this.buildingSprite.setTexture(value);
   }
 }

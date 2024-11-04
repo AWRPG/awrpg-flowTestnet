@@ -19,7 +19,7 @@ import { PlayerInput } from "../components/controllers/PlayerInput";
 
 export class ConstructMenu extends GuiBase {
   list: UIList;
-  img: UIImage;
+  img?: UIImage;
   text: UIText;
   role?: Role;
   data: BuildingData[];
