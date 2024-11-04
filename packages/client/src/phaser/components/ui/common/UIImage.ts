@@ -60,6 +60,7 @@ export class UIImage extends UIBase {
   setTexture(texture: string): UIImage {
     this.texture = texture;
     this.image.setTexture(texture);
+    this.updatePosition();
     return this;
   }
 

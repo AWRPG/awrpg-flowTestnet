@@ -28,7 +28,7 @@ export class ConstructMenu extends GuiBase {
     super(
       scene,
       new Box(scene, {
-        width: 1280,
+        width: 1180,
         height: 720,
         alignModeName: ALIGNMODES.MIDDLE_CENTER,
       })
@@ -37,11 +37,14 @@ export class ConstructMenu extends GuiBase {
 
     // Init the action button list
     this.list = new UIList(scene, {
-      marginY: 28,
-      itemWidth: 328,
+      width: 388,
+      height: this.rootUI.height * 0.9,
+      marginY: 40,
+      itemWidth: 268,
       itemHeight: 48,
       spacingY: 12,
       parent: this.rootUI,
+      overflow: "scroll",
       onCancel: () => {
         this.hidden();
         this.prevGui?.show();
@@ -64,19 +67,9 @@ export class ConstructMenu extends GuiBase {
       fontColor: "#2D3E51",
       parent: this.rootUI,
     });
-
-    this.img = new UIImage(this.scene, "img-building-safe", {
-      width: 830 * 0.6,
-      height: 741 * 0.6,
-      alignModeName: ALIGNMODES.MIDDLE_TOP,
-      marginX: 0,
-      marginY: 48,
-      parent: this.text,
-    });
-    this.img.root.setAlpha(0.85);
-
     this.list.on(UIEvents.SELECT_CHANGE, this.onListSelected, this);
     this.list.on(UIEvents.CONFIRM, this.onListConfirm, this);
+    this.list.itemIndex = 0;
   }
 
   show(role?: Role, prevGui?: GuiBase) {
@@ -90,7 +83,17 @@ export class ConstructMenu extends GuiBase {
   onListSelected() {
     const index = this.list.itemIndex;
     if (index === undefined) return;
-    this.img.setTexture(this.data[index].img);
+    this.img?.destroy();
+    this.img = new UIImage(this.scene, this.data[index].img, {
+      width: 480,
+      height: 480,
+      alignModeName: ALIGNMODES.MIDDLE_TOP,
+      marginX: 0,
+      marginY: 48,
+      parent: this.text,
+    });
+    this.img.root.setAlpha(0.85);
+
     this.text.text = this.data[index].name.toUpperCase();
   }
 

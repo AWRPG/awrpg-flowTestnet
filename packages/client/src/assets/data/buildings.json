@@ -2,9 +2,9 @@
   {
     "id": "0",
     "type": "SAFE",
-    "name": "safe",
-    "img": "img-building-safe",
-    "sceneImg": "safe"
+    "name": "repository",
+    "img": "img-building-repository",
+    "sceneImg": "repository"
   },
   {
     "id": "1",
@@ -15,16 +15,9 @@
   },
   {
     "id": "2",
-    "type": "CAULDRON",
-    "name": "cauldron",
-    "img": "img-building-safe",
-    "sceneImg": "safe"
-  },
-  {
-    "id": "3",
     "type": "FIELD",
     "name": "field",
-    "img": "img-building-safe",
+    "img": "img-building-field",
     "sceneImg": "field"
   }
 ]

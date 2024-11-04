@@ -141,7 +141,7 @@ export class GameScene extends Phaser.Scene {
     // this.load.image("fence", "src/assets/tiles/Fence.png");
     this.load.image("mine", "src/assets/tiles/mine.png");
     // this.load.image("foundry", "src/assets/tiles/Foundry.png");
-    this.load.image("safe", "src/assets/hosts/safe.png");
+    this.load.image("repository", "src/assets/hosts/repository.png");
     this.load.image("mine-shaft", "src/assets/hosts/mine-shaft.png");
     this.load.image("field", "src/assets/hosts/field.png");
 

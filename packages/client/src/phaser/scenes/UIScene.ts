@@ -127,7 +127,14 @@ export class UIScene extends Phaser.Scene {
     this.load.image("avatar-farmer-1-1", "src/assets/avatars/farmer_1_1.png");
 
     // Buildings big image
-    this.load.image("img-building-safe", "src/assets/imgs/buildings/safe.png");
+    this.load.image(
+      "img-building-safe",
+      "src/assets/imgs/buildings/safe.png"
+    );
+    this.load.image(
+      "img-building-repository",
+      "src/assets/imgs/buildings/repository.png"
+    );
     this.load.image(
       "img-building-mine-shaft",
       "src/assets/imgs/buildings/mine-shaft.png"
