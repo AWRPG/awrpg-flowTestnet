@@ -50,6 +50,7 @@ export class ItemUseMenu extends ListMenu {
     this.data = data;
     this.role = role;
     this.rootUI.setDepth(20);
+    this.list.marginY = 16;
   }
 
   show() {
@@ -59,33 +60,88 @@ export class ItemUseMenu extends ListMenu {
 
   updateList() {
     const items: ButtonA[] = [];
+    const id = this.data.id;
+
+    // Only FT can be consume
+    if (id === undefined) {
+      const item_consume = new ButtonA(this.scene, {
+        width: this.list.displayWidth,
+        text: "Consume",
+        fontStyle: "400",
+        onConfirm: async () => {
+          UIController.focus = this.focusUI;
+          await this.systemCalls.consumeERC20(
+            this.role as Hex,
+            this.data.entity as Hex
+          );
+          this.scene.mainMenu?.roles.onRolesListSelected();
+        },
+      });
+      items.push(item_consume);
+    }
+
     const item_drop = new ButtonA(this.scene, {
       width: this.list.displayWidth,
       text: "Drop",
       fontStyle: "400",
       onConfirm: async () => {
-        const id = this.data.id;
         UIController.focus = this.focusUI;
         if (id !== undefined) {
+          this.hidden(); // Unique
           await this.systemCalls.dropERC721(this.data.entity as Hex);
         } else {
-          await this.systemCalls.dropERC20(
-            this.role as Hex,
-            this.data.entity as Hex,
-            1n
-          );
+          const dropAmount = 1;
+          if (this.data.amount !== undefined) {
+            this.data.amount -= dropAmount;
+            if (this.data.amount < dropAmount) item_drop2.disable = true;
+            if (this.data.amount === 0) this.hidden();
+            await this.systemCalls.dropERC20(
+              this.role as Hex,
+              this.data.entity as Hex,
+              BigInt(dropAmount)
+            );
+          }
         }
         this.scene.mainMenu?.roles.onRolesListSelected();
       },
     });
     items.push(item_drop);
 
+    const item_drop2 = new ButtonA(this.scene, {
+      width: this.list.displayWidth,
+      text: "Drop x 10",
+      fontStyle: "400",
+      onConfirm: async () => {
+        UIController.focus = this.focusUI;
+        if (id !== undefined) {
+          this.hidden(); // Unique
+          await this.systemCalls.dropERC721(this.data.entity as Hex);
+        } else {
+          const dropAmount = 10;
+          if (this.data.amount !== undefined) {
+            this.data.amount -= dropAmount;
+            if (this.data.amount < dropAmount) item_drop2.disable = true;
+            if (this.data.amount === 0) this.hidden();
+            await this.systemCalls.dropERC20(
+              this.role as Hex,
+              this.data.entity as Hex,
+              BigInt(dropAmount)
+            );
+          }
+        }
+        this.scene.mainMenu?.roles.onRolesListSelected();
+      },
+    });
+    if (!this.data.amount || this.data.amount < 10) {
+      item_drop2.disable = true;
+    }
+    items.push(item_drop2);
+
     this.list.items = items;
     if (this.list.itemsCount > 0) this.list.itemIndex = 0;
   }
 
   hidden() {
-    console.log("hidden");
     super.hidden();
     UIController.focus = this.scene.mainMenu?.roles.bag;
   }
