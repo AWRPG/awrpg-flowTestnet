@@ -32,6 +32,8 @@ import {
   canStoreOutputs,
 } from "../../../logics/container";
 import { ItemData } from "../../../api/data";
+import { WEAPON } from "../../../contract/constants";
+import { getEquipmentInfo } from "../../../logics/equipment";
 
 export class ItemUseMenu extends ListMenu {
   data: ItemData;
@@ -62,7 +64,42 @@ export class ItemUseMenu extends ListMenu {
     const items: ButtonA[] = [];
     const id = this.data.id;
 
-    // Only FT can be consume
+    // Only some of NFTs can be equip
+    if (id !== undefined) {
+      if (this.data.state === "equipped") {
+        const item_unequip = new ButtonA(this.scene, {
+          width: this.list.displayWidth,
+          text: "Unequip",
+          fontStyle: "400",
+          onConfirm: async () => {
+            UIController.focus = this.focusUI;
+            const info = getEquipmentInfo(this.components, this.data.entity);
+            if (!info) return;
+            this.data.state = "";
+            this.hidden();
+            await this.systemCalls.unequip(this.role as Hex, info.equipType);
+            this.scene.mainMenu?.roles.onRolesListSelected();
+          },
+        });
+        items.push(item_unequip);
+      } else {
+        const item_equip = new ButtonA(this.scene, {
+          width: this.list.displayWidth,
+          text: "Equip",
+          fontStyle: "400",
+          onConfirm: async () => {
+            UIController.focus = this.focusUI;
+            this.data.state = "equipped";
+            this.hidden();
+            await this.systemCalls.equip(this.data.entity as Hex, WEAPON);
+            this.scene.mainMenu?.roles.onRolesListSelected();
+          },
+        });
+        items.push(item_equip);
+      }
+    }
+
+    // Only FTs can be consume
     if (id === undefined) {
       const item_consume = new ButtonA(this.scene, {
         width: this.list.displayWidth,
@@ -91,16 +128,14 @@ export class ItemUseMenu extends ListMenu {
           await this.systemCalls.dropERC721(this.data.entity as Hex);
         } else {
           const dropAmount = 1;
-          if (this.data.amount !== undefined) {
-            this.data.amount -= dropAmount;
-            if (this.data.amount < dropAmount) item_drop2.disable = true;
-            if (this.data.amount === 0) this.hidden();
-            await this.systemCalls.dropERC20(
-              this.role as Hex,
-              this.data.entity as Hex,
-              BigInt(dropAmount)
-            );
-          }
+          this.data.amount -= dropAmount;
+          if (this.data.amount < dropAmount) item_drop2.disable = true;
+          if (this.data.amount === 0) this.hidden();
+          await this.systemCalls.dropERC20(
+            this.role as Hex,
+            this.data.entity as Hex,
+            BigInt(dropAmount)
+          );
         }
         this.scene.mainMenu?.roles.onRolesListSelected();
       },
@@ -118,21 +153,19 @@ export class ItemUseMenu extends ListMenu {
           await this.systemCalls.dropERC721(this.data.entity as Hex);
         } else {
           const dropAmount = 10;
-          if (this.data.amount !== undefined) {
-            this.data.amount -= dropAmount;
-            if (this.data.amount < dropAmount) item_drop2.disable = true;
-            if (this.data.amount === 0) this.hidden();
-            await this.systemCalls.dropERC20(
-              this.role as Hex,
-              this.data.entity as Hex,
-              BigInt(dropAmount)
-            );
-          }
+          this.data.amount -= dropAmount;
+          if (this.data.amount < dropAmount) item_drop2.disable = true;
+          if (this.data.amount === 0) this.hidden();
+          await this.systemCalls.dropERC20(
+            this.role as Hex,
+            this.data.entity as Hex,
+            BigInt(dropAmount)
+          );
         }
         this.scene.mainMenu?.roles.onRolesListSelected();
       },
     });
-    if (!this.data.amount || this.data.amount < 10) {
+    if (this.data.amount < 10) {
       item_drop2.disable = true;
     }
     items.push(item_drop2);

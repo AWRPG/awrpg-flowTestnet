@@ -10,6 +10,7 @@ import { PlayerInput } from "../../components/controllers/PlayerInput";
 import { SceneObjectController } from "../../components/controllers/SceneObjectController";
 import { Box } from "../../components/ui/Box";
 import { BookListButton } from "../../components/ui/BookListButton";
+import { Heading2 } from "../../components/ui/Heading2";
 import { Heading3 } from "../../components/ui/Heading3";
 import { MainMenuTitle } from "../../components/ui/MainMenuTitle";
 import {
@@ -123,6 +124,7 @@ export class Roles extends DoublePage {
       entity: item.entity,
       id: item.id,
       amount: item.amount,
+      state: item.state,
     };
     if (this.itemUseMenu) {
       this.itemUseMenu.destroy();
@@ -186,6 +188,16 @@ export class Roles extends DoublePage {
         amount: 1,
         id: Number(id),
         entity: equipment,
+        state: "equipped",
+      });
+      new Heading2(this.scene, "E", {
+        fontColor: "#5c7a29",
+        parent: item.bg,
+        alignModeName: ALIGNMODES.LEFT_BOTTOM,
+        fontStyle: "800",
+        fontSize: 24,
+        marginX: 4,
+        marginY: -2,
       });
       this.bag.addItem(item);
     });

@@ -15,8 +15,8 @@ export interface BuildingSpecs {
 
 export interface ItemData {
   type: string;
-  entity?: Entity;
+  entity: Entity;
+  amount: number;
   id?: number;
-  amount?: number;
   state?: string;
 }
