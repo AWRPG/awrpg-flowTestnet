@@ -24,7 +24,6 @@ import {
   WOOD,
   YELLOW,
 } from "./contract/constants";
-import { ActionMenu } from "./phaser/ui/ActionMenu";
 
 export enum TerrainType {
   // new (& only) terrain type
@@ -63,6 +62,7 @@ export const terrainTypeMapping = {
 export const HIGHLIGHT_MODE = {
   MOVE: "Move",
   BUILD: "Build",
+  MOVEOUT: "Moveout",
 };
 
 export const POOL_TYPES = [SOUL, STAMINA, BLOOD];
@@ -126,7 +126,7 @@ export const ALIGNMODES = {
   LEFT_CENTER: "leftCenter",
   LEFT_BOTTOM: "leftBottom",
   RIGHT_TOP: "rightTop",
-  RIGHT_CENTER: "leftCenter",
+  RIGHT_CENTER: "rightCenter",
   RIGHT_BOTTOM: "rightBottom",
   MIDDLE_TOP: "middleTop",
   MIDDLE_CENTER: "middleCenter",

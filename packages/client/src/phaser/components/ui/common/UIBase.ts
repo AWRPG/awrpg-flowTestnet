@@ -1,8 +1,15 @@
 import { ALIGNMODES } from "../../../../constants";
-import { UIEvents } from "./UIEvents";
+import { UIEmitter, UIEmitterConfig } from "./UIEmitter";
 
-export interface UIBaseConfig {
-  texture?: string | undefined;
+export const StandardGameSize = {
+  maxWidth: 2240,
+  maxHeight: 1260,
+  minWidth: 1600,
+  minHeight: 900,
+};
+
+export interface UIBaseConfig extends UIEmitterConfig {
+  texture?: string | Phaser.Textures.Texture;
   alignModeName?: string;
   width?: number;
   height?: number;
@@ -10,18 +17,20 @@ export interface UIBaseConfig {
   marginY?: number;
   scale?: number;
   parent?: UIBase | undefined;
-  disable?: boolean;
-  onConfirm?: () => void;
-  onCancel?: () => void;
+  overflow?: string;
+  antiZoom?: boolean;
 }
 
 /**
- * The most basic UI components
+ * The second basic UI components
  * There is only one root node inherited, which can be used as a container.
  */
-export class UIBase {
-  /** A empty gameObject as the root node*/
-  root: Phaser.GameObjects.Container;
+export class UIBase extends UIEmitter {
+  /** parent UI of this UI  */
+  protected _parent: UIBase | undefined;
+
+  /** Scaling, different from scale, for UI adaptive features */
+  protected _zoom: number = 1;
 
   /** The key, or instance of the Texture this Game Object will use to render with, as stored in the Texture Manager.*/
   texture: string | undefined;
@@ -29,17 +38,23 @@ export class UIBase {
   /** The alignments provided in “ALIGNMODES” include LEFT-MIDDLE-RIGHT, TOP-CENTER-BOTTOM. @readonly */
   alignModeName: string;
 
-  /** parent UI of this UI  */
-  protected _parent: UIBase | undefined;
-
-  /** children UIs of this UI  */
-  children: UIBase[] = [];
-
   /** The horizontal distance (px) to the align position @readonly */
   marginX: number;
 
   /** The vertical distance (px) to the align position @readonly */
   marginY: number;
+
+  /** Counteracting the zoom adaptive scaling effect */
+  antiZoom: boolean;
+
+  /** What to do with the content excess */
+  overflow: string;
+
+  /** Component width to exclude zoom scaling */
+  configWidth: number;
+
+  /** Component height to exclude zoom scaling */
+  configHeight: number;
 
   /** The global x position of root @readonly */
   globalX: number = 0;
@@ -47,53 +62,57 @@ export class UIBase {
   /** The global y position of root @readonly */
   globalY: number = 0;
 
-  /** Mouse over */
-  hovering: boolean = false;
+  /** The global x scale of root @readonly */
+  globalScaleX: number = 1;
 
-  disable: boolean;
+  /** The global y scale of root @readonly */
+  globalScaleY: number = 1;
 
-  /**  */
-  onConfirm?: () => void;
+  /** Children UIs of this UI  */
+  children: UIBase[] = [];
 
-  onCancel?: () => void;
+  /** Display area */
+  viewport?: Phaser.GameObjects.Graphics;
+
+  /** Mask object for display area */
+  mask?: Phaser.Display.Masks.GeometryMask;
 
   /** */
   constructor(scene: Phaser.Scene, config: UIBaseConfig = {}) {
-    this.texture = config.texture;
+    super(scene, config);
+    this.texture =
+      typeof config.texture === "object" ? config.texture.key : config.texture;
     this.alignModeName = config.alignModeName ?? ALIGNMODES.LEFT_TOP;
     this.marginX = config.marginX ?? 0;
     this.marginY = config.marginY ?? 0;
-    this.disable = config.disable ?? false;
-
-    // Creates the root container & init size and position
-    this.root = new Phaser.GameObjects.Container(scene, 0, 0);
+    this.antiZoom = config.antiZoom ?? false;
+    this.overflow = config.overflow ?? "auto";
+    // Init size and position
     this.parent = config.parent;
-    this.onConfirm = config.onConfirm;
-    this.onCancel = config.onCancel;
+    this.configWidth = this.setConfigWidth(config);
+    this.configHeight = this.setConfigHeight(config);
     this.setAutoScale(config);
-    this.updatePosition();
+    if (this.antiZoom) {
+      this.resizeListener(scene.game.scale.gameSize);
+      this.scene?.scale.on("resize", this.resizeListener, this);
+    } else this.updatePosition();
+
+    if (this.overflow === "hidden") {
+      this.createViewport();
+    }
 
     // Mounts the root on the specified object
     this.init();
   }
 
+  //==================================================================
+  //    Init & Display
+  //==================================================================
   /**
    * Initialise the rest
    */
   init() {
     // Expand as needed
-  }
-
-  /**
-   * Mount several basic UI components on the root container
-   */
-  add(children: UIBase | UIBase[]): UIBase {
-    if (Array.isArray(children)) {
-      for (const i in children) this.root.add(children[i].root);
-    } else {
-      this.root.add(children.root);
-    }
-    return this;
   }
 
   /**
@@ -113,152 +132,161 @@ export class UIBase {
   }
 
   /**
-   * Set the scale, size & display size of the root container
+   * Init the view port of overflow
    */
-  setAutoScale(config: Partial<UIBaseConfig>): UIBase {
-    if (config.width !== -1 && config.height !== -1) {
-      const textureObj = config.texture
-        ? this.scene.textures.get(config.texture)
-        : undefined;
-      const width =
-        config.width !== undefined
-          ? config.width
-          : textureObj?.source[0]?.width ?? 576;
-      const height =
-        config.height !== undefined
-          ? config.height
-          : textureObj?.source[0]?.height ?? 324;
-      this.root.setSize(width, height);
-      this.root.setDisplaySize(width, height);
-    }
-    if (config.scale !== undefined) this.root.setScale(config.scale);
-    return this;
+  createViewport() {
+    this.viewport = new Phaser.GameObjects.Graphics(this.scene);
+    this.updateViewport();
+    this.mask = new Phaser.Display.Masks.GeometryMask(
+      this.scene,
+      this.viewport
+    );
+    this.root.setMask(this.mask);
   }
 
+  //==================================================================
+  //    Update props
+  //==================================================================
   /**
    * Set coordinates according to alignment
    */
   updatePosition() {
     const referObj = this.parent ?? this.scene.scale;
+    const marginX = this.marginX;
+    const marginY = this.marginY;
     switch (this.alignModeName) {
       case ALIGNMODES.LEFT_CENTER:
-        this.x = this.marginX;
-        this.y = referObj.height / 2 + this.marginY - this.displayHeight / 2;
+        this.x = marginX;
+        this.y = referObj.height / 2 + marginY - this.displayHeight / 2;
         break;
       case ALIGNMODES.LEFT_BOTTOM:
-        this.x = this.marginX;
-        this.y = referObj.height - this.marginY - this.displayHeight;
+        this.x = marginX;
+        this.y = referObj.height - marginY - this.displayHeight;
         break;
       case ALIGNMODES.RIGHT_TOP:
-        this.x = referObj.width - this.marginX - this.displayWidth;
-        this.y = this.marginY;
+        this.x = referObj.width - marginX - this.displayWidth;
+        this.y = marginY;
         break;
       case ALIGNMODES.RIGHT_CENTER:
-        this.x = referObj.width - this.marginX - this.displayWidth;
-        this.y = referObj.height / 2 + this.marginY - this.displayHeight / 2;
+        this.x = referObj.width - marginX - this.displayWidth;
+        this.y = referObj.height / 2 + marginY - this.displayHeight / 2;
         break;
       case ALIGNMODES.RIGHT_BOTTOM:
-        this.x = referObj.width - this.marginX - this.displayWidth;
-        this.y = referObj.height - this.marginY - this.displayHeight;
+        this.x = referObj.width - marginX - this.displayWidth;
+        this.y = referObj.height - marginY - this.displayHeight;
         break;
       case ALIGNMODES.MIDDLE_TOP:
-        this.x = referObj.width / 2 + this.marginX - this.displayWidth / 2;
-        this.y = this.marginY;
+        this.x = referObj.width / 2 + marginX - this.displayWidth / 2;
+        this.y = marginY;
         break;
       case ALIGNMODES.MIDDLE_CENTER:
-        this.x = referObj.width / 2 + this.marginX - this.displayWidth / 2;
-        this.y = referObj.height / 2 + this.marginY - this.displayHeight / 2;
+        this.x = referObj.width / 2 + marginX - this.displayWidth / 2;
+        this.y = referObj.height / 2 + marginY - this.displayHeight / 2;
         break;
       case ALIGNMODES.MIDDLE_BOTTOM:
-        this.x = referObj.width / 2 + this.marginX - this.displayWidth / 2;
-        this.y = referObj.height - this.marginY - this.displayHeight;
+        this.x = referObj.width / 2 + marginX - this.displayWidth / 2;
+        this.y = referObj.height - marginY - this.displayHeight;
         break;
       default:
-        this.x = this.marginX;
-        this.y = this.marginY;
+        this.x = marginX;
+        this.y = marginY;
         break;
     }
     this.updateGlobalPosition();
-  }
-
-  /**
-   * Update self and all children's global x & y
-   */
-  updateGlobalPosition(): UIBase {
-    this.globalX = this.parent ? this.parent.globalX + this.x : this.x;
-    this.globalY = this.parent ? this.parent.globalY + this.y : this.y;
     for (let child in this.children) {
-      this.children[child].updateGlobalPosition();
+      this.children[child].updatePosition();
     }
-    return this;
   }
 
   /**
-   * Add a listener for a given event.
-   * @param event The event name.
-   * @param fn The listener function.
-   * @param context The context to invoke the listener with. Default this.
+   * Update self and all children's global positions and scales
    */
-  on(event: string | symbol, fn: Function, context?: any): UIBase {
-    this.root.on(event, fn, context);
-    return this;
+  updateGlobalPosition() {
+    this.globalScaleX = this.parent
+      ? this.parent.globalScaleX * this.scaleX
+      : this.scaleX;
+    this.globalScaleY = this.parent
+      ? this.parent.globalScaleY * this.scaleY
+      : this.scaleY;
+    this.globalX = this.parent
+      ? this.parent.globalX + this.x * this.parent.globalScaleX
+      : this.x;
+    this.globalY = this.parent
+      ? this.parent.globalY + this.y * this.parent.globalScaleX
+      : this.y;
+    this.updateViewport();
   }
 
   /**
-   * Add a one-time listener for a given event.
-   * @param event The event name.
-   * @param fn The listener function.
-   * @param context The context to invoke the listener with. Default this.
+   * Update the view port of overflow
    */
-  once(event: string | symbol, fn: Function, context?: any): UIBase {
-    this.root.once(event, fn, context);
-    return this;
+  updateViewport() {
+    if (!this.viewport) return;
+    this.viewport.setPosition(this.globalX, this.globalY);
+    this.viewport.clear();
+    this.viewport.fillRect(
+      0,
+      0,
+      this.configWidth * this.globalScaleX,
+      this.configHeight * this.globalScaleY
+    );
   }
 
-  /**
-   * Remove the listeners of a given event or all listeners
-   * @param event The event name.
-   * @param fn Only remove the listeners that match this function.
-   * @param context Only remove the listeners that have this context.
-   * @param once Only remove one-time listeners.
-   */
-  off(
-    event?: string | symbol,
-    fn?: Function,
-    context?: any,
-    once?: boolean
-  ): UIBase {
-    if (event) {
-      this.root.off(event, fn, context, once);
-    } else {
-      this.root.removeAllListeners();
+  //==================================================================
+  //    Listeners
+  //==================================================================
+  resizeListener(gameSize: Phaser.Structs.Size) {
+    this.zoom =
+      1 /
+      Phaser.Math.Clamp(
+        gameSize.width / StandardGameSize.maxWidth,
+        StandardGameSize.minWidth / StandardGameSize.maxWidth,
+        1
+      );
+    if (this.configWidth !== -1 && this.configHeight !== -1) {
+      this.updatePosition();
     }
+  }
+
+  //==================================================================
+  //    Set props
+  //==================================================================
+  /**
+   * Set the config width
+   */
+  setConfigWidth(config: Partial<UIBaseConfig>): number {
+    let configWidth = config.width ?? this.configWidth;
+    if (configWidth !== -1) {
+      const textureObj = config.texture
+        ? this.scene.textures.get(config.texture)
+        : undefined;
+      configWidth = configWidth ?? textureObj?.source[0]?.width ?? 576;
+    }
+    return configWidth;
+  }
+
+  /**
+   * Set the config height
+   */
+  setConfigHeight(config: Partial<UIBaseConfig>): number {
+    let configHeight = config.height ?? this.configHeight;
+    if (configHeight !== -1) {
+      const textureObj = config.texture
+        ? this.scene.textures.get(config.texture)
+        : undefined;
+      configHeight = configHeight ?? textureObj?.source[0]?.height ?? 576;
+    }
+    return configHeight;
+  }
+
+  /**
+   * Set the scale, size & display size of the root container
+   */
+  setAutoScale(config: Partial<UIBaseConfig>): UIBase {
+    this.setSize(this.configWidth, this.configHeight);
+    this.setDisplaySize(this.configWidth, this.configHeight);
+    if (config.scale !== undefined) this.setScale(config.scale);
     return this;
-  }
-
-  /**
-   * Return the listeners registered for a given event.
-   * @param event The event name.
-   */
-  listeners(event: string | symbol): Function[] {
-    return this.root.listeners(event);
-  }
-
-  /**
-   * Return the number of listeners listening to a given event.
-   * @param event The event name.
-   */
-  listenerCount(event: string | symbol): number {
-    return this.root.listenerCount(event);
-  }
-
-  /**
-   * Calls each of the listeners registered for a given event.
-   * @param event The event name.
-   * @param args Additional arguments that will be passed to the event handler.
-   */
-  emit(event: string | symbol, ...args: any[]): boolean {
-    return this.root.emit(event, ...args);
   }
 
   /**
@@ -304,7 +332,9 @@ export class UIBase {
    * @param height The height of this Game Object.
    */
   setSize(width: number, height: number): UIBase {
-    this.root.setSize(width, height);
+    if (width >= 0 && height >= 0) {
+      this.root.setSize(width, height);
+    }
     return this;
   }
 
@@ -314,7 +344,12 @@ export class UIBase {
    * @param height The height of this Game Object.
    */
   setDisplaySize(width: number, height: number): UIBase {
-    this.root.setDisplaySize(width, height);
+    this.configWidth = width;
+    this.configHeight = height;
+    if (width >= 0 && height >= 0) {
+      this.root.setDisplaySize(width * this.zoom, height * this.zoom);
+    }
+    this.updatePosition();
     return this;
   }
 
@@ -325,14 +360,60 @@ export class UIBase {
    */
   setScale(x?: number, y?: number): UIBase {
     this.root.setScale(x, y);
+    this.configWidth = this.displayWidth / this.zoom;
+    this.configHeight = this.displayHeight / this.zoom;
+    this.updatePosition();
+    return this;
+  }
+
+  /**
+   * The depth of this Game Object within the Scene.
+   * @param value — The depth of this Game Object. Ensure this value is only ever a number data-type.
+   */
+  setDepth(value: number): UIBase {
+    this.root.setDepth(value);
+    return this;
+  }
+
+  /**
+   * Use for the child of Guibase who open the autoZoom
+   */
+  setZoom(value: number) {
+    this._zoom = value;
+    if (this.configWidth >= 0 && this.configHeight >= 0) {
+      this.root.setDisplaySize(
+        this.configWidth * value,
+        this.configHeight * value
+      );
+      this.updatePosition();
+    }
+  }
+
+  //==================================================================
+  //    About the children
+  //==================================================================
+  /**
+   * Mount several basic UI components on the root container
+   */
+  add(children: UIBase | UIBase[]): UIBase {
+    if (Array.isArray(children)) {
+      for (const i in children) this.root.add(children[i].root);
+    } else {
+      this.root.add(children.root);
+    }
     return this;
   }
 
   /**
    * Remove the child on the root container
    */
-  remove(child: UIBase, destroyChild?: boolean): UIBase {
-    this.root.remove(child.root, destroyChild);
+  remove(children: UIBase | UIBase[], destroyChild?: boolean): UIBase {
+    if (Array.isArray(children)) {
+      for (const i in children)
+        this.root.remove(children[i].root, destroyChild);
+    } else {
+      this.root.remove(children.root, destroyChild);
+    }
     return this;
   }
 
@@ -348,6 +429,7 @@ export class UIBase {
    * Removes all childs from this Container.
    */
   removeAll(destroyChild?: boolean): UIBase {
+    this.children = [];
     this.root.removeAll(destroyChild);
     return this;
   }
@@ -356,10 +438,26 @@ export class UIBase {
    * Remove and Destroy all childs in the Container.
    */
   destroyChildren(): UIBase {
+    this.children.forEach((child) => {
+      child.destroy();
+    });
+    this.children = [];
     this.root.removeAll(true);
     return this;
   }
 
+  /**
+   * Destroy all listeners and the root node
+   */
+  destroy() {
+    this.scene?.scale.off("resize", this.resizeListener, this);
+    this.off();
+    this.root.destroy();
+  }
+
+  //==================================================================
+  //    Getter / Setter for protected / private props
+  //==================================================================
   get parent() {
     return this._parent;
   }
@@ -380,50 +478,17 @@ export class UIBase {
     }
   }
 
-  //===========================================
-  //    About the listeners
-  //===========================================
-  onFocus() {}
-  onBlur() {}
-  onUpPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.UP, this);
-  }
-  onDownPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.DOWN, this);
-  }
-  onLeftPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.LEFT, this);
-  }
-  onRightPressed() {
-    this.emit(UIEvents.ARROW, this);
-    this.emit(UIEvents.RIGHT, this);
+  get zoom(): number {
+    return this._zoom;
   }
 
-  onConfirmPressed() {
-    this.emit(UIEvents.CONFIRM, this);
-    if (this.onConfirm) this.onConfirm();
+  set zoom(value: number) {
+    this.setZoom(value);
   }
 
-  onCancelPressed() {
-    this.emit(UIEvents.CANCEL, this);
-    if (this.onCancel) this.onCancel();
-  }
-
-  onSelected() {}
-  onUnSelected() {}
-  onHover() {
-    this.hovering = true;
-  }
-  onUnHover() {
-    this.hovering = false;
-  }
-
-  //===========================================
+  //==================================================================
   //    Simplified writing for ease of use
-  //===========================================
+  //==================================================================
   get scene() {
     return this.root.scene;
   }
@@ -482,6 +547,22 @@ export class UIBase {
 
   set scale(value: number) {
     this.setScale(value);
+  }
+
+  get scaleX() {
+    return this.root.scaleX;
+  }
+
+  set scaleX(value: number) {
+    this.setScale(value, this.scaleY);
+  }
+
+  get scaleY() {
+    return this.root.scaleY;
+  }
+
+  set scaleY(value: number) {
+    this.setScale(this.scaleX, value);
   }
 
   get alpha() {

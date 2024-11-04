@@ -14,6 +14,7 @@ import {
 import { Stored } from "./Stored";
 import { getHostsAdjacentCoord } from "../../logics/building";
 import EntityName from "../EntityName";
+import { hexTypeToString } from "../../utils/encode";
 
 /**
  * the overal transfer component between a fromHost and a toHost, including display info & transfer action
@@ -168,7 +169,7 @@ export function FTTransfer({
   return (
     <div className="flex flex-row space-x-2">
       <span>
-        {hexToString(erc20Type)}x{Number(balanceFrom)}
+        {hexTypeToString(erc20Type)}x{Number(balanceFrom)}
       </span>
       <input
         type="number"
@@ -188,7 +189,7 @@ export function FTTransfer({
           );
         }}
       >
-        transfer {amount} {hexToString(erc20Type)}
+        transfer {amount} {hexTypeToString(erc20Type)}
       </button>
     </div>
   );

@@ -1,6 +1,6 @@
 import { UIBase } from "./common/UIBase";
 import { Component, Entity, Schema } from "@latticexyz/recs";
-import { listenComponentValue } from "../../../utils/listenComponentValue";
+import { listenComponentValue } from "../../../utils/pecs";
 import { ClientComponents } from "../../../mud/createClientComponents";
 import { SystemCalls } from "../../../mud/createSystemCalls";
 
@@ -69,6 +69,14 @@ UIBase.prototype.init = function () {
   originalInit.call(this);
   this.unsubscribes = [];
   this.components = (this.scene as any).components;
+};
+
+const originalDestroy = UIBase.prototype.destroy;
+UIBase.prototype.destroy = function () {
+  if (this.unsubscribes) {
+    this.unsubscribes.forEach((unsubscribes) => unsubscribes());
+  }
+  originalDestroy.call(this);
 };
 
 /**

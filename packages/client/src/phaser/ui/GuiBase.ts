@@ -1,11 +1,17 @@
 import { UIBase } from "../components/ui/common/UIBase";
-import { Button } from "../components/ui/Button";
 import { UIController } from "../components/controllers/UIController";
 import { UIScene } from "../scenes/UIScene";
 import { ClientComponents } from "../../mud/createClientComponents";
 import { SystemCalls } from "../../mud/createSystemCalls";
 import { SetupNetworkResult } from "../../mud/setupNetwork";
 import { UIEvents } from "../components/ui/common/UIEvents";
+import { StandardGameSize } from "../components/ui/common/UIBase";
+
+export interface GuiBaseConfig {
+  autoZoom?: boolean;
+  visible?: boolean;
+  onConfirm?: () => void;
+}
 
 /**
  * All the complex UI Components need to extend from this class.
@@ -26,21 +32,17 @@ export class GuiBase {
   name: string;
 
   /**
-   * [only read] Determine if the current object is displayed
-   * If you want to change the visible state, you need to use the show() and hide() controls.
-   */
-  isVisible: boolean = false;
-
-  /**
    * Each GuiBase must have a basic UI component as a root node
    */
   rootUI: UIBase;
 
-  resizeListener: Function | undefined;
-
   private _focusUI?: UIBase;
 
   prevGui?: GuiBase;
+
+  autoZoom: boolean;
+
+  config: GuiBaseConfig;
 
   /**
    * Data listener events that depend on Phaser: https://newdocs.phaser.io/docs/3.80.0/Phaser.Data.Events.CHANGE_DATA
@@ -48,44 +50,69 @@ export class GuiBase {
   onDataChanged(parent: unknown, key: string, data: unknown) {}
 
   /**
+   * Input triggers
+   */
+  onUp() {}
+  onDown() {}
+  onLeft() {}
+  onRight() {}
+  onConfirm() {}
+  onCancel() {}
+
+  /**
    * @param scene
    * @param rootUI The base UI component that serves as the root node of the GuiBase
    */
-  constructor(scene: UIScene, rootUI: UIBase) {
+  constructor(scene: UIScene, rootUI: UIBase, config: GuiBaseConfig = {}) {
     this.name = "GuiBase";
     this.scene = scene;
     this.components = scene.components;
     this.network = scene.network;
     this.systemCalls = scene.systemCalls;
     this.rootUI = rootUI;
-    this.hidden(); // It will only be displayed when be called.
-    this.rootUI.root.on("changedata", this.onDataChanged, this);
+    this.visible = config.visible ?? false;
+    this.autoZoom = config.autoZoom ?? false;
+    this.config = config;
+    if (config.onConfirm) this.onConfirm = config.onConfirm;
   }
 
   /**
    * Show it
    */
   show(...params: unknown[]) {
-    if (!this.resizeListener) {
-      this.resizeListener = (gameSize: Phaser.Structs.Size) => {
-        this.rootUI.updatePosition();
-      };
-      this.scene.scale.on("resize", this.resizeListener);
-    }
+    this.resizeListener(this.scene.game.scale.gameSize);
+    this.scene.scale.on("resize", this.resizeListener, this);
     if (this.focusUI) UIController.focus = this.focusUI; // Set focus
-    this.rootUI.root.setVisible(true);
-    this.isVisible = true;
+    this.rootUI.root.on("changedata", this.onDataChanged, this);
+    this.visible = true;
   }
 
   /**
    * Hide it
    */
   hidden(...params: unknown[]) {
-    this.rootUI.root.setVisible(false);
-    this.isVisible = false;
+    this.visible = false;
     if (UIController.focus === this.focusUI) UIController.focus = undefined;
-    this.scene.scale.off("resize", this.resizeListener);
-    this.resizeListener = undefined;
+    this.scene.scale.off("resize", this.resizeListener, this);
+    this.rootUI.root.off("changedata", this.onDataChanged, this);
+  }
+
+  destroy() {
+    this.rootUI.destroyChildren();
+    this.rootUI.destroy();
+  }
+
+  resizeListener(gameSize: Phaser.Structs.Size) {
+    if (this.autoZoom) {
+      const zoom = Phaser.Math.Clamp(
+        gameSize.width / StandardGameSize.maxWidth,
+        StandardGameSize.minWidth / StandardGameSize.maxWidth,
+        1
+      );
+      this.rootUI.setZoom(zoom);
+    } else {
+      this.rootUI.updatePosition();
+    }
   }
 
   onMenuListen(ui: UIBase = this.rootUI) {
@@ -128,13 +155,23 @@ export class GuiBase {
   }
 
   set focusUI(value: UIBase) {
+    if (UIController.focus === this._focusUI) UIController.focus = value;
     this._focusUI = value;
   }
 
-  onUp() {}
-  onDown() {}
-  onLeft() {}
-  onRight() {}
-  onConfirm() {}
-  onCancel() {}
+  /**
+   * Determine if the current object is displayed
+   * If you want to change the visible state, best to use the show() and hidden() controls.
+   */
+  get visible(): boolean {
+    return this.rootUI.root.visible;
+  }
+
+  set visible(value: boolean) {
+    if (value === true) {
+      this.rootUI.root.setVisible(true);
+    } else {
+      this.rootUI.root.setVisible(false);
+    }
+  }
 }

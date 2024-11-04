@@ -9,6 +9,7 @@ import { useEquipmentInfo, useHostEquipments } from "../../logics/equipment";
 import { WEAPON } from "../../contract/constants";
 import { EntityPools } from "./Pool";
 import { useInSpace } from "../../logics/drop";
+import { hexTypeToString } from "../../utils/encode";
 
 /**
  * display whatever in role's bag, FT, NFT, equipped NFT; canDrop & isPlayer is checked and passed down
@@ -79,7 +80,7 @@ export function FTItem({
   return (
     <div className="flex flex-row">
       <span>
-        {hexToString(erc20Type)}x{Number(balance)}
+        {hexTypeToString(erc20Type)}x{Number(balance)}
       </span>
       {isPlayer && canDrop && (
         <button
@@ -133,7 +134,7 @@ export function NFTItem({
           className="btn-blue"
           onClick={() => equip(entity as Hex, WEAPON)}
         >
-          Equip as {hexToString(WEAPON)}
+          Equip as {hexTypeToString(WEAPON)}
         </button>
       )}
     </div>
@@ -160,7 +161,7 @@ export function EquippedItem({
   if (!info) return null;
   return (
     <div className="flex flex-row space-x-2">
-      <span className="font-bold">{hexToString(info.equipType)}:</span>
+      <span className="font-bold">{hexTypeToString(info.equipType)}:</span>
       <EntityName entity={entity} />
       <EntityPools entity={entity} />
       {isPlayer && (

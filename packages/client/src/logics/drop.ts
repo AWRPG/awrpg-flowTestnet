@@ -138,6 +138,6 @@ export const splitDropContainer = (container: bigint) => {
   const xy = container & 0xffffffffffffffffffffffffffffffffn;
   const tileX = Number(xy >> 64n);
   const tileY = Number(xy & 0xffffffffffffffffn);
-  console.log({ drop, tileX, tileY });
+  // console.log({ drop, tileX, tileY });
   return { drop, tileX, tileY };
 };

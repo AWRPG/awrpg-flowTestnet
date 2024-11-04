@@ -2,10 +2,11 @@ import { UIBase, UIBaseConfig } from "./UIBase";
 
 export interface UIImageConfig extends UIBaseConfig {
   nineSlice?: number | number[];
+  frame?: any;
 }
 
 export class UIImage extends UIBase {
-  image: Phaser.GameObjects.Image | Phaser.GameObjects.NineSlice;
+  image: Phaser.GameObjects.Sprite | Phaser.GameObjects.NineSlice;
 
   constructor(
     scene: Phaser.Scene,
@@ -34,7 +35,7 @@ export class UIImage extends UIBase {
         bottomHeight
       ).setOrigin(0, 0); // [TODO] Make new nine slice way can let the side loop like the tilemap
     } else {
-      this.image = new Phaser.GameObjects.Image(scene, 0, 0, texture);
+      this.image = new Phaser.GameObjects.Sprite(scene, 0, 0, texture);
       this.image.setOrigin(0, 0);
       this.image.setDisplaySize(
         this.displayWidth / this.scale,
@@ -59,7 +60,54 @@ export class UIImage extends UIBase {
   setTexture(texture: string): UIImage {
     this.texture = texture;
     this.image.setTexture(texture);
+    this.updatePosition();
     return this;
+  }
+
+  setSlices(
+    width?: number,
+    height?: number,
+    leftWidth?: number,
+    rightWidth?: number,
+    topHeight?: number,
+    bottomHeight?: number,
+    skipScale9?: boolean
+  ) {
+    if (this.image instanceof Phaser.GameObjects.NineSlice) {
+      this.setSize(width ?? this.width, height ?? this.height);
+      this.image.setSlices(
+        width ?? this.image.width,
+        height ?? this.image.height,
+        leftWidth ?? this.image.leftWidth,
+        rightWidth ?? this.image.rightWidth,
+        topHeight ?? this.image.topHeight,
+        bottomHeight ?? this.image.bottomHeight,
+        skipScale9
+      );
+      this.updatePosition();
+    }
+  }
+
+  play(
+    key:
+      | string
+      | Phaser.Animations.Animation
+      | Phaser.Types.Animations.PlayAnimationConfig,
+    ignoreIfPlaying?: boolean
+  ) {
+    if (this.image instanceof Phaser.GameObjects.NineSlice) return;
+    this.image.play(key, ignoreIfPlaying);
+  }
+
+  playAfterDelay(
+    key:
+      | string
+      | Phaser.Animations.Animation
+      | Phaser.Types.Animations.PlayAnimationConfig,
+    delay: number
+  ) {
+    if (this.image instanceof Phaser.GameObjects.NineSlice) return;
+    this.image.playAfterDelay(key, delay);
   }
 
   //===========================================
@@ -83,5 +131,10 @@ export class UIImage extends UIBase {
   set flipY(value: boolean) {
     if (this.image instanceof Phaser.GameObjects.NineSlice) return;
     this.image.setFlipY(value);
+  }
+
+  get anims(): Phaser.Animations.AnimationState | undefined {
+    if (this.image instanceof Phaser.GameObjects.NineSlice) return undefined;
+    return this.image.anims;
   }
 }

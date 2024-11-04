@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import useMenuKeys from "../../hooks/useMenuKeys";
 import { canConsume } from "../../logics/convert";
 import { getBurnAwards } from "../../logics/award";
-import { splitBytes32 } from "../../utils/encode";
+import { splitBytes32, hexTypeToString } from "../../utils/encode";
 
 // TODO: pretty wonky rn to display 2 menus on 1 menu, need to refactor
 // also, this is erc20 stuff; erc721 will display on a different menu
@@ -38,7 +38,7 @@ export default function BagMenu() {
     return {
       content: (
         <div className="flex flex-row justify-between">
-          <span>{hexToString(erc721 as Hex)}</span>
+          <span>{hexTypeToString(erc721 as Hex)}</span>
         </div>
       ),
     };
@@ -49,7 +49,7 @@ export default function BagMenu() {
     return {
       content: (
         <div className="flex flex-row justify-between">
-          <span>{hexToString(erc20Type)}</span>
+          <span>{hexTypeToString(erc20Type)}</span>
           <span>x{Number(balance)}</span>
         </div>
       ),
@@ -89,13 +89,13 @@ export default function BagMenu() {
   ];
   console.log("selected", selected, selected2, selections2[0].disabled);
 
-  const message = `Consume ${hexToString(erc20sData[selected].erc20Type)}?...... Awards: ${getBurnAwards(
+  const message = `Consume ${hexTypeToString(erc20sData[selected].erc20Type)}?...... Awards: ${getBurnAwards(
     components,
     erc20sData[selected].erc20Type
   )
     .map((awardHex) => {
       const { type, amount } = splitBytes32(awardHex);
-      return `(${hexToString(type)}, ${amount})`;
+      return `(${hexTypeToString(type)}, ${amount})`;
     })
     .join("\n")} `;
 

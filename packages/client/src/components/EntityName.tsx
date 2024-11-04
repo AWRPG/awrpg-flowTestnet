@@ -1,6 +1,7 @@
 import { Entity } from "@latticexyz/recs";
 import { Hex, hexToString } from "viem";
 import { fromEntity } from "../utils/encode";
+import { hexTypeToString } from "../utils/encode";
 
 export type EntityNameProps = {
   entity: Entity;
@@ -11,7 +12,7 @@ export default function EntityName({ entity, ...passProps }: EntityNameProps) {
 
   return (
     <span {...passProps}>
-      {hexToString(type)} #{Number(id)}
+      {hexTypeToString(type)} #{Number(id)}
     </span>
   );
 }

@@ -139,10 +139,13 @@ export class GameScene extends Phaser.Scene {
     this.load.image("pine_12", pine_12_png);
     // this.load.image("stump", "src/assets/tiles/Stump.png");
     // this.load.image("fence", "src/assets/tiles/Fence.png");
-    this.load.image("node", "src/assets/tiles/Node.png");
+    this.load.image("mine", "src/assets/tiles/mine.png");
     // this.load.image("foundry", "src/assets/tiles/Foundry.png");
-    this.load.image("safe", "src/assets/hosts/safe.png");
+    this.load.image("repository", "src/assets/hosts/repository.png");
     this.load.image("mine-shaft", "src/assets/hosts/mine-shaft.png");
+    this.load.image("field", "src/assets/hosts/field.png");
+    this.load.image("field-berry-1", "src/assets/hosts/field-berry-1.png");
+    this.load.image("field-berry-2", "src/assets/hosts/field-berry-2.png");
 
     // player texture
     this.hostTextures = [
@@ -173,6 +176,7 @@ export class GameScene extends Phaser.Scene {
     this.load.image("ui-highlight-move", "src/assets/ui/highlight_move.png");
     this.load.image("ui-highlight-build", "src/assets/ui/highlight_build.png");
     this.load.image("ui-highlight-error", "src/assets/ui/highlight_error.png");
+    this.load.image("ui-highlight-enter", "src/assets/ui/highlight_enter.png");
     this.load.spritesheet("ui-highlight", "src/assets/ui/highlight.png", {
       frameWidth: 32,
       frameHeight: 32,
@@ -628,7 +632,6 @@ export class GameScene extends Phaser.Scene {
   // }
 
   resizeListener(gameSize: Phaser.Structs.Size) {
-    console.log(gameSize);
     this.cameras.resize(gameSize.width, gameSize.height);
   }
 }

@@ -6,11 +6,12 @@ import { getHostPosition } from "../../logics/path";
 import { TARGET } from "../../constants";
 import { SystemCalls } from "../../mud/createSystemCalls";
 import { Role } from "./Role";
+import { UIEmitter } from "../components/ui/common/UIEmitter";
 
 /**
  * The object perpare to scene
  */
-export class SceneObject {
+export class SceneObject extends UIEmitter {
   /**
    * [MUD] entity
    */
@@ -57,11 +58,6 @@ export class SceneObject {
   passable: boolean = true;
 
   /**
-   * A empty gameObject as the root node
-   */
-  root: Phaser.GameObjects.Container;
-
-  /**
    * Other scene objects can be added to the root of this object
    */
   accessories: Record<Entity, SceneObject> = {};
@@ -71,26 +67,20 @@ export class SceneObject {
    */
   moveTween: Phaser.Tweens.Tween | Phaser.Tweens.TweenChain | undefined;
 
-  /** Mouse over */
-  hovering: boolean = false;
-
   fake: boolean = false;
-
-  onConfirm?: () => void;
-
-  onCancel?: () => void;
 
   /**
    * @param scene the scene belong
    * @param entity the scene object's entity
    */
   constructor(scene: GameScene, entity: Entity) {
+    super(scene);
     this.scene = scene;
     this.entity = entity;
     this.components = scene.components;
     this.systemCalls = scene.systemCalls;
     this.tileSize = scene.tileSize;
-    this.root = scene.add.container(0, 0);
+    scene.add.existing(this.root);
   }
 
   /**
@@ -187,30 +177,6 @@ export class SceneObject {
   destroyChildren(): SceneObject {
     this.root.removeAll(true);
     return this;
-  }
-
-  onFocus() {}
-  onBlur() {}
-  onUpPressed() {}
-  onDownPressed() {}
-  onLeftPressed() {}
-  onRightPressed() {}
-
-  onConfirmPressed() {
-    if (this.onConfirm) this.onConfirm();
-  }
-
-  onCancelPressed() {
-    if (this.onCancel) this.onCancel();
-  }
-
-  onSelected() {}
-  onUnSelected() {}
-  onHover() {
-    this.hovering = true;
-  }
-  onUnHover() {
-    this.hovering = false;
   }
 
   /**

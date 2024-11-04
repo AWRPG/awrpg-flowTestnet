@@ -47,7 +47,7 @@ export class ActionMenu extends GuiBase {
     // Button list
     this.list = new UIList(scene, {
       marginY: 28,
-      itemWidth: 260,
+      itemWidth: 328,
       itemHeight: 48,
       spacingY: 12,
       parent: this.rootUI,
@@ -57,6 +57,9 @@ export class ActionMenu extends GuiBase {
         PlayerInput.onlyListenSceneObject();
       },
     });
+    this.focusUI = this.list;
+
+    // [Button] Move
     const item1 = new ButtonA(scene, {
       text: "Move",
       onConfirm: () => {
@@ -65,17 +68,18 @@ export class ActionMenu extends GuiBase {
       },
     });
     this.list.addItem(item1);
+
+    // [Button] Construct
     const item2 = new ButtonA(scene, {
       text: "Construct",
       onConfirm: () => {
         this.hidden();
-        if (this.role) UIController.scene.constructMenu?.show(this.role);
-      },
-      onCancel: () => {
-        this.show();
+        if (this.role) UIController.scene.constructMenu?.show(this.role, this);
       },
     });
     this.list.addItem(item2);
+
+    // [Button] Change Terrain
     const item3 = new ButtonA(scene, {
       text: "Change Terrain",
       disable: true,
@@ -84,7 +88,6 @@ export class ActionMenu extends GuiBase {
       },
     });
     this.list.addItem(item3);
-    this.focusUI = this.list;
   }
 
   show(role?: Role) {

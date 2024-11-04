@@ -3,30 +3,43 @@ import { UIBase } from "./UIBase";
 import { UIText, UITextConfig } from "./UIText";
 import { ALIGNMODES } from "../../../../constants";
 
+/** The config for UIButton */
 export interface UIButtonConfig extends UITextConfig {
   text?: string;
   skinTexture?: string;
-  skinNineSlice?: number | number[];
+  nineSlice?: number | number[];
   hoverSkinTexture?: string;
   hoverSkinNineSlice?: number | number[];
   clickedSkinTexture?: string;
   clickedSkinNineSlice?: number | number[];
 }
 
+/** The basic component of the button in UI */
 export class UIButton extends UIBase {
+  /** The skin of the button on unselected */
   skin: UIImage;
+  /** The skin of the button on hoving */
   hoverSkin: UIImage;
+  /** The skin of the button on selected */
   clickedSkin: UIImage;
+  /** The text content of the button */
   content: UIText;
 
+  /** */
   constructor(scene: Phaser.Scene, config: UIButtonConfig = {}) {
     config.skinTexture = config.skinTexture ?? "ui-empty";
     super(scene, { texture: config.skinTexture, ...config });
 
+    // Clear the config just for the root
     config.alignModeName = undefined;
+    config.scale = undefined;
     config.marginX = 0;
     config.marginY = 0;
 
+    // Update the parent to this
+    config.parent = this;
+
+    // Init the skins and text
     this.skin = this.initSkin(config);
     this.hoverSkin = this.initHoverSkin(config);
     this.hoverSkin.hidden();
@@ -35,46 +48,39 @@ export class UIButton extends UIBase {
     this.content = this.initContent(config);
   }
 
+  //==================================================================
+  //    Init
+  //==================================================================
+  init() {
+    super.init();
+  }
+
   initSkin(config: UIButtonConfig): UIImage {
-    return new UIImage(this.scene, config.skinTexture!, {
-      parent: this,
-      nineSlice: config.skinNineSlice,
-      ...config,
-    });
+    const texture = config.skinTexture!;
+    return new UIImage(this.scene, texture, config);
   }
 
   initHoverSkin(config: UIButtonConfig): UIImage {
-    return new UIImage(
-      this.scene,
-      config.hoverSkinTexture ?? config.skinTexture!,
-      {
-        parent: this,
-        nineSlice: config.hoverSkinNineSlice ?? config.skinNineSlice,
-        ...config,
-      }
-    );
+    const texture = config.hoverSkinTexture ?? config.skinTexture!;
+    const nineSlice = config.hoverSkinNineSlice ?? config.nineSlice;
+    return new UIImage(this.scene, texture, { ...config, nineSlice });
   }
 
   initClickedSkin(config: UIButtonConfig): UIImage {
-    return new UIImage(
-      this.scene,
-      config.clickedSkinTexture ?? config.skinTexture!,
-      {
-        parent: this,
-        nineSlice: config.clickedSkinNineSlice ?? config.skinNineSlice,
-        ...config,
-      }
-    );
+    const texture = config.clickedSkinTexture ?? config.skinTexture!;
+    const nineSlice = config.clickedSkinNineSlice ?? config.nineSlice;
+    return new UIImage(this.scene, texture, { ...config, nineSlice });
   }
 
   initContent(config: UIButtonConfig): UIText {
-    return new UIText(this.scene, config.text ?? "", {
-      ...config,
-      alignModeName: config.alignModeName ?? ALIGNMODES.LEFT_CENTER,
-      parent: this,
-    });
+    config.alignModeName = ALIGNMODES.LEFT_CENTER;
+    return new UIText(this.scene, config.text ?? "", config);
   }
 
+  //==================================================================
+  //    Triggers
+  //==================================================================
+  /** When the button is selected */
   onSelected() {
     super.onSelected();
     this.clickedSkin.show();
@@ -82,6 +88,7 @@ export class UIButton extends UIBase {
     this.hoverSkin.hidden();
   }
 
+  /** When the button is unselected */
   onUnSelected() {
     super.onUnSelected();
     if (this.hovering) {
@@ -94,6 +101,9 @@ export class UIButton extends UIBase {
     this.clickedSkin.hidden();
   }
 
+  //==================================================================
+  //    Getter / Setter
+  //==================================================================
   get skinTexture() {
     return this.skin.texture ?? "";
   }

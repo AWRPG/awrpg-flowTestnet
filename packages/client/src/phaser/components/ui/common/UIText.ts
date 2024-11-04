@@ -1,9 +1,12 @@
 import { ALIGNMODES } from "../../../../constants";
 import { UIBase, UIBaseConfig } from "./UIBase";
+import { StandardGameSize } from "./UIBase";
 
 export interface UITextConfig extends UIBaseConfig {
   fontFamily?: string;
   fontSize?: number;
+  fontSizeUnit?: string;
+  fontSizeResponsive?: boolean;
   fontStyle?: string;
   textAlign?: string;
   fontColor?: string | CanvasGradient | CanvasPattern;
@@ -24,22 +27,41 @@ export interface UITextConfig extends UIBaseConfig {
 
 export class UIText extends UIBase {
   textObj: Phaser.GameObjects.Text;
+  fontSizeResponsive: boolean;
 
   constructor(scene: Phaser.Scene, text: string, config: UITextConfig = {}) {
     super(scene, { ...config, width: -1, height: -1 });
 
+    this.fontSizeResponsive = config.fontSizeResponsive ?? false;
+    if (this.fontSizeResponsive) {
+      config.fontSize =
+        (config.fontSize ?? 24) /
+        Math.min(1, StandardGameSize.maxWidth / scene.game.scale.width);
+    }
+
     this.textObj = new Phaser.GameObjects.Text(scene, 0, 0, text, {
       ...config,
-      fontSize: (config.fontSize ?? 24) * 4,
+      fontSize:
+        ((config.fontSize ?? 24) * 4).toString() +
+        (config.fontSizeUnit ?? "px"),
       color: config.fontColor ?? "#000",
       stroke: config.strokeColor,
       align: config.textAlign,
     });
 
     this.textObj.setScale(0.25); // Since Phaser’s problem with rendering text, solving by scaling.
-    if (!config.wordWrap) this.textObj.setWordWrapWidth(config.wordWrapWidth);
+    if (!config.wordWrap) this.setWordWrapWidth(config.wordWrapWidth);
 
     // Adjusting the position of the text
+    // if (this.antiZoom) {
+    //   const zoom = Phaser.Math.Clamp(
+    //     (scene.game.scale.width * 1.5) / StandardGameSize.maxWidth,
+    //     StandardGameSize.minWidth / StandardGameSize.maxWidth,
+    //     1
+    //   );
+    //   this.root.setScale(1 / zoom);
+    //   this.updatePosition();
+    // }
     this.adjustTextPositon();
 
     this.root.add(this.textObj);
@@ -91,6 +113,14 @@ export class UIText extends UIBase {
     }
     this.textObj.x = offsetX;
     this.textObj.y = offsetY;
+    // this.setSize(this.textObj.width / 4, this.textObj.height / 4);
+  }
+
+  resizeListener(gameSize: Phaser.Structs.Size) {
+    super.resizeListener(gameSize);
+    this.root.setScale(this.zoom);
+    this.updatePosition();
+    if (this.textObj) this.adjustTextPositon();
   }
 
   /**
@@ -101,6 +131,7 @@ export class UIText extends UIBase {
    */
   setText(value: string | string[]): UIText {
     this.textObj.setText(value);
+    this.updatePosition();
     this.adjustTextPositon();
     return this;
   }
@@ -113,6 +144,7 @@ export class UIText extends UIBase {
    */
   appendText(value: string | string[], addCR?: boolean): UIText {
     this.textObj.appendText(value, addCR);
+    this.updatePosition();
     this.adjustTextPositon();
     return this;
   }
@@ -201,7 +233,12 @@ export class UIText extends UIBase {
     width: number | undefined,
     useAdvancedWrap?: boolean
   ): UIText {
-    this.textObj.setWordWrapWidth(width, useAdvancedWrap);
+    this.textObj.setWordWrapWidth(
+      width ? width * 4 : undefined,
+      useAdvancedWrap
+    );
+    this.updatePosition();
+    this.adjustTextPositon();
     return this;
   }
 
@@ -218,6 +255,8 @@ export class UIText extends UIBase {
     scope?: object
   ): UIText {
     this.textObj.setWordWrapCallback(callback, scope);
+    this.updatePosition();
+    this.adjustTextPositon();
     return this;
   }
 
@@ -243,7 +282,7 @@ export class UIText extends UIBase {
   //===========================================
   //    Simplified writing for ease of use
   //===========================================
-  get text() {
+  get text(): string {
     return this.textObj.text;
   }
 
@@ -259,13 +298,48 @@ export class UIText extends UIBase {
     this.textObj.setFontFamily(value);
   }
 
-  get fontSize() {
-    const value = this.textObj.style.fontSize;
-    return typeof value === "string" ? parseInt(value, 10) / 4 : value / 4;
+  get fontSize(): number {
+    let value = this.textObj.style.fontSize;
+    if (typeof value === "string") value = parseInt(value, 10) / 4;
+    else value / 4;
+    if (this.fontSizeResponsive) {
+      value *= Math.min(
+        1,
+        StandardGameSize.maxWidth / this.scene.game.scale.width
+      );
+    }
+    return value;
   }
 
-  set fontSize(value: number) {
-    this.textObj.setFontSize(value * 4);
+  get fontSizeUnit(): string {
+    const value = this.textObj.style.fontSize;
+    if (typeof value === "string") {
+      const match = value.match(/^(\d+)([a-zA-Z%]*)$/);
+      if (match) {
+        return match[2];
+      }
+      return "error";
+    }
+    return "px";
+  }
+
+  set fontSize(value: number | string) {
+    let finalValue: number;
+    let unit = this.fontSizeUnit;
+    if (typeof value === "number") finalValue = value * 4;
+    else {
+      const match = value.match(/^(\d+)([a-zA-Z%]*)$/);
+      if (match) {
+        finalValue = parseInt(match[1]) * 4;
+        unit = match[2];
+      } else return;
+    }
+    if (this.fontSizeResponsive)
+      finalValue /= Math.min(
+        1,
+        StandardGameSize.maxWidth / this.scene.game.scale.width
+      );
+    this.textObj.setFontSize(finalValue.toString() + unit);
   }
 
   get fontStyle() {
@@ -364,11 +438,13 @@ export class UIText extends UIBase {
     this.textObj.setShadowFill(value);
   }
 
-  get wordWrapWidth() {
-    return this.textObj.style.wordWrapWidth;
+  get wordWrapWidth(): number | undefined {
+    return this.textObj.style.wordWrapWidth
+      ? this.textObj.style.wordWrapWidth / 4
+      : undefined;
   }
 
-  set wordWrapWidth(value: number | null) {
+  set wordWrapWidth(value: number | undefined) {
     this.setWordWrapWidth(value as any);
   }
 

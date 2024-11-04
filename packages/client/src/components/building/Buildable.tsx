@@ -11,6 +11,7 @@ import { Hex, hexToString } from "viem";
 import { TARGET } from "../../constants";
 import ItemContainer from "../ItemContainer";
 import { MintCostsDisplay } from "../Costs";
+import { hexTypeToString } from "../../utils/encode";
 
 /**
  * display all buildable types for a selectedHost & a selected tile (the lowerX & lowerY of the building)
@@ -56,6 +57,7 @@ export function Buildable({
         className="btn-blue"
         onClick={() => {
           const coord = getCoord(toBuildType);
+          // console.log("coord:", coord);
           if (!coord) return;
           buildBuilding(selectedHost as Hex, toBuildType, coord, tileCoord);
         }}
@@ -72,6 +74,13 @@ export function Buildable({
         {allBuildingTypes.map((buildingType, index) => {
           const selected = buildingType === toBuildType;
           const coord = getCoord(buildingType);
+          // console.log(
+          //   hexToString(buildingType)
+          //     .toLowerCase()
+          //     .replace(/[^\x20-\x7E]/g, "")
+          //     .trim(),
+          //   coord
+          // );
           const canBuild = canBuildTypes.includes(buildingType) && coord;
           return (
             <ItemContainer
@@ -84,7 +93,7 @@ export function Buildable({
                 })
               }
             >
-              {hexToString(buildingType)}
+              {hexTypeToString(buildingType)}
             </ItemContainer>
           );
         })}

@@ -11,6 +11,7 @@ import {
 import HealthBar from "./HealthBar";
 import { getEntitySpecs } from "../logics/entity";
 import EntityName from "./EntityName";
+import { hexTypeToString } from "../utils/encode";
 
 // rn, role info includes 1) capacity, 2) size, 3) pool data,
 // future, can includes: buildings, upgrades, etc
@@ -37,7 +38,7 @@ export default function RoleInfo({ role }: { role: Entity }) {
             value={Number(balance)}
             fillColor={POOL_COLORS_STRING[type] ?? "white"}
             maxValue={Number(capacity)}
-            text={hexToString(type)}
+            text={hexTypeToString(type)}
           />
         </div>
       ))}

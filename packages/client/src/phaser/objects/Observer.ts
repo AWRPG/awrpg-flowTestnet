@@ -1,4 +1,5 @@
-import { isBuilding, isRole } from "../../logics/entity";
+import { Entity, setComponent } from "@latticexyz/recs";
+import { isBuilding, isRole, selectHost } from "../../logics/entity";
 import { Direction } from "../../logics/move";
 import { getTargetTerrainData } from "../../logics/terrain";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
@@ -6,8 +7,16 @@ import { UIController } from "../components/controllers/UIController";
 import { Building } from "./Building";
 import { Role } from "./Role";
 import { SceneObject } from "./SceneObject";
+import { TARGET } from "../../constants";
 
 export class Observer extends SceneObject {
+  onMenuPressed() {
+    super.onMenuPressed();
+    const menu = UIController.scene.mainMenu;
+    if (!menu) return;
+    menu.show();
+  }
+
   onUpPressed() {
     super.onUpPressed();
     SceneObjectController.setTargetTilePosition(Direction.UP);
@@ -43,12 +52,24 @@ export class Observer extends SceneObject {
     if (type === "role") {
       const entityObj: Role = this.scene.roles[entity];
       if (entityObj.isMoving) return;
-      SceneObjectController.focus = entityObj;
-      if (entityObj.isPlayer) UIController.scene.actionMenu?.show(entityObj);
+      if (entityObj.isPlayer) {
+        SceneObjectController.focus = entityObj;
+        UIController.scene.actionMenu?.show(entityObj);
+      } else {
+      }
+      this.updateSelectedHost(entityObj.entity);
     } else if (type === "building") {
       const building: Building = this.scene.buildings[entity];
       SceneObjectController.focus = building;
       UIController.scene.buildingMenu?.show(building);
+      // this.updateSelectedHost(building.entity);
+      setComponent(this.components.SelectedHost, TARGET, {
+        value: building.entity,
+      });
     }
+  }
+
+  updateSelectedHost(entity: Entity) {
+    selectHost(this.components, entity);
   }
 }
