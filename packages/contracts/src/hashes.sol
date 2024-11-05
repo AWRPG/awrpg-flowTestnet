@@ -15,7 +15,8 @@ function getCustodian(bytes32 building) pure returns (bytes32) {
 }
 
 function getStaking(bytes32 host, bytes32 building) pure returns (bytes32) {
-  return keccak256(abi.encode(host, building, STAKING));
+  return building;
+  // return keccak256(abi.encode(host, building, STAKING));
 }
 
 function getCooking(bytes32 host, bytes32 building) pure returns (bytes32) {
