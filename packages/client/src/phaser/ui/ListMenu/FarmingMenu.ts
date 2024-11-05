@@ -21,7 +21,10 @@ import {
   fromEntity,
   hexTypeToString,
 } from "../../../utils/encode";
-import { getBuildingStakeOuputTypes } from "../../../logics/stake";
+import {
+  getBuildingStakeOuputTypes,
+  getBuildingStakingIds,
+} from "../../../logics/stake";
 import { getRoleAndHostAdjacentCoord } from "../../../logics/building";
 import { hasMintCosts } from "../../../logics/cost";
 import { getStaking } from "../../../contract/hashes";
@@ -180,13 +183,17 @@ export class FarmingMenu extends ListMenu {
     }
     if (!this.building) return;
     const entity = this.building.entity;
-    const { StakeSpecs, SelectedHost, StakingInfo, StoredSize } =
+    const { StakeSpecs, SelectedHost, StakingInfo, Commander } =
       this.components;
+    const { playerEntity } = this.network;
     const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
+    const isPlayer =
+      getComponentValue(Commander, entity)?.value === playerEntity;
     const items: UIBase[] = [];
+    const stakingIds = getBuildingStakingIds(this.components, entity as Hex);
+    this.stakingId = stakingIds[0];
 
     if (this.hasStaking) {
-      this.stakingId = getStaking(role as Hex, entity as Hex) as Entity;
       const idToOut = getComponentValue(StakingInfo, this.stakingId);
       console.log(this.stakingId);
       if (!idToOut) {
@@ -208,96 +215,9 @@ export class FarmingMenu extends ListMenu {
         });
         this.updateText(item, stakeSpecs);
         items.push(item);
-
-        if (this.list2) {
-          this.list2.destroy();
-          delete this.list2;
-        }
-        this.list2 = new UIList(this.scene, {
-          width: this.rootUI.displayWidth - 48,
-          itemWidth: this.rootUI.displayWidth - 48,
-          itemHeight: 48,
-          marginX: 24,
-          marginY: 96 + 112 + 24,
-          spacingY: 12,
-          parent: this.rootUI,
-          onCancel: () => this.hidden(),
-        });
-        this.list2.show();
-        this.focusUI = this.list2;
-        const items2: ButtonA[] = [];
-
-        this.claim = new ButtonA(this.scene, {
-          width: this.list2.displayWidth,
-          text: "Claim",
-          fontStyle: "400",
-          onConfirm: () => {
-            const adjacentCoord = getRoleAndHostAdjacentCoord(
-              this.components,
-              role,
-              entity
-            );
-            const outputs =
-              getComponentValue(StakeSpecs, encodedType)?.outputs ?? [];
-            const hasCapacity = canStoreOutputs(
-              this.components,
-              role,
-              outputs as Hex[]
-            );
-            if (adjacentCoord && this.remained === 0 && hasCapacity) {
-              this.toClaim(role, adjacentCoord);
-            }
-            UIController.focus = this.focusUI;
-          },
-        });
-        this.claim.text1 = new Heading3(
-          this.scene,
-          "Remained ? second to harvest",
-          {
-            marginX: 24,
-            alignModeName: ALIGNMODES.RIGHT_CENTER,
-            parent: this.claim,
-          }
-        );
-        items2.push(this.claim);
-
-        this.unstake = new ButtonA(this.scene, {
-          width: this.list2.displayWidth,
-          text: "Unstake",
-          fontStyle: "400",
-          onConfirm: () => {
-            const adjacentCoord = getRoleAndHostAdjacentCoord(
-              this.components,
-              role,
-              entity
-            );
-            const inputs =
-              getComponentValue(StakeSpecs, encodedType)?.inputs ?? [];
-            const hasCapacity = canStoreOutputs(
-              this.components,
-              role,
-              inputs as Hex[]
-            );
-            if (adjacentCoord && hasCapacity) {
-              this.toUnstake(role, adjacentCoord);
-            }
-            UIController.focus = this.focusUI;
-          },
-        });
-        this.unstake.text1 = new Heading3(
-          this.scene,
-          "Get the input items back",
-          {
-            marginX: 24,
-            alignModeName: ALIGNMODES.RIGHT_CENTER,
-            parent: this.unstake,
-          }
-        );
-        items2.push(this.unstake);
-
-        this.list2.items = items2;
-        this.list2.itemIndex = 0;
       }
+      // if player, display buttons
+      this.setClaimUnstakeButtons(role, entity, encodedType);
     } else {
       if (this.list2) this.list2.hidden();
 
@@ -321,6 +241,94 @@ export class FarmingMenu extends ListMenu {
     }
     this.items = items;
     if (this.list.itemsCount > 0) this.list.itemIndex = 0;
+  }
+
+  // claim & stake buttons
+  setClaimUnstakeButtons(role: Entity, entity: Entity, encodedType: Entity) {
+    const { StakeSpecs } = this.components;
+    if (this.list2) {
+      this.list2.destroy();
+      delete this.list2;
+    }
+    this.list2 = new UIList(this.scene, {
+      width: this.rootUI.displayWidth - 48,
+      itemWidth: this.rootUI.displayWidth - 48,
+      itemHeight: 48,
+      marginX: 24,
+      marginY: 96 + 112 + 24,
+      spacingY: 12,
+      parent: this.rootUI,
+      onCancel: () => this.hidden(),
+    });
+    this.list2.show();
+    this.focusUI = this.list2;
+    const items2: ButtonA[] = [];
+
+    this.claim = new ButtonA(this.scene, {
+      width: this.list2.displayWidth,
+      text: "Claim",
+      fontStyle: "400",
+      onConfirm: () => {
+        const adjacentCoord = getRoleAndHostAdjacentCoord(
+          this.components,
+          role,
+          entity
+        );
+        const outputs =
+          getComponentValue(StakeSpecs, encodedType)?.outputs ?? [];
+        const hasCapacity = canStoreOutputs(
+          this.components,
+          role,
+          outputs as Hex[]
+        );
+        if (adjacentCoord && this.remained === 0 && hasCapacity) {
+          this.toClaim(role, adjacentCoord);
+        }
+        UIController.focus = this.focusUI;
+      },
+    });
+    this.claim.text1 = new Heading3(
+      this.scene,
+      "Remained ? second to harvest",
+      {
+        marginX: 24,
+        alignModeName: ALIGNMODES.RIGHT_CENTER,
+        parent: this.claim,
+      }
+    );
+    items2.push(this.claim);
+
+    this.unstake = new ButtonA(this.scene, {
+      width: this.list2.displayWidth,
+      text: "Unstake",
+      fontStyle: "400",
+      onConfirm: () => {
+        const adjacentCoord = getRoleAndHostAdjacentCoord(
+          this.components,
+          role,
+          entity
+        );
+        const inputs = getComponentValue(StakeSpecs, encodedType)?.inputs ?? [];
+        const hasCapacity = canStoreOutputs(
+          this.components,
+          role,
+          inputs as Hex[]
+        );
+        if (adjacentCoord && hasCapacity) {
+          this.toUnstake(role, adjacentCoord);
+        }
+        UIController.focus = this.focusUI;
+      },
+    });
+    this.unstake.text1 = new Heading3(this.scene, "Get the input items back", {
+      marginX: 24,
+      alignModeName: ALIGNMODES.RIGHT_CENTER,
+      parent: this.unstake,
+    });
+    items2.push(this.unstake);
+
+    this.list2.items = items2;
+    this.list2.itemIndex = 0;
   }
 
   updateText(
