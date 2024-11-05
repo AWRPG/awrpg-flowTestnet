@@ -147,6 +147,7 @@ export class GameScene extends Phaser.Scene {
     this.load.image("field", "src/assets/hosts/field.png");
     this.load.image("field-berry-1", "src/assets/hosts/field-berry-1.png");
     this.load.image("field-berry-2", "src/assets/hosts/field-berry-2.png");
+    this.load.image("bridge", "src/assets/hosts/bridge.png");
 
     // player texture
     this.hostTextures = [

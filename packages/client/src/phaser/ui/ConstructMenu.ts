@@ -55,6 +55,7 @@ export class ConstructMenu extends GuiBase {
     this.data = GameData.getData("buildings") as BuildingData[];
     const items: ButtonA[] = [];
     this.data.forEach((building) => {
+      if (building.id < 0) return;
       items.push(new ButtonA(scene, { text: building.name }));
     });
     this.list.items = items;

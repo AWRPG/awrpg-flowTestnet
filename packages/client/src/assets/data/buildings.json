@@ -14,6 +14,13 @@
     "sceneImg": "mine-shaft"
   },
   {
+    "id": "-1",
+    "type": "BRIDGE",
+    "name": "bridge",
+    "img": "img-building-bridge",
+    "sceneImg": "bridge"
+  },
+  {
     "id": "2",
     "type": "FIELD",
     "name": "field",
