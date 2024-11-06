@@ -38,6 +38,7 @@ library PoolLogic {
   function _decreaseLoose(bytes32 entity, bytes16 poolType, uint128 amount) internal returns (bool empty) {
     uint256 poolAmount = getPoolAmount(entity, poolType);
     if (poolAmount <= amount) {
+      _decreaseStrict(entity, poolType, uint128(poolAmount));
       return empty = true;
     } else {
       _decreaseStrict(entity, poolType, amount);
