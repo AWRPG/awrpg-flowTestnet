@@ -8,7 +8,7 @@ import { ClientComponents } from "../mud/createClientComponents";
 import { getEntitySpecs, isPoolType } from "./entity";
 import { SetupNetworkResult } from "../mud/setupNetwork";
 import { Hex, pad } from "viem";
-import { encodeEntity } from "@latticexyz/store-sync/recs";
+import { encodeEntity, singletonEntity } from "@latticexyz/store-sync/recs";
 import { getPool } from "../contract/hashes";
 import { encodeTypeEntity, splitBytes32 } from "../utils/encode";
 import { ERC20_TYPES } from "../constants";
@@ -194,6 +194,7 @@ export function hasBalance(
 }
 
 export function getBalanceEntity(entityType: Hex, owner: Hex) {
+  if (!entityType || !owner) return singletonEntity;
   const entity = encodeEntity(
     { entityType: "bytes16", owner: "bytes32" },
     {
