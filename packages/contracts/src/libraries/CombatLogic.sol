@@ -11,6 +11,7 @@ import { PathLogic } from "./PathLogic.sol";
 import { PositionLogic } from "./PositionLogic.sol";
 import { EntityLogic } from "./EntityLogic.sol";
 import { MapLogic } from "./MapLogic.sol";
+import { MoveLogic } from "./MoveLogic.sol";
 import { Errors } from "@/Errors.sol";
 import "@/constants.sol";
 
@@ -55,5 +56,15 @@ library CombatLogic {
   function _defeatBuilding(bytes32 building) internal {
     (uint32 lowerX, uint32 lowerY) = PathLogic.getPositionStrict(building);
     BuildingLogic._burnBuilding(lowerX, lowerY);
+  }
+
+  function _revive(bytes32 role, bytes32 target) internal {
+    // TODO: burn some tokens from role
+
+    (uint32 x, uint32 y) = DropLogic._reviveRole(target);
+    MoveLogic.canMoveToTileStrict(target, x, y);
+    MapLogic._initGroundPath(target, x, y);
+
+    PoolLogic._increaseLoose(target, BLOOD, 1);
   }
 }
