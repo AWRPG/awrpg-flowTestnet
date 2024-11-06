@@ -5,6 +5,7 @@ import { ALIGNMODES } from "../../../constants";
 import { UIBase, StandardGameSize } from "../../components/ui/common/UIBase";
 import { UIEvents } from "../../components/ui/common/UIEvents";
 import { UIImage } from "../../components/ui/common/UIImage";
+import { UIText } from "../../components/ui/common/UIText";
 import { UIList } from "../../components/ui/common/UIList";
 import { PlayerInput } from "../../components/controllers/PlayerInput";
 import { SceneObjectController } from "../../components/controllers/SceneObjectController";
@@ -31,16 +32,16 @@ import { setNewTargetTile } from "../../../logics/move";
 import { getHosts } from "../../../logics/sceneObject";
 import { ItemUseMenu } from "../ListMenu/ItemUseMenu";
 import { ItemData } from "../../../api/data";
+import { TextInput } from "../common/TextInput";
 
 export class Roles extends DoublePage {
   rolesList: UIList;
   bag: UIList;
   itemUseMenu?: ItemUseMenu;
+  nameInput?: TextInput;
   constructor(scene: UIScene, parent: GuiBase) {
     super(scene, parent, "Roles", "Bag");
     this.name = "MainMenuRoles";
-
-    const zoom = StandardGameSize.maxWidth;
 
     this.rolesList = new UIList(scene, {
       width: this.contentW - 8,
@@ -70,29 +71,67 @@ export class Roles extends DoublePage {
         parent.hidden();
       },
     });
+
+    new UIText(scene, "[F] move camera to the role", {
+      fontFamily: "ThaleahFat",
+      fontSize: 32,
+      fontColor: "#233",
+      textAlign: "center",
+      lineSpacing: 12,
+      alignModeName: ALIGNMODES.MIDDLE_BOTTOM,
+      marginY: 24,
+      fontStyle: "500",
+      parent: this.left,
+    });
+
+    new UIText(scene, "[A/D] change the focus list", {
+      fontFamily: "ThaleahFat",
+      fontSize: 32,
+      fontColor: "#233",
+      textAlign: "center",
+      lineSpacing: 12,
+      alignModeName: ALIGNMODES.MIDDLE_BOTTOM,
+      marginY: 24,
+      fontStyle: "500",
+      parent: this.right,
+    });
   }
 
   show() {
     this.focusUI = this.rolesList;
     super.show();
+    this.updateRoles();
 
-    const roles = getHosts(this.components, this.network);
-    const items: UIBase[] = [];
-    roles.forEach((role) => {
-      const item = new BookListButton(this.scene, {
-        width: this.rolesList.itemWidth,
-        text: role.name + " " + role.id.toString(),
-        data: role,
-      });
-      items.push(item);
-    });
-    this.rolesList.items = items;
+    if (this.nameInput) {
+      this.nameInput.destroy();
+      delete this.nameInput;
+    }
+
     this.rolesList.on(UIEvents.CONFIRM, this.onRolesListConfirm, this);
     this.rolesList.on(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
     if (this.rolesList.itemsCount > 0) this.rolesList.itemIndex = 0;
     this.bag.on(UIEvents.CONFIRM, this.onBagConfirm, this);
     this.bag.on(UIEvents.LEFT, this.onLeft, this);
     this.rolesList.on(UIEvents.RIGHT, this.onRight, this);
+  }
+
+  updateRoles() {
+    const roles = getHosts(this.components, this.network);
+    const items: UIBase[] = [];
+    roles.forEach((role) => {
+      const item = new BookListButton(this.scene, {
+        width: this.rolesList.itemWidth,
+        text: role.name + " #" + role.id.toString(),
+        data: role,
+      });
+      items.push(item);
+    });
+    const item = new BookListButton(this.scene, {
+      width: this.rolesList.itemWidth,
+      text: " + Press [F] to spawn a new hero",
+    });
+    items.push(item);
+    this.rolesList.items = items;
   }
 
   hidden() {
@@ -103,14 +142,24 @@ export class Roles extends DoublePage {
   }
 
   /** Camera to the position of selected role */
-  onRolesListConfirm() {
+  async onRolesListConfirm() {
     const item = this.rolesList.item;
     if (!item) return;
-    const role = item.data.entity as Entity;
-    selectHost(this.components, role);
-    const rolePosition = getHostPosition(this.components, this.network, role);
-    if (rolePosition) {
-      setNewTargetTile(this.components, rolePosition);
+    if (!item.data) {
+      // this.nameInput = new TextInput(this.scene);
+      // this.nameInput.show();
+
+      const name = "Reg Horace";
+      await this.systemCalls.spawnHero(name);
+      this.updateRoles();
+      this.rolesList.itemIndex = this.rolesList.itemsCount - 2;
+    } else {
+      const role = item.data.entity as Entity;
+      selectHost(this.components, role);
+      const rolePosition = getHostPosition(this.components, this.network, role);
+      if (rolePosition) {
+        setNewTargetTile(this.components, rolePosition);
+      }
     }
   }
 
@@ -143,7 +192,7 @@ export class Roles extends DoublePage {
 
     // Add
     const item = this.rolesList.item;
-    if (!item) return;
+    if (!item || !item.data) return;
     const role = item.data.entity as Entity;
 
     let itemsCount = 0;
@@ -222,6 +271,7 @@ export class Roles extends DoublePage {
 
   onRight() {
     super.onRight();
+    if (!this.rolesList.item?.data) return;
     this.rolesList.onItemUnSelected(this.rolesList.item);
     this.focusUI = this.bag;
     if (this.bag.item) this.bag.itemIndex = this.bag.itemIndex;

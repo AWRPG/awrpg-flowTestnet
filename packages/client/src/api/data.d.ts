@@ -4,6 +4,7 @@ export interface BuildingData {
   name: string;
   img: string;
   sceneImg: string;
+  introduction: string;
 }
 
 export interface BuildingSpecs {
