@@ -17,6 +17,7 @@ import { IItemSystem } from "./IItemSystem.sol";
 import { IMiningSystem } from "./IMiningSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
+import { IReviveSystem } from "./IReviveSystem.sol";
 import { IStakeSystem } from "./IStakeSystem.sol";
 import { IStorageSystem } from "./IStorageSystem.sol";
 import { ISwapSystem } from "./ISwapSystem.sol";
@@ -43,6 +44,7 @@ interface IWorld is
   IMiningSystem,
   IMoveSystem,
   IPlayerSystem,
+  IReviveSystem,
   IStakeSystem,
   IStorageSystem,
   ISwapSystem,
