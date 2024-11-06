@@ -4,6 +4,7 @@ import {
   HasValue,
   Not,
   UpdateType,
+  defineExitSystem,
   defineSystem,
   defineUpdateSystem,
   getComponentValue,
@@ -341,7 +342,13 @@ export class GameScene extends Phaser.Scene {
     });
 
     // // building on map
-    // defineSystem(world, [Has(Path), Has(Creator)], ({ entity, type }) => {});
+    defineExitSystem(
+      world,
+      [Has(Path), Has(this.components.Creator)],
+      ({ entity }) => {
+        return this.unloadBuilding(entity);
+      }
+    );
 
     /**
      * rn, load/unload building because role is handled by Path
@@ -434,7 +441,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   unloadTileEntity(tileId: Entity) {
-    this.unloadBuilding(tileId);
+    const building = getComponentValue(this.components.TileEntity, tileId)
+      ?.value as Entity;
+    // if (!isBuilding(this.components, building)) return;
+    this.unloadBuilding(building);
   }
 
   loadBuilding(tileId: Entity, building: Entity) {
@@ -457,9 +467,9 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  unloadBuilding(tileId: Entity) {
-    this.buildings[tileId]?.destroy();
-    delete this.buildings[tileId];
+  unloadBuilding(building: Entity) {
+    this.buildings[building]?.destroy();
+    delete this.buildings[building];
   }
 
   loadTile(entity: Entity, tileValue: string[]) {
