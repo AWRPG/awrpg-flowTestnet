@@ -104,8 +104,8 @@ library ContainerLogic {
     uint256 size = SizeSpecs.get(EntityType.get(entity));
 
     // Health.deleteRecord(entity);
-    ERC721Logic._burn(entity);
     _decreaseStoredSize(Owner.get(entity), size);
+    ERC721Logic._burn(entity);
   }
 
   /**
