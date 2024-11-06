@@ -87,7 +87,9 @@ export function FTLoot({
       <button
         className="btn-blue"
         disabled={!canPickup}
-        onClick={() => pickupERC20(toHost as Hex, dropId, erc20Type, 1n, x, y)}
+        onClick={() =>
+          pickupERC20(toHost as Hex, host as Hex, erc20Type, 1n, x, y)
+        }
       >
         pickup
       </button>
