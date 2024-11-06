@@ -21,10 +21,11 @@ export function getCustodian(building: Hex) {
 }
 
 export function getStaking(role: Hex, building: Hex) {
-  return keccak256(
-    encodeAbiParameters(
-      [{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes16" }],
-      [role, building, STAKING]
-    )
-  ) as Hex;
+  return building;
+  // return keccak256(
+  //   encodeAbiParameters(
+  //     [{ type: "bytes32" }, { type: "bytes32" }, { type: "bytes16" }],
+  //     [role, building, STAKING]
+  //   )
+  // ) as Hex;
 }
