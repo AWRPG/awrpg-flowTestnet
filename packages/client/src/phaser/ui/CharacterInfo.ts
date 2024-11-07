@@ -113,7 +113,6 @@ export class CharacterInfo extends GuiBase {
       marginX: 268,
       marginY: 78,
       parent: this.rootUI,
-      maskMode: false,
     });
 
     this.hpName = new Heading3(this.scene, "HP", {
