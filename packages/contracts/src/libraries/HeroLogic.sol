@@ -17,6 +17,7 @@ import "@/hashes.sol";
 library HeroLogic {
   using SafeCastLib for uint256;
 
+  // randomly spawn hero on the map
   function _spawn(bytes32 player) internal returns (uint32, uint32, bytes32) {
     bytes32 hero = EntityLogic._mint(HOST, space());
     Commander.set(hero, player);
@@ -24,6 +25,14 @@ library HeroLogic {
     (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 2 ** 16 - 32, 2 ** 16 - 32, 2 ** 16, 2 ** 16);
     MapLogic._initGroundPath(hero, x, y);
     return (x, y, hero);
+  }
+
+  function _spawnOnCoord(bytes32 player, uint32 x, uint32 y) internal returns (bytes32) {
+    bytes32 hero = EntityLogic._mint(HOST, space());
+    Commander.set(hero, player);
+
+    MapLogic._initGroundPath(hero, x, y);
+    return hero;
   }
 
   function _delete(bytes32 hero) internal {
