@@ -289,17 +289,23 @@ export class GameScene extends Phaser.Scene {
     // TODO: add loadRole & unloadRole to handle role's enter & exit; therefore, when tile is loaded/unloaded, call loadRole/unloadRole on it
 
     // drop container
-    defineSystem(world, [Has(Path), Not(Commander)], ({ entity, type }) => {
-      // TODO: add withinView check to render sprite
-      if (!isDropContainer(entity)) return;
-      this.drops[entity]?.destroy();
-      if (type === UpdateType.Exit) {
-        return delete this.drops[entity];
+    defineSystem(
+      world,
+      [Has(Path), Has(StoredSize), Not(Commander)],
+      ({ entity, type }) => {
+        // TODO: add withinView check to render sprite
+        if (!isDropContainer(entity)) return;
+        this.drops[entity]?.destroy();
+        const size = getComponentValue(StoredSize, entity)?.value ?? 0n;
+        if (size === 0n) return;
+        if (type === UpdateType.Exit) {
+          return delete this.drops[entity];
+        }
+        this.drops[entity] = new Drop(this, this.components, {
+          entity,
+        });
       }
-      this.drops[entity] = new Drop(this, this.components, {
-        entity,
-      });
-    });
+    );
 
     defineSystem(world, [Has(this.components.MockPath)], ({ entity, type }) => {
       if (type === UpdateType.Exit) {
