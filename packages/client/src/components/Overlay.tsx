@@ -39,6 +39,7 @@ import SwapMenu from "./menu/SwapMenu";
 import { Role } from "./host/Role";
 import { Tile } from "./tile/Tile";
 import useHotkeys from "../hooks/useHotKeys";
+import { SpawnHero } from "./host/SpawnHero";
 
 export default function Overlay() {
   useHotkeys();
@@ -73,6 +74,7 @@ export default function Overlay() {
     <div className="absolute h-full w-full pointer-events-none">
       {sourceHost && (
         <div className="absolute pointer-events-auto top-2 left-2">
+          <SpawnHero />
           <Role role={sourceHost} />
         </div>
       )}
@@ -81,7 +83,7 @@ export default function Overlay() {
           <Tile tile={targetTile} />
         </div>
       )}
-      <div className="relative h-full">
+      {/* <div className="relative h-full">
         <div className="absolute pointer-events-auto top-2 right-2 font-['Press_Start_2P']">
           {menu === MAIN_MENU && <MainMenu player={playerEntity} />}
           {menu === ROLE_MENU && <RoleMenu />}
@@ -102,7 +104,7 @@ export default function Overlay() {
         <div className="absolute pointer-events-auto bottom-2 w-1/2 left-1/4 h-48">
           {message && <Console message={message} />}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
