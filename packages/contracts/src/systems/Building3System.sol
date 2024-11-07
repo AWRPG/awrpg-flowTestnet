@@ -12,6 +12,6 @@ contract Building3System is System, AccessControl, PositionControl {
 
   // TODO: uint32 x1, uint32 y1, uint32 x2, uint32 y2
   function burnBuilding(bytes32 role, uint32 x, uint32 y) public onlyCommander(role) onlyAdjacentCoord(role, x, y) {
-    BuildingLogic._burnBuilding(role, x, y);
+    BuildingLogic._burnBuilding(x, y);
   }
 }

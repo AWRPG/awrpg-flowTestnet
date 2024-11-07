@@ -14,7 +14,13 @@ import { getTopHost } from "./entity";
 import { getNestedHostPosition } from "./building";
 import { getMiningHostPosition } from "./mining";
 
-//
+export const getPosition = (components: ClientComponents, entity: Entity) => {
+  const { Path } = components;
+  const path = getComponentValue(components.Path, entity);
+  if (!path) return;
+  return { x: path.toX, y: path.toY };
+};
+
 export const getReadyPosition = (
   components: ClientComponents,
   host: Entity

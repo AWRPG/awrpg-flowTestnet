@@ -37,6 +37,17 @@ library DropLogic {
     ContainerLogic._transfer(from, role, entity);
   }
 
+  // path init & health increase will be handled elsewhere
+  function _reviveRole(bytes32 role) internal returns (uint32, uint32) {
+    if (!EntityLogic.isRole(role)) revert Errors.NotRoleType();
+    bytes32 owner = Owner.get(role);
+    if (!isDropContainer(owner)) revert Errors.NotInDropContainer();
+
+    ContainerLogic._transfer(owner, space(), role);
+    (uint32 currX, uint32 currY) = PathLogic.getPositionStrict(owner);
+    return (currX, currY);
+  }
+
   // also used for defeated role?
   // get topHost because entity could be role or nft inside role
   function _dropERC721(bytes32 entity) internal {

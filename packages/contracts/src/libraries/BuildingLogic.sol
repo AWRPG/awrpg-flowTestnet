@@ -93,6 +93,7 @@ library BuildingLogic {
     if (terrainType != buildOnTerrainType) revert Errors.WrongTerrainToBuildOn();
   }
 
+  // 1) get all coordIds in the rectangle, 2) check if x1, y1 is within the rectangle
   function getRectangleCoordIdsStrict(
     uint32 x1,
     uint32 y1,
@@ -118,7 +119,7 @@ library BuildingLogic {
   }
 
   // burn erc721 (building), which burn erc20s & award erc20s
-  function _burnBuilding(bytes32 role, uint32 x, uint32 y) internal {
+  function _burnBuilding(uint32 x, uint32 y) internal {
     bytes32 coordId = MapLogic.getCoordId(x, y);
     bytes32 entity = TileEntity.get(coordId);
     // if (entity == 0) revert Errors.HasNoEntityOnCoord();
@@ -137,8 +138,8 @@ library BuildingLogic {
       BuildingSpecs.getWidth(entityType),
       BuildingSpecs.getHeight(entityType)
     );
+    Path.deleteRecord(entity);
     TileLogic._deleteTileEntities(entity, tilIds);
-
     EntityLogic._burn(entity);
     Creator.deleteRecord(entity);
   }

@@ -31,11 +31,17 @@ function initEntitySizes() {
 
 // role, building, equipment, or any nft can has pool stats
 function initPoolStatsTypes() {
+  // role
   DefineTypes.definePoolStats(
     HOST,
     complieSixTypes(BLOOD, SOUL, STAMINA, ATTACK, DEFENSE, RANGE, 1000, 1000, 1000, 100, 100, 4)
   );
+  // weapon
   DefineTypes.definePoolStats(SWORD, compileTwoTypes(ATTACK, RANGE, 10, 5));
+  // building
+  DefineTypes.definePoolStats(MINER, compileTwoTypes(BLOOD, DEFENSE, 500, 100));
+  DefineTypes.definePoolStats(FIELD, compileTwoTypes(BLOOD, DEFENSE, 100, 100));
+  DefineTypes.definePoolStats(SAFE, compileTwoTypes(BLOOD, DEFENSE, 2000, 100));
 }
 
 // host means has capacity & size

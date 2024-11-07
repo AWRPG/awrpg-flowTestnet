@@ -243,6 +243,11 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const revive = async (role: Hex, target: Hex) => {
+    const tx = await worldContract.write.revive([role, target]);
+    await waitForTransaction(tx);
+  };
+
   const dropERC20 = async (role: Hex, itemType: Hex, amount: bigint) => {
     const tx = await worldContract.write.dropERC20([role, itemType, amount]);
     await waitForTransaction(tx);
@@ -338,6 +343,7 @@ export function createSystemCalls(
     startMining,
     stopMining,
     attack,
+    revive,
     dropERC20,
     pickupERC20,
     dropERC721,

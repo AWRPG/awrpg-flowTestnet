@@ -5,11 +5,12 @@ import {
   getDropContainer,
   useCanPickupERC20,
   useCanPickupERC721,
+  useCanPickupRange,
 } from "../../logics/drop";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { ERC20_TYPES, SOURCE } from "../../constants";
 import { useMUD } from "../../MUDContext";
-import { isHost } from "../../logics/entity";
+import { isHost, isRole } from "../../logics/entity";
 import EntityName from "../EntityName";
 import { EntityPools } from "../host/Pool";
 import { useBalance } from "../../logics/container";
@@ -32,8 +33,14 @@ export function Drop({ tile }: { tile: Entity }) {
  * if there is dead role in the drop container, all its loots will be displayed & for player to take
  */
 export function HostLoot({ host, tile }: { host: Entity; tile: Entity }) {
-  const { components } = useMUD();
-  const { Owner, StoredSize } = components;
+  const { components, systemCalls } = useMUD();
+  const { Owner, StoredSize, SelectedHost } = components;
+  const { revive } = systemCalls;
+  const toHost = useComponentValue(SelectedHost, SOURCE)?.value as Entity;
+  const inRange = useCanPickupRange(components, toHost, tile);
+  // TODO: add tokens requirement to revive
+  const isRoleType = isRole(components, host);
+
   const erc20Whitelist = ERC20_TYPES;
   const entities = useEntityQuery([HasValue(Owner, { value: host })]);
   const hostEntities = entities.filter((entity) => isHost(components, entity));
@@ -45,6 +52,15 @@ export function HostLoot({ host, tile }: { host: Entity; tile: Entity }) {
   return (
     <div className="flex flex-col space-y-0 text-sm">
       <div className="text-lg">Loots:</div>
+      {isRoleType && (
+        <button
+          className="btn-blue"
+          disabled={!inRange}
+          onClick={() => revive(toHost as Hex, host as Hex)}
+        >
+          revive
+        </button>
+      )}
       {erc20Whitelist.map((erc20Type, index) => (
         <FTLoot key={index} host={host} erc20Type={erc20Type} tile={tile} />
       ))}
@@ -87,7 +103,9 @@ export function FTLoot({
       <button
         className="btn-blue"
         disabled={!canPickup}
-        onClick={() => pickupERC20(toHost as Hex, dropId, erc20Type, 1n, x, y)}
+        onClick={() =>
+          pickupERC20(toHost as Hex, host as Hex, erc20Type, 1n, x, y)
+        }
       >
         pickup
       </button>
