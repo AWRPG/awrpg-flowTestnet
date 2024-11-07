@@ -62,7 +62,6 @@ library CombatLogic {
     // TODO: burn some tokens from role
 
     (uint32 x, uint32 y) = DropLogic._reviveRole(target);
-    MoveLogic.canMoveToTileStrict(target, x, y);
     MapLogic._initGroundPath(target, x, y);
 
     PoolLogic._increaseLoose(target, BLOOD, 1);
