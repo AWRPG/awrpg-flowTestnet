@@ -90,4 +90,7 @@ contract Errors is System {
 
   // combat
   error NotInRange();
+
+  // player
+  error PlayerExists();
 }
