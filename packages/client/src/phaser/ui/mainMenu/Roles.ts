@@ -142,18 +142,23 @@ export class Roles extends DoublePage {
   }
 
   /** Camera to the position of selected role */
-  async onRolesListConfirm() {
+  onRolesListConfirm() {
     const item = this.rolesList.item;
     if (!item) return;
+    // Create new role
     if (!item.data) {
-      // this.nameInput = new TextInput(this.scene);
-      // this.nameInput.show();
-
-      const name = "Reg Horace";
-      await this.systemCalls.spawnHero(name);
-      this.updateRoles();
-      this.rolesList.itemIndex = this.rolesList.itemsCount - 2;
-    } else {
+      this.nameInput = new TextInput(this.scene, async () => {
+        const text = this.nameInput?.input.text;
+        if (text) {
+          await this.systemCalls.spawnHero(text);
+          this.updateRoles();
+          this.rolesList.itemIndex = this.rolesList.itemsCount - 2;
+        }
+      });
+      this.nameInput.show(this);
+    }
+    // Set the camera & cursor position
+    if (item.data) {
       const role = item.data.entity as Entity;
       selectHost(this.components, role);
       const rolePosition = getHostPosition(this.components, this.network, role);

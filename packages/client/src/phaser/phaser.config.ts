@@ -18,6 +18,9 @@ const config: Phaser.Types.Core.GameConfig = {
   audio: {
     disableWebAudio: false,
   },
+  dom: {
+    createContainer: true,
+  },
 };
 
 export default config;
