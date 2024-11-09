@@ -63,6 +63,21 @@ export function createSystemCalls(
     selectNextHost(components, playerEntity);
   };
 
+  const spawnHeroOnCoord = async (
+    oldHero: Hex,
+    coord: Vector,
+    name?: string
+  ) => {
+    name = name ?? "Hero";
+    const tx = await worldContract.write.spawnHeroOnCoord([
+      name,
+      oldHero,
+      coord.x,
+      coord.y,
+    ]);
+    await waitForTransaction(tx);
+  };
+
   const move = async (host: Hex, moves: number[]) => {
     const tx = await worldContract.write.move([host, moves]);
     // setComponent(MockPath, host, )
@@ -327,6 +342,7 @@ export function createSystemCalls(
   return {
     getNoise,
     spawnHero,
+    spawnHeroOnCoord,
     move,
     burnTerrain,
     interactTerrain,

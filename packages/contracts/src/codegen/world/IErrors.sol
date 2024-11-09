@@ -62,4 +62,5 @@ interface IErrors {
   error HasNoCookingInBuilding();
   error AlreadyHasCooking();
   error NotInRange();
+  error PlayerExists();
 }

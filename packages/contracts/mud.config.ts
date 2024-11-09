@@ -10,6 +10,7 @@ export default defineWorld({
     },
   },
   tables: {
+    IsPlayer: "bool",
     Counter: {
       schema: {
         entityType: "bytes16",

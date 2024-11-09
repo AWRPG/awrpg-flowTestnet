@@ -25,6 +25,7 @@ library MapLogic {
   }
 
   function _initGroundPath(bytes32 host, uint32 toX, uint32 toY) internal {
+    MoveLogic.canMoveToTileStrict(host, toX, toY);
     PathLogic._initPath(host, toX, toY);
     TileEntity.set(getCoordId(toX, toY), host);
   }

@@ -10,4 +10,6 @@ pragma solidity >=0.8.24;
  */
 interface IPlayerSystem {
   function spawnHero(string memory name) external returns (uint32, uint32, bytes32);
+
+  function spawnHeroOnCoord(string memory name, bytes32 oldHero, uint32 x, uint32 y) external returns (bytes32);
 }

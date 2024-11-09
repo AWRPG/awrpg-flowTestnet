@@ -48,10 +48,12 @@ export function HostLoot({ host, tile }: { host: Entity; tile: Entity }) {
     (entity) => !hostEntities.includes(entity)
   );
   const noLoots = (useComponentValue(StoredSize, host)?.value ?? 0n) === 0n;
-  if (noLoots) return null;
+  // note: freshly spawned role has no loots
+  // if (noLoots) return null;
+
   return (
     <div className="flex flex-col space-y-0 text-sm">
-      <div className="text-lg">Loots:</div>
+      {!noLoots && <div className="text-lg">Loots:</div>}
       {isRoleType && (
         <button
           className="btn-blue"

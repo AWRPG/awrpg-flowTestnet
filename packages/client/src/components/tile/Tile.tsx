@@ -10,6 +10,7 @@ import { Buildable } from "../building/Buildable";
 import { Host } from "../host/Host";
 import { SetTerrains } from "./SetTerrains";
 import { Combat } from "./Combat";
+import { SpawnHeroOnCoord } from "../host/SpawnHero";
 
 /**
  * display tile's info, 1) set terrains button, 2) entity on the tile, 3) drop container, 4) buildable
@@ -23,6 +24,7 @@ export function Tile({ tile }: { tile: Entity }) {
   return (
     <div className="flex flex-col space-y-3 w-auto bg-white">
       <SetTerrains tile={tile} />
+      {!entity && <SpawnHeroOnCoord tile={tile} />}
       {entity && <Host host={entity} />}
       {entity && sourceHost && (
         <Combat attacker={sourceHost as Entity} target={entity} />
