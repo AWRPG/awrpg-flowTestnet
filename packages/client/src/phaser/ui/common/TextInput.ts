@@ -44,6 +44,7 @@ export class TextInput extends GuiBase {
       width: 400,
       height: 36,
       fontSize: 36,
+      fontFamily: "'Roboto Mono'",
       marginX: 10,
       alignModeName: ALIGNMODES.LEFT_TOP,
       parent: bg,
