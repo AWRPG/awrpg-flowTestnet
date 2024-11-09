@@ -130,6 +130,7 @@ export class UIScene extends Phaser.Scene {
     this.load.image("icon-item-sword", "src/assets/icons/items/sword.png");
     this.load.image("icon-item-wood", "src/assets/icons/items/wood.png");
     this.load.image("icon-item-berry", "src/assets/icons/items/berry.png");
+    this.load.image("icon-item-book", "src/assets/icons/items/book.png");
 
     // Avatars
     this.load.image("avatar-farmer-1-1", "src/assets/avatars/farmer_1_1.png");
