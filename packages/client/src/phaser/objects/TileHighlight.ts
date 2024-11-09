@@ -14,6 +14,7 @@ import { HIGHLIGHT_MODE, TerrainType } from "../../constants";
 import { MAX_MOVES } from "../../contract/constants";
 import { isRole, isBuilding, getEntitySpecs } from "../../logics/entity";
 import { getEntityOnCoord } from "../../logics/map";
+import { MoveStep } from "../../api/data";
 
 export class TileHighlight extends SceneObject {
   /**
@@ -21,8 +22,7 @@ export class TileHighlight extends SceneObject {
    */
   highlightObjs: Phaser.GameObjects.Sprite[] = [];
 
-  highlightData: { x: number; y: number; distance: number; type?: string }[] =
-    [];
+  highlightData: MoveStep[] = [];
 
   /**
    * distinguish between different types of highlighting ranges
@@ -70,24 +70,6 @@ export class TileHighlight extends SceneObject {
       const terrains = this.getTerrains(distance, width, height); // Get terrains by the distance
       const passableTiles = this.getPassableTiles(terrains, distance);
       this.highlightData = this.floodFill(distance, passableTiles); // Get the reachable area
-      this.highlightData = this.highlightData.filter((data) => {
-        const something = getEntityOnCoord(this.components, {
-          x: data.x + this.tileX,
-          y: data.y + this.tileY,
-        });
-        if (something) {
-          const type = isRole(this.components, something)
-            ? "role"
-            : isBuilding(this.components, something)
-              ? "building"
-              : "other";
-          if (type === "building") {
-            data.type = "enter";
-          }
-          return type !== "role";
-        }
-        return true;
-      });
     } else if (this.mode === HIGHLIGHT_MODE.BUILD) {
       const terrains = this.getTerrains(distance, width, height); // Distance: the side
       terrains.forEach((terrain) => {
@@ -229,9 +211,7 @@ export class TileHighlight extends SceneObject {
   }
 
   floodFill(maxDistance: number, passableTiles: Set<string>) {
-    const queue: { x: number; y: number; distance: number }[] = [
-      { x: 0, y: 0, distance: 0 },
-    ];
+    const queue: MoveStep[] = [{ x: 0, y: 0, distance: 0 }];
     const visited = new Set([`${0},${0}`]);
     const reachable = [];
     while (queue.length > 0) {
@@ -239,7 +219,42 @@ export class TileHighlight extends SceneObject {
       if (!tile) continue;
       const { x, y, distance } = tile;
       if (distance > maxDistance) continue;
-      reachable.push({ x, y, distance });
+
+      const data: MoveStep = { x, y, distance, type: undefined };
+
+      const sth = getEntityOnCoord(this.components, {
+        x: x + this.tileX,
+        y: y + this.tileY,
+      });
+      if (sth) {
+        const type = isRole(this.components, sth)
+          ? "role"
+          : isBuilding(this.components, sth)
+            ? "building"
+            : "other";
+        if (type === "building") {
+          data.type = "enter";
+          // Some buildings can't pass
+          const buildingSpecs = getEntitySpecs(
+            this.components,
+            this.components.BuildingSpecs,
+            sth
+          )!;
+          if (!buildingSpecs.canMove) {
+            reachable.push(data);
+            continue;
+          }
+        } else if (type === "role") {
+          if (sth === this.entity) data.type = undefined;
+          else data.type = "error";
+        } else {
+          data.type = "move";
+        }
+      } else {
+        data.type = "move";
+      }
+      reachable.push(data);
+
       for (const [dx, dy] of [
         [0, 1],
         [1, 0],
@@ -260,13 +275,14 @@ export class TileHighlight extends SceneObject {
   setHighlight() {
     this.clearHighlight();
     this.highlightData.forEach((data) => {
+      if (!data.type) return;
       const highlight = new Phaser.GameObjects.Sprite(
         this.scene,
         data.x * this.tileSize,
         data.y * this.tileSize,
-        "ui-highlight-" + (data.type ?? "move")
+        "ui-highlight-" + data.type
       );
-      highlight.setData("type", data.type ?? "move");
+      highlight.setData("type", data.type);
       highlight.setScale(0);
       this.highlightObjs.push(highlight);
       this.root.add(highlight);

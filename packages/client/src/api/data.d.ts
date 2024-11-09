@@ -21,3 +21,10 @@ export interface ItemData {
   id?: number;
   state?: string;
 }
+
+export interface MoveStep {
+  x: number;
+  y: number;
+  distance: number;
+  type?: string;
+}

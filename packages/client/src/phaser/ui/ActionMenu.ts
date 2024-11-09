@@ -29,6 +29,11 @@ import {
 import { ItemData } from "../../api/data";
 import { getBalance } from "../../logics/container";
 import { Hex } from "viem";
+import {
+  convertTerrainTypesToValues,
+  GRID_SIZE,
+  TileTerrain,
+} from "../../logics/terrain";
 
 /**
  * show the action buttons player can do
@@ -115,10 +120,40 @@ export class ActionMenu extends GuiBase {
 
     // [Button] Change Terrain
     const item_changeTerrain = new ButtonA(this.scene, {
-      text: "Change Terrain",
-      disable: true,
+      text: "Plain Create",
+      // disable: true,
       onConfirm: () => {
         this.hidden();
+        SceneObjectController.resetFocus();
+        PlayerInput.onlyListenSceneObject();
+
+        if (!this.role) return;
+        const gridCoord = {
+          x: Math.floor(this.role.tileX / GRID_SIZE),
+          y: Math.floor(this.role.tileY / GRID_SIZE),
+        };
+        const terrainMatrix = [
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+          [3, 3, 3, 3, 3, 3, 3, 3],
+        ];
+        const terrainTypes: TileTerrain[] = [];
+        terrainMatrix.forEach((row, i) => {
+          row.forEach((terrain, j) => {
+            terrainTypes.push({
+              i,
+              j,
+              terrainType: terrainMatrix[j][i],
+            });
+          });
+        });
+        const terrainValues = convertTerrainTypesToValues(terrainTypes);
+        this.systemCalls.setTerrainValues(gridCoord, terrainValues);
       },
     });
     items.push(item_changeTerrain);
