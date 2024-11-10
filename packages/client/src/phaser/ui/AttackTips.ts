@@ -15,7 +15,7 @@ import {
 } from "../../logics/move";
 import { Coord } from "../../utils/pathFinding";
 import { PlayerInput } from "../components/controllers/PlayerInput";
-import { MAX_MOVES } from "../../contract/constants";
+import { MAX_MOVES, WEAPON } from "../../contract/constants";
 import { getEntityOnCoord } from "../../logics/map";
 import { isRole, isBuilding } from "../../logics/entity";
 import { BuildingData, BuildingSpecs } from "../../api/data";
@@ -25,6 +25,7 @@ import { Hex, toHex } from "viem";
 import { getCombatRange } from "../../logics/combat";
 import { CharacterInfo } from "./CharacterInfo";
 import { SceneObject } from "../objects/SceneObject";
+import { getEquipment } from "../../logics/equipment";
 
 export class AttackTips extends GuiBase {
   role?: Role;
@@ -154,7 +155,7 @@ export class AttackTips extends GuiBase {
           this.targetHighlights.push(highlight);
           if (!isRole(this.components, sth)) return; // [TEMP]
           this.characterInfo = new CharacterInfo(this.scene, 1);
-          this.characterInfo.show(sthObj as Role);
+          this.characterInfo.show(sthObj as Role, this.role);
         }
       }
     });
@@ -175,12 +176,13 @@ export class AttackTips extends GuiBase {
       repeat: 1,
       yoyo: true,
       onComplete: () => {
-        if (this.role)
-          this.attackEffect(this.role, SceneObjectController.scene.roles[sth]);
+        if (!this.role) return;
+        SceneObjectController.closeTileHighlight(this.role.entity);
+        this.attackEffect(this.role, SceneObjectController.scene.roles[sth]);
       },
     });
 
-    await this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
+    // await this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
     this.attackEnd();
   }
 
@@ -188,7 +190,9 @@ export class AttackTips extends GuiBase {
     source.doAttackAnimation(() => {
       this.attackEnd();
     });
-    target.doDamageAnimation();
+    setTimeout(() => {
+      target.doDamageAnimation();
+    }, 375);
   }
 
   attackEnd() {
@@ -196,7 +200,7 @@ export class AttackTips extends GuiBase {
     if (this.attackEndFlag < 2) return;
     // Close the GUI
     this.hidden();
-    if (this.role) SceneObjectController.closeTileHighlight(this.role.entity);
+
     // Scene focus back to the observer
     SceneObjectController.resetFocus();
     PlayerInput.onlyListenSceneObject();

@@ -71,6 +71,8 @@ export class Role extends SceneObject {
 
   prevCoord?: Vector;
 
+  totalAttack: number = 0;
+
   /**
    * @param scene the scene belong
    * @param params others
@@ -262,7 +264,7 @@ export class Role extends SceneObject {
     this.scene.tweens.add({
       targets: this,
       props: { ["tint"]: 0xff0000 },
-      duration: 200,
+      duration: 250,
       repeat: 0,
       yoyo: true,
       onComplete: () => {
