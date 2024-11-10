@@ -11,7 +11,7 @@ import { getPoolAmount, getPoolCapacity } from "../../logics/pool";
 import { POOL_COLORS, POOL_TYPES, SOURCE } from "../../constants";
 import { GameScene } from "../scenes/GameScene";
 import { SceneObject } from "./SceneObject";
-import { fromEntity } from "../../utils/encode";
+import { fromEntity, hexTypeToString } from "../../utils/encode";
 import { UIScene } from "../scenes/UIScene";
 import { Vector } from "../../utils/vector";
 import { UIController } from "../components/controllers/UIController";
@@ -21,6 +21,9 @@ import {
   canBuildFromHost,
   getBuildableCoordsInfo,
 } from "../../logics/building";
+import { getEntitiesInCustodian } from "../../logics/custodian";
+import { getEquipment, getEquipmentInfo } from "../../logics/equipment";
+import { WEAPON } from "../../contract/constants";
 
 /**
  * About the scene object with avatar such as character or building
@@ -40,6 +43,11 @@ export class Role extends SceneObject {
    * The display object for host
    */
   avatar: Phaser.GameObjects.Sprite;
+
+  /**
+   * the texture without action
+   */
+  textureKey: string;
 
   /**
    * The shadow under the host [TODO]
@@ -63,6 +71,8 @@ export class Role extends SceneObject {
 
   prevCoord?: Vector;
 
+  totalAttack: number = 0;
+
   /**
    * @param scene the scene belong
    * @param params others
@@ -72,9 +82,11 @@ export class Role extends SceneObject {
     entity: Entity,
     {
       isPlayer = false,
+      textureKey = "host-farmer1",
       onClick,
     }: {
       isPlayer?: boolean;
+      textureKey?: string;
       onClick?: () => void;
     } = {}
   ) {
@@ -94,7 +106,8 @@ export class Role extends SceneObject {
 
     // draw avatar & set animation
     this.direction = Direction.DOWN;
-    this.avatar = new Phaser.GameObjects.Sprite(scene, 0, 0, "host-farmer1");
+    this.textureKey = textureKey;
+    this.avatar = new Phaser.GameObjects.Sprite(scene, 0, 0, this.textureKey);
     this.avatar.setOrigin(0.46, 0.7);
     this.root.add(this.avatar);
 
@@ -211,7 +224,7 @@ export class Role extends SceneObject {
   }
 
   doWalkAnimation() {
-    return this.avatar.play("host-farmer1-walk-right");
+    return this.avatar.play(this.textureKey + "-walk-right");
   }
 
   doIdleAnimation() {
@@ -220,7 +233,45 @@ export class Role extends SceneObject {
     //   Direction.DOWN;
     // if (this.direction === Direction.LEFT) this.avatar.flipX = true;
     // if (this.direction === Direction.RIGHT) this.avatar.flipX = false;
-    return this.avatar.play("host-farmer1-idle-right");
+    return this.avatar.play(this.textureKey + "-idle-right");
+  }
+
+  doAttackAnimation(
+    callback?: () => void,
+    times: number = 1,
+    weaponType?: string
+  ) {
+    if (!weaponType) {
+      const weapon = getEquipment(this.components, this.entity, WEAPON);
+      if (!weapon) weaponType = "attack";
+      else {
+        // const info = getEquipmentInfo(this.components, weapon);
+        const { type, id } = fromEntity(weapon as Hex);
+        weaponType = hexTypeToString(type);
+      }
+    }
+    this.avatar.once("animationcomplete", () => {
+      if (callback) callback();
+      this.doIdleAnimation();
+    });
+    return this.avatar.play({
+      key: this.textureKey + "-" + weaponType + "-right",
+      repeat: times - 1,
+    });
+  }
+
+  doDamageAnimation() {
+    this.scene.tweens.add({
+      targets: this,
+      props: { ["tint"]: 0xff0000 },
+      duration: 250,
+      repeat: 0,
+      yoyo: true,
+      onComplete: () => {
+        this.avatar.clearTint();
+      },
+    });
+    return this.avatar;
   }
 
   destroy() {
@@ -248,5 +299,13 @@ export class Role extends SceneObject {
     POOL_TYPES.forEach((type, index) => {
       this.setPropertyValue(type, entityId);
     });
+  }
+
+  get tint() {
+    return this.avatar.tint;
+  }
+
+  set tint(value: number) {
+    this.avatar.setTint(value);
   }
 }

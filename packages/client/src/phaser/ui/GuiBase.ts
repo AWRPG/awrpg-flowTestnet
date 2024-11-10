@@ -44,6 +44,8 @@ export class GuiBase {
 
   config: GuiBaseConfig;
 
+  destroying: boolean;
+
   /**
    * Data listener events that depend on Phaser: https://newdocs.phaser.io/docs/3.80.0/Phaser.Data.Events.CHANGE_DATA
    */
@@ -73,6 +75,7 @@ export class GuiBase {
     this.visible = config.visible ?? false;
     this.autoZoom = config.autoZoom ?? false;
     this.config = config;
+    this.destroying = false;
     if (config.onConfirm) this.onConfirm = config.onConfirm;
   }
 
@@ -98,11 +101,13 @@ export class GuiBase {
   }
 
   destroy() {
+    this.destroying = true;
     this.rootUI.destroyChildren();
     this.rootUI.destroy();
   }
 
   resizeListener(gameSize: Phaser.Structs.Size) {
+    if (this.destroying) return;
     if (this.autoZoom) {
       const zoom = Phaser.Math.Clamp(
         gameSize.width / StandardGameSize.maxWidth,
@@ -116,6 +121,7 @@ export class GuiBase {
   }
 
   onMenuListen(ui: UIBase = this.rootUI) {
+    if (this.destroying) return;
     ui.on(UIEvents.UP, this.onUp, this);
     ui.on(UIEvents.DOWN, this.onDown, this);
     ui.on(UIEvents.LEFT, this.onLeft, this);
@@ -139,6 +145,7 @@ export class GuiBase {
    * @param data The value to set for the given key. If an object is provided as the key this argument is ignored.
    */
   setData(key: string, data: unknown) {
+    if (this.destroying) return;
     this.rootUI.root.setData(key, data);
   }
 

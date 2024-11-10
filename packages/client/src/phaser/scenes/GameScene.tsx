@@ -610,6 +610,51 @@ export class GameScene extends Phaser.Scene {
         frameRate: 8,
         repeat: -1,
       });
+      this.anims.create({
+        key: this.hostTextures[i].key + "-dead-right",
+        frames: this.anims.generateFrameNumbers(this.hostTextures[i].key, {
+          start: 12,
+          end: 17,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
+      this.anims.create({
+        key: this.hostTextures[i].key + "-sword-right",
+        frames: this.anims.generateFrameNumbers(this.hostTextures[i].key, {
+          start: 18,
+          end: 23,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
+      this.anims.create({
+        key: this.hostTextures[i].key + "-bow-right",
+        frames: this.anims.generateFrameNumbers(this.hostTextures[i].key, {
+          start: 24,
+          end: 29,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
+      this.anims.create({
+        key: this.hostTextures[i].key + "-attack-right",
+        frames: this.anims.generateFrameNumbers(this.hostTextures[i].key, {
+          start: 36,
+          end: 41,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
+      this.anims.create({
+        key: this.hostTextures[i].key + "-farming-right",
+        frames: this.anims.generateFrameNumbers(this.hostTextures[i].key, {
+          start: 60,
+          end: 65,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
     }
 
     // cursor

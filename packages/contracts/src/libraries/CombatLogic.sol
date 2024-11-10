@@ -20,7 +20,8 @@ import "@/constants.sol";
  */
 library CombatLogic {
   function _attack(bytes32 attacker, bytes32 defender) internal returns (bool defeated) {
-    uint32 range = HeroLogic.getRange(attacker) + EquipmentLogic.getRange(attacker);
+    uint32 weaponRange = EquipmentLogic.getRange(attacker);
+    uint32 range = weaponRange > 0 ? weaponRange : HeroLogic.getRange(attacker);
     if (!PositionLogic.withinRange(attacker, defender, range)) revert Errors.NotInRange();
     // TODO: burn self pool balance, such as stamina & soul
 

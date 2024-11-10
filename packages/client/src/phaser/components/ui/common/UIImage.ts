@@ -3,10 +3,14 @@ import { UIBase, UIBaseConfig } from "./UIBase";
 export interface UIImageConfig extends UIBaseConfig {
   nineSlice?: number | number[];
   frame?: any;
+  maskMode?: boolean;
 }
 
 export class UIImage extends UIBase {
   image: Phaser.GameObjects.Sprite | Phaser.GameObjects.NineSlice;
+  maskMode: boolean;
+  imgMaskGraphics?: Phaser.GameObjects.Graphics;
+  imgMask?: Phaser.Display.Masks.GeometryMask;
 
   constructor(
     scene: Phaser.Scene,
@@ -14,7 +18,7 @@ export class UIImage extends UIBase {
     config: UIImageConfig = {}
   ) {
     super(scene, { texture, ...config });
-
+    this.maskMode = config.maskMode ?? true;
     const { nineSlice = 0 } = config;
     const [leftWidth = 0, rightWidth = 0, topHeight = 0, bottomHeight = 0] =
       Array.isArray(nineSlice)
@@ -42,6 +46,15 @@ export class UIImage extends UIBase {
         this.displayHeight / this.scale
       );
     }
+
+    // if (this.maskMode) {
+    //   this.imgMaskGraphics = new Phaser.GameObjects.Graphics(scene);
+    //   this.imgMask = new Phaser.Display.Masks.GeometryMask(
+    //     scene,
+    //     this.imgMaskGraphics
+    //   );
+    //   this.image.setMask(this.imgMask);
+    // }
 
     this.root.add(this.image);
   }

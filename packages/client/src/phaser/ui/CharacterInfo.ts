@@ -2,6 +2,7 @@ import { UIScene } from "../scenes/UIScene";
 import { GuiBase } from "./GuiBase";
 import { Box } from "../components/ui/Box";
 import { Avatar } from "../components/ui/Avatar";
+import { UIBase } from "../components/ui/common/UIBase";
 import { UIImage } from "../components/ui/common/UIImage";
 import { UIText } from "../components/ui/common/UIText";
 import { ALIGNMODES } from "../../constants";
@@ -27,6 +28,7 @@ import {
   RANGE,
   SOUL,
   STAMINA,
+  WEAPON,
 } from "../../contract/constants";
 import { Hex } from "viem";
 import { decodeBalanceEntity } from "../../utils/encode";
@@ -34,6 +36,8 @@ import { getEntityPoolsInfo } from "../../logics/pool";
 import { getEntitySpecs } from "../../logics/entity";
 import { getERC20Balances } from "../../logics/container";
 import { getEntitiesInCustodian } from "../../logics/custodian";
+import { getEquipment } from "../../logics/equipment";
+import { SceneObjectController } from "../components/controllers/SceneObjectController";
 
 /**
  * note: this phaesr ui mirrors Pool.tsx; can be an example to construct other "pool" phaer ui
@@ -41,13 +45,23 @@ import { getEntitiesInCustodian } from "../../logics/custodian";
 export class CharacterInfo extends GuiBase {
   avatar: UIImage;
   role?: Entity;
+  attacker?: Role;
+
+  infoUI_bars: UIBase;
   characterName: UIText;
   hpBar: HpBar;
+  hpBar2?: UIImage;
   hpName: UIText;
   hpNum: UIText;
   spBar: SpBar;
   spName: UIText;
   spNum: UIText;
+  atkName: UIText;
+  atkNum: UIText;
+  defName: UIText;
+  defNum: UIText;
+
+  mode: number = 0; // 0: Self, 1: Enemy
 
   // --- class data ---
   // name
@@ -65,6 +79,9 @@ export class CharacterInfo extends GuiBase {
   maxDefense: number = 0;
   range: number = 0;
   maxRange: number = 0;
+  // weapon
+  weaponAttack: number = 0;
+  weaponRange: number = 0;
   // stored size, capacity, and size
   capacity: number = 0;
   storedSize: number = 0;
@@ -78,11 +95,12 @@ export class CharacterInfo extends GuiBase {
   // equipments
   equipments: Entity[] = [];
 
-  constructor(scene: UIScene) {
+  constructor(scene: UIScene, mode: number = 0) {
     super(
       scene,
       new Box(scene, {
-        alignModeName: ALIGNMODES.LEFT_BOTTOM,
+        alignModeName:
+          mode === 0 ? ALIGNMODES.LEFT_BOTTOM : ALIGNMODES.RIGHT_BOTTOM,
         width: 680,
         height: 192,
         marginX: 8,
@@ -91,28 +109,39 @@ export class CharacterInfo extends GuiBase {
     );
 
     this.name = "CharacterInfo";
+    this.mode = mode;
 
     this.avatar = new Avatar(this.scene, "avatar-farmer-1-1", {
-      alignModeName: ALIGNMODES.LEFT_BOTTOM,
+      alignModeName:
+        mode === 0 ? ALIGNMODES.LEFT_BOTTOM : ALIGNMODES.RIGHT_BOTTOM,
       width: 256,
       height: 256,
       marginX: 1,
       marginY: 1,
       parent: this.rootUI,
     });
+    if (mode === 1) this.avatar.flipX = false;
 
-    this.characterName = new Heading2(this.scene, this.hostName, {
-      marginX: 268,
-      marginY: 12,
+    const infoUI = new UIBase(scene, {
+      marginX: mode === 0 ? 268 : 24,
       parent: this.rootUI,
     });
 
+    this.infoUI_bars = new UIBase(scene, {
+      width: 248,
+      parent: infoUI,
+    });
+
+    this.characterName = new Heading2(this.scene, this.hostName, {
+      marginY: 12,
+      parent: infoUI,
+    });
+
     this.hpBar = new HpBar(this.scene, {
-      width: 358,
+      width: 248,
       height: 24,
-      marginX: 268,
       marginY: 78,
-      parent: this.rootUI,
+      parent: this.infoUI_bars,
     });
 
     this.hpName = new Heading3(this.scene, "HP", {
@@ -129,11 +158,10 @@ export class CharacterInfo extends GuiBase {
     });
 
     this.spBar = new SpBar(this.scene, {
-      width: 358,
+      width: 248,
       height: 24,
-      marginX: 268,
       marginY: 140,
-      parent: this.rootUI,
+      parent: this.infoUI_bars,
     });
 
     this.spName = new Heading3(this.scene, "SP", {
@@ -148,15 +176,41 @@ export class CharacterInfo extends GuiBase {
       marginY: -20,
       parent: this.spBar,
     });
-    this.createSystem();
 
+    const infoUI_props = new UIBase(scene, {
+      width: 128,
+      marginX: 264,
+      marginY: 58,
+      parent: infoUI,
+    });
+
+    this.atkName = new Heading3(this.scene, "ATK", {
+      parent: infoUI_props,
+    });
+    this.atkNum = new Heading3(this.scene, "100", {
+      alignModeName: ALIGNMODES.RIGHT_TOP,
+      parent: infoUI_props,
+    });
+    this.defName = new Heading3(this.scene, "DEF", {
+      marginY: 24,
+      parent: infoUI_props,
+    });
+    this.defNum = new Heading3(this.scene, "100", {
+      alignModeName: ALIGNMODES.RIGHT_TOP,
+      marginY: 24,
+      parent: infoUI_props,
+    });
+
+    this.createSystem();
     this.createBagSystem();
   }
 
-  show(role: Role) {
+  show(role: Role, attacker?: Role) {
     // initialize data
     this.role = role.entity;
+    this.attacker = attacker ?? undefined;
     this.updateData();
+    this.updateEquipment();
     this.updateDisplay();
 
     // bag
@@ -177,6 +231,7 @@ export class CharacterInfo extends GuiBase {
    * update (all) data every time 1 data changes, so as to save dev time
    */
   updateData() {
+    if (this.destroying) return;
     const components = this.scene.components;
     const { ContainerSpecs, SizeSpecs, StoredSize, HostName } = components;
     if (!this.role) return;
@@ -225,6 +280,7 @@ export class CharacterInfo extends GuiBase {
   }
 
   updateBagData() {
+    if (this.destroying) return;
     const components = this.scene.components;
     const { Owner } = components;
     if (!this.role) return;
@@ -240,15 +296,41 @@ export class CharacterInfo extends GuiBase {
     );
     // equipment
     this.equipments = getEntitiesInCustodian(components, this.role);
-    console.log("erc721: ", this.erc721Entities);
-    console.log("erc20: ", this.erc20Items);
-    console.log("equipments: ", this.equipments);
+    // console.log("erc721: ", this.erc721Entities);
+    // console.log("erc20: ", this.erc20Items);
+    // console.log("equipments: ", this.equipments);
+  }
+
+  updateEquipment() {
+    if (!this.role) return;
+    const weapon = getEquipment(this.components, this.role, WEAPON);
+    if (!weapon) {
+      this.weaponAttack = 0;
+      this.weaponRange = 0;
+      return;
+    }
+    const weaponPoolsInfo = getEntityPoolsInfo(this.components, weapon);
+    weaponPoolsInfo.forEach((poolInfo) => {
+      const { type, balance } = poolInfo;
+      switch (type) {
+        case ATTACK:
+          this.weaponAttack = balance;
+          break;
+        case RANGE:
+          this.weaponRange = balance;
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   /**
    * update display every time data changes
    */
   updateDisplay() {
+    if (this.hpBar.filledTrack) this.hpBar.filledTrack.alpha = 1;
+    if (this.destroying || !this.role) return;
     this.hpNum.text = this.blood + "/" + this.maxBlood;
     this.hpBar.max = this.maxBlood;
     this.hpBar.value = this.blood;
@@ -256,6 +338,47 @@ export class CharacterInfo extends GuiBase {
     this.spBar.max = this.maxStamina;
     this.spBar.value = this.stamina;
     this.characterName.text = this.hostName;
+
+    if (this.attacker) {
+      const attack = this.attacker.totalAttack;
+      const defense = this.defense;
+      const damage =
+        attack >= defense ? attack * 2 - defense : (attack * attack) / defense;
+      // this.hpBar.value = this.blood - damage;
+      if (this.hpBar2) {
+        this.hpBar2.destroy();
+        delete this.hpBar2;
+      }
+      const hpBar2W =
+        ((this.blood - damage) / this.hpBar.max) * this.hpBar.displayWidth;
+      this.hpBar2 = new UIImage(this.scene, "bar_red", {
+        nineSlice: 6,
+        width: 248,
+        height: 24,
+        marginY: 78,
+        parent: this.infoUI_bars,
+        overflow: "hidden",
+      });
+      this.hpBar2.configWidth = hpBar2W;
+      if (this.hpBar.filledTrack) {
+        this.hpBar.filledTrack.alpha = 0.8;
+        this.scene.tweens.add({
+          targets: this.hpBar.filledTrack,
+          alpha: 0.6,
+          duration: 600,
+          repeat: -1,
+          yoyo: true,
+        });
+      }
+
+      this.hpNum.text = this.blood + "(-" + damage + ")/" + this.maxBlood;
+    }
+
+    // attack & defense
+    SceneObjectController.scene.roles[this.role].totalAttack =
+      this.attack + this.weaponAttack;
+    this.atkNum.text = (this.attack + this.weaponAttack).toString();
+    this.defNum.text = this.defense.toString();
   }
 
   /**
@@ -304,6 +427,7 @@ export class CharacterInfo extends GuiBase {
       const { owner } = decodeBalanceEntity(entity);
       if (!this.role || this.role !== (owner as Entity)) return;
       this.updateBagData();
+      this.updateEquipment();
       this.updateDisplay();
     });
   }
