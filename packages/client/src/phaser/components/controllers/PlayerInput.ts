@@ -30,22 +30,25 @@ export class PlayerInput {
   private static onKeyDown(event: KeyboardEvent) {
     // if (!this.flagUp) return;
     this.flagUp = false;
-    const key = event.key;
     const focusUI = UIController.focus;
     const focusSceneObj = SceneObjectController.focus;
-    if (focusUI && UIController.controllable) this.emitKeyDown(focusUI, key);
+    if (focusUI && UIController.controllable) this.emitKeyDown(focusUI, event);
     if (focusSceneObj && SceneObjectController.controllable)
-      this.emitKeyDown(focusSceneObj, key);
+      this.emitKeyDown(focusSceneObj, event);
   }
 
-  private static emitKeyDown(focus: UIBase | SceneObject, key: string) {
-    if (UIConfig.KEY_UP.includes(key)) focus.onUpPressed();
-    if (UIConfig.KEY_DOWN.includes(key)) focus.onDownPressed();
-    if (UIConfig.KEY_LEFT.includes(key)) focus.onLeftPressed();
-    if (UIConfig.KEY_RIGHT.includes(key)) focus.onRightPressed();
-    if (UIConfig.KEY_CONFIRM.includes(key)) focus.onConfirmPressed();
-    if (UIConfig.KEY_CANCEL.includes(key)) focus.onCancelPressed();
-    if (UIConfig.KEY_MENU.includes(key)) focus.onMenuPressed();
+  private static emitKeyDown(
+    focus: UIBase | SceneObject,
+    event: KeyboardEvent
+  ) {
+    const key: string = event.key;
+    if (UIConfig.KEY_UP.includes(key)) focus.onUpPressed(event);
+    if (UIConfig.KEY_DOWN.includes(key)) focus.onDownPressed(event);
+    if (UIConfig.KEY_LEFT.includes(key)) focus.onLeftPressed(event);
+    if (UIConfig.KEY_RIGHT.includes(key)) focus.onRightPressed(event);
+    if (UIConfig.KEY_CONFIRM.includes(key)) focus.onConfirmPressed(event);
+    if (UIConfig.KEY_CANCEL.includes(key)) focus.onCancelPressed(event);
+    if (UIConfig.KEY_MENU.includes(key)) focus.onMenuPressed(event);
   }
 
   private static onKeyUp(event: KeyboardEvent) {

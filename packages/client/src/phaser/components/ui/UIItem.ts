@@ -4,10 +4,13 @@ import { UIImage, UIImageConfig } from "./common/UIImage";
 import { UIText } from "./common/UIText";
 import { Heading3 } from "./Heading3";
 import { ALIGNMODES } from "../../../constants";
+import { Entity } from "@latticexyz/recs";
 
 export interface UIItemConfig extends UIButtonConfig {
   amount?: number;
   id?: number;
+  entity?: Entity;
+  state?: string;
 }
 
 export class UIItem extends UIButton {
@@ -18,6 +21,7 @@ export class UIItem extends UIButton {
   amount: number;
   id?: number;
   nameText: UIText;
+  state: string;
   constructor(
     scene: Phaser.Scene,
     itemType?: string,
@@ -40,6 +44,8 @@ export class UIItem extends UIButton {
     this.itemType = itemType;
     this.id = config.id;
     this.amount = config.amount ?? 0;
+    this.state = config.state ?? "";
+    this.entity = config.entity;
     this.nameText = new Heading3(
       scene,
       (this.itemType ?? "") + (this.id ? " #" + this.id : ""),

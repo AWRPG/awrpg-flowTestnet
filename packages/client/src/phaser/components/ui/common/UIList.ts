@@ -173,29 +173,29 @@ export class UIList extends UIBase {
       this.itemIndex = this.itemsCount - 1;
   }
 
-  onUpPressed() {
-    super.onUpPressed();
+  onUpPressed(event: KeyboardEvent) {
+    super.onUpPressed(event);
     this.itemIndex = this.itemIndex > 0 ? this.itemIndex - 1 : 0;
   }
 
-  onDownPressed() {
-    super.onDownPressed();
+  onDownPressed(event: KeyboardEvent) {
+    super.onDownPressed(event);
     this.itemIndex =
       this.itemIndex < this.itemsCount - 1
         ? this.itemIndex + 1
         : this.itemsCount - 1;
   }
 
-  onConfirmPressed() {
-    super.onConfirmPressed();
+  onConfirmPressed(event: KeyboardEvent) {
+    super.onConfirmPressed(event);
     if (!this._item?.disable && this._item?.onConfirm) {
       UIController.focus = this._item;
       this._item.onConfirm();
     }
   }
 
-  onCancelPressed() {
-    super.onCancelPressed();
+  onCancelPressed(event: KeyboardEvent) {
+    super.onCancelPressed(event);
     if (!this._item?.disable && this._item?.onCancel) {
       // this._item.onCancel();
     }
@@ -263,6 +263,7 @@ export class UIList extends UIBase {
 
   set itemWidth(value: number) {
     this._itemWidth = value;
+    this.updateItemSize();
   }
 
   get itemHeight(): number {

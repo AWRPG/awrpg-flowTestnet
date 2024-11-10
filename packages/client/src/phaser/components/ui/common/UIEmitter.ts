@@ -138,59 +138,59 @@ export class UIEmitter {
   /**
    * When pressing the up key
    */
-  onUpPressed() {
-    if (!this.disable) this.emit(UIEvents.ARROW, this);
-    if (!this.disable) this.emit(UIEvents.UP, this);
+  onUpPressed(event: KeyboardEvent) {
+    if (!this.disable) this.emit(UIEvents.ARROW, this, event);
+    if (!this.disable) this.emit(UIEvents.UP, this, event);
   }
 
   /**
    * When pressing the down key
    */
-  onDownPressed() {
-    if (!this.disable) this.emit(UIEvents.ARROW, this);
-    if (!this.disable) this.emit(UIEvents.DOWN, this);
+  onDownPressed(event: KeyboardEvent) {
+    if (!this.disable) this.emit(UIEvents.ARROW, this, event);
+    if (!this.disable) this.emit(UIEvents.DOWN, this, event);
   }
 
   /**
    * When pressing the left key
    */
-  onLeftPressed() {
-    if (!this.disable) this.emit(UIEvents.ARROW, this);
-    if (!this.disable) this.emit(UIEvents.LEFT, this);
+  onLeftPressed(event: KeyboardEvent) {
+    if (!this.disable) this.emit(UIEvents.ARROW, this, event);
+    if (!this.disable) this.emit(UIEvents.LEFT, this, event);
   }
 
   /**
    * When pressing the right key
    */
-  onRightPressed() {
-    if (!this.disable) this.emit(UIEvents.ARROW, this);
-    if (!this.disable) this.emit(UIEvents.RIGHT, this);
+  onRightPressed(event: KeyboardEvent) {
+    if (!this.disable) this.emit(UIEvents.ARROW, this, event);
+    if (!this.disable) this.emit(UIEvents.RIGHT, this, event);
   }
 
   /**
    * When confirm key is pressed
    */
-  onConfirmPressed() {
+  onConfirmPressed(event: KeyboardEvent) {
     if (this.disable) return;
-    this.emit(UIEvents.CONFIRM, this);
+    this.emit(UIEvents.CONFIRM, this, event);
     if (this.onConfirm) this.onConfirm();
   }
 
   /**
    * When cancel key is pressed
    */
-  onCancelPressed() {
+  onCancelPressed(event: KeyboardEvent) {
     if (this.disable) return;
-    this.emit(UIEvents.CANCEL, this);
+    this.emit(UIEvents.CANCEL, this, event);
     if (this.onCancel) this.onCancel();
   }
 
   /**
    * When the menu key is pressed
    */
-  onMenuPressed() {
+  onMenuPressed(event: KeyboardEvent) {
     if (this.disable) return;
-    this.emit(UIEvents.MENU, this);
+    this.emit(UIEvents.MENU, this, event);
   }
 
   /**

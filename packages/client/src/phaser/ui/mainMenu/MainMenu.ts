@@ -7,12 +7,14 @@ import { UIImage } from "../../components/ui/common/UIImage";
 import { PlayerInput } from "../../components/controllers/PlayerInput";
 import { SceneObjectController } from "../../components/controllers/SceneObjectController";
 import { Heading2 } from "../../components/ui/Heading2";
+import { Heading3 } from "../../components/ui/Heading3";
 import { Home } from "./Home";
 import { Roles } from "./Roles";
 import { MainMenuTitle } from "../../components/ui/MainMenuTitle";
 import { StandardGameSize } from "../../components/ui/common/UIBase";
 
 export class MainMenu extends GuiBase {
+  icon: UIImage;
   book: UIImage;
   bookTitle: Heading2;
   tabs: UIBase;
@@ -39,6 +41,20 @@ export class MainMenu extends GuiBase {
     this.name = "MainMenu";
     this.focusUI = this.rootUI;
     this.rootUI.setDepth(10);
+
+    //===========================================
+    //    Icon
+    //===========================================
+    this.icon = new UIImage(scene, "icon-item-book", {
+      marginX: 16,
+      marginY: 9,
+    });
+    const iconTips = new Heading3(scene, "[Esc]Menu", {
+      parent: this.icon,
+      marginX: 56,
+      fontColor: "#EEEEEE",
+      alignModeName: ALIGNMODES.LEFT_CENTER,
+    });
 
     //===========================================
     //    Background
@@ -112,6 +128,7 @@ export class MainMenu extends GuiBase {
   }
 
   show() {
+    this.icon.hidden();
     const anims = this.book.anims;
     if (anims?.isPlaying) return;
     super.show();
@@ -157,6 +174,7 @@ export class MainMenu extends GuiBase {
         duration: 180,
         onComplete: () => {
           super.hidden();
+          this.icon.show();
           SceneObjectController.resetFocus();
           PlayerInput.onlyListenSceneObject();
         },

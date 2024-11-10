@@ -10,32 +10,32 @@ import { SceneObject } from "./SceneObject";
 import { TARGET } from "../../constants";
 
 export class Observer extends SceneObject {
-  onMenuPressed() {
-    super.onMenuPressed();
+  onMenuPressed(event: KeyboardEvent) {
+    super.onMenuPressed(event);
     const menu = UIController.scene.mainMenu;
     if (!menu) return;
     menu.show();
   }
 
-  onUpPressed() {
-    super.onUpPressed();
+  onUpPressed(event: KeyboardEvent) {
+    super.onUpPressed(event);
     SceneObjectController.setTargetTilePosition(Direction.UP);
   }
-  onDownPressed() {
-    super.onDownPressed();
+  onDownPressed(event: KeyboardEvent) {
+    super.onDownPressed(event);
     SceneObjectController.setTargetTilePosition(Direction.DOWN);
   }
-  onLeftPressed() {
-    super.onLeftPressed();
+  onLeftPressed(event: KeyboardEvent) {
+    super.onLeftPressed(event);
     SceneObjectController.setTargetTilePosition(Direction.LEFT);
   }
-  onRightPressed() {
-    super.onRightPressed();
+  onRightPressed(event: KeyboardEvent) {
+    super.onRightPressed(event);
     SceneObjectController.setTargetTilePosition(Direction.RIGHT);
   }
 
-  onConfirmPressed() {
-    super.onConfirmPressed();
+  onConfirmPressed(event: KeyboardEvent) {
+    super.onConfirmPressed(event);
     const tileData = getTargetTerrainData(
       this.components,
       this.scene.systemCalls

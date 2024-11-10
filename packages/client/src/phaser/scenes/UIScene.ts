@@ -74,6 +74,11 @@ export class UIScene extends Phaser.Scene {
       "ui-box-title-out-side2",
       "src/assets/ui/box_title_out_side2.png"
     );
+    this.load.image(
+      "ui-box-title-in-side2",
+      "src/assets/ui/box_title_in_side2.png"
+    );
+    this.load.image("ui-box3", "src/assets/ui/box3.png");
     this.load.image("list-slider-track", "src/assets/ui/list-slider-track.png");
     this.load.image("list-slider-thumb", "src/assets/ui/list-slider-thumb.png");
     this.load.image("btn_decor1", "src/assets/ui/btn_decor1.png");
@@ -83,6 +88,9 @@ export class UIScene extends Phaser.Scene {
     this.load.image("btn_select_skin", "src/assets/ui/btn_select_skin.png");
     this.load.image("btn2_skin", "src/assets/ui/btn_2.png");
     this.load.image("btn2_select_skin", "src/assets/ui/btn_2_selected.png");
+
+    // Dom
+    this.load.html("dom-input", "src/assets/dom/input.html");
 
     // Main menu
     for (let i = 1; i <= 5; i++) {
@@ -122,15 +130,13 @@ export class UIScene extends Phaser.Scene {
     this.load.image("icon-item-sword", "src/assets/icons/items/sword.png");
     this.load.image("icon-item-wood", "src/assets/icons/items/wood.png");
     this.load.image("icon-item-berry", "src/assets/icons/items/berry.png");
+    this.load.image("icon-item-book", "src/assets/icons/items/book.png");
 
     // Avatars
     this.load.image("avatar-farmer-1-1", "src/assets/avatars/farmer_1_1.png");
 
     // Buildings big image
-    this.load.image(
-      "img-building-safe",
-      "src/assets/imgs/buildings/safe.png"
-    );
+    this.load.image("img-building-safe", "src/assets/imgs/buildings/safe.png");
     this.load.image(
       "img-building-repository",
       "src/assets/imgs/buildings/repository.png"

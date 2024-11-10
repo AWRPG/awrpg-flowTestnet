@@ -143,6 +143,7 @@ export class FarmingMenu extends ListMenu {
     this.si = setInterval(() => {
       this.updateTime();
     }, 1000);
+    this.updateTime();
   }
 
   hidden() {
@@ -151,6 +152,7 @@ export class FarmingMenu extends ListMenu {
   }
 
   updateTime() {
+    if (this.claim?.disable) return;
     if (!this.stakingId) return;
     const { StakingInfo, StakeSpecs } = this.components;
     const lastUpdated = getComponentValue(
@@ -195,7 +197,6 @@ export class FarmingMenu extends ListMenu {
 
     if (this.hasStaking) {
       const idToOut = getComponentValue(StakingInfo, this.stakingId);
-      console.log(this.stakingId);
       if (!idToOut) {
         new Heading3(this.scene, "It's already being used by other heros!", {
           parent: this.rootUI,
@@ -264,16 +265,17 @@ export class FarmingMenu extends ListMenu {
     this.focusUI = this.list2;
     const items2: ButtonA[] = [];
 
+    const adjacentCoord = getRoleAndHostAdjacentCoord(
+      this.components,
+      role,
+      entity
+    );
     this.claim = new ButtonA(this.scene, {
       width: this.list2.displayWidth,
       text: "Claim",
       fontStyle: "400",
+      disable: adjacentCoord ? false : true,
       onConfirm: () => {
-        const adjacentCoord = getRoleAndHostAdjacentCoord(
-          this.components,
-          role,
-          entity
-        );
         const outputs =
           getComponentValue(StakeSpecs, encodedType)?.outputs ?? [];
         const hasCapacity = canStoreOutputs(
@@ -289,7 +291,9 @@ export class FarmingMenu extends ListMenu {
     });
     this.claim.text1 = new Heading3(
       this.scene,
-      "Remained ? second to harvest",
+      adjacentCoord
+        ? "Remained ? second to harvest"
+        : "Please choose the role nearby",
       {
         marginX: 24,
         alignModeName: ALIGNMODES.RIGHT_CENTER,
@@ -302,12 +306,8 @@ export class FarmingMenu extends ListMenu {
       width: this.list2.displayWidth,
       text: "Unstake",
       fontStyle: "400",
+      disable: adjacentCoord ? false : true,
       onConfirm: () => {
-        const adjacentCoord = getRoleAndHostAdjacentCoord(
-          this.components,
-          role,
-          entity
-        );
         const inputs = getComponentValue(StakeSpecs, encodedType)?.inputs ?? [];
         const hasCapacity = canStoreOutputs(
           this.components,
@@ -320,11 +320,17 @@ export class FarmingMenu extends ListMenu {
         UIController.focus = this.focusUI;
       },
     });
-    this.unstake.text1 = new Heading3(this.scene, "Get the input items back", {
-      marginX: 24,
-      alignModeName: ALIGNMODES.RIGHT_CENTER,
-      parent: this.unstake,
-    });
+    this.unstake.text1 = new Heading3(
+      this.scene,
+      adjacentCoord
+        ? "Get the input items back"
+        : "Please choose the role nearby",
+      {
+        marginX: 24,
+        alignModeName: ALIGNMODES.RIGHT_CENTER,
+        parent: this.unstake,
+      }
+    );
     items2.push(this.unstake);
 
     this.list2.items = items2;
@@ -375,13 +381,13 @@ export class FarmingMenu extends ListMenu {
 
   async toClaim(role: Entity, adjacentCoord: { x: number; y: number }) {
     await this.systemCalls.claim(role as Hex, adjacentCoord);
-    this.updateList();
+    if (this.visible) this.updateList();
   }
 
   async toUnstake(role: Entity, adjacentCoord: { x: number; y: number }) {
     this.hasStaking = false;
     await this.systemCalls.unstake(role as Hex, adjacentCoord);
-    this.updateList();
+    if (this.visible) this.updateList();
   }
 
   async startStaking() {
@@ -400,8 +406,10 @@ export class FarmingMenu extends ListMenu {
     if (!hasCosts || !adjacentCoord) return;
     await this.systemCalls.stake(role as Hex, outputType as Hex, adjacentCoord);
     this.hasStaking = true;
-    this.title.text = "Claim or unstake the crop";
-    this.updateList();
+    if (this.visible) {
+      this.title.text = "Claim or unstake the crop";
+      this.updateList();
+    }
   }
 
   onConfirm() {

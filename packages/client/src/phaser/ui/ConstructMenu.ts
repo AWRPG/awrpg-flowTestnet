@@ -1,6 +1,8 @@
 import { UIScene } from "../scenes/UIScene";
 import { GuiBase } from "./GuiBase";
 import { Box } from "../components/ui/Box";
+import { Heading2 } from "../components/ui/Heading2";
+import { Heading3 } from "../components/ui/Heading3";
 import { UIText } from "../components/ui/common/UIText";
 import { ALIGNMODES, HIGHLIGHT_MODE, TARGET } from "../../constants";
 import { ButtonA } from "../components/ui/ButtonA";
@@ -13,14 +15,20 @@ import { UIEvents } from "../components/ui/common/UIEvents";
 import { GameData } from "../components/GameData";
 import { BuildingData, BuildingSpecs } from "../../api/data";
 import { Entity, getComponentValue, setComponent } from "@latticexyz/recs";
-import { encodeTypeEntity } from "../../utils/encode";
+import {
+  encodeTypeEntity,
+  fromEntity,
+  hexTypeToString,
+} from "../../utils/encode";
 import { Hex, toHex } from "viem";
 import { PlayerInput } from "../components/controllers/PlayerInput";
 
 export class ConstructMenu extends GuiBase {
   list: UIList;
   img?: UIImage;
-  text: UIText;
+  text: Heading2;
+  introduction: Heading3;
+  costs: Heading3;
   role?: Role;
   data: BuildingData[];
 
@@ -37,8 +45,8 @@ export class ConstructMenu extends GuiBase {
 
     // Init the action button list
     this.list = new UIList(scene, {
-      width: 388,
-      height: this.rootUI.height * 0.9,
+      width: 378,
+      height: this.rootUI.height * 0.92,
       marginY: 40,
       itemWidth: 268,
       itemHeight: 48,
@@ -52,21 +60,55 @@ export class ConstructMenu extends GuiBase {
     });
     this.focusUI = this.list;
 
-    this.data = GameData.getData("buildings") as BuildingData[];
+    this.data = (GameData.getData("buildings") as BuildingData[]).filter(
+      (building) => building.id >= 0
+    );
     const items: ButtonA[] = [];
     this.data.forEach((building) => {
       items.push(new ButtonA(scene, { text: building.name }));
     });
     this.list.items = items;
 
-    this.text = new UIText(this.scene, "SAFE", {
+    this.text = new Heading2(this.scene, "SAFE", {
       alignModeName: ALIGNMODES.MIDDLE_TOP,
-      marginX: 168,
+      marginX: 188,
       marginY: 32,
       fontSize: 48,
       fontColor: "#2D3E51",
       parent: this.rootUI,
     });
+
+    this.introduction = new Heading3(this.scene, "", {
+      alignModeName: ALIGNMODES.MIDDLE_TOP,
+      marginX: 188,
+      marginY: 560,
+      wordWrapWidth: 780,
+      textAlign: "center",
+      parent: this.rootUI,
+    });
+
+    this.costs = new Heading3(this.scene, "", {
+      alignModeName: ALIGNMODES.MIDDLE_TOP,
+      marginX: 188,
+      marginY: 622,
+      wordWrapWidth: 780,
+      textAlign: "center",
+      parent: this.rootUI,
+    });
+
+    new UIText(scene, "[F] Confirm   [X] Back", {
+      marginX: 188,
+      fontFamily: "ThaleahFat",
+      fontSize: 32,
+      fontColor: "#233",
+      textAlign: "center",
+      lineSpacing: 12,
+      alignModeName: ALIGNMODES.MIDDLE_BOTTOM,
+      marginY: 32,
+      fontStyle: "500",
+      parent: this.rootUI,
+    });
+
     this.list.on(UIEvents.SELECT_CHANGE, this.onListSelected, this);
     this.list.on(UIEvents.CONFIRM, this.onListConfirm, this);
     this.list.itemIndex = 0;
@@ -93,8 +135,25 @@ export class ConstructMenu extends GuiBase {
       parent: this.text,
     });
     this.img.root.setAlpha(0.85);
-
     this.text.text = this.data[index].name.toUpperCase();
+    this.introduction.text = this.data[index].introduction;
+
+    const type = toHex(this.data[index].type, { size: 16 });
+    const costs = getComponentValue(
+      this.components.MintCosts,
+      encodeTypeEntity(type) as Entity
+    )?.costs as Hex[];
+    let costsText = "Construct costs: ";
+    if (!costs) costsText += "free";
+    else {
+      costs.forEach((costEntity) => {
+        const cost = fromEntity(costEntity);
+        costsText +=
+          hexTypeToString(cost.type) + " x " + Number(cost.id) + ", ";
+      });
+      costsText = costsText.slice(0, -2);
+    }
+    this.costs.text = costsText;
   }
 
   onListConfirm() {

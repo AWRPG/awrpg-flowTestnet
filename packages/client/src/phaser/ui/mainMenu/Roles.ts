@@ -5,11 +5,13 @@ import { ALIGNMODES } from "../../../constants";
 import { UIBase, StandardGameSize } from "../../components/ui/common/UIBase";
 import { UIEvents } from "../../components/ui/common/UIEvents";
 import { UIImage } from "../../components/ui/common/UIImage";
+import { UIText } from "../../components/ui/common/UIText";
 import { UIList } from "../../components/ui/common/UIList";
 import { PlayerInput } from "../../components/controllers/PlayerInput";
 import { SceneObjectController } from "../../components/controllers/SceneObjectController";
 import { Box } from "../../components/ui/Box";
 import { BookListButton } from "../../components/ui/BookListButton";
+import { Heading2 } from "../../components/ui/Heading2";
 import { Heading3 } from "../../components/ui/Heading3";
 import { MainMenuTitle } from "../../components/ui/MainMenuTitle";
 import {
@@ -28,15 +30,18 @@ import { getEntitiesInCustodian } from "../../../logics/custodian";
 import { getHostPosition } from "../../../logics/path";
 import { setNewTargetTile } from "../../../logics/move";
 import { getHosts } from "../../../logics/sceneObject";
+import { ItemUseMenu } from "../ListMenu/ItemUseMenu";
+import { ItemData } from "../../../api/data";
+import { TextInput } from "../common/TextInput";
 
 export class Roles extends DoublePage {
   rolesList: UIList;
   bag: UIList;
+  itemUseMenu?: ItemUseMenu;
+  nameInput?: TextInput;
   constructor(scene: UIScene, parent: GuiBase) {
     super(scene, parent, "Roles", "Bag");
     this.name = "MainMenuRoles";
-
-    const zoom = StandardGameSize.maxWidth;
 
     this.rolesList = new UIList(scene, {
       width: this.contentW - 8,
@@ -66,28 +71,67 @@ export class Roles extends DoublePage {
         parent.hidden();
       },
     });
+
+    new UIText(scene, "[F] move camera to the role", {
+      fontFamily: "ThaleahFat",
+      fontSize: 32,
+      fontColor: "#233",
+      textAlign: "center",
+      lineSpacing: 12,
+      alignModeName: ALIGNMODES.MIDDLE_BOTTOM,
+      marginY: 24,
+      fontStyle: "500",
+      parent: this.left,
+    });
+
+    new UIText(scene, "[A/D] change the focus list", {
+      fontFamily: "ThaleahFat",
+      fontSize: 32,
+      fontColor: "#233",
+      textAlign: "center",
+      lineSpacing: 12,
+      alignModeName: ALIGNMODES.MIDDLE_BOTTOM,
+      marginY: 24,
+      fontStyle: "500",
+      parent: this.right,
+    });
   }
 
   show() {
     this.focusUI = this.rolesList;
     super.show();
+    this.updateRoles();
 
+    if (this.nameInput) {
+      this.nameInput.destroy();
+      delete this.nameInput;
+    }
+
+    this.rolesList.on(UIEvents.CONFIRM, this.onRolesListConfirm, this);
+    this.rolesList.on(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
+    if (this.rolesList.itemsCount > 0) this.rolesList.itemIndex = 0;
+    this.bag.on(UIEvents.CONFIRM, this.onBagConfirm, this);
+    this.bag.on(UIEvents.LEFT, this.onLeft, this);
+    this.rolesList.on(UIEvents.RIGHT, this.onRight, this);
+  }
+
+  updateRoles() {
     const roles = getHosts(this.components, this.network);
     const items: UIBase[] = [];
     roles.forEach((role) => {
       const item = new BookListButton(this.scene, {
         width: this.rolesList.itemWidth,
-        text: role.name + " " + role.id.toString(),
+        text: role.name + " #" + role.id.toString(),
         data: role,
       });
       items.push(item);
     });
+    const item = new BookListButton(this.scene, {
+      width: this.rolesList.itemWidth,
+      text: " + Press [F] to spawn a new hero",
+    });
+    items.push(item);
     this.rolesList.items = items;
-    this.rolesList.on(UIEvents.CONFIRM, this.onRolesListConfirm, this);
-    this.rolesList.on(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
-    if (this.rolesList.itemsCount > 0) this.rolesList.itemIndex = 0;
-    this.bag.on(UIEvents.LEFT, this.onLeft, this);
-    this.rolesList.on(UIEvents.RIGHT, this.onRight, this);
   }
 
   hidden() {
@@ -101,22 +145,59 @@ export class Roles extends DoublePage {
   onRolesListConfirm() {
     const item = this.rolesList.item;
     if (!item) return;
-    const role = item.data.entity as Entity;
-    selectHost(this.components, role);
-    const rolePosition = getHostPosition(this.components, this.network, role);
-    if (rolePosition) {
-      setNewTargetTile(this.components, rolePosition);
+    // Create new role
+    if (!item.data) {
+      this.nameInput = new TextInput(this.scene, async () => {
+        const text = this.nameInput?.input.text;
+        if (text) {
+          await this.systemCalls.spawnHero(text);
+          this.updateRoles();
+          this.rolesList.itemIndex = this.rolesList.itemsCount - 2;
+        }
+      });
+      this.nameInput.show(this);
     }
+    // Set the camera & cursor position
+    if (item.data) {
+      const role = item.data.entity as Entity;
+      selectHost(this.components, role);
+      const rolePosition = getHostPosition(this.components, this.network, role);
+      if (rolePosition) {
+        setNewTargetTile(this.components, rolePosition);
+      }
+    }
+  }
+
+  onBagConfirm() {
+    const item = this.bag.item as UIItem;
+    const role = this.rolesList.item?.data.entity as Entity;
+    if (!item || !role || !item.itemType) return;
+    // Show item using menu
+    const itemData: ItemData = {
+      type: item.itemType,
+      entity: item.entity,
+      id: item.id,
+      amount: item.amount,
+      state: item.state,
+    };
+    if (this.itemUseMenu) {
+      this.itemUseMenu.destroy();
+      delete this.itemUseMenu;
+    }
+    this.itemUseMenu = new ItemUseMenu(this.scene, itemData, role);
+    this.itemUseMenu.show();
+    this.itemUseMenu.rootUI.setPosition(item.globalX, item.globalY + 48);
   }
 
   /** Choose the role to watch details */
   onRolesListSelected() {
     // Clear
+    const oldBagIndex = this.bag.itemIndex;
     this.bag.removeAllItems();
 
     // Add
     const item = this.rolesList.item;
-    if (!item) return;
+    if (!item || !item.data) return;
     const role = item.data.entity as Entity;
 
     let itemsCount = 0;
@@ -130,6 +211,7 @@ export class Roles extends DoublePage {
         width: this.contentW - 48,
         amount: 1,
         id: Number(id),
+        entity: entity,
       });
       this.bag.addItem(item);
     });
@@ -145,6 +227,7 @@ export class Roles extends DoublePage {
       const item = new UIItem(this.scene, itemType, {
         width: this.contentW - 48,
         amount: erc20Item.amount,
+        entity: erc20Item.type as Entity,
       });
       this.bag.addItem(item);
     });
@@ -158,10 +241,29 @@ export class Roles extends DoublePage {
         width: this.contentW - 48,
         amount: 1,
         id: Number(id),
+        entity: equipment,
+        state: "equipped",
+      });
+      new Heading2(this.scene, "E", {
+        fontColor: "#5c7a29",
+        parent: item.bg,
+        alignModeName: ALIGNMODES.LEFT_BOTTOM,
+        fontStyle: "800",
+        fontSize: 24,
+        marginX: 4,
+        marginY: -2,
       });
       this.bag.addItem(item);
     });
     itemsCount += equipments.length;
+
+    if (this.focusUI === this.bag) {
+      if (oldBagIndex >= 0) {
+        if (itemsCount >= oldBagIndex) this.bag.itemIndex = oldBagIndex;
+        else this.bag.itemIndex = itemsCount;
+      } else if (itemsCount > 0) this.bag.itemIndex = 0;
+      else this.bag.itemIndex = -1;
+    }
   }
 
   onLeft() {
@@ -174,6 +276,7 @@ export class Roles extends DoublePage {
 
   onRight() {
     super.onRight();
+    if (!this.rolesList.item?.data) return;
     this.rolesList.onItemUnSelected(this.rolesList.item);
     this.focusUI = this.bag;
     if (this.bag.item) this.bag.itemIndex = this.bag.itemIndex;

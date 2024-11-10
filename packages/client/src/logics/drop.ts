@@ -1,4 +1,4 @@
-import { Entity } from "@latticexyz/recs";
+import { Entity, getComponentValue } from "@latticexyz/recs";
 import { DROP } from "../contract/constants";
 import { castToBytes32, encodeTypeEntity } from "../utils/encode";
 import {
@@ -37,6 +37,23 @@ export const useCanPickupERC20 = (
   return true;
 };
 
+export const getCanPickupERC20 = (
+  components: ClientComponents,
+  erc20Type: Hex,
+  tile: Entity,
+  toHost: Entity
+) => {
+  const { StoredSize } = components;
+  const toStoredSize = getComponentValue(StoredSize, toHost)?.value;
+  const inRange = getCanPickupRange(components, toHost, tile);
+  if (!toHost) return false;
+  if (!inRange) return false;
+  if (!toStoredSize) return false;
+  const canStore = canStoreERC20Amount(components, erc20Type, toHost) > 0n;
+  if (!canStore) return false;
+  return true;
+};
+
 // store check & range check
 export const useCanPickupERC721 = (
   components: ClientComponents,
@@ -63,6 +80,21 @@ export const useCanPickupRange = (
 ) => {
   const { Path } = components;
   const toPath = useComponentValue(Path, toHost);
+  if (!toPath) return false;
+  const toCoord = getPositionFromPath(toPath);
+  const fromCoord = splitFromEntity(tile);
+  const inRange = withinRange(fromCoord, toCoord, 1);
+  if (!inRange) return false;
+  return true;
+};
+
+export const getCanPickupRange = (
+  components: ClientComponents,
+  toHost: Entity,
+  tile: Entity
+) => {
+  const { Path } = components;
+  const toPath = getComponentValue(Path, toHost);
   if (!toPath) return false;
   const toCoord = getPositionFromPath(toPath);
   const fromCoord = splitFromEntity(tile);
