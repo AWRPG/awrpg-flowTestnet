@@ -48,11 +48,7 @@ export class TileHighlight extends SceneObject {
           }
         : null);
     if (!path) return;
-    this.tileX = path.toX;
-    this.tileY = path.toY;
-    this.x = (this.tileX + 0.5) * this.tileSize;
-    this.y = (this.tileY + 0.5) * this.tileSize;
-    this.setPosition(this.x, this.y).setDepth(5000);
+    this.setTilePosition(path.toX, path.toY).setDepth(5000);
     this.visible = false;
   }
 
@@ -137,6 +133,27 @@ export class TileHighlight extends SceneObject {
             type: "enter",
           };
         });
+    } else if (this.mode === HIGHLIGHT_MODE.ATTACK) {
+      const terrains = this.getTerrains(distance, width, height);
+      terrains.forEach((terrain) => {
+        let type = "attack";
+        const xTemp = terrain.x - this.tileX;
+        const yTemp = terrain.y - this.tileY;
+        const distanceTemp = Math.abs(xTemp) + Math.abs(yTemp);
+        if (distanceTemp === 0 || distance < distanceTemp) return;
+
+        const something = getEntityOnCoord(this.components, {
+          x: terrain.x,
+          y: terrain.y,
+        });
+        if (something) type = "attack2";
+        this.highlightData.push({
+          x: xTemp,
+          y: yTemp,
+          distance: distanceTemp,
+          type,
+        });
+      });
     }
   }
 
@@ -280,7 +297,7 @@ export class TileHighlight extends SceneObject {
         this.scene,
         data.x * this.tileSize,
         data.y * this.tileSize,
-        "ui-highlight-" + data.type
+        "highlight-" + data.type
       );
       highlight.setData("type", data.type);
       highlight.setScale(0);
@@ -336,7 +353,7 @@ export class TileHighlight extends SceneObject {
           highlight.y / this.tileSize === coord.y
         ) {
           const type = highlight.getData("type");
-          highlight.setTexture("ui-highlight-" + type);
+          highlight.setTexture("highlight-" + type);
         }
       });
     });
@@ -349,7 +366,7 @@ export class TileHighlight extends SceneObject {
           highlight.x / this.tileSize === coord.x &&
           highlight.y / this.tileSize === coord.y
         ) {
-          highlight.setTexture("ui-highlight-" + type);
+          highlight.setTexture("highlight-" + type);
         }
       });
     });

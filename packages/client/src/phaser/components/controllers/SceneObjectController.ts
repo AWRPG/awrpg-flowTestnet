@@ -96,7 +96,7 @@ export class SceneObjectController {
     distance?: number,
     width?: number,
     height?: number
-  ) {
+  ): TileHighlight {
     if (this.scene.tileHighlights[target]) {
       this.closeTileHighlight(target);
       delete this.scene.tileHighlights[target];
@@ -114,6 +114,7 @@ export class SceneObjectController {
     });
 
     this.scene.tileHighlights[target].show(alpha);
+    return this.scene.tileHighlights[target];
   }
 
   /**

@@ -175,12 +175,15 @@ export class GameScene extends Phaser.Scene {
       frameHeight: 32,
     });
 
-    // ui
-    this.load.image("ui-highlight-move", "src/assets/ui/highlight_move.png");
-    this.load.image("ui-highlight-build", "src/assets/ui/highlight_build.png");
-    this.load.image("ui-highlight-error", "src/assets/ui/highlight_error.png");
-    this.load.image("ui-highlight-enter", "src/assets/ui/highlight_enter.png");
-    this.load.spritesheet("ui-highlight", "src/assets/ui/highlight.png", {
+    // tile highlight
+    this.load.image("highlight-move", "src/assets/ui/highlight_move.png");
+    this.load.image("highlight-attack", "src/assets/ui/highlight_move.png");
+    this.load.image("highlight-attack2", "src/assets/ui/highlight_attack.png");
+    this.load.image("highlight-attack3", "src/assets/ui/highlight_attackx.png");
+    this.load.image("highlight-build", "src/assets/ui/highlight_build.png");
+    this.load.image("highlight-error", "src/assets/ui/highlight_error.png");
+    this.load.image("highlight-enter", "src/assets/ui/highlight_enter.png");
+    this.load.spritesheet("highlight", "src/assets/ui/highlight.png", {
       frameWidth: 32,
       frameHeight: 32,
     });
@@ -620,10 +623,10 @@ export class GameScene extends Phaser.Scene {
       repeat: -1,
     });
 
-    // ui-highlight
+    // highlight
     this.anims.create({
-      key: "ui-highlight-active",
-      frames: [{ key: "ui-highlight", frame: 5 }],
+      key: "highlight-active",
+      frames: [{ key: "highlight", frame: 5 }],
     });
   }
 

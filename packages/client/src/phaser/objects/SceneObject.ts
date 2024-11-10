@@ -244,7 +244,7 @@ export class SceneObject extends UIEmitter {
   }
 
   get tileX() {
-    return this.x / this.tileSize - 0.5;
+    return Math.round(this.x / this.tileSize - 0.5);
   }
 
   set tileX(value: number) {
@@ -252,7 +252,7 @@ export class SceneObject extends UIEmitter {
   }
 
   get tileY() {
-    return this.y / this.tileSize - 0.5;
+    return Math.round(this.y / this.tileSize - 0.5);
   }
 
   set tileY(value: number) {

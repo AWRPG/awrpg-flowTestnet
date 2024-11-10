@@ -18,9 +18,6 @@ import { Direction, setNewTargetTile } from "../../logics/move";
 import { Fake } from "../objects/Fake";
 import { canBuildFromHost } from "../../logics/building";
 
-/**
- * show the action buttons player can do
- */
 export class ConstructTips extends GuiBase {
   role?: Role;
   buildingData?: BuildingData;

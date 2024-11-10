@@ -11,7 +11,7 @@ export class ButtonA extends UIButton {
 
   constructor(scene: Phaser.Scene, config: UIButtonConfig = {}) {
     super(scene, {
-      width: 328,
+      width: 356,
       height: 48,
       fontFamily: "ThaleahFat",
       fontSize: 36,

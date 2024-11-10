@@ -119,8 +119,8 @@ export class Role extends SceneObject {
     UIController.scene.characterInfo?.hidden();
   }
 
-  onCancelPressed() {
-    super.onCancelPressed();
+  onCancelPressed(event: KeyboardEvent) {
+    super.onCancelPressed(event);
     if (UIController.scene.constructTips?.visible) {
       UIController.scene.constructTips.hidden();
       UIController.scene.constructMenu?.show(this);
