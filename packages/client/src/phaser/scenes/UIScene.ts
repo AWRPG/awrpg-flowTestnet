@@ -3,6 +3,7 @@ import { CharacterInfo } from "../ui/CharacterInfo";
 import { TerrainUI } from "../ui/TerrainUI";
 import { ActionMenu } from "../ui/ActionMenu";
 import { MoveTips } from "../ui/MoveTips";
+import { AttackTips } from "../ui/AttackTips";
 import { ConstructTips } from "../ui/ConstructTips";
 import { GuiBase } from "../ui/GuiBase";
 import { ConstructMenu } from "../ui/ConstructMenu";
@@ -50,6 +51,8 @@ export class UIScene extends Phaser.Scene {
   stakingMenu: StakingMenu | undefined;
 
   moveTips?: MoveTips;
+
+  attackTips?: AttackTips;
 
   constructTips?: ConstructTips;
 
@@ -157,6 +160,7 @@ export class UIScene extends Phaser.Scene {
     this.terrainUI = new TerrainUI(this);
     this.actionMenu = new ActionMenu(this);
     this.moveTips = new MoveTips(this);
+    this.attackTips = new AttackTips(this);
     this.constructMenu = new ConstructMenu(this);
     this.constructTips = new ConstructTips(this);
     this.buildingMenu = new BuildingMenu(this);

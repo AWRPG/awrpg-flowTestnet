@@ -47,7 +47,7 @@ export class ActionMenu extends GuiBase {
     super(
       scene,
       new Box(scene, {
-        width: 360,
+        width: 380,
         height: 210,
         alignModeName: ALIGNMODES.MIDDLE_CENTER,
         marginX: 220,
@@ -114,13 +114,23 @@ export class ActionMenu extends GuiBase {
     });
     items.push(item_construct);
 
+    // [Button] Attack
+    const item_attack = new ButtonA(this.scene, {
+      text: "Attack",
+      onConfirm: () => {
+        this.hidden();
+        if (this.role) UIController.scene.attackTips?.show(this.role, this);
+      },
+    });
+    items.push(item_attack);
+
     // [Button] Pick up
     const item_pick = this.updatePickupButton();
     if (item_pick) items.push(item_pick);
 
     // [Button] Change Terrain
     const item_changeTerrain = new ButtonA(this.scene, {
-      text: "Plain Create",
+      text: "<DM> Plain Create",
       // disable: true,
       onConfirm: () => {
         this.hidden();

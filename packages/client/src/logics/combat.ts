@@ -12,7 +12,7 @@ import {
 import { getEquipmentStats } from "./equipment";
 import { Hex } from "viem";
 import { getPosition } from "./path";
-import { withinRange } from "./position";
+import { withinRangeStrict } from "./position";
 
 // ----- similar to combatLogic -----
 export const getCombatRange = (
@@ -49,7 +49,7 @@ export const getCombatStats = (
     equipType,
     statsType
   );
-  return heroStats + equipmentStats;
+  return Math.max(heroStats, equipmentStats);
 };
 
 // note: not using hook unless there is a locked-on target mechanism
@@ -62,7 +62,7 @@ export const withinAttackRange = (
   const attackCoord = getPosition(components, attacker);
   const defendCoord = getPosition(components, defender);
   if (!attackCoord || !defendCoord) return false;
-  return withinRange(attackCoord, defendCoord, range);
+  return withinRangeStrict(attackCoord, defendCoord, range);
 };
 
 export const getDamage = (attack: number, defense: number) => {

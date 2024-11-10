@@ -10,6 +10,12 @@ export const withinRange = (from: Vector, to: Vector, range: number) => {
   return dX <= range && dY <= range;
 };
 
+export const withinRangeStrict = (from: Vector, to: Vector, range: number) => {
+  const dX = getDelta(from.x, to.x);
+  const dY = getDelta(from.y, to.y);
+  return dX + dY <= range;
+};
+
 export const getDelta = (from: number, to: number) => {
   return from > to ? from - to : to - from;
 };

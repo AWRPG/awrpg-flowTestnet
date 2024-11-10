@@ -63,6 +63,7 @@ export const HIGHLIGHT_MODE = {
   MOVE: "Move",
   BUILD: "Build",
   MOVEOUT: "Moveout",
+  ATTACK: "Attack",
 };
 
 export const POOL_TYPES = [SOUL, STAMINA, BLOOD];

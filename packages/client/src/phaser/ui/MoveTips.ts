@@ -23,7 +23,7 @@ import { getRoleAndHostAdjacentCoord } from "../../logics/building";
 import { canStoreERC721 } from "../../logics/container";
 
 /**
- * show the action buttons player can do
+ * Show the tips and tiles highlight when roles move
  */
 export class MoveTips extends GuiBase {
   role?: Role;
