@@ -48,6 +48,7 @@ export class CharacterInfo extends GuiBase {
   spBar: SpBar;
   spName: UIText;
   spNum: UIText;
+  mode: number = 0; // 0: Self, 1: Enemy
 
   // --- class data ---
   // name
@@ -78,11 +79,12 @@ export class CharacterInfo extends GuiBase {
   // equipments
   equipments: Entity[] = [];
 
-  constructor(scene: UIScene) {
+  constructor(scene: UIScene, mode: number = 0) {
     super(
       scene,
       new Box(scene, {
-        alignModeName: ALIGNMODES.LEFT_BOTTOM,
+        alignModeName:
+          mode === 0 ? ALIGNMODES.LEFT_BOTTOM : ALIGNMODES.RIGHT_BOTTOM,
         width: 680,
         height: 192,
         marginX: 8,
@@ -91,15 +93,18 @@ export class CharacterInfo extends GuiBase {
     );
 
     this.name = "CharacterInfo";
+    this.mode = mode;
 
     this.avatar = new Avatar(this.scene, "avatar-farmer-1-1", {
-      alignModeName: ALIGNMODES.LEFT_BOTTOM,
+      alignModeName:
+        mode === 0 ? ALIGNMODES.LEFT_BOTTOM : ALIGNMODES.LEFT_BOTTOM,
       width: 256,
       height: 256,
       marginX: 1,
       marginY: 1,
       parent: this.rootUI,
     });
+    if (mode === 1) this.avatar.flipX = false;
 
     this.characterName = new Heading2(this.scene, this.hostName, {
       marginX: 268,
@@ -177,6 +182,7 @@ export class CharacterInfo extends GuiBase {
    * update (all) data every time 1 data changes, so as to save dev time
    */
   updateData() {
+    if (this.destroying) return;
     const components = this.scene.components;
     const { ContainerSpecs, SizeSpecs, StoredSize, HostName } = components;
     if (!this.role) return;
@@ -225,6 +231,7 @@ export class CharacterInfo extends GuiBase {
   }
 
   updateBagData() {
+    if (this.destroying) return;
     const components = this.scene.components;
     const { Owner } = components;
     if (!this.role) return;
@@ -249,6 +256,7 @@ export class CharacterInfo extends GuiBase {
    * update display every time data changes
    */
   updateDisplay() {
+    if (this.destroying) return;
     this.hpNum.text = this.blood + "/" + this.maxBlood;
     this.hpBar.max = this.maxBlood;
     this.hpBar.value = this.blood;

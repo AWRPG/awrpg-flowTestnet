@@ -23,11 +23,15 @@ import { getRoleAndHostAdjacentCoord } from "../../logics/building";
 import { canStoreERC721 } from "../../logics/container";
 import { Hex, toHex } from "viem";
 import { getCombatRange } from "../../logics/combat";
+import { CharacterInfo } from "./CharacterInfo";
+import { SceneObject } from "../objects/SceneObject";
 
 export class AttackTips extends GuiBase {
   role?: Role;
   path?: Coord[] | null;
   targetHighlights: Phaser.GameObjects.Sprite[] = [];
+  characterInfo?: CharacterInfo;
+  attackEndFlag: number = 0;
 
   /** */
   constructor(scene: UIScene) {
@@ -68,6 +72,7 @@ export class AttackTips extends GuiBase {
     this.onMenuListen();
     this.role = role;
     this.prevGui = prevGui;
+    this.attackEndFlag = 0;
     const range = getCombatRange(this.components, role.entity);
     this.targetHighlights = [];
     const highlight = SceneObjectController.openTileHighlight(
@@ -90,8 +95,12 @@ export class AttackTips extends GuiBase {
 
   hidden() {
     this.offMenuListen();
-    // const cursor = SceneObjectController.scene.cursor;
-    // if (cursor) cursor.visible = true;
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) cursor.visible = true;
+    if (this.characterInfo) {
+      this.characterInfo.destroy();
+      delete this.characterInfo;
+    }
     super.hidden();
   }
 
@@ -123,13 +132,10 @@ export class AttackTips extends GuiBase {
     const tileSize = highlights.tileSize;
 
     // Reset highlight effect
-    // SceneObjectController.scene.cursor!.visible = true;
-    this.targetHighlights.forEach((highlight) => {
-      if (highlight.texture.key === "highlight-attack3") {
-        // highlight.setScale(1);
-        // highlight.setTexture("highlight-attack2");
-      }
-    });
+    if (this.characterInfo) {
+      this.characterInfo.destroy();
+      delete this.characterInfo;
+    }
     this.targetHighlights = [];
 
     // Show the focus highlight tile
@@ -138,41 +144,62 @@ export class AttackTips extends GuiBase {
     highlights.highlightObjs.forEach((highlight) => {
       if (highlight.x / tileSize === x && highlight.y / tileSize === y) {
         if (highlight.texture.key === "highlight-attack2") {
-          // SceneObjectController.scene.cursor!.visible = false; // Hide cursor
-          // highlight.setScale(1.2);
-          // highlight.setTexture("highlight-attack3");
+          const sth = getEntityOnCoord(this.components, { x: tileX, y: tileY });
+          const sthObj = isRole(this.components, sth)
+            ? SceneObjectController.scene.roles[sth]
+            : isBuilding(this.components, sth)
+              ? SceneObjectController.scene.buildings[sth]
+              : undefined; // Avoid problems caused by hosts changing during the processing of the attack.
+          if (!sthObj) return;
           this.targetHighlights.push(highlight);
+          if (!isRole(this.components, sth)) return; // [TEMP]
+          this.characterInfo = new CharacterInfo(this.scene, 1);
+          this.characterInfo.show(sthObj as Role);
         }
       }
     });
   }
 
-  onConfirm() {
+  async onConfirm() {
     const cursor = SceneObjectController.scene.cursor;
     const highlight = this.targetHighlights[0];
     if (!this.role || !highlight || !cursor) return;
+    const sth = getEntityOnCoord(this.components, cursor.tilePosition);
 
+    cursor.visible = false; // Hide cursor
     highlight.setTexture("highlight-attack3");
     this.scene.tweens.add({
       targets: highlight,
       alpha: 0,
       duration: 150,
-      repeat: 2,
+      repeat: 1,
       yoyo: true,
       onComplete: () => {
-        // Close the GUI
-        this.hidden();
         if (this.role)
-          SceneObjectController.closeTileHighlight(this.role.entity);
-
-        // Scene focus back to the observer
-        SceneObjectController.resetFocus();
-        PlayerInput.onlyListenSceneObject();
+          this.attackEffect(this.role, SceneObjectController.scene.roles[sth]);
       },
     });
-    const tileSize = this.role.tileSize;
-    const sth = getEntityOnCoord(this.components, cursor.tilePosition);
-    this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
+
+    await this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
+    this.attackEnd();
+  }
+
+  attackEffect(source: Role, target: Role) {
+    source.doAttackAnimation(() => {
+      this.attackEnd();
+    });
+    target.doDamageAnimation();
+  }
+
+  attackEnd() {
+    this.attackEndFlag++;
+    if (this.attackEndFlag < 2) return;
+    // Close the GUI
+    this.hidden();
+    if (this.role) SceneObjectController.closeTileHighlight(this.role.entity);
+    // Scene focus back to the observer
+    SceneObjectController.resetFocus();
+    PlayerInput.onlyListenSceneObject();
   }
 
   onCancel() {

@@ -2,7 +2,7 @@
   {
     "id": "0",
     "type": "SAFE",
-    "name": "repository",
+    "name": "granary",
     "img": "img-building-repository",
     "sceneImg": "repository",
     "introduction": "A hut for storing resources that can hold 600 units of resources."
