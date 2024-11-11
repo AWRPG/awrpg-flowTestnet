@@ -28,6 +28,7 @@ export const YELLOW = toHex("YELLOW", { size: 16 });
 
 // buildings
 export const SAFE = toHex("SAFE", { size: 16 });
+export const GRANARY = toHex("GRANARY", { size: 16 });
 export const BRIDGE = toHex("BRIDGE", { size: 16 });
 export const NODE = toHex("NODE", { size: 16 });
 export const FOUNDRY = toHex("FOUNDRY", { size: 16 });
