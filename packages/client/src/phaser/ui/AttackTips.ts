@@ -182,7 +182,7 @@ export class AttackTips extends GuiBase {
       },
     });
 
-    // await this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
+    await this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
     this.attackEnd();
   }
 

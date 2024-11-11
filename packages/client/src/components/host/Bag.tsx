@@ -82,7 +82,7 @@ export function FTItem({
       <span>
         {hexTypeToString(erc20Type)}x{Number(balance)}
       </span>
-      {isPlayer && canDrop && (
+      {/* {isPlayer && canDrop && (
         <button
           className="btn-blue"
           onClick={() => dropERC20(host as Hex, erc20Type, 1n)}
@@ -97,7 +97,7 @@ export function FTItem({
         >
           Consume x1
         </button>
-      )}
+      )} */}
     </div>
   );
 }
@@ -124,7 +124,7 @@ export function NFTItem({
     <div className="flex flex-row space-x-2">
       <EntityName entity={entity} />
       <EntityPools entity={entity} />
-      {isPlayer && canDrop && (
+      {/* {isPlayer && canDrop && (
         <button className="btn-blue" onClick={() => dropERC721(entity as Hex)}>
           Drop
         </button>
@@ -136,7 +136,7 @@ export function NFTItem({
         >
           Equip as {hexTypeToString(WEAPON)}
         </button>
-      )}
+      )} */}
     </div>
   );
 }
@@ -164,14 +164,14 @@ export function EquippedItem({
       <span className="font-bold">{hexTypeToString(info.equipType)}:</span>
       <EntityName entity={entity} />
       <EntityPools entity={entity} />
-      {isPlayer && (
+      {/* {isPlayer && (
         <button
           className="btn-blue"
           onClick={() => unequip(host as Hex, info.equipType)}
         >
           Unequip
         </button>
-      )}
+      )} */}
     </div>
   );
 }
