@@ -6,6 +6,7 @@ import { Heading2 } from "../components/ui/Heading2";
 import { UIText } from "../components/ui/common/UIText";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { Role } from "../objects/Role";
+import { Building } from "../objects/Building";
 import { UIBase } from "../components/ui/common/UIBase";
 import {
   calculatePathMoves,
@@ -103,6 +104,7 @@ export class AttackTips extends GuiBase {
       delete this.characterInfo;
     }
     super.hidden();
+    this.destroy();
   }
 
   onUp() {
@@ -153,15 +155,18 @@ export class AttackTips extends GuiBase {
               : undefined; // Avoid problems caused by hosts changing during the processing of the attack.
           if (!sthObj) return;
           this.targetHighlights.push(highlight);
-          if (!isRole(this.components, sth)) return; // [TEMP]
+          // if (!isRole(this.components, sth)) return; // [TEMP]
           this.characterInfo = new CharacterInfo(this.scene, 1);
-          this.characterInfo.show(sthObj as Role, this.role);
+          this.characterInfo.show(sthObj, this.role);
         }
       }
     });
   }
 
   async onConfirm() {
+    if (this.attackEndFlag > 0) return;
+    this.attackEndFlag = 1;
+    console.log(111);
     const cursor = SceneObjectController.scene.cursor;
     const highlight = this.targetHighlights[0];
     if (!this.role || !highlight || !cursor) return;
@@ -178,15 +183,20 @@ export class AttackTips extends GuiBase {
       onComplete: () => {
         if (!this.role) return;
         SceneObjectController.closeTileHighlight(this.role.entity);
-        this.attackEffect(this.role, SceneObjectController.scene.roles[sth]);
+        isRole(this.components, sth)
+          ? this.attackEffect(this.role, SceneObjectController.scene.roles[sth])
+          : this.attackEffect(
+              this.role,
+              SceneObjectController.scene.buildings[sth]
+            );
       },
     });
 
-    // await this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
+    await this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
     this.attackEnd();
   }
 
-  attackEffect(source: Role, target: Role) {
+  attackEffect(source: Role, target: Role | Building) {
     source.doAttackAnimation(() => {
       this.attackEnd();
     });
@@ -197,7 +207,7 @@ export class AttackTips extends GuiBase {
 
   attackEnd() {
     this.attackEndFlag++;
-    if (this.attackEndFlag < 2) return;
+    if (this.attackEndFlag < 3 || this.destroying) return;
     // Close the GUI
     this.hidden();
 

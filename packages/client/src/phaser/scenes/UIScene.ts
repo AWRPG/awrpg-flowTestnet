@@ -52,8 +52,6 @@ export class UIScene extends Phaser.Scene {
 
   moveTips?: MoveTips;
 
-  attackTips?: AttackTips;
-
   constructTips?: ConstructTips;
 
   constructMenu?: ConstructMenu;
@@ -160,7 +158,6 @@ export class UIScene extends Phaser.Scene {
     this.terrainUI = new TerrainUI(this);
     this.actionMenu = new ActionMenu(this);
     this.moveTips = new MoveTips(this);
-    this.attackTips = new AttackTips(this);
     this.constructMenu = new ConstructMenu(this);
     this.constructTips = new ConstructTips(this);
     this.buildingMenu = new BuildingMenu(this);

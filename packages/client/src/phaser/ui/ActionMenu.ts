@@ -34,6 +34,7 @@ import {
   GRID_SIZE,
   TileTerrain,
 } from "../../logics/terrain";
+import { AttackTips } from "./AttackTips";
 
 /**
  * show the action buttons player can do
@@ -41,6 +42,8 @@ import {
 export class ActionMenu extends GuiBase {
   list: UIList;
   role?: Role;
+
+  attackTips?: AttackTips;
 
   /** */
   constructor(scene: UIScene) {
@@ -119,7 +122,10 @@ export class ActionMenu extends GuiBase {
       text: "Attack",
       onConfirm: () => {
         this.hidden();
-        if (this.role) UIController.scene.attackTips?.show(this.role, this);
+        if (this.role) {
+          this.attackTips = new AttackTips(this.scene);
+          this.attackTips.show(this.role, this);
+        }
       },
     });
     items.push(item_attack);
