@@ -22,8 +22,16 @@ library HeroLogic {
     bytes32 hero = EntityLogic._mint(HOST, space());
     Commander.set(hero, player);
 
-    (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(uint256(hero), 2 ** 16 - 32, 2 ** 16 - 32, 2 ** 16, 2 ** 16);
+    (uint32 x, uint32 y) = MapLogic.getRandomEmptyPosition(
+      uint256(hero),
+      2 ** 16 - 32,
+      2 ** 16 - 32,
+      2 ** 16 + 32,
+      2 ** 16 + 32
+    );
     MapLogic._initGroundPath(hero, x, y);
+
+    ContainerLogic._mint(BERRY, hero, 40);
     return (x, y, hero);
   }
 
