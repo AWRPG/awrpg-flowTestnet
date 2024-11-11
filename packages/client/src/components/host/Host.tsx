@@ -25,7 +25,7 @@ export function Host({ host }: { host: Entity }) {
       {sourceHost && host !== sourceHost && (
         <div>
           <button
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l"
+            className="bg-gray-300 hover:bg-green-400 text-green-800 font-bold py-2 px-4 rounded-l"
             onClick={() => setToTransfer(!toTransfer)}
           >
             {toTransfer ? "Switch Transfer" : "Switch Transfer"}

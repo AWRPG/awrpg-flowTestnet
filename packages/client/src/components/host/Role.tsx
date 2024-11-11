@@ -7,6 +7,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { useCanExit } from "../../logics/building";
 import { InBuilding } from "../building/StoreBuilding";
 import { Mining, StartMining } from "./Mining";
+import { Craft } from "./Craft";
 
 /**
  * display role's name, pools, bag, inBuilding, startMining, mining
@@ -26,9 +27,11 @@ export function Role({ role }: { role: Entity }) {
       <div className="text-lg">{hostName}</div>
       <EntityPools entity={role} />
       <Bag host={role} />
-      {isPlayer && canExit && <InBuilding entity={role} />}
+      {isPlayer && <Craft host={role} />}
+      {/* {isPlayer && canExit && <InBuilding entity={role} />}
       {isPlayer && <StartMining role={role} />}
-      <Mining role={role} />
+      {isPlayer && <Craft host={role} />}
+      <Mining role={role} /> */}
     </div>
   );
 }

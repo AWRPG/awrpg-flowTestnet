@@ -39,8 +39,10 @@ export function Transfer({
   useComponentValue(components.Path, toHost);
   const adjacentInfo = getHostsAdjacentCoord(components, fromHost, toHost);
   if (!isController || !adjacentInfo) return null;
-  const fromHostName = getComponentValue(components.HostName, fromHost)?.name;
-  const toHostName = getComponentValue(components.HostName, toHost)?.name;
+  const fromHostName =
+    getComponentValue(components.HostName, fromHost)?.name ?? "building??";
+  const toHostName =
+    getComponentValue(components.HostName, toHost)?.name ?? "building??";
   return (
     <div className="m-1 p-1">
       <span>

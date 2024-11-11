@@ -1,6 +1,13 @@
 import { Entity } from "@latticexyz/recs";
 import { Hex, toHex } from "viem";
-import { OCEAN, FOREST, PLAIN, MOUNTAIN } from "./contract/constants";
+import {
+  OCEAN,
+  FOREST,
+  PLAIN,
+  MOUNTAIN,
+  MEAT,
+  IRON,
+} from "./contract/constants";
 import {
   BERRY,
   BLOOD,
@@ -79,7 +86,7 @@ export const POOL_COLORS_STRING = {
   [BLOOD]: "red",
 };
 
-export const ERC20_TYPES = [WOOD, BERRY, FISH, RED, YELLOW];
+export const ERC20_TYPES = [WOOD, BERRY, MEAT, ROCK, IRON, WATER];
 export const BUILDING_TYPES = [SAFE, NODE, FOUNDRY, FENCE];
 export const buildingMapping = ["safe", "node", "foundry", "fence"];
 
