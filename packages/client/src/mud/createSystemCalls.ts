@@ -339,6 +339,11 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const craft = async (host: Hex, craftType: Hex) => {
+    const tx = await worldContract.write.craft([host, craftType]);
+    await waitForTransaction(tx);
+  };
+
   return {
     getNoise,
     spawnHero,
@@ -369,5 +374,6 @@ export function createSystemCalls(
     claim,
     equip,
     unequip,
+    craft,
   };
 }
