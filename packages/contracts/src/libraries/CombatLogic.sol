@@ -24,6 +24,7 @@ library CombatLogic {
     uint32 range = weaponRange > 0 ? weaponRange : HeroLogic.getRange(attacker);
     if (!PositionLogic.withinRange(attacker, defender, range)) revert Errors.NotInRange();
     // TODO: burn self pool balance, such as stamina & soul
+    PoolLogic._decreaseStrict(attacker, STAMINA, 5);
 
     uint32 attack = HeroLogic.getAttack(attacker) + EquipmentLogic.getAttack(attacker);
     uint32 defense = HeroLogic.getDefense(defender) + EquipmentLogic.getDefense(defender);
