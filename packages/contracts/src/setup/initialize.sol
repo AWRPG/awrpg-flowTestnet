@@ -43,6 +43,7 @@ function initPoolStatsTypes() {
   DefineTypes.definePoolStats(MINER, compileTwoTypes(BLOOD, DEFENSE, 500, 100));
   DefineTypes.definePoolStats(FIELD, compileTwoTypes(BLOOD, DEFENSE, 100, 100));
   DefineTypes.definePoolStats(SAFE, compileTwoTypes(BLOOD, DEFENSE, 2000, 100));
+  DefineTypes.definePoolStats(GRANARY, compileTwoTypes(BLOOD, DEFENSE, 2000, 100));
 }
 
 // host means has capacity & size
@@ -53,6 +54,7 @@ function initHostTypes() {
   DefineTypes.defineHost(CAULDRON, 1000, 1200);
   DefineTypes.defineHost(FIELD, 1000, 1200);
   DefineTypes.defineHost(SAFE, 600, 1200);
+  DefineTypes.defineHost(GRANARY, 1000, 1200);
   DefineTypes.defineHost(FOUNDRY, 1000, 1200);
 }
 
@@ -94,10 +96,10 @@ function initTerrainTypes() {
   DefineTypes.defineTerrain(PLAIN, TerrainSpecsData({ canMove: true, canBurn: false }), empty, empty, empty, empty);
   DefineTypes.defineTerrain(
     OCEAN,
-    TerrainSpecsData({ canMove: false, canBurn: false }),
-    compileOneType(STAMINA, 200),
-    compileOneType(FISH, 1),
+    TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
+    compileOneType(FISH, 1),
+    compileOneType(STAMINA, 10),
     empty
   );
   DefineTypes.defineTerrain(
@@ -105,15 +107,15 @@ function initTerrainTypes() {
     TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
     empty,
-    compileOneType(STAMINA, 100),
+    compileOneType(STAMINA, 10),
     compileOneType(WOOD, 20)
   );
   DefineTypes.defineTerrain(
     MOUNTAIN,
-    TerrainSpecsData({ canMove: false, canBurn: false }),
-    compileOneType(STAMINA, 100),
-    compileOneType(RED, 1),
+    TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
+    compileOneType(RED, 1),
+    compileOneType(STAMINA, 10),
     empty
   );
 }
@@ -149,6 +151,13 @@ function initBuildingTypes() {
   );
   DefineTypes.defineBuilding(
     SAFE,
+    BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: PLAIN }),
+    compileTwoTypes(STAMINA, WOOD, 10, 0),
+    compileOneType(STAMINA, 100),
+    compileOneType(WOOD, 4)
+  );
+  DefineTypes.defineBuilding(
+    GRANARY,
     BuildingSpecsData({ width: 2, height: 2, canMove: false, terrainType: PLAIN }),
     compileTwoTypes(STAMINA, WOOD, 10, 0),
     compileOneType(STAMINA, 100),

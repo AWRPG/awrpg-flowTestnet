@@ -33,7 +33,7 @@ contract PostDeploy is Script {
     // EquipmentLogic._equip(sword);
     (, , bytes32 hero2) = world.spawnHero("Bob");
     ContainerLogic._mint(BERRY, hero2, 10);
-    world.buildBuilding(hero, SAFE, x - 1, y, x - 2, y - 1);
+    // world.buildBuilding(hero, SAFE, x - 1, y, x - 2, y - 1);
     HeroLogic._spawn(bytes32(uint256(1)));
     // world.buildBuilding(hero, FIELD, x - 1, y, x - 2, y);
     // TerrainLogic._setTerrainValue(x, y, uint8(TerrainLogic.TerrainType.PLAIN));
