@@ -1,4 +1,4 @@
-import { Entity } from "@latticexyz/recs";
+import { Entity, getComponentValue } from "@latticexyz/recs";
 import EntityName from "../EntityName";
 import { EntityPools } from "./Pool";
 import { Bag } from "./Bag";
@@ -13,15 +13,17 @@ import { Mining, StartMining } from "./Mining";
  */
 export function Role({ role }: { role: Entity }) {
   const { components, network } = useMUD();
-  const { Commander, Owner } = components;
+  const { Commander, HostName } = components;
   const isPlayer =
     (useComponentValue(Commander, role)?.value as Entity) ===
     network.playerEntity;
   const canExit = useCanExit(components, role);
+  const hostName = getComponentValue(HostName, role)?.name as string;
 
   return (
     <div className="flex flex-col space-y-3 w-96 bg-white">
-      <EntityName entity={role} />
+      {/* <EntityName entity={role} /> */}
+      <div className="text-lg">{hostName}</div>
       <EntityPools entity={role} />
       <Bag host={role} />
       {isPlayer && canExit && <InBuilding entity={role} />}
