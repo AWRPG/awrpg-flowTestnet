@@ -38,9 +38,10 @@ export class MainMenu extends GuiBase {
         width: StandardGameSize.maxWidth,
         height: StandardGameSize.maxHeight,
         alignModeName: ALIGNMODES.MIDDLE_CENTER,
+        marginY: -64,
       }),
       {
-        autoZoom: true,
+        // autoZoom: true,
       }
     );
     this.name = "MainMenu";
