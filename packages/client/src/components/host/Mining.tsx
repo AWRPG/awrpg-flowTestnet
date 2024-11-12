@@ -9,7 +9,7 @@ import { Hex, hexToString } from "viem";
 import { splitFromEntity } from "../../logics/move";
 import { useComponentValue } from "@latticexyz/react";
 import { canStoreERC20Amount } from "../../logics/container";
-import { BERRY } from "../../contract/constants";
+import { IRON } from "../../contract/constants";
 import { hexTypeToString } from "../../utils/encode";
 
 /**
@@ -38,7 +38,7 @@ export function MiningInfo({ role }: { role: Entity }) {
   const { components } = useMUD();
   const { StoredSize } = components;
   // TODO: add different resourceType
-  const resourceType = BERRY;
+  const resourceType = IRON;
   // reason to useComponent is to reload component when things added to role
   useComponentValue(StoredSize, role);
   const maxAmount = Number(canStoreERC20Amount(components, resourceType, role));

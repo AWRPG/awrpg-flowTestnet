@@ -9,7 +9,7 @@ import { UIText } from "../../components/ui/common/UIText";
 import { ButtonA } from "../../components/ui/ButtonA";
 import { Heading3 } from "../../components/ui/Heading3";
 import { ALIGNMODES } from "../../../constants";
-import { BERRY } from "../../../contract/constants";
+import { IRON } from "../../../contract/constants";
 import { canStoreERC20Amount } from "../../../logics/container";
 import { getMinedAmount } from "../../../logics/mining";
 import { Hex } from "viem";
@@ -99,7 +99,7 @@ export class Mine extends ListMenu {
     if (!isPlayer) item.disable = true;
 
     // Type
-    const resourceType = BERRY;
+    const resourceType = IRON;
 
     // Amount
     item.data["amount"] = 0;
@@ -134,7 +134,7 @@ export class Mine extends ListMenu {
         : "Can mine: ") +
       item.data["maxAmount"] +
       " " +
-      hexTypeToString(BERRY);
+      hexTypeToString(IRON);
   }
 
   async startMining() {

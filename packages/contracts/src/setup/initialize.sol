@@ -64,7 +64,7 @@ function initCookTypes() {
     CookSpecsData({
       buildingType: CAULDRON,
       timeCost: 60,
-      inputs: compileThreeTypes(STAMINA, IRON, ROCK, 10, 10, 10),
+      inputs: compileTwoTypes(STAMINA, IRON, 10, 5),
       outputs: compileOneType(SWORD, 0)
     })
   );
@@ -76,8 +76,8 @@ function initStakeTypes() {
     StakeSpecsData({
       buildingType: FIELD,
       timeCost: 60,
-      inputs: compileTwoTypes(STAMINA, BERRY, 20, 10),
-      outputs: compileOneType(BERRY, 1)
+      inputs: compileTwoTypes(STAMINA, BERRY, 10, 1),
+      outputs: compileOneType(BERRY, 3)
     })
   );
   DefineTypes.defineStake(
@@ -99,24 +99,24 @@ function initTerrainTypes() {
     TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
     empty,
-    compileTwoTypes(STAMINA, ROCK, 30, 10),
-    compileOneType(WATER, 5)
+    compileTwoTypes(STAMINA, ROCK, 10, 5),
+    compileOneType(WATER, 8)
   );
   DefineTypes.defineTerrain(
     FOREST,
     TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
     empty,
-    compileOneType(STAMINA, 10),
-    compileOneType(WOOD, 5)
+    compileOneType(STAMINA, 15),
+    compileOneType(WOOD, 10)
   );
   DefineTypes.defineTerrain(
     MOUNTAIN,
     TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
     empty,
-    compileOneType(STAMINA, 30),
-    compileOneType(ROCK, 5)
+    compileOneType(STAMINA, 20),
+    compileOneType(ROCK, 10)
   );
 }
 
@@ -125,7 +125,7 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     MINER,
     BuildingSpecsData({ width: 2, height: 2, canMove: true, terrainType: PLAIN }),
-    compileTwoTypes(STAMINA, WOOD, 50, 100),
+    compileTwoTypes(STAMINA, WOOD, 25, 10),
     empty,
     empty
   );
@@ -146,21 +146,21 @@ function initBuildingTypes() {
   DefineTypes.defineBuilding(
     BRIDGE,
     BuildingSpecsData({ width: 1, height: 1, canMove: true, terrainType: OCEAN }),
-    compileTwoTypes(STAMINA, WOOD, 50, 50),
+    compileTwoTypes(STAMINA, WOOD, 25, 5),
     empty,
     empty
   );
   DefineTypes.defineBuilding(
     SAFE,
     BuildingSpecsData({ width: 1, height: 1, canMove: true, terrainType: PLAIN }),
-    compileTwoTypes(STAMINA, WOOD, 30, 0),
+    compileTwoTypes(STAMINA, WOOD, 10, 0),
     empty,
     empty
   );
   DefineTypes.defineBuilding(
     GRANARY,
     BuildingSpecsData({ width: 2, height: 2, canMove: false, terrainType: PLAIN }),
-    compileThreeTypes(STAMINA, WOOD, IRON, 50, 30, 30),
+    compileThreeTypes(STAMINA, WOOD, ROCK, 25, 10, 10),
     empty,
     empty
   );
@@ -231,8 +231,8 @@ function initERC20Sizes() {
 
 function initERC20BurnAwards() {
   BurnAwards.set(BERRY, compileOneType(STAMINA, 10));
-  BurnAwards.set(WATER, compileOneType(BLOOD, 10));
-  BurnAwards.set(MEAT, compileTwoTypes(STAMINA, BLOOD, 40, 10));
+  BurnAwards.set(WATER, compileOneType(BLOOD, 15));
+  BurnAwards.set(MEAT, compileTwoTypes(STAMINA, BLOOD, 50, 25));
 }
 
 function compileOneType(bytes16 erc20Type, uint128 amount) returns (bytes32[] memory inputs) {
