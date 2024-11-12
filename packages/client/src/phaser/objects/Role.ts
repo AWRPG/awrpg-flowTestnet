@@ -274,6 +274,17 @@ export class Role extends SceneObject {
     return this.avatar;
   }
 
+  doFarmingAnimation(callback?: () => void) {
+    this.avatar.once("animationcomplete", () => {
+      if (callback) callback();
+      this.doIdleAnimation();
+    });
+    return this.avatar.play({
+      key: this.textureKey + "-farming-right",
+      repeat: 0,
+    });
+  }
+
   destroy() {
     if (!this.fake) {
       this.scene.tileHighlights[this.entity]?.hide();

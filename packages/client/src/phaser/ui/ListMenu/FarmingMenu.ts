@@ -34,6 +34,7 @@ import {
   canStoreERC20Amount,
   canStoreOutputs,
 } from "../../../logics/container";
+import { SceneObjectController } from "../../components/controllers/SceneObjectController";
 
 interface Data {
   entity: Entity;
@@ -135,7 +136,9 @@ export class FarmingMenu extends ListMenu {
       const role = getComponentValue(SelectedHost, SOURCE)?.value as Entity;
       this.isPlayer =
         getComponentValue(Commander, role)?.value === this.network.playerEntity;
+      SceneObjectController.scene.roles[role].doFarmingAnimation(() => {});
     }
+
     super.show(prevGui, datas);
 
     // Update
