@@ -71,11 +71,13 @@ export class ListMenu extends GuiBase {
     const items: UIBase[] = [];
 
     datas.forEach((data) => {
+      const config = this.itemConfigs(data);
       const item = new ButtonA(this.scene, {
         width: this.list.displayWidth,
         text: this.spliceText(data),
         fontStyle: "400",
         data,
+        ...config,
       });
       this.modifyItem(item);
       items.push(item);
@@ -88,6 +90,10 @@ export class ListMenu extends GuiBase {
 
   spliceText(data: unknown) {
     return "You need to use spliceText()";
+  }
+
+  itemConfigs(data: unknown) {
+    return {};
   }
 
   onSelected() {}
