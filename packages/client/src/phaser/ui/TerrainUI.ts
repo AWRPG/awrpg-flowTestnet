@@ -4,14 +4,23 @@ import { Box } from "../components/ui/Box";
 import { UIText } from "../components/ui/common/UIText";
 import { Heading2 } from "../components/ui/Heading2";
 import { Heading3 } from "../components/ui/Heading3";
-import { ALIGNMODES, terrainMapping } from "../../constants";
+import {
+  ALIGNMODES,
+  terrainMapping,
+  terrainTypeMapping,
+} from "../../constants";
 import { getTargetTerrainData, TileData } from "../../logics/terrain";
+import { getBurnCosts } from "../../logics/cost";
+import { fromEntity, hexTypeToString } from "../../utils/encode";
+import { Hex } from "viem";
+import { getBurnAwards } from "../../logics/award";
 
 export class TerrainUI extends GuiBase {
   terrainNameText: UIText;
   terrainInfoText: UIText;
   positionText: UIText;
-
+  costText: Heading3;
+  awardsText: Heading3;
   tileData?: TileData;
 
   /**
@@ -22,7 +31,7 @@ export class TerrainUI extends GuiBase {
       scene,
       new Box(scene, {
         width: 280,
-        height: 102,
+        height: 200,
         alignModeName: ALIGNMODES.RIGHT_TOP,
         marginX: 8,
         marginY: 8,
@@ -47,6 +56,20 @@ export class TerrainUI extends GuiBase {
     this.terrainInfoText = new Heading3(this.scene, "", {
       marginX: 16,
       marginY: 70,
+      parent: this.rootUI,
+      wordWrapWidth: 1024,
+    });
+
+    this.costText = new Heading3(this.scene, "", {
+      marginX: 16,
+      marginY: 98,
+      parent: this.rootUI,
+      wordWrapWidth: 1024,
+    });
+
+    this.awardsText = new Heading3(this.scene, "", {
+      marginX: 16,
+      marginY: 126,
       parent: this.rootUI,
       wordWrapWidth: 1024,
     });
@@ -84,6 +107,30 @@ export class TerrainUI extends GuiBase {
         default:
           this.terrainInfoText.setText("");
       }
+
+      const terrainType = terrainTypeMapping[this.tileData.terrainType];
+      const costs = getBurnCosts(this.components, terrainType) as Hex[];
+      let costsText = "Raze costs:";
+      if (costs?.length > 0) {
+        costs.forEach((cost) => {
+          const { type, id } = fromEntity(cost);
+          costsText += "\n" + hexTypeToString(type) + " x " + Number(id);
+        });
+      } else costsText += "\nThe terrain can't be burned";
+      this.costText.setText(costsText);
+
+      const awards = getBurnAwards(this.components, terrainType) as Hex[];
+      let awardsText = "Raze rewards:";
+      if (awards?.length > 0) {
+        awards.forEach((award) => {
+          const { type, id } = fromEntity(award);
+          awardsText += "\n" + hexTypeToString(type) + " x " + Number(id);
+        });
+      } else awardsText += "\nNothing to gain";
+
+      this.awardsText.marginY =
+        this.costText.marginY + this.costText.textObj.height / 4 + 8;
+      this.awardsText.setText(awardsText);
 
       this.show();
     }

@@ -25,4 +25,26 @@ export class Cursor extends SceneObject {
     super.moveTo(toX, toY, duration, onComplete);
     UIController.scene?.terrainUI?.update();
   }
+
+  doDamageAnimation() {
+    this.scene.tweens.add({
+      targets: this,
+      props: { ["tint"]: 0xff0000 },
+      duration: 250,
+      repeat: 0,
+      yoyo: true,
+      onComplete: () => {
+        this.cursor.clearTint();
+      },
+    });
+    return this.cursor;
+  }
+
+  get tint() {
+    return this.cursor.tint;
+  }
+
+  set tint(value: number) {
+    this.cursor.setTint(value);
+  }
 }

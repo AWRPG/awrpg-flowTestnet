@@ -27,4 +27,5 @@ export interface MoveStep {
   y: number;
   distance: number;
   type?: string;
+  terrainType?: TerrainType;
 }

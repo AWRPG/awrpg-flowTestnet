@@ -1,12 +1,19 @@
 import { UIScene } from "../scenes/UIScene";
 import { GuiBase } from "./GuiBase";
-import { ALIGNMODES, HIGHLIGHT_MODE, OBSERVER } from "../../constants";
+import {
+  ALIGNMODES,
+  HIGHLIGHT_MODE,
+  OBSERVER,
+  TerrainType,
+  terrainTypeMapping,
+} from "../../constants";
 import { Box2 } from "../components/ui/Box2";
 import { Heading2 } from "../components/ui/Heading2";
 import { UIText } from "../components/ui/common/UIText";
 import { SceneObjectController } from "../components/controllers/SceneObjectController";
 import { Role } from "../objects/Role";
 import { Building } from "../objects/Building";
+import { Cursor } from "../objects/Cursor";
 import { UIBase } from "../components/ui/common/UIBase";
 import {
   calculatePathMoves,
@@ -27,6 +34,8 @@ import { getCombatRange } from "../../logics/combat";
 import { CharacterInfo } from "./CharacterInfo";
 import { SceneObject } from "../objects/SceneObject";
 import { getEquipment } from "../../logics/equipment";
+import { getBurnCosts, hasBurnCosts } from "../../logics/cost";
+import { getBurnAwards } from "../../logics/award";
 
 export class AttackTips extends GuiBase {
   role?: Role;
@@ -34,6 +43,7 @@ export class AttackTips extends GuiBase {
   targetHighlights: Phaser.GameObjects.Sprite[] = [];
   characterInfo?: CharacterInfo;
   attackEndFlag: number = 0;
+  terrainType: TerrainType;
 
   /** */
   constructor(scene: UIScene) {
@@ -153,11 +163,21 @@ export class AttackTips extends GuiBase {
             : isBuilding(this.components, sth)
               ? SceneObjectController.scene.buildings[sth]
               : undefined; // Avoid problems caused by hosts changing during the processing of the attack.
-          if (!sthObj) return;
-          this.targetHighlights.push(highlight);
-          // if (!isRole(this.components, sth)) return; // [TEMP]
-          this.characterInfo = new CharacterInfo(this.scene, 1);
-          this.characterInfo.show(sthObj, this.role);
+          if (sthObj) {
+            this.targetHighlights.push(highlight);
+            // if (!isRole(this.components, sth)) return; // [TEMP]
+            this.characterInfo = new CharacterInfo(this.scene, 1);
+            this.characterInfo.show(sthObj, this.role);
+          } else {
+            // Burn terrain
+            const data = highlights.highlightData.filter(
+              (data) =>
+                highlight.x === data.x * highlights.tileSize &&
+                highlight.y === data.y * highlights.tileSize
+            )[0];
+            this.terrainType = data.terrainType;
+            this.targetHighlights.push(highlight);
+          }
         }
       }
     });
@@ -169,8 +189,8 @@ export class AttackTips extends GuiBase {
     const cursor = SceneObjectController.scene.cursor;
     const highlight = this.targetHighlights[0];
     if (!this.role || !highlight || !cursor) return;
-    const sth = getEntityOnCoord(this.components, cursor.tilePosition);
 
+    const sth = getEntityOnCoord(this.components, cursor.tilePosition);
     cursor.visible = false; // Hide cursor
     highlight.setTexture("highlight-attack3");
     this.scene.tweens.add({
@@ -182,22 +202,49 @@ export class AttackTips extends GuiBase {
       onComplete: () => {
         if (!this.role) return;
         SceneObjectController.closeTileHighlight(this.role.entity);
-        isRole(this.components, sth)
-          ? this.attackEffect(this.role, SceneObjectController.scene.roles[sth])
-          : this.attackEffect(
-              this.role,
-              SceneObjectController.scene.buildings[sth]
-            );
+        if (sth) {
+          // Attack host
+          isRole(this.components, sth)
+            ? this.attackEffect(
+                this.role,
+                SceneObjectController.scene.roles[sth]
+              )
+            : this.attackEffect(
+                this.role,
+                SceneObjectController.scene.buildings[sth]
+              );
+        } else {
+          // Burn terrain
+          this.attackEffect(this.role, cursor);
+        }
       },
     });
 
-    await this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
+    if (sth) {
+      // Attack host
+      await this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
+    } else {
+      // Burn terrain
+      const terrainType = terrainTypeMapping[this.terrainType];
+      const costs = getBurnCosts(this.components, terrainType) as Hex[];
+      if (!costs || costs.length === 0) return;
+      const hasCosts = hasBurnCosts(
+        this.components,
+        this.role.entity as Hex,
+        terrainType
+      );
+      if (!hasCosts) return;
+      await this.systemCalls.burnTerrain(
+        this.role.entity as Hex,
+        cursor.tilePosition
+      );
+    }
     this.attackEnd();
   }
 
-  attackEffect(source: Role, target: Role | Building) {
+  attackEffect(source: Role, target: Role | Building | Cursor) {
     // face direction
-    source.faceTo(target)
+    source.faceTo(target);
 
     // play animation
     source.doAttackAnimation(() => {
