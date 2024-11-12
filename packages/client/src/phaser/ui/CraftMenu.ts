@@ -39,6 +39,7 @@ export class CraftMenu extends ListMenu {
     super(scene, "Craft List");
     this.name = "CraftMenu";
     this.role = role;
+    this.crafting = false;
 
     new UIText(scene, "[F] craft", {
       fontFamily: "ThaleahFat",
