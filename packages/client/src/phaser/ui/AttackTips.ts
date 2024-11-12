@@ -43,7 +43,7 @@ export class AttackTips extends GuiBase {
   targetHighlights: Phaser.GameObjects.Sprite[] = [];
   characterInfo?: CharacterInfo;
   attackEndFlag: number = 0;
-  terrainType: TerrainType;
+  terrainType?: TerrainType;
 
   /** */
   constructor(scene: UIScene) {
@@ -150,6 +150,7 @@ export class AttackTips extends GuiBase {
       delete this.characterInfo;
     }
     this.targetHighlights = [];
+    this.terrainType = undefined;
 
     // Show the focus highlight tile
     const x = tileX - this.role.tileX;
@@ -223,7 +224,7 @@ export class AttackTips extends GuiBase {
     if (sth) {
       // Attack host
       await this.systemCalls.attack(this.role.entity as Hex, sth as Hex);
-    } else {
+    } else if (this.terrainType !== undefined) {
       // Burn terrain
       const terrainType = terrainTypeMapping[this.terrainType];
       const costs = getBurnCosts(this.components, terrainType) as Hex[];
