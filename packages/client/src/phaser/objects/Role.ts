@@ -140,6 +140,30 @@ export class Role extends SceneObject {
     }
   }
 
+  turnFaceDirection(direction: string) {
+    if (direction === "right") {
+      this.avatar.flipX = false;
+      this.avatar.setOrigin(0.46, 0.7);
+    } else {
+      this.avatar.flipX = true;
+      this.avatar.setOrigin(0.54, 0.7);
+    }
+  }
+
+  faceTo(target: SceneObject) {
+    const dx = this.tileX - target.tileX;
+    if (dx < 0) this.turnFaceDirection("right");
+    else if (dx > 0) this.turnFaceDirection("left");
+  }
+
+  get faceDirection(): string {
+    return this.avatar.flipX ? "left" : "right";
+  }
+
+  set faceDirection(value: string) {
+    this.turnFaceDirection(value);
+  }
+
   /**
    * Handles a series of movement animations with direction changes for
    * the Host object until the movement is confirmed by the chain.
@@ -159,13 +183,11 @@ export class Role extends SceneObject {
           tileY += 1;
           break;
         case Direction.LEFT:
-          this.avatar.flipX = true;
-          this.avatar.setOrigin(0.54, 0.7);
+          this.turnFaceDirection("left");
           tileX -= 1;
           break;
         case Direction.RIGHT:
-          this.avatar.flipX = false;
-          this.avatar.setOrigin(0.46, 0.7);
+          this.turnFaceDirection("right");
           tileX += 1;
           break;
       }

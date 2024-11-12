@@ -29,6 +29,7 @@ export class MoveTips extends GuiBase {
   role?: Role;
   path?: Coord[] | null;
   tipsText: string;
+  fakeObj?: Role;
 
   /** */
   constructor(scene: UIScene) {
@@ -73,12 +74,13 @@ export class MoveTips extends GuiBase {
     this.role = role;
     this.prevGui = prevGui;
     // Bundle a copy of role to cursor
-    const fakeObj = SceneObjectController.cursor?.setAccessory(
+    this.fakeObj = SceneObjectController.cursor?.setAccessory(
       this.role.entity
     ) as Role;
-    fakeObj.setPosition(0, 0).alpha = 0.75;
-    fakeObj.y -= 3;
-    fakeObj.doWalkAnimation();
+    this.fakeObj.setPosition(0, 0).alpha = 0.75;
+    this.fakeObj.y -= 3;
+    this.fakeObj.doWalkAnimation();
+    this.fakeObj.faceDirection = this.role.faceDirection;
     SceneObjectController.openTileHighlight(role.entity);
     PlayerInput.onlyListenUI();
   }
@@ -118,23 +120,33 @@ export class MoveTips extends GuiBase {
 
   onUp() {
     SceneObjectController.setTargetTilePosition(Direction.UP);
-    this.onArrow();
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) this.onArrow(cursor.tileX, cursor.tileY - 1);
   }
   onDown() {
     SceneObjectController.setTargetTilePosition(Direction.DOWN);
-    this.onArrow();
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) this.onArrow(cursor.tileX, cursor.tileY + 1);
   }
   onLeft() {
     SceneObjectController.setTargetTilePosition(Direction.LEFT);
-    this.onArrow();
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) this.onArrow(cursor.tileX - 1, cursor.tileY);
   }
   onRight() {
     SceneObjectController.setTargetTilePosition(Direction.RIGHT);
-    this.onArrow();
+    const cursor = SceneObjectController.scene.cursor;
+    if (cursor) this.onArrow(cursor.tileX + 1, cursor.tileY);
   }
 
-  onArrow() {
+  onArrow(tileX: number, tileY: number) {
     if (!this.role) return;
+
+    // fakeObj face direction
+    if (tileX < this.role.tileX) this.fakeObj?.turnFaceDirection("left");
+    else if (tileX > this.role.tileX) this.fakeObj?.turnFaceDirection("right");
+
+    // update highligt
     const highlights =
       SceneObjectController.scene.tileHighlights[this.role.entity];
     if (this.path) highlights.recoveryType(this.path);

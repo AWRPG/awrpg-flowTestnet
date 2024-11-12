@@ -166,7 +166,6 @@ export class AttackTips extends GuiBase {
   async onConfirm() {
     if (this.attackEndFlag > 0) return;
     this.attackEndFlag = 1;
-    console.log(111);
     const cursor = SceneObjectController.scene.cursor;
     const highlight = this.targetHighlights[0];
     if (!this.role || !highlight || !cursor) return;
@@ -197,6 +196,10 @@ export class AttackTips extends GuiBase {
   }
 
   attackEffect(source: Role, target: Role | Building) {
+    // face direction
+    source.faceTo(target)
+
+    // play animation
     source.doAttackAnimation(() => {
       this.attackEnd();
     });
