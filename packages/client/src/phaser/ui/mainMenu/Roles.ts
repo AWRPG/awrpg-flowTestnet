@@ -75,7 +75,7 @@ export class Roles extends DoublePage {
     new UIText(scene, "[F] move camera to the role", {
       fontFamily: "ThaleahFat",
       fontSize: 32,
-      fontColor: "#233",
+      fontColor: "#c58c61",
       textAlign: "center",
       lineSpacing: 12,
       alignModeName: ALIGNMODES.MIDDLE_BOTTOM,
@@ -87,7 +87,7 @@ export class Roles extends DoublePage {
     new UIText(scene, "[A/D] change the focus list", {
       fontFamily: "ThaleahFat",
       fontSize: 32,
-      fontColor: "#233",
+      fontColor: "#c58c61",
       textAlign: "center",
       lineSpacing: 12,
       alignModeName: ALIGNMODES.MIDDLE_BOTTOM,
@@ -113,6 +113,8 @@ export class Roles extends DoublePage {
     this.bag.on(UIEvents.CONFIRM, this.onBagConfirm, this);
     this.bag.on(UIEvents.LEFT, this.onLeft, this);
     this.rolesList.on(UIEvents.RIGHT, this.onRight, this);
+    this.rolesList.on(UIEvents.TAB, this.onTab, this);
+    this.bag.on(UIEvents.TAB, this.onTab, this);
   }
 
   updateRoles() {
@@ -136,8 +138,8 @@ export class Roles extends DoublePage {
 
   hidden() {
     this.offMenuListen(this.rolesList);
-    this.rolesList.off(UIEvents.CONFIRM, this.onRolesListConfirm, this);
-    this.rolesList.off(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
+    this.rolesList.off();
+    this.bag.off();
     super.hidden();
   }
 
@@ -282,5 +284,15 @@ export class Roles extends DoublePage {
     this.focusUI = this.bag;
     if (this.bag.item) this.bag.itemIndex = this.bag.itemIndex;
     else this.bag.itemIndex = 0;
+  }
+
+  onTab() {
+    const menu = this.scene.mainMenu;
+    if (!menu) return;
+    const nextPage = menu.guide;
+    this.hidden();
+    nextPage.show();
+    menu.tab1.setTexture("ui-book-tab");
+    menu.tab2.setTexture("ui-book-tab-selected");
   }
 }

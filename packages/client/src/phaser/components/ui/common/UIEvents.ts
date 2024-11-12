@@ -11,5 +11,6 @@ export class UIEvents {
   static LEFT: string = "UI_LEFT";
   static RIGHT: string = "UI_RIGHT";
   static MENU: string = "UI_MENU";
+  static TAB: string = "UI_TAB";
   static SCROLL: string = "UI_SCROLL";
 }

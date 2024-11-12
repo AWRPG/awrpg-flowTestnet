@@ -113,6 +113,14 @@ export class UIScene extends Phaser.Scene {
       "ui-book-tab-role",
       "src/assets/ui/main-menu/tabs/role.png"
     );
+    this.load.image(
+      "ui-book-tab-guide",
+      "src/assets/ui/main-menu/tabs/guide.png"
+    );
+
+    // Guide
+    this.load.image("ui-demo-guide", "src/assets/ui/demo_guide.png");
+    this.load.image("ui-demo-guide2", "src/assets/ui/demo_guide2.png");
 
     // States
     this.load.image("bar_empty", "src/assets/ui/bar_empty.png");
@@ -132,6 +140,10 @@ export class UIScene extends Phaser.Scene {
     this.load.image("icon-item-wood", "src/assets/icons/items/wood.png");
     this.load.image("icon-item-berry", "src/assets/icons/items/berry.png");
     this.load.image("icon-item-book", "src/assets/icons/items/book.png");
+    this.load.image("icon-item-water", "src/assets/icons/items/water.png");
+    this.load.image("icon-item-iron", "src/assets/icons/items/iron.png");
+    this.load.image("icon-item-rock", "src/assets/icons/items/rock.png");
+    this.load.image("icon-item-meat", "src/assets/icons/items/meat.png");
 
     // Avatars
     this.load.image("avatar-farmer-1-1", "src/assets/avatars/farmer_1_1.png");

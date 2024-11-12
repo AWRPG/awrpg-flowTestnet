@@ -34,6 +34,7 @@ export class DoublePage extends GuiBase {
       })
     );
     this.name = "DoublePage";
+    this.parent = parent;
     this.rootUI.setDepth(11);
 
     // Page

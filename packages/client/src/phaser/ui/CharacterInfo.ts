@@ -5,7 +5,7 @@ import { Avatar } from "../components/ui/Avatar";
 import { UIBase } from "../components/ui/common/UIBase";
 import { UIImage } from "../components/ui/common/UIImage";
 import { UIText } from "../components/ui/common/UIText";
-import { ALIGNMODES } from "../../constants";
+import { ALIGNMODES, SOURCE } from "../../constants";
 import { Heading2 } from "../components/ui/Heading2";
 import { Heading3 } from "../components/ui/Heading3";
 import { HpBar } from "../components/ui/HpBar";
@@ -208,7 +208,16 @@ export class CharacterInfo extends GuiBase {
 
   show(host: Role | Building, attacker?: Role) {
     // initialize data
-    this.role = host.entity;
+    if (!host) {
+      const selectedHost = getComponentValue(
+        this.components.SelectedHost,
+        SOURCE
+      )?.value;
+      if (!selectedHost) return;
+      this.role = selectedHost;
+    } else {
+      this.role = host.entity;
+    }
     this.attacker = attacker ?? undefined;
 
     if (isRole(this.components, this.role)) {
@@ -385,10 +394,13 @@ export class CharacterInfo extends GuiBase {
     }
 
     // attack & defense
-    if (isRole(this.components, this.role)) {
+    if (
+      isRole(this.components, this.role) &&
+      SceneObjectController.scene.roles[this.role]
+    ) {
       SceneObjectController.scene.roles[this.role].totalAttack =
         this.attack + this.weaponAttack;
-    } else {
+    } else if (SceneObjectController.scene.buildings[this.role]) {
       SceneObjectController.scene.buildings[this.role].totalAttack =
         this.attack + this.weaponAttack;
     }
