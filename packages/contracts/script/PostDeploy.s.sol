@@ -27,14 +27,22 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
     initializeTypes();
     (uint32 x, uint32 y, bytes32 hero) = world.spawnHero("Alice");
-    ContainerLogic._mint(BERRY, hero, 200);
-    ContainerLogic._mint(WOOD, hero, 600);
+    ContainerLogic._mint(BERRY, hero, 50);
+    ContainerLogic._mint(WOOD, hero, 50);
+    ContainerLogic._mint(ROCK, hero, 50);
+    ContainerLogic._mint(SAND, hero, 50);
+    ContainerLogic._mint(WATER, hero, 50);
+    ContainerLogic._mint(IRON, hero, 50);
+    ContainerLogic._mint(MEAT, hero, 50);
     bytes32 sword = EntityLogic._mint(SWORD, hero);
+
     // EquipmentLogic._equip(sword);
-    (, , bytes32 hero2) = world.spawnHero("Bob");
-    ContainerLogic._mint(BERRY, hero2, 10);
-    world.buildBuilding(hero, SAFE, x - 1, y, x - 2, y - 1);
-    HeroLogic._spawn(bytes32(uint256(1)));
+
+    // (, , bytes32 hero2) = world.spawnHero("Bob");
+    // ContainerLogic._mint(BERRY, hero2, 10);
+
+    // world.buildBuilding(hero, SAFE, x - 1, y, x - 2, y - 1);
+    // HeroLogic._spawn(bytes32(uint256(1)));
     // world.buildBuilding(hero, FIELD, x - 1, y, x - 2, y);
     // TerrainLogic._setTerrainValue(x, y, uint8(TerrainLogic.TerrainType.PLAIN));
     // TerrainLogic._setTerrainValue(x + 1, y, uint8(TerrainLogic.TerrainType.PLAIN));

@@ -40,19 +40,21 @@ function initPoolStatsTypes() {
   DefineTypes.definePoolStats(SWORD, compileTwoTypes(ATTACK, RANGE, 20, 2));
   DefineTypes.definePoolStats(BOW, compileTwoTypes(ATTACK, RANGE, 5, 5));
   // building
-  DefineTypes.definePoolStats(MINER, compileTwoTypes(BLOOD, DEFENSE, 500, 100));
+  DefineTypes.definePoolStats(MINER, compileTwoTypes(BLOOD, DEFENSE, 100, 80));
   DefineTypes.definePoolStats(FIELD, compileTwoTypes(BLOOD, DEFENSE, 100, 100));
-  DefineTypes.definePoolStats(SAFE, compileTwoTypes(BLOOD, DEFENSE, 2000, 100));
+  DefineTypes.definePoolStats(SAFE, compileTwoTypes(BLOOD, DEFENSE, 30, 100));
+  DefineTypes.definePoolStats(GRANARY, compileTwoTypes(BLOOD, DEFENSE, 800, 100));
 }
 
 // host means has capacity & size
 function initHostTypes() {
-  DefineTypes.defineHost(HOST, 1000, 1200);
+  DefineTypes.defineHost(HOST, 800, 1200);
   DefineTypes.defineHost(DROP, type(uint256).max, type(uint128).max);
-  DefineTypes.defineHost(MINER, 1000 * 5, 1200 * 5);
+  DefineTypes.defineHost(MINER, 1200 * 2, 1200 * 5);
   DefineTypes.defineHost(CAULDRON, 1000, 1200);
   DefineTypes.defineHost(FIELD, 1000, 1200);
   DefineTypes.defineHost(SAFE, 600, 1200);
+  DefineTypes.defineHost(GRANARY, 1000, 1200);
   DefineTypes.defineHost(FOUNDRY, 1000, 1200);
 }
 
@@ -62,7 +64,7 @@ function initCookTypes() {
     CookSpecsData({
       buildingType: CAULDRON,
       timeCost: 60,
-      inputs: compileTwoTypes(STAMINA, BERRY, 10, 10),
+      inputs: compileThreeTypes(STAMINA, IRON, ROCK, 10, 10, 10),
       outputs: compileOneType(SWORD, 0)
     })
   );
@@ -70,12 +72,12 @@ function initCookTypes() {
 
 function initStakeTypes() {
   DefineTypes.defineStake(
-    WOOD,
+    BERRY,
     StakeSpecsData({
       buildingType: FIELD,
       timeCost: 60,
-      inputs: compileTwoTypes(STAMINA, BERRY, 10, 1),
-      outputs: compileTwoTypes(WOOD, BERRY, 10, 20)
+      inputs: compileTwoTypes(STAMINA, BERRY, 20, 10),
+      outputs: compileOneType(BERRY, 1)
     })
   );
   DefineTypes.defineStake(
@@ -83,8 +85,8 @@ function initStakeTypes() {
     StakeSpecsData({
       buildingType: FIELD,
       timeCost: 60,
-      inputs: compileTwoTypes(STAMINA, RED, 10, 1),
-      outputs: compileTwoTypes(WOOD, MEAT, 10, 20)
+      inputs: compileTwoTypes(STAMINA, BLOOD, 10, 100),
+      outputs: compileOneType(MEAT, 1)
     })
   );
 }
@@ -94,65 +96,73 @@ function initTerrainTypes() {
   DefineTypes.defineTerrain(PLAIN, TerrainSpecsData({ canMove: true, canBurn: false }), empty, empty, empty, empty);
   DefineTypes.defineTerrain(
     OCEAN,
-    TerrainSpecsData({ canMove: false, canBurn: false }),
-    compileOneType(STAMINA, 200),
-    compileOneType(FISH, 1),
+    TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
-    empty
+    empty,
+    compileTwoTypes(STAMINA, ROCK, 30, 10),
+    compileOneType(WATER, 5)
   );
   DefineTypes.defineTerrain(
     FOREST,
     TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
     empty,
-    compileOneType(STAMINA, 100),
-    compileOneType(WOOD, 20)
+    compileOneType(STAMINA, 10),
+    compileOneType(WOOD, 5)
   );
   DefineTypes.defineTerrain(
     MOUNTAIN,
-    TerrainSpecsData({ canMove: false, canBurn: false }),
-    compileOneType(STAMINA, 100),
-    compileOneType(RED, 1),
+    TerrainSpecsData({ canMove: false, canBurn: true }),
     empty,
-    empty
+    empty,
+    compileOneType(STAMINA, 30),
+    compileOneType(ROCK, 5)
   );
 }
 
 function initBuildingTypes() {
+  bytes32[] memory empty = new bytes32[](0);
   DefineTypes.defineBuilding(
     MINER,
     BuildingSpecsData({ width: 2, height: 2, canMove: true, terrainType: PLAIN }),
-    compileTwoTypes(STAMINA, WOOD, 10, 0),
-    compileOneType(STAMINA, 100),
-    compileOneType(WOOD, 4)
+    compileTwoTypes(STAMINA, WOOD, 50, 100),
+    empty,
+    empty
   );
-  DefineTypes.defineBuilding(
-    CAULDRON,
-    BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: PLAIN }),
-    compileTwoTypes(STAMINA, WOOD, 10, 0),
-    compileOneType(STAMINA, 100),
-    compileOneType(WOOD, 4)
-  );
+  // DefineTypes.defineBuilding(
+  //   CAULDRON,
+  //   BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: PLAIN }),
+  //   compileTwoTypes(STAMINA, WOOD, 10, 0),
+  //   compileOneType(STAMINA, 100),
+  //   compileOneType(WOOD, 4)
+  // );
   DefineTypes.defineBuilding(
     FIELD,
     BuildingSpecsData({ width: 2, height: 1, canMove: true, terrainType: PLAIN }),
-    compileTwoTypes(STAMINA, WOOD, 10, 0),
-    compileOneType(STAMINA, 100),
-    compileOneType(WOOD, 4)
+    compileOneType(STAMINA, 20),
+    empty,
+    empty
   );
   DefineTypes.defineBuilding(
     BRIDGE,
     BuildingSpecsData({ width: 1, height: 1, canMove: true, terrainType: OCEAN }),
-    compileTwoTypes(STAMINA, BLOOD, 0, 0),
-    compileOneType(STAMINA, 100),
-    compileOneType(BLOOD, 1)
+    compileTwoTypes(STAMINA, WOOD, 50, 50),
+    empty,
+    empty
   );
   DefineTypes.defineBuilding(
     SAFE,
+    BuildingSpecsData({ width: 1, height: 1, canMove: true, terrainType: PLAIN }),
+    compileTwoTypes(STAMINA, WOOD, 30, 0),
+    empty,
+    empty
+  );
+  DefineTypes.defineBuilding(
+    GRANARY,
     BuildingSpecsData({ width: 2, height: 2, canMove: false, terrainType: PLAIN }),
-    compileTwoTypes(STAMINA, WOOD, 10, 0),
-    compileOneType(STAMINA, 100),
-    compileOneType(WOOD, 4)
+    compileThreeTypes(STAMINA, WOOD, IRON, 50, 30, 30),
+    empty,
+    empty
   );
   DefineTypes.defineBuilding(
     FENCE,
@@ -161,20 +171,20 @@ function initBuildingTypes() {
     compileOneType(STAMINA, 50),
     compileOneType(WOOD, 1)
   );
-  DefineTypes.defineBuilding(
-    NODE,
-    BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
-    compileTwoTypes(STAMINA, WOOD, 60, 8),
-    compileOneType(STAMINA, 100),
-    compileOneType(WOOD, 4)
-  );
-  DefineTypes.defineBuilding(
-    FOUNDRY,
-    BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
-    compileTwoTypes(STAMINA, WOOD, 80, 9),
-    compileOneType(STAMINA, 100),
-    compileOneType(WOOD, 4)
-  );
+  // DefineTypes.defineBuilding(
+  //   NODE,
+  //   BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
+  //   compileTwoTypes(STAMINA, WOOD, 60, 8),
+  //   compileOneType(STAMINA, 100),
+  //   compileOneType(WOOD, 4)
+  // );
+  // DefineTypes.defineBuilding(
+  //   FOUNDRY,
+  //   BuildingSpecsData({ width: 1, height: 1, canMove: false, terrainType: GRASS }),
+  //   compileTwoTypes(STAMINA, WOOD, 80, 9),
+  //   compileOneType(STAMINA, 100),
+  //   compileOneType(WOOD, 4)
+  // );
   // TODO: add more building types
 }
 
@@ -213,14 +223,16 @@ function initERC20Sizes() {
   // SizeSpecs.set(SOUL, 1);
   SizeSpecs.set(WOOD, 1);
   SizeSpecs.set(BERRY, 1);
-  SizeSpecs.set(FISH, 1);
-  SizeSpecs.set(RED, 1);
+  SizeSpecs.set(WATER, 1);
+  SizeSpecs.set(MEAT, 1);
+  SizeSpecs.set(ROCK, 1);
+  SizeSpecs.set(IRON, 1);
 }
 
 function initERC20BurnAwards() {
-  BurnAwards.set(BERRY, compileOneType(STAMINA, 1));
-  BurnAwards.set(FISH, compileOneType(STAMINA, 300));
-  BurnAwards.set(RED, compileOneType(BLOOD, 100));
+  BurnAwards.set(BERRY, compileOneType(STAMINA, 10));
+  BurnAwards.set(WATER, compileOneType(BLOOD, 10));
+  BurnAwards.set(MEAT, compileTwoTypes(STAMINA, BLOOD, 40, 10));
 }
 
 function compileOneType(bytes16 erc20Type, uint128 amount) returns (bytes32[] memory inputs) {

@@ -33,7 +33,7 @@ export const useCanPickupERC20 = (
   if (!inRange) return false;
   if (!toStoredSize) return false;
   const canStore = canStoreERC20Amount(components, erc20Type, toHost) > 0n;
-  if (!canStore) return false;
+  // if (!canStore) return false;
   return true;
 };
 
@@ -68,7 +68,7 @@ export const useCanPickupERC721 = (
   if (!inRange) return false;
   if (!toStoredSize) return false;
   const canStore = canStoreERC721(components, entity, toHost);
-  if (!canStore) return false;
+  // if (!canStore) return false;
   return true;
 };
 

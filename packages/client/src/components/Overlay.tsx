@@ -72,12 +72,12 @@ export default function Overlay() {
 
   return (
     <div className="absolute h-full w-full pointer-events-none">
-      {sourceHost && (
+      {/* {sourceHost && (
         <div className="absolute pointer-events-auto top-2 left-2">
           <SpawnHero />
           <Role role={sourceHost} />
         </div>
-      )}
+      )} */}
       {targetTile && (
         <div className="absolute pointer-events-auto bottom-2 left-2">
           <Tile tile={targetTile} />

@@ -10,22 +10,29 @@ import { WEAPON } from "../../contract/constants";
 import { EntityPools } from "./Pool";
 import { useInSpace } from "../../logics/drop";
 import { hexTypeToString } from "../../utils/encode";
+import { getEntitySpecs } from "../../logics/entity";
 
 /**
  * display whatever in role's bag, FT, NFT, equipped NFT; canDrop & isPlayer is checked and passed down
  */
 export function Bag({ host }: { host: Entity }) {
   const { components, network } = useMUD();
-  const { Owner, Commander } = components;
+  const { Owner, Commander, StoredSize, ContainerSpecs } = components;
   const canDrop = useInSpace(components, network, host);
   const isPlayer =
     useComponentValue(Commander, host)?.value === network.playerEntity;
   const erc20Whitelist = ERC20_TYPES;
   const erc721Entities = useEntityQuery([HasValue(Owner, { value: host })]);
   const equippedEntities = useHostEquipments(components, host);
+  const storedSize = useComponentValue(StoredSize, host)?.value ?? 0n;
+  const capacity =
+    getEntitySpecs(components, ContainerSpecs, host)?.capacity ?? 0n;
   return (
     <div className="flex flex-col space-y-0 text-sm">
-      <div className="text-lg">Bag:</div>
+      <div className="text-lg">
+        Bag: {Number(storedSize)}/{Number(capacity)}
+      </div>
+
       {erc20Whitelist.map((erc20Type, index) => (
         <FTItem
           key={index}

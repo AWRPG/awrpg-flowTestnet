@@ -46,7 +46,8 @@ library TerrainLogic {
 
     AwardLogic._mintBurnAwards(terrainType, role);
 
-    RemovedCoord.set(coordId, true);
+    // RemovedCoord.set(coordId, true);
+    _setTerrainValue(x, y, uint8(TerrainType.PLAIN));
   }
 
   function _interactTerrain(bytes32 role, uint32 x, uint32 y) internal {

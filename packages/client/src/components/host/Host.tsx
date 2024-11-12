@@ -20,20 +20,20 @@ export function Host({ host }: { host: Entity }) {
   const [toTransfer, setToTransfer] = useState(true);
 
   return (
-    <>
+    <div className="flex flex-row">
       {buildingType ? <Building building={host} /> : <Role role={host} />}
       {sourceHost && host !== sourceHost && (
-        <>
+        <div>
           <button
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l"
+            className="bg-gray-300 hover:bg-green-400 text-green-800 font-bold py-2 px-4 rounded-l"
             onClick={() => setToTransfer(!toTransfer)}
           >
             {toTransfer ? "Switch Transfer" : "Switch Transfer"}
           </button>
           {toTransfer && <Transfer fromHost={sourceHost} toHost={host} />}
           {!toTransfer && <Transfer fromHost={host} toHost={sourceHost} />}
-        </>
+        </div>
       )}
-    </>
+    </div>
   );
 }

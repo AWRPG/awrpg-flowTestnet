@@ -12,7 +12,7 @@ import {
 import { getEquipmentStats } from "./equipment";
 import { Hex } from "viem";
 import { getPosition } from "./path";
-import { withinRangeStrict } from "./position";
+import { withinRangeLimited } from "./position";
 
 // ----- similar to combatLogic -----
 export const getCombatRange = (
@@ -62,7 +62,7 @@ export const withinAttackRange = (
   const attackCoord = getPosition(components, attacker);
   const defendCoord = getPosition(components, defender);
   if (!attackCoord || !defendCoord) return false;
-  return withinRangeStrict(attackCoord, defendCoord, range);
+  return withinRangeLimited(attackCoord, defendCoord, range);
 };
 
 export const getDamage = (attack: number, defense: number) => {

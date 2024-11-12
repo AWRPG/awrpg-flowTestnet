@@ -1,5 +1,5 @@
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Entity, HasValue } from "@latticexyz/recs";
+import { Entity, getComponentValue, HasValue } from "@latticexyz/recs";
 import { ERC20_TYPES } from "../../constants";
 import { useMUD } from "../../MUDContext";
 import { getEntitySpecs } from "../../logics/entity";
@@ -39,11 +39,14 @@ export function Transfer({
   useComponentValue(components.Path, toHost);
   const adjacentInfo = getHostsAdjacentCoord(components, fromHost, toHost);
   if (!isController || !adjacentInfo) return null;
+  const fromHostName =
+    getComponentValue(components.HostName, fromHost)?.name ?? "building??";
+  const toHostName =
+    getComponentValue(components.HostName, toHost)?.name ?? "building??";
   return (
     <div className="m-1 p-1">
       <span>
-        Transfer from <EntityName entity={fromHost} /> to{" "}
-        <EntityName entity={toHost} />
+        Transfer from {fromHostName} to {toHostName}
       </span>
       <div className="flex flex-row space-x-6 border border-black">
         <TransferFromHost fromHost={fromHost} toHost={toHost} />

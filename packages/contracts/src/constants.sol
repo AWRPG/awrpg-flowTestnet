@@ -14,6 +14,7 @@ bytes16 constant GRASS = bytes16("GRASS");
 bytes16 constant GRAVEL = bytes16("GRAVEL");
 bytes16 constant SAND = bytes16("SAND");
 bytes16 constant WATER = bytes16("WATER");
+bytes16 constant IRON = bytes16("IRON");
 bytes16 constant YELLOW_MINE = bytes16("YELLOW_MINE");
 
 // building entity
@@ -21,6 +22,7 @@ bytes16 constant YELLOW_MINE = bytes16("YELLOW_MINE");
 // 2) obtained via crafting
 // 3) placed on map
 bytes16 constant SAFE = bytes16("SAFE");
+bytes16 constant GRANARY = bytes16("GRANARY");
 bytes16 constant BRIDGE = bytes16("BRIDGE");
 bytes16 constant FENCE = bytes16("FENCE");
 bytes16 constant NODE = bytes16("NODE");

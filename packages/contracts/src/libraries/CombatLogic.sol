@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { Path, TileEntity } from "@/codegen/index.sol";
+import { Path, TileEntity, BuildingSpecs, EntityType } from "@/codegen/index.sol";
 import { EquipmentLogic } from "./EquipmentLogic.sol";
 import { PoolLogic } from "./PoolLogic.sol";
 import { HeroLogic } from "./HeroLogic.sol";
@@ -22,8 +22,9 @@ library CombatLogic {
   function _attack(bytes32 attacker, bytes32 defender) internal returns (bool defeated) {
     uint32 weaponRange = EquipmentLogic.getRange(attacker);
     uint32 range = weaponRange > 0 ? weaponRange : HeroLogic.getRange(attacker);
-    if (!PositionLogic.withinRange(attacker, defender, range)) revert Errors.NotInRange();
+    if (!entityInRange(attacker, defender, range)) revert Errors.NotInRange();
     // TODO: burn self pool balance, such as stamina & soul
+    PoolLogic._decreaseStrict(attacker, STAMINA, 5);
 
     uint32 attack = HeroLogic.getAttack(attacker) + EquipmentLogic.getAttack(attacker);
     uint32 defense = HeroLogic.getDefense(defender) + EquipmentLogic.getDefense(defender);
@@ -36,6 +37,21 @@ library CombatLogic {
     } else {
       _defeatRole(defender);
     }
+  }
+
+  function entityInRange(bytes32 role, bytes32 building, uint32 range) internal view returns (bool) {
+    (uint32 x1, uint32 y1) = PathLogic.getPositionStrict(role);
+    (uint32 lowerX, uint32 lowerY) = PathLogic.getPositionStrict(building);
+    bytes16 entityType = EntityType.get(building);
+    uint8 width = BuildingSpecs.getWidth(entityType);
+    uint8 height = BuildingSpecs.getHeight(entityType);
+    if (width == 0 || height == 0) return PositionLogic.withinRange(x1, y1, lowerX, lowerY, range);
+    for (uint32 x = lowerX; x < lowerX + width; x++) {
+      for (uint32 y = lowerY; y < lowerY + height; y++) {
+        if (PositionLogic.withinRange(x1, y1, x, y, range)) return true;
+      }
+    }
+    return false;
   }
 
   function getDamage(uint32 attack, uint32 defense) internal pure returns (uint32) {
