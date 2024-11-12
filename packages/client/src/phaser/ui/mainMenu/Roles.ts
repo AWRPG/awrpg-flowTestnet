@@ -164,6 +164,7 @@ export class Roles extends DoublePage {
       const rolePosition = getHostPosition(this.components, this.network, role);
       if (rolePosition) {
         setNewTargetTile(this.components, rolePosition);
+        this.scene.characterInfo?.show(SceneObjectController.scene.roles[role]);
       }
     }
   }

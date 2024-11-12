@@ -124,12 +124,11 @@ export class Role extends SceneObject {
 
   onFocus() {
     super.onFocus();
-    UIController.scene.characterInfo?.show(this);
   }
 
   onBlur() {
     super.onBlur();
-    UIController.scene.characterInfo?.hidden();
+    // UIController.scene.characterInfo?.hidden();
   }
 
   onCancelPressed(event: KeyboardEvent) {

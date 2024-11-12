@@ -58,6 +58,7 @@ export class Observer extends SceneObject {
       } else {
       }
       this.updateSelectedHost(entityObj.entity);
+      UIController.scene.characterInfo?.show(entityObj);
     } else if (type === "building") {
       const building: Building = this.scene.buildings[entity];
       SceneObjectController.focus = building;
