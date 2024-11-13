@@ -52,9 +52,10 @@ export default function Overlay() {
       TargetTile,
       ToggledOn,
     },
-    network: { playerEntity },
+    network: { playerEntity, walletClient },
   } = useMUD();
 
+  console.log("public address: ", walletClient.account.address);
   const sourceHost = useComponentValue(SelectedHost, SOURCE)?.value;
   const target = useComponentValue(SelectedHost, TARGET)?.value;
   const targetTile = useComponentValue(TargetTile, TARGET)?.value;
