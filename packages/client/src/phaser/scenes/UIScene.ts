@@ -141,10 +141,18 @@ export class UIScene extends Phaser.Scene {
     // this.load.html("dom-input", "src/assets/dom/input.html");
 
     // Main menu
-    for (let i = 1; i <= 5; i++) {
-      this.load.image(`ui-book-open${i}`, open_1_png);
-      this.load.image(`ui-book-close${i}`, close_1_png);
-    }
+    this.load.image(`ui-book-open1`, open_1_png);
+    this.load.image(`ui-book-open2`, open_2_png);
+    this.load.image(`ui-book-open3`, open_3_png);
+    this.load.image(`ui-book-open4`, open_4_png);
+    this.load.image(`ui-book-open5`, open_5_png);
+
+    this.load.image(`ui-book-close1`, close_1_png);
+    this.load.image(`ui-book-close2`, close_2_png);
+    this.load.image(`ui-book-close3`, close_3_png);
+    this.load.image(`ui-book-close4`, close_4_png);
+    this.load.image(`ui-book-close5`, close_5_png);
+
     this.load.image("ui-book-tab", tabs_2_png);
     this.load.image("ui-book-tab-selected", tabs_3_png);
     this.load.image("ui-book-tab-role", tabs_role_png);

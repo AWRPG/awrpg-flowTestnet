@@ -172,7 +172,7 @@ export class GameScene extends Phaser.Scene {
     this.load.image("mine-shaft", mine_shaft_png);
     this.load.image("field", field_png);
     this.load.image("field-berry-1", field_berry_1_png);
-    this.load.image("field-berry-2", field_berry_1_png);
+    this.load.image("field-berry-2", field_berry_2_png);
     this.load.image("bridge", bridge_png);
 
     // player texture
