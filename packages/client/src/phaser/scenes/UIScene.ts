@@ -13,6 +13,52 @@ import { StakingMenu } from "../ui/StakingMenu";
 import "../components/ui/UIBaseExtend";
 import { UIController } from "../components/controllers/UIController";
 import { MainMenu } from "../ui/mainMenu/MainMenu";
+import book_png from "../../assets/icons/items/book.png";
+
+import empty_png from "../../assets/ui/empty.png";
+import box_1_png from "../../assets/ui/box_1.png";
+import box_title_out_side2_png from "../../assets/ui/box_title_out_side2.png";
+import box_title_in_side2_png from "../../assets/ui/box_title_in_side2.png";
+import box3_png from "../../assets/ui/box3.png";
+import list_slider_track_png from "../../assets/ui/list-slider-track.png";
+import list_slider_thumb_png from "../../assets/ui/list-slider-thumb.png";
+import btn_decor1_png from "../../assets/ui/btn_decor1.png";
+import btn_decor2_png from "../../assets/ui/btn_decor2.png";
+import btn_decor3_png from "../../assets/ui/btn_decor3.png";
+import btn_decor4_png from "../../assets/ui/btn_decor4.png";
+import btn_select_skin_png from "../../assets/ui/btn_select_skin.png";
+import btn_2_png from "../../assets/ui/btn_2.png";
+import btn_2_selected_png from "../../assets/ui/btn_2_selected.png";
+import open_1_png from "../../assets/ui/main-menu/open/1.png";
+import open_2_png from "../../assets/ui/main-menu/open/2.png";
+import open_3_png from "../../assets/ui/main-menu/open/3.png";
+import open_4_png from "../../assets/ui/main-menu/open/4.png";
+import open_5_png from "../../assets/ui/main-menu/open/5.png";
+import close_1_png from "../../assets/ui/main-menu/close/1.png";
+import close_2_png from "../../assets/ui/main-menu/close/2.png";
+import close_3_png from "../../assets/ui/main-menu/close/3.png";
+import close_4_png from "../../assets/ui/main-menu/close/4.png";
+import close_5_png from "../../assets/ui/main-menu/close/5.png";
+import tabs_2_png from "../../assets/ui/main-menu/tabs/2.png";
+import tabs_3_png from "../../assets/ui/main-menu/tabs/3.png";
+import tabs_role_png from "../../assets/ui/main-menu/tabs/role.png";
+import bar_empty_png from "../../assets/ui/bar_empty.png";
+import bar_red_png from "../../assets/ui/bar_red.png";
+import bar_blue_png from "../../assets/ui/bar_blue.png";
+import bar_yellow_png from "../../assets/ui/bar_yellow.png";
+import icon_bg_png from "../../assets/ui/bag/icon-bg.png";
+import icon_cursor1_png from "../../assets/ui/bag/icon-cursor1.png";
+import icon_cursor2_png from "../../assets/ui/bag/icon-cursor2.png";
+import icon_cursor3_png from "../../assets/ui/bag/icon-cursor3.png";
+import icon_cursor4_png from "../../assets/ui/bag/icon-cursor4.png";
+import sword_png from "../../assets/icons/items/sword.png";
+import wood_png from "../../assets/icons/items/wood.png";
+import berry_png from "../../assets/icons/items/berry.png";
+import farmer_1_1_png from "../../assets/avatars/farmer_1_1.png";
+import safe_png from "../../assets/imgs/buildings/safe.png";
+import repository_png from "../../assets/imgs/buildings/repository.png";
+import mine_shaft_png from "../../assets/imgs/buildings/mine-shaft.png";
+import field_png from "../../assets/imgs/buildings/field.png";
 
 export class UIScene extends Phaser.Scene {
   /**
@@ -71,87 +117,60 @@ export class UIScene extends Phaser.Scene {
 
   preload() {
     // Common
-    this.load.image("ui-empty", "src/assets/ui/empty.png");
-    this.load.image("ui-box", "src/assets/ui/box_1.png");
-    this.load.image(
-      "ui-box-title-out-side2",
-      "src/assets/ui/box_title_out_side2.png"
-    );
-    this.load.image(
-      "ui-box-title-in-side2",
-      "src/assets/ui/box_title_in_side2.png"
-    );
-    this.load.image("ui-box3", "src/assets/ui/box3.png");
-    this.load.image("list-slider-track", "src/assets/ui/list-slider-track.png");
-    this.load.image("list-slider-thumb", "src/assets/ui/list-slider-thumb.png");
-    this.load.image("btn_decor1", "src/assets/ui/btn_decor1.png");
-    this.load.image("btn_decor2", "src/assets/ui/btn_decor2.png");
-    this.load.image("btn_decor3", "src/assets/ui/btn_decor3.png");
-    this.load.image("btn_decor4", "src/assets/ui/btn_decor4.png");
-    this.load.image("btn_select_skin", "src/assets/ui/btn_select_skin.png");
-    this.load.image("btn2_skin", "src/assets/ui/btn_2.png");
-    this.load.image("btn2_select_skin", "src/assets/ui/btn_2_selected.png");
+    this.load.image("ui-empty", empty_png);
+    this.load.image("ui-box", box_1_png);
+    this.load.image("ui-box-title-out-side2", box_title_out_side2_png);
+    this.load.image("ui-box-title-in-side2", box_title_in_side2_png);
+    this.load.image("ui-box3", box3_png);
+    this.load.image("list-slider-track", list_slider_track_png);
+    this.load.image("list-slider-thumb", list_slider_thumb_png);
+    this.load.image("btn_decor1", btn_decor1_png);
+    this.load.image("btn_decor2", btn_decor2_png);
+    this.load.image("btn_decor3", btn_decor3_png);
+    this.load.image("btn_decor4", btn_decor4_png);
+    this.load.image("btn_select_skin", btn_select_skin_png);
+    this.load.image("btn2_skin", btn_2_png);
+    this.load.image("btn2_select_skin", btn_2_selected_png);
 
     // Dom
-    this.load.html("dom-input", "src/assets/dom/input.html");
+    // this.load.html("dom-input", "src/assets/dom/input.html");
 
     // Main menu
     for (let i = 1; i <= 5; i++) {
-      this.load.image(
-        `ui-book-open${i}`,
-        `src/assets/ui/main-menu/open/${i}.png`
-      );
-      this.load.image(
-        `ui-book-close${i}`,
-        `src/assets/ui/main-menu/close/${i}.png`
-      );
+      this.load.image(`ui-book-open${i}`, open_1_png);
+      this.load.image(`ui-book-close${i}`, close_1_png);
     }
-    this.load.image("ui-book-tab", "src/assets/ui/main-menu/tabs/2.png");
-    this.load.image(
-      "ui-book-tab-selected",
-      "src/assets/ui/main-menu/tabs/3.png"
-    );
-    this.load.image(
-      "ui-book-tab-role",
-      "src/assets/ui/main-menu/tabs/role.png"
-    );
+    this.load.image("ui-book-tab", tabs_2_png);
+    this.load.image("ui-book-tab-selected", tabs_3_png);
+    this.load.image("ui-book-tab-role", tabs_role_png);
 
     // States
-    this.load.image("bar_empty", "src/assets/ui/bar_empty.png");
-    this.load.image("bar_red", "src/assets/ui/bar_red.png");
-    this.load.image("bar_blue", "src/assets/ui/bar_blue.png");
-    this.load.image("bar_yellow", "src/assets/ui/bar_yellow.png");
+    this.load.image("bar_empty", bar_empty_png);
+    this.load.image("bar_red", bar_red_png);
+    this.load.image("bar_blue", bar_blue_png);
+    this.load.image("bar_yellow", bar_yellow_png);
 
     // Bag
-    this.load.image("bag-icon-bg", "src/assets/ui/bag/icon-bg.png");
-    this.load.image("bag-icon-cursor1", "src/assets/ui/bag/icon-cursor1.png");
-    this.load.image("bag-icon-cursor2", "src/assets/ui/bag/icon-cursor2.png");
-    this.load.image("bag-icon-cursor3", "src/assets/ui/bag/icon-cursor3.png");
-    this.load.image("bag-icon-cursor4", "src/assets/ui/bag/icon-cursor4.png");
+    this.load.image("bag-icon-bg", icon_bg_png);
+    this.load.image("bag-icon-cursor1", icon_cursor1_png);
+    this.load.image("bag-icon-cursor2", icon_cursor2_png);
+    this.load.image("bag-icon-cursor3", icon_cursor3_png);
+    this.load.image("bag-icon-cursor4", icon_cursor4_png);
 
     // Items
-    this.load.image("icon-item-sword", "src/assets/icons/items/sword.png");
-    this.load.image("icon-item-wood", "src/assets/icons/items/wood.png");
-    this.load.image("icon-item-berry", "src/assets/icons/items/berry.png");
-    this.load.image("icon-item-book", "src/assets/icons/items/book.png");
+    this.load.image("icon-item-sword", sword_png);
+    this.load.image("icon-item-wood", wood_png);
+    this.load.image("icon-item-berry", berry_png);
+    this.load.image("icon-item-book", book_png);
 
     // Avatars
-    this.load.image("avatar-farmer-1-1", "src/assets/avatars/farmer_1_1.png");
+    this.load.image("avatar-farmer-1-1", farmer_1_1_png);
 
     // Buildings big image
-    this.load.image("img-building-safe", "src/assets/imgs/buildings/safe.png");
-    this.load.image(
-      "img-building-repository",
-      "src/assets/imgs/buildings/repository.png"
-    );
-    this.load.image(
-      "img-building-mine-shaft",
-      "src/assets/imgs/buildings/mine-shaft.png"
-    );
-    this.load.image(
-      "img-building-field",
-      "src/assets/imgs/buildings/field.png"
-    );
+    this.load.image("img-building-safe", safe_png);
+    this.load.image("img-building-repository", repository_png);
+    this.load.image("img-building-mine-shaft", mine_shaft_png);
+    this.load.image("img-building-field", field_png);
   }
 
   create() {

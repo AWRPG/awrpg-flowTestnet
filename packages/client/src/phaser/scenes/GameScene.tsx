@@ -51,6 +51,9 @@ import {
   GRID_SIZE,
 } from "../../logics/terrain";
 import { Tile } from "../objects/Tile";
+import grass_png from "../../assets/tiles/Grass.png";
+import rock_png from "../../assets/tiles/Rock.png";
+import tree_png from "../../assets/tiles/Tree.png";
 import grass_0_png from "../../assets/tiles/terrains/grass_0.png";
 import grass_2_png from "../../assets/tiles/terrains/grass_2.png";
 import mud_1_png from "../../assets/tiles/terrains/mud_1.png";
@@ -62,6 +65,32 @@ import boundary_json from "../../assets/tiles/terrains/boundary.json";
 import boundary_reverse_json from "../../assets/tiles/terrains/boundary_reverse.json";
 import ocean_png from "../../assets/tiles/terrains/ocean.png";
 import pine_12_png from "../../assets/tiles/props/trees/pine_12.png";
+import mine_png from "../../assets/tiles/mine.png";
+
+import safe_png from "../../assets/hosts/safe.png";
+import repository_png from "../../assets/hosts/repository.png";
+import mine_shaft_png from "../../assets/hosts/mine-shaft.png";
+import field_png from "../../assets/hosts/field.png";
+import field_berry_1_png from "../../assets/hosts/field-berry-1.png";
+import field_berry_2_png from "../../assets/hosts/field-berry-2.png";
+import bridge_png from "../../assets/hosts/bridge.png";
+
+import farmer_1_1_png from "../../assets/hosts/sprites/farmer_1_1.png";
+import farmer_1_2_png from "../../assets/hosts/sprites/farmer_1_2.png";
+import farmer_1_3_png from "../../assets/hosts/sprites/farmer_1_3.png";
+import farmer_1_4_png from "../../assets/hosts/sprites/farmer_1_4.png";
+import farmer_1_5_png from "../../assets/hosts/sprites/farmer_1_5.png";
+
+import cursor_png from "../../assets/ui/cursor.png";
+
+import highlight_move_png from "../../assets/ui/highlight_move.png";
+import highlight_attack_png from "../../assets/ui/highlight_attack.png";
+import hightlight_attackx_png from "../../assets/ui/highlight_attackx.png";
+import hightlight_build_png from "../../assets/ui/highlight_build.png";
+import hightlight_error_png from "../../assets/ui/highlight_error.png";
+import hightlight_enter_png from "../../assets/ui/highlight_enter.png";
+import hightlight_png from "../../assets/ui/highlight.png";
+
 import { castToBytes32 } from "../../utils/encode";
 import { TileHighlight } from "../objects/TileHighlight";
 import { updateNeighborGrids } from "../../mud/setupTiles";
@@ -126,10 +155,9 @@ export class GameScene extends Phaser.Scene {
   preload() {
     GameData.preload(this);
     // tiles texture
-    this.load.image("plain", "src/assets/tiles/Grass.png");
-    this.load.image("mountain", "src/assets/tiles/Rock.png");
-    this.load.image("forest", "src/assets/tiles/Tree.png");
-    // this.load.image("ocean", "src/assets/tiles/Water.png");
+    this.load.image("plain", grass_png);
+    this.load.image("mountain", rock_png);
+    this.load.image("forest", tree_png);
     this.load.atlas("grass_boundary", grass_0_png, boundary_json);
     this.load.atlas("grass_2", grass_2_png, boundary_reverse_json);
     this.load.atlas("mud_1", mud_1_png, boundary_reverse_json);
@@ -138,25 +166,22 @@ export class GameScene extends Phaser.Scene {
     this.load.atlas("gravel_0", gravel_0_png, boundary_json);
     this.load.image("ocean", ocean_png);
     this.load.image("pine_12", pine_12_png);
-    // this.load.image("stump", "src/assets/tiles/Stump.png");
-    // this.load.image("fence", "src/assets/tiles/Fence.png");
-    this.load.image("mine", "src/assets/tiles/mine.png");
-    // this.load.image("foundry", "src/assets/tiles/Foundry.png");
-    this.load.image("safe", "src/assets/hosts/safe.png");
-    this.load.image("repository", "src/assets/hosts/repository.png");
-    this.load.image("mine-shaft", "src/assets/hosts/mine-shaft.png");
-    this.load.image("field", "src/assets/hosts/field.png");
-    this.load.image("field-berry-1", "src/assets/hosts/field-berry-1.png");
-    this.load.image("field-berry-2", "src/assets/hosts/field-berry-2.png");
-    this.load.image("bridge", "src/assets/hosts/bridge.png");
+    this.load.image("mine", mine_png);
+    this.load.image("safe", safe_png);
+    this.load.image("repository", repository_png);
+    this.load.image("mine-shaft", mine_shaft_png);
+    this.load.image("field", field_png);
+    this.load.image("field-berry-1", field_berry_1_png);
+    this.load.image("field-berry-2", field_berry_1_png);
+    this.load.image("bridge", bridge_png);
 
     // player texture
     this.hostTextures = [
-      { key: "host-farmer1", url: "src/assets/hosts/sprites/farmer_1_1.png" },
-      { key: "host-farmer2", url: "src/assets/hosts/sprites/farmer_1_2.png" },
-      { key: "host-farmer3", url: "src/assets/hosts/sprites/farmer_1_3.png" },
-      { key: "host-farmer4", url: "src/assets/hosts/sprites/farmer_1_4.png" },
-      { key: "host-farmer5", url: "src/assets/hosts/sprites/farmer_1_5.png" },
+      { key: "host-farmer1", url: farmer_1_1_png },
+      { key: "host-farmer2", url: farmer_1_2_png },
+      { key: "host-farmer3", url: farmer_1_3_png },
+      { key: "host-farmer4", url: farmer_1_4_png },
+      { key: "host-farmer5", url: farmer_1_5_png },
     ];
     for (let i = 0; i < this.hostTextures.length; i++) {
       this.load.spritesheet(
@@ -170,20 +195,20 @@ export class GameScene extends Phaser.Scene {
     }
 
     // cursor
-    this.load.spritesheet("ui-cursor", "src/assets/ui/cursor.png", {
+    this.load.spritesheet("ui-cursor", cursor_png, {
       frameWidth: 32,
       frameHeight: 32,
     });
 
     // tile highlight
-    this.load.image("highlight-move", "src/assets/ui/highlight_move.png");
-    this.load.image("highlight-attack", "src/assets/ui/highlight_move.png");
-    this.load.image("highlight-attack2", "src/assets/ui/highlight_attack.png");
-    this.load.image("highlight-attack3", "src/assets/ui/highlight_attackx.png");
-    this.load.image("highlight-build", "src/assets/ui/highlight_build.png");
-    this.load.image("highlight-error", "src/assets/ui/highlight_error.png");
-    this.load.image("highlight-enter", "src/assets/ui/highlight_enter.png");
-    this.load.spritesheet("highlight", "src/assets/ui/highlight.png", {
+    this.load.image("highlight-move", highlight_move_png);
+    this.load.image("highlight-attack", highlight_move_png);
+    this.load.image("highlight-attack2", highlight_attack_png);
+    this.load.image("highlight-attack3", hightlight_attackx_png);
+    this.load.image("highlight-build", hightlight_build_png);
+    this.load.image("highlight-error", hightlight_error_png);
+    this.load.image("highlight-enter", hightlight_enter_png);
+    this.load.spritesheet("highlight", hightlight_png, {
       frameWidth: 32,
       frameHeight: 32,
     });
