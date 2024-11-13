@@ -27,6 +27,8 @@ export class Building extends SceneObject {
 
   fieldSi: number = 0;
 
+  totalAttack: number = 0;
+
   constructor(
     scene: GameScene,
     {
@@ -119,6 +121,20 @@ export class Building extends SceneObject {
     }
   }
 
+  doDamageAnimation() {
+    this.scene.tweens.add({
+      targets: this,
+      props: { ["tint"]: 0xff0000 },
+      duration: 250,
+      repeat: 0,
+      yoyo: true,
+      onComplete: () => {
+        this.buildingSprite.clearTint();
+      },
+    });
+    return this.buildingSprite;
+  }
+
   destroy() {
     this.buildingSprite.destroy();
   }
@@ -129,5 +145,13 @@ export class Building extends SceneObject {
 
   set texture(value: string) {
     if (value !== this.texture) this.buildingSprite.setTexture(value);
+  }
+
+  get tint() {
+    return this.buildingSprite.tint;
+  }
+
+  set tint(value: number) {
+    this.buildingSprite.setTint(value);
   }
 }

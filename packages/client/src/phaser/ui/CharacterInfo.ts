@@ -5,12 +5,13 @@ import { Avatar } from "../components/ui/Avatar";
 import { UIBase } from "../components/ui/common/UIBase";
 import { UIImage } from "../components/ui/common/UIImage";
 import { UIText } from "../components/ui/common/UIText";
-import { ALIGNMODES } from "../../constants";
+import { ALIGNMODES, SOURCE } from "../../constants";
 import { Heading2 } from "../components/ui/Heading2";
 import { Heading3 } from "../components/ui/Heading3";
 import { HpBar } from "../components/ui/HpBar";
 import { SpBar } from "../components/ui/SpBar";
 import { Role } from "../objects/Role";
+import { Building } from "../objects/Building";
 import {
   defineSystem,
   defineUpdateSystem,
@@ -33,7 +34,7 @@ import {
 import { Hex } from "viem";
 import { decodeBalanceEntity } from "../../utils/encode";
 import { getEntityPoolsInfo } from "../../logics/pool";
-import { getEntitySpecs } from "../../logics/entity";
+import { getEntitySpecs, isRole } from "../../logics/entity";
 import { getERC20Balances } from "../../logics/container";
 import { getEntitiesInCustodian } from "../../logics/custodian";
 import { getEquipment } from "../../logics/equipment";
@@ -205,10 +206,28 @@ export class CharacterInfo extends GuiBase {
     this.createBagSystem();
   }
 
-  show(role: Role, attacker?: Role) {
+  show(host: Role | Building, attacker?: Role) {
     // initialize data
-    this.role = role.entity;
+    if (!host) {
+      const selectedHost = getComponentValue(
+        this.components.SelectedHost,
+        SOURCE
+      )?.value;
+      if (!selectedHost) return;
+      this.role = selectedHost;
+    } else {
+      this.role = host.entity;
+    }
     this.attacker = attacker ?? undefined;
+
+    if (isRole(this.components, this.role)) {
+      //
+    } else {
+      const img = (host as Building).data.img;
+      this.avatar.setTexture(img);
+      this.avatar.image.setDisplaySize(256, 256);
+    }
+
     this.updateData();
     this.updateEquipment();
     this.updateDisplay();
@@ -375,8 +394,17 @@ export class CharacterInfo extends GuiBase {
     }
 
     // attack & defense
-    SceneObjectController.scene.roles[this.role].totalAttack =
-      this.attack + this.weaponAttack;
+    if (
+      isRole(this.components, this.role) &&
+      SceneObjectController.scene.roles[this.role]
+    ) {
+      SceneObjectController.scene.roles[this.role].totalAttack =
+        this.attack + this.weaponAttack;
+    } else if (SceneObjectController.scene.buildings[this.role]) {
+      SceneObjectController.scene.buildings[this.role].totalAttack =
+        this.attack + this.weaponAttack;
+    }
+
     this.atkNum.text = (this.attack + this.weaponAttack).toString();
     this.defNum.text = this.defense.toString();
   }

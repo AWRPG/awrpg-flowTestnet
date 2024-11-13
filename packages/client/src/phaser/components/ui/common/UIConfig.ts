@@ -6,4 +6,5 @@ export class UIConfig {
   static KEY_CONFIRM: string[] = ["Enter", " ", "F", "f"];
   static KEY_CANCEL: string[] = ["Escape", "X", "x"];
   static KEY_MENU: string[] = ["Escape", "Meta"];
+  static KEY_SWITCH: string[] = ["Tab"];
 }

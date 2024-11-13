@@ -22,6 +22,7 @@ import {
 } from "../../utils/encode";
 import { Hex, toHex } from "viem";
 import { PlayerInput } from "../components/controllers/PlayerInput";
+import { getCraftData } from "../../logics/convert";
 
 export class ConstructMenu extends GuiBase {
   list: UIList;
@@ -31,6 +32,7 @@ export class ConstructMenu extends GuiBase {
   costs: Heading3;
   role?: Role;
   data: BuildingData[];
+  tipsText: string;
 
   constructor(scene: UIScene) {
     super(
@@ -42,6 +44,8 @@ export class ConstructMenu extends GuiBase {
       })
     );
     this.name = "ConstructMenu";
+
+    this.tipsText = "You don't have enough resourses to build it.";
 
     // Init the action button list
     this.list = new UIList(scene, {
@@ -122,6 +126,34 @@ export class ConstructMenu extends GuiBase {
     PlayerInput.onlyListenUI();
   }
 
+  showTips() {
+    const enterTips = new Heading2(this.scene, this.tipsText, {
+      alignModeName: ALIGNMODES.MIDDLE_CENTER,
+      marginY: -100,
+      parent: this.rootUI,
+    });
+    enterTips.alpha = 0;
+    enterTips.alpha = 0;
+    const y = enterTips.y;
+    this.scene.tweens.add({
+      targets: enterTips,
+      alpha: 1,
+      y: y - 100,
+      duration: 300,
+      completeDelay: 1000,
+      onComplete: () => {
+        this.scene.tweens.add({
+          targets: enterTips,
+          alpha: 0,
+          duration: 500,
+          onComplete: () => {
+            enterTips.destroy();
+          },
+        });
+      },
+    });
+  }
+
   onListSelected() {
     const index = this.list.itemIndex;
     if (index === undefined) return;
@@ -159,10 +191,24 @@ export class ConstructMenu extends GuiBase {
   onListConfirm() {
     const index = this.list.itemIndex;
     if (index === undefined || !this.role || !this.data) return;
-    this.hidden();
+
     const type = toHex(this.data[index].type, { size: 16 });
     const buildingSpecs = this.getBuildingSpecs(type);
     if (!buildingSpecs) return;
+
+    const craftData = getCraftData(
+      this.components,
+      this.role.entity as Hex,
+      type
+    );
+    const hasCosts = craftData.hasCosts;
+
+    if (!hasCosts) {
+      this.showTips();
+      return;
+    }
+
+    this.hidden();
     UIController.scene.constructTips?.show(this.role, this.data[index], this);
   }
 

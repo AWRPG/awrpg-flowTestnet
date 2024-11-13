@@ -4,12 +4,14 @@ import { ALIGNMODES } from "../../../constants";
 import { UIBase } from "../../components/ui/common/UIBase";
 import { UIEvents } from "../../components/ui/common/UIEvents";
 import { UIImage } from "../../components/ui/common/UIImage";
+import { UIText } from "../../components/ui/common/UIText";
 import { PlayerInput } from "../../components/controllers/PlayerInput";
 import { SceneObjectController } from "../../components/controllers/SceneObjectController";
 import { Heading2 } from "../../components/ui/Heading2";
 import { Heading3 } from "../../components/ui/Heading3";
 import { Home } from "./Home";
 import { Roles } from "./Roles";
+import { Guide } from "./Guide";
 import { MainMenuTitle } from "../../components/ui/MainMenuTitle";
 import { StandardGameSize } from "../../components/ui/common/UIBase";
 
@@ -18,8 +20,11 @@ export class MainMenu extends GuiBase {
   book: UIImage;
   bookTitle: Heading2;
   tabs: UIBase;
+  tab1: UIImage;
+  tab2: UIImage;
   home: Home;
   roles: Roles;
+  guide: Guide;
 
   bookWidth: number;
   bookHeight: number;
@@ -33,9 +38,10 @@ export class MainMenu extends GuiBase {
         width: StandardGameSize.maxWidth,
         height: StandardGameSize.maxHeight,
         alignModeName: ALIGNMODES.MIDDLE_CENTER,
+        marginY: -64,
       }),
       {
-        autoZoom: true,
+        // autoZoom: true,
       }
     );
     this.name = "MainMenu";
@@ -100,9 +106,10 @@ export class MainMenu extends GuiBase {
     //===========================================
     this.home = new Home(scene, this);
     this.roles = new Roles(scene, this);
+    this.guide = new Guide(scene, this);
 
     //===========================================
-    //    Others
+    //    Tabs
     //===========================================
     this.tabs = new UIBase(scene, {
       parent: this.book,
@@ -111,19 +118,44 @@ export class MainMenu extends GuiBase {
       marginX: Math.ceil(this.bookWidth * 0.08),
     });
     this.tabs.visible = false;
-    const tab1 = new UIImage(scene, "ui-book-tab", {
+    this.tab1 = new UIImage(scene, "ui-book-tab-selected", {
       width: (this.bookWidth / 896) * 64,
       height: (this.bookHeight / 720) * 33,
       parent: this.tabs,
       alignModeName: ALIGNMODES.RIGHT_TOP,
     });
     new UIImage(scene, "ui-book-tab-role", {
-      width: tab1.height * 0.5,
-      height: tab1.height * 0.5,
-      parent: tab1,
+      width: this.tab1.height * 0.5,
+      height: this.tab1.height * 0.5,
+      parent: this.tab1,
       alignModeName: ALIGNMODES.MIDDLE_CENTER,
-      marginY: -tab1.height * 0.1,
-      marginX: -tab1.width * 0.06,
+      marginY: -this.tab1.height * 0.1,
+      marginX: -this.tab1.width * 0.06,
+    });
+    this.tab2 = new UIImage(scene, "ui-book-tab", {
+      width: (this.bookWidth / 896) * 64,
+      height: (this.bookHeight / 720) * 33,
+      marginY: this.tab1.height + 4,
+      parent: this.tabs,
+      alignModeName: ALIGNMODES.RIGHT_TOP,
+    });
+    new UIImage(scene, "ui-book-tab-guide", {
+      width: this.tab1.height * 0.5,
+      height: this.tab1.height * 0.5,
+      parent: this.tab2,
+      alignModeName: ALIGNMODES.MIDDLE_CENTER,
+      marginY: -this.tab1.height * 0.1,
+      marginX: -this.tab1.width * 0.06,
+    });
+    new Heading3(scene, "[Tab]", {
+      parent: this.tabs,
+      alignModeName: ALIGNMODES.RIGHT_TOP,
+      fontColor: "#e7b988",
+      strokeColor: "#8e5930",
+      strokeThickness: 8,
+      fontSize: 20,
+      marginX: this.tab1.width * 0.1,
+      marginY: -32,
     });
   }
 
@@ -160,6 +192,7 @@ export class MainMenu extends GuiBase {
     if (anims?.isPlaying) return;
     this.rootUI.off(UIEvents.MENU, this.hidden, this);
     this.roles.hidden();
+    this.guide.hidden();
     this.tabs.hidden();
     this.book.image.once("animationstart", () => {
       setTimeout(() => {

@@ -46,6 +46,8 @@ export class GuiBase {
 
   destroying: boolean;
 
+  parent?: GuiBase;
+
   /**
    * Data listener events that depend on Phaser: https://newdocs.phaser.io/docs/3.80.0/Phaser.Data.Events.CHANGE_DATA
    */

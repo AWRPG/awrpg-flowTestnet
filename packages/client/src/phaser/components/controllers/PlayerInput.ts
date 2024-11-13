@@ -50,6 +50,7 @@ export class PlayerInput {
     if (UIConfig.KEY_CONFIRM.includes(key)) focus.onConfirmPressed(event);
     if (UIConfig.KEY_CANCEL.includes(key)) focus.onCancelPressed(event);
     if (UIConfig.KEY_MENU.includes(key)) focus.onMenuPressed(event);
+    if (UIConfig.KEY_SWITCH.includes(key)) focus.onTabPressed(event);
   }
 
   private static onKeyUp(event: KeyboardEvent) {

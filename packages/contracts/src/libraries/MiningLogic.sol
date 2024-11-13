@@ -64,7 +64,7 @@ library MiningLogic {
 
     // require mint amount to be within uint128
     uint128 amount = getAcutalMinedAmount(role).safeCastTo128();
-    ContainerLogic._mint(BERRY, role, amount);
+    ContainerLogic._mint(IRON, role, amount);
     ERC721Logic._transfer(getCustodian(building), building, role);
     MiningInfo.deleteRecord(role);
   }
@@ -77,9 +77,9 @@ library MiningLogic {
     return (miningRate * duration) / 10 ** decimals;
   }
 
-  // rn only mine BERRY
+  // rn only mine IRON
   function getAcutalMinedAmount(bytes32 role) internal view returns (uint256) {
-    bytes16 minedType = BERRY;
+    bytes16 minedType = IRON;
     uint128 size = SizeSpecs.get(minedType);
     uint256 storeSize = ContainerLogic.getRemainedSize(role);
     uint256 storeAmount = storeSize / size;

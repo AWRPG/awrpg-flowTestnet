@@ -1,10 +1,10 @@
-import { BuildingData } from "../../api/data";
+import buildings_json from "../../assets/data/buildings.json?url";
 
 export class GameData {
   static scene: Phaser.Scene;
   static preload(scene: Phaser.Scene) {
     this.scene = scene;
-    scene.load.json("buildings", "src/assets/data/buildings.json");
+    scene.load.json("buildings", buildings_json);
   }
 
   static getData(filename: string) {

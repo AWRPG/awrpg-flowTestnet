@@ -10,11 +10,17 @@ import {
   TileTerrainMap,
 } from "../../logics/terrain";
 import { combineToEntity } from "../../logics/move";
-import { HIGHLIGHT_MODE, TerrainType } from "../../constants";
+import {
+  HIGHLIGHT_MODE,
+  TerrainType,
+  terrainTypeMapping,
+} from "../../constants";
 import { MAX_MOVES } from "../../contract/constants";
 import { isRole, isBuilding, getEntitySpecs } from "../../logics/entity";
 import { getEntityOnCoord } from "../../logics/map";
 import { MoveStep } from "../../api/data";
+import { getBurnCosts } from "../../logics/cost";
+import { Hex } from "viem";
 
 export class TileHighlight extends SceneObject {
   /**
@@ -97,6 +103,7 @@ export class TileHighlight extends SceneObject {
           y: yTemp,
           distance: distanceTemp,
           type,
+          terrainType: terrain.terrainType as TerrainType,
         });
       });
     } else if (this.mode === HIGHLIGHT_MODE.MOVEOUT) {
@@ -131,6 +138,7 @@ export class TileHighlight extends SceneObject {
             y: terrain.y - (this.scene.cursor?.tileY ?? 0),
             distance: 0,
             type: "enter",
+            terrainType: terrain.terrainType as TerrainType,
           };
         });
     } else if (this.mode === HIGHLIGHT_MODE.ATTACK) {
@@ -147,11 +155,21 @@ export class TileHighlight extends SceneObject {
           y: terrain.y,
         });
         if (something) type = "attack2";
+        else {
+          // Burn terrain
+          const costs = getBurnCosts(
+            this.components,
+            terrainTypeMapping[terrain.terrainType as TerrainType]
+          ) as Hex[];
+          if (costs && costs.length > 0) type = "attack2";
+        }
+
         this.highlightData.push({
           x: xTemp,
           y: yTemp,
           distance: distanceTemp,
           type,
+          terrainType: terrain.terrainType as TerrainType,
         });
       });
     }

@@ -7,15 +7,28 @@ import { ItemData } from "../../../api/data";
 import { ALIGNMODES } from "../../../constants";
 import { ButtonA } from "../../components/ui/ButtonA";
 import { Heading3 } from "../../components/ui/Heading3";
+import { UIText } from "../../components/ui/common/UIText";
 import { Hex } from "viem";
 import { getDropContainer } from "../../../logics/drop";
 
 export class ItemsListMenu extends ListMenu {
   role: Role;
   constructor(scene: UIScene, role: Role, config?: GuiBaseConfig) {
-    super(scene, "Choose the item", config);
+    super(scene, "Item List", config);
     this.name = "ItemsListMenu";
     this.role = role;
+
+    new UIText(scene, "[F] Choose the item", {
+      fontFamily: "ThaleahFat",
+      fontSize: 32,
+      fontColor: "#233",
+      textAlign: "center",
+      lineSpacing: 12,
+      alignModeName: ALIGNMODES.MIDDLE_BOTTOM,
+      marginY: 24,
+      fontStyle: "500",
+      parent: this.rootUI,
+    });
   }
 
   show(prevGui?: GuiBase, datas?: ItemData[], ...params: unknown[]) {

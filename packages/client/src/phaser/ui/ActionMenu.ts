@@ -19,6 +19,7 @@ import {
   getComponentValue,
   runQuery,
   HasValue,
+  Has,
 } from "@latticexyz/recs";
 import { isHost } from "../../logics/entity";
 import {
@@ -34,6 +35,8 @@ import {
   GRID_SIZE,
   TileTerrain,
 } from "../../logics/terrain";
+import { AttackTips } from "./AttackTips";
+import { CraftMenu } from "./CraftMenu";
 
 /**
  * show the action buttons player can do
@@ -41,6 +44,8 @@ import {
 export class ActionMenu extends GuiBase {
   list: UIList;
   role?: Role;
+
+  attackTips?: AttackTips;
 
   /** */
   constructor(scene: UIScene) {
@@ -104,6 +109,19 @@ export class ActionMenu extends GuiBase {
     });
     items.push(item_move);
 
+    // [Button] Attack
+    const item_attack = new ButtonA(this.scene, {
+      text: "Attack",
+      onConfirm: () => {
+        this.hidden();
+        if (this.role) {
+          this.attackTips = new AttackTips(this.scene);
+          this.attackTips.show(this.role, this);
+        }
+      },
+    });
+    items.push(item_attack);
+
     // [Button] Construct
     const item_construct = new ButtonA(this.scene, {
       text: "Construct",
@@ -114,15 +132,37 @@ export class ActionMenu extends GuiBase {
     });
     items.push(item_construct);
 
-    // [Button] Attack
-    const item_attack = new ButtonA(this.scene, {
-      text: "Attack",
+    // [Button] Craft
+    const item_craft = new ButtonA(this.scene, {
+      text: "Craft",
       onConfirm: () => {
         this.hidden();
-        if (this.role) UIController.scene.attackTips?.show(this.role, this);
+        if (!this.role) {
+          UIController.focus = this.focusUI;
+          return;
+        }
+        const craftMenu = new CraftMenu(this.scene, this.role);
+        const craftTypes = [...runQuery([Has(this.components.CookSpecs)])];
+        const datas: {
+          inputs: Hex[];
+          outputType: Entity;
+        }[] = [];
+        craftTypes.forEach((outputType) => {
+          const cookSpec = getComponentValue(
+            this.components.CookSpecs,
+            outputType
+          );
+          if (!cookSpec) return;
+          const data = {
+            inputs: cookSpec.inputs as Hex[],
+            outputType,
+          };
+          datas.push(data);
+        });
+        craftMenu.show(this, datas);
       },
     });
-    items.push(item_attack);
+    items.push(item_craft);
 
     // [Button] Pick up
     const item_pick = this.updatePickupButton();

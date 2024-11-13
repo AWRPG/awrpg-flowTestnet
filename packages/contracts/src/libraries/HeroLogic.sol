@@ -31,7 +31,7 @@ library HeroLogic {
     );
     MapLogic._initGroundPath(hero, x, y);
 
-    ContainerLogic._mint(BERRY, hero, 40);
+    ContainerLogic._mint(BERRY, hero, 10);
     return (x, y, hero);
   }
 

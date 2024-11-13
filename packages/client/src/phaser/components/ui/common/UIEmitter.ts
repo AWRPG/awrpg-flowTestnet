@@ -193,6 +193,11 @@ export class UIEmitter {
     this.emit(UIEvents.MENU, this, event);
   }
 
+  onTabPressed(event: KeyboardEvent) {
+    if (this.disable) return;
+    this.emit(UIEvents.TAB, this, event);
+  }
+
   /**
    * When item has been selected (UIList)
    */

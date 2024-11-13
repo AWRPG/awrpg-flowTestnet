@@ -59,6 +59,13 @@ import safe_png from "../../assets/imgs/buildings/safe.png";
 import repository_png from "../../assets/imgs/buildings/repository.png";
 import mine_shaft_png from "../../assets/imgs/buildings/mine-shaft.png";
 import field_png from "../../assets/imgs/buildings/field.png";
+import guide_png from "../../assets/ui/main-menu/tabs/guide.png";
+import demo_guide_png from "../../assets/ui/demo_guide.png";
+import demo_guide2_png from "../../assets/ui/demo_guide2.png";
+import iron_png from "../../assets/icons/items/iron.png";
+import water_png from "../../assets/icons/items/water.png";
+import meat_png from "../../assets/icons/items/meat.png";
+import rock_png from "../../assets/icons/items/rock.png";
 
 export class UIScene extends Phaser.Scene {
   /**
@@ -97,8 +104,6 @@ export class UIScene extends Phaser.Scene {
   stakingMenu: StakingMenu | undefined;
 
   moveTips?: MoveTips;
-
-  attackTips?: AttackTips;
 
   constructTips?: ConstructTips;
 
@@ -158,10 +163,14 @@ export class UIScene extends Phaser.Scene {
     this.load.image("bag-icon-cursor4", icon_cursor4_png);
 
     // Items
-    this.load.image("icon-item-sword", sword_png);
-    this.load.image("icon-item-wood", wood_png);
-    this.load.image("icon-item-berry", berry_png);
-    this.load.image("icon-item-book", book_png);
+    this.load.image("icon-item-iron", iron_png);
+    this.load.image("icon-item-water", water_png);
+    this.load.image("icon-item-meat", meat_png);
+    this.load.image("icon-item-rock", rock_png);
+
+    this.load.image("ui-book-tab-guide", guide_png);
+    this.load.image("ui-demo-guide", demo_guide_png);
+    this.load.image("ui-demo-guide2", demo_guide2_png);
 
     // Avatars
     this.load.image("avatar-farmer-1-1", farmer_1_1_png);
@@ -179,7 +188,6 @@ export class UIScene extends Phaser.Scene {
     this.terrainUI = new TerrainUI(this);
     this.actionMenu = new ActionMenu(this);
     this.moveTips = new MoveTips(this);
-    this.attackTips = new AttackTips(this);
     this.constructMenu = new ConstructMenu(this);
     this.constructTips = new ConstructTips(this);
     this.buildingMenu = new BuildingMenu(this);
