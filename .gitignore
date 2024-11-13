@@ -3,3 +3,4 @@ mprocs.log
 /.vscode
 .eslintrc
 packages/client/.env.local
+.vercel
