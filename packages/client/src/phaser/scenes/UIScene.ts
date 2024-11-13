@@ -180,6 +180,11 @@ export class UIScene extends Phaser.Scene {
     this.load.image("img-building-repository", repository_png);
     this.load.image("img-building-mine-shaft", mine_shaft_png);
     this.load.image("img-building-field", field_png);
+
+    this.load.image("icon-item-sword", sword_png);
+    this.load.image("icon-item-wood", wood_png);
+    this.load.image("icon-item-berry", berry_png);
+    this.load.image("icon-item-book", book_png);
   }
 
   create() {
