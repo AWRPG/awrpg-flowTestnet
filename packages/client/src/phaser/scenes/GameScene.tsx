@@ -24,6 +24,9 @@ import {
   splitFromEntity,
   updateMoves,
   combineToEntity,
+  calculatePathMoves,
+  calculateOtherHostPathCoords,
+  coordsToMoves,
 } from "../../logics/move";
 import {
   BUILDING_TYPES,
@@ -360,14 +363,31 @@ export class GameScene extends Phaser.Scene {
           onClick: () => this.sourceSelectHandler(entity),
         });
       } else {
+        // Non-self role originally displayed on the scene needs movement animation
         const role = this.roles[entity];
         role.isMoving = false;
         if (role.moveTween) {
-          role.moveTween.timeScale = 1.25;
+          role.moveTween.timeScale = 1.25; // speed up since blockchain has confrimed
         } else {
           const path = getComponentValue(Path, entity);
-          if (path) role.setTilePosition(path.toX, path.toY);
-          role.initState();
+          if (!path) return;
+          if (path && path.toX === role.tileX && path.toY === role.tileY) {
+            role.initState();
+          } else {
+            const path2 = calculateOtherHostPathCoords(
+              this.components,
+              { x: path.toX, y: path.toY },
+              role.tilePosition,
+              role.entity
+            );
+            if (path2) {
+              const moves = coordsToMoves(path2);
+              if (moves && moves.length > 0) {
+                role.movesAnimation(moves);
+                role.moveTween!.timeScale = 2;
+              }
+            } else role.setTilePosition(path.toX, path.toY);
+          }
         }
       }
       // update tile highlight

@@ -159,6 +159,61 @@ export const calculatePathCoords = (
   return pathCoords;
 };
 
+export const calculateOtherHostPathCoords = (
+  components: ClientComponents,
+  targetCoord: {
+    x: number;
+    y: number;
+  },
+  sourceCoord: {
+    x: number;
+    y: number;
+  },
+  role: Entity
+) => {
+  // calculate gridCoords as any coords between source and target
+  let extra = 0; // extra coords to check
+  const extra_max = 4;
+  let pathCoords = null;
+  while (extra <= extra_max && !pathCoords) {
+    const targetGridCoord = {
+      x: Math.floor(targetCoord.x / GRID_SIZE),
+      y: Math.floor(targetCoord.y / GRID_SIZE),
+    };
+    const sourceGridCoord = {
+      x: Math.floor(sourceCoord.x / GRID_SIZE),
+      y: Math.floor(sourceCoord.y / GRID_SIZE),
+    };
+    const gridCoords = getRectangleCoords(
+      sourceGridCoord,
+      targetGridCoord,
+      extra
+    );
+    let terrains: TileTerrainMap[] = [];
+    gridCoords.forEach((coord) => {
+      const gridId = combineToEntity(coord.x, coord.y);
+      terrains = terrains.concat(getGridTerrains(components, gridId));
+    });
+    // check if terrain has a building to walk on
+    const terrains_building = terrains.map((terrain) => {
+      const tileId = combineToEntity(terrain.x, terrain.y);
+      if (canMoveAcrossTile(components, tileId, role)) return terrain;
+      return {
+        ...terrain,
+        terrainType: TerrainType.BUILDING,
+      };
+    });
+
+    pathCoords = dijkstraPathfinding(
+      sourceCoord,
+      targetCoord,
+      terrains_building
+    );
+    extra++;
+  }
+  return pathCoords;
+};
+
 // set new target coord from direction
 export const setNewTargetTilebyDirection = (
   components: ClientComponents,
