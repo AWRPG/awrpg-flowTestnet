@@ -1,7 +1,7 @@
 import { UIScene } from "../../scenes/UIScene";
 import { GuiBase } from "../GuiBase";
 import { DoublePage } from "./DoublePage";
-import { ALIGNMODES } from "../../../constants";
+import { ALIGNMODES, SOURCE } from "../../../constants";
 import { UIBase, StandardGameSize } from "../../components/ui/common/UIBase";
 import { UIEvents } from "../../components/ui/common/UIEvents";
 import { UIImage } from "../../components/ui/common/UIImage";
@@ -39,6 +39,7 @@ export class Roles extends DoublePage {
   bag: UIList;
   itemUseMenu?: ItemUseMenu;
   nameInput?: TextInput;
+  currentRoleIndex: number;
   constructor(scene: UIScene, parent: GuiBase) {
     super(scene, parent, "Roles", "Bag");
     this.name = "MainMenuRoles";
@@ -56,6 +57,7 @@ export class Roles extends DoublePage {
       },
     });
     this.focusUI = this.rolesList;
+    this.currentRoleIndex = -1;
 
     this.bag = new UIList(scene, {
       width: this.contentW - 16,
@@ -109,24 +111,36 @@ export class Roles extends DoublePage {
 
     this.rolesList.on(UIEvents.CONFIRM, this.onRolesListConfirm, this);
     this.rolesList.on(UIEvents.SELECT_CHANGE, this.onRolesListSelected, this);
-    if (this.rolesList.itemsCount > 0) this.rolesList.itemIndex = 0;
-    this.bag.on(UIEvents.CONFIRM, this.onBagConfirm, this);
-    this.bag.on(UIEvents.LEFT, this.onLeft, this);
     this.rolesList.on(UIEvents.RIGHT, this.onRight, this);
     this.rolesList.on(UIEvents.TAB, this.onTab, this);
+    this.bag.on(UIEvents.CONFIRM, this.onBagConfirm, this);
+    this.bag.on(UIEvents.LEFT, this.onLeft, this);
     this.bag.on(UIEvents.TAB, this.onTab, this);
+
+    if (this.currentRoleIndex >= 0) {
+      // Default selecet the current role
+      this.rolesList.itemIndex = this.currentRoleIndex;
+    } else if (this.rolesList.itemsCount > 0) {
+      this.rolesList.itemIndex = 0;
+    }
   }
 
   updateRoles() {
     const roles = getHosts(this.components, this.network);
     const items: UIBase[] = [];
-    roles.forEach((role) => {
+    this.currentRoleIndex = -1;
+    roles.forEach((role, index) => {
       const item = new BookListButton(this.scene, {
         width: this.rolesList.itemWidth,
         text: role.name + " #" + role.id.toString(),
         data: role,
       });
       items.push(item);
+      const selectedHost = getComponentValue(
+        this.components.SelectedHost,
+        SOURCE
+      )?.value;
+      if (role.entity === selectedHost) this.currentRoleIndex = index;
     });
     const item = new BookListButton(this.scene, {
       width: this.rolesList.itemWidth,
