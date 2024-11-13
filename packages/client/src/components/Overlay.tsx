@@ -55,7 +55,6 @@ export default function Overlay() {
     network: { playerEntity, walletClient },
   } = useMUD();
 
-  console.log("public address: ", walletClient.account.address);
   const sourceHost = useComponentValue(SelectedHost, SOURCE)?.value;
   const target = useComponentValue(SelectedHost, TARGET)?.value;
   const targetTile = useComponentValue(TargetTile, TARGET)?.value;
@@ -70,6 +69,8 @@ export default function Overlay() {
     HasValue(Commander, { value: playerEntity }),
   ]);
   if (!toggled) return null;
+
+  console.log("public address: ", walletClient.account.address);
 
   return (
     <div className="absolute h-full w-full pointer-events-none">
