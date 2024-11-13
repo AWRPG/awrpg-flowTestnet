@@ -75,7 +75,7 @@ export async function getNetworkConfig() {
     : world?.blockNumber ?? 0n;
 
   return {
-    privateKey: import.meta.env.VITE_PRIVATE_KEY, // getBurnerPrivateKey(), //
+    privateKey: getBurnerPrivateKey(), //import.meta.env.VITE_PRIVATE_KEY, //
     chainId,
     chain,
     worldAddress,

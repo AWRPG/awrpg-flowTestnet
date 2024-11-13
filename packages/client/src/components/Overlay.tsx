@@ -70,8 +70,6 @@ export default function Overlay() {
   ]);
   if (!toggled) return null;
 
-  console.log("public address: ", walletClient.account.address);
-
   return (
     <div className="absolute h-full w-full pointer-events-none">
       {/* {sourceHost && (
@@ -82,6 +80,7 @@ export default function Overlay() {
       )} */}
       {targetTile && (
         <div className="absolute pointer-events-auto bottom-2 left-2">
+          <span>{walletClient.account.address}</span>
           <Tile tile={targetTile} />
         </div>
       )}
