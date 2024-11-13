@@ -24,6 +24,7 @@ import {
 import { getEntitiesInCustodian } from "../../logics/custodian";
 import { getEquipment, getEquipmentInfo } from "../../logics/equipment";
 import { WEAPON } from "../../contract/constants";
+import { UIText } from "../components/ui/common/UIText";
 
 /**
  * About the scene object with avatar such as character or building
@@ -73,6 +74,8 @@ export class Role extends SceneObject {
 
   totalAttack: number = 0;
 
+  hostName: string;
+
   /**
    * @param scene the scene belong
    * @param params others
@@ -110,6 +113,19 @@ export class Role extends SceneObject {
     this.avatar = new Phaser.GameObjects.Sprite(scene, 0, 0, this.textureKey);
     this.avatar.setOrigin(0.46, 0.7);
     this.root.add(this.avatar);
+
+    // name
+    this.hostName =
+      getComponentValue(this.components.HostName, entity)?.name ?? "";
+    const textObj = new Phaser.GameObjects.Text(scene, 0, -28, this.hostName, {
+      fontFamily: "ThaleahFat",
+      fontSize: 24 + "px",
+      color: "#eee",
+    });
+    textObj.setScale(0.25);
+    this.root.add(textObj);
+    this.root.bringToTop(textObj);
+    textObj.x -= textObj.width / 8;
 
     this.initState();
   }
