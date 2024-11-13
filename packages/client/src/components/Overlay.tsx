@@ -20,7 +20,7 @@ import {
   SWAP_MENU,
   OVERLAY,
 } from "../constants";
-import { Has, HasValue } from "@latticexyz/recs";
+import { getComponentValue, Has, HasValue } from "@latticexyz/recs";
 // import PoolBars from "./PoolBars";
 import MainMenu from "./menu/MainMenu";
 import ExploreMenu from "./menu/ExploreMenu";
@@ -40,6 +40,10 @@ import { Role } from "./host/Role";
 import { Tile } from "./tile/Tile";
 import useHotkeys from "../hooks/useHotKeys";
 import { SpawnHero } from "./host/SpawnHero";
+import TxSuccessMessage, {
+  TxPendingMessage,
+  TxErrorMessage,
+} from "./TxMessage";
 
 export default function Overlay() {
   useHotkeys();
@@ -51,6 +55,9 @@ export default function Overlay() {
       ConsoleMessage,
       TargetTile,
       ToggledOn,
+      TxSuccess,
+      TxError,
+      TxPending,
     },
     network: { playerEntity, walletClient },
   } = useMUD();
@@ -68,7 +75,24 @@ export default function Overlay() {
   const playerHosts = useEntityQuery([
     HasValue(Commander, { value: playerEntity }),
   ]);
-  if (!toggled) return null;
+
+  const successMessages = [...useEntityQuery([Has(TxSuccess)])].map(
+    (entity) => ({
+      hash: entity,
+      message: getComponentValue(TxSuccess, entity)?.message ?? "",
+    })
+  );
+  const errorMessages = [...useEntityQuery([Has(TxError)])].map((entity) => ({
+    hash: entity,
+    message: getComponentValue(TxError, entity)?.message ?? "",
+  }));
+  const TxPendingMessages = [...useEntityQuery([Has(TxPending)])].map(
+    (entity) => ({
+      hash: entity,
+      message: getComponentValue(TxPending, entity)?.message ?? "",
+    })
+  );
+  // if (!toggled) return null;
 
   return (
     <div className="absolute h-full w-full pointer-events-none">
@@ -78,12 +102,27 @@ export default function Overlay() {
           <Role role={sourceHost} />
         </div>
       )} */}
-      {targetTile && (
+      {toggled && (
         <div className="absolute pointer-events-auto bottom-2 left-2">
           <span>{walletClient.account.address}</span>
+        </div>
+      )}
+      {toggled && targetTile && (
+        <div className="absolute pointer-events-auto bottom-2 left-2">
           <Tile tile={targetTile} />
         </div>
       )}
+      <div className="absolute pointer-events-auto bottom-1/4 right-2 z-100">
+        {TxPendingMessages.map(({ hash, message }) => (
+          <TxPendingMessage key={hash} hash={hash} message={message} />
+        ))}
+        {successMessages.map(({ hash, message }) => (
+          <TxSuccessMessage key={hash} hash={hash} message={message} />
+        ))}
+        {errorMessages.map(({ hash, message }) => (
+          <TxErrorMessage key={hash} hash={hash} message={message} />
+        ))}
+      </div>
       {/* <div className="relative h-full">
         <div className="absolute pointer-events-auto top-2 right-2 font-['Press_Start_2P']">
           {menu === MAIN_MENU && <MainMenu player={playerEntity} />}
