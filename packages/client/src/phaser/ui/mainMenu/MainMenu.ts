@@ -180,7 +180,7 @@ export class MainMenu extends GuiBase {
     this.book.image.once("animationcomplete", () => {
       // Must begin listening after animation complete
       this.tabs.show();
-      this.roles.show();
+      this.guide.show();
       PlayerInput.onlyListenUI();
       this.rootUI.on(UIEvents.MENU, this.hidden, this);
     });

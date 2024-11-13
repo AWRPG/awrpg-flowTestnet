@@ -207,5 +207,8 @@ export class UIScene extends Phaser.Scene {
     // this.stakeMenu = new StakeMenu(this);
     // this.stakingMenu = new StakingMenu(this);
     UIController.init(this);
+
+    // Demo
+    this.mainMenu.show();
   }
 }
