@@ -4,6 +4,7 @@
  */
 
 import {
+  Component,
   Entity,
   getComponentValue,
   removeComponent,
@@ -48,7 +49,7 @@ export function createSystemCalls(
   }: SetupNetworkResult,
   components: ClientComponents
 ) {
-  const { Moves } = components;
+  const { Moves, TxSuccess, TxError, TxPending } = components;
 
   const getNoise = (x: number, y: number, perlin_denom?: number) => {
     perlin_denom = perlin_denom ?? PERLIN_DENOM;
@@ -56,10 +57,43 @@ export function createSystemCalls(
     return Math.floor(noise * 100);
   };
 
+  const handleTxMessage = (
+    txComponent: Component,
+    tx: Hex,
+    message: string
+  ) => {
+    setComponent(txComponent, tx as Entity, { message });
+    if (txComponent === TxSuccess) {
+      removeComponent(TxPending, tx as Entity);
+    }
+    setTimeout(() => {
+      removeComponent(txComponent, tx as Entity);
+    }, 5000);
+  };
+
+  const handleTx = async (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    $write: Promise<any>,
+    pendingMessage: string,
+    successMessage: string
+  ) => {
+    const tx = await $write.catch((e) => {
+      handleTxMessage(TxError, singletonEntity as Hex, e.message);
+      throw e;
+    });
+    handleTxMessage(TxPending, tx, pendingMessage);
+    return await waitForTransaction(tx)
+      .then(() => handleTxMessage(TxSuccess, tx, successMessage))
+      .catch((e) => {
+        handleTxMessage(TxError, tx, e.message);
+        throw e;
+      });
+  };
+
   const spawnHero = async (name?: string) => {
     name = name ?? "Hero";
-    const tx = await worldContract.write.spawnHero([name]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.spawnHero([name]);
+    await handleTx(write, "Spawning...", "Spawned");
     selectNextHost(components, playerEntity);
   };
 
@@ -69,31 +103,24 @@ export function createSystemCalls(
     name?: string
   ) => {
     name = name ?? "Hero";
-    const tx = await worldContract.write.spawnHeroOnCoord([
+    const write = worldContract.write.spawnHeroOnCoord([
       name,
       oldHero,
       coord.x,
       coord.y,
     ]);
-    await waitForTransaction(tx);
+    return await handleTx(write, "Spawning on coord...", "Spawned");
   };
 
   const move = async (host: Hex, moves: number[]) => {
-    const tx = await worldContract.write.move([host, moves]);
-    // setComponent(MockPath, host, )
-    await waitForTransaction(tx);
-    // try {
-    //   const tx = await worldContract.write.move([TEST, moves]);
-    // } catch (error) {
-    //   console.error("Transaction failed:", error);
-    // removeComponent(MockPath, host)
-    // }
-    removeComponent(Moves, host as Entity);
+    const write = worldContract.write.move([host, moves]);
+    await handleTx(write, "Moving...", "Moved");
+    return removeComponent(Moves, host as Entity);
   };
 
   const burnTerrain = async (host: Hex, coord: Vector) => {
-    const tx = await worldContract.write.burnTerrain([host, coord.x, coord.y]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.burnTerrain([host, coord.x, coord.y]);
+    await handleTx(write, "Burning...", "Burned");
   };
 
   const interactTerrain = async (host: Hex, coord: Vector) => {
@@ -118,7 +145,7 @@ export function createSystemCalls(
     adjacentCoord: Vector,
     lowerCoord: Vector
   ) => {
-    const tx = await worldContract.write.buildBuilding([
+    const write = worldContract.write.buildBuilding([
       host,
       buildingType,
       adjacentCoord.x,
@@ -126,12 +153,12 @@ export function createSystemCalls(
       lowerCoord.x,
       lowerCoord.y,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Building...", "Built");
   };
 
   const consumeERC20 = async (host: Hex, itemType: Hex) => {
-    const tx = await worldContract.write.consumeERC20([itemType, host]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.consumeERC20([itemType, host]);
+    await handleTx(write, "Consuming...", "Consumed");
   };
 
   const transferERC20 = async (
@@ -140,7 +167,7 @@ export function createSystemCalls(
     itemType: Hex,
     amount: bigint
   ) => {
-    const tx = await worldContract.write.transferERC20([
+    const write = worldContract.write.transferERC20([
       itemType,
       from.x,
       from.y,
@@ -148,18 +175,18 @@ export function createSystemCalls(
       to.y,
       amount,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Transferring erc20...", "Transferred");
   };
 
   const transferERC721 = async (from: Vector, to: Vector, entity: Hex) => {
-    const tx = await worldContract.write.transferERC721([
+    const write = worldContract.write.transferERC721([
       from.x,
       from.y,
       to.x,
       to.y,
       entity,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Transferring erc721...", "Transferred");
   };
 
   const setSwapRatio = async (
@@ -169,14 +196,14 @@ export function createSystemCalls(
     num: number,
     denom: number
   ) => {
-    const tx = await worldContract.write.setSwapRatio([
+    const write = worldContract.write.setSwapRatio([
       fromType,
       toType,
       host,
       num,
       denom,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Setting swap ratio...", "Set swap ratio");
   };
 
   const swapERC20 = async (
@@ -186,42 +213,41 @@ export function createSystemCalls(
     to: Hex,
     amount: bigint
   ) => {
-    const tx = await worldContract.write.swapERC20([
+    const write = worldContract.write.swapERC20([
       fromType,
       toType,
       from,
       to,
       amount,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Swapping erc20...", "Swapped");
   };
 
   const setTerrainValues = async (gridCoord: Vector, values: bigint) => {
-    console.log("setTerrainValues", gridCoord, values);
-    const tx = await worldContract.write.setTerrainValues([
+    const write = worldContract.write.setTerrainValues([
       gridCoord.x,
       gridCoord.y,
       values,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Setting terrain values...", "Set terrain values");
   };
 
   const setTerrainValue = async (tileCoord: Vector, value: number) => {
-    const tx = await worldContract.write.setTerrainValue([
+    const write = worldContract.write.setTerrainValue([
       tileCoord.x,
       tileCoord.y,
       value,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Setting terrain value...", "Set terrain value");
   };
 
   const enterBuilding = async (role: Hex, enterCoord: Vector) => {
-    const tx = await worldContract.write.enterBuilding([
+    const write = worldContract.write.enterBuilding([
       role,
       enterCoord.x,
       enterCoord.y,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Entering building...", "Entered building");
   };
 
   const exitBuilding = async (
@@ -229,43 +255,43 @@ export function createSystemCalls(
     buildingCoord: Vector,
     exitCoord: Vector
   ) => {
-    const tx = await worldContract.write.exitBuilding([
+    const write = worldContract.write.exitBuilding([
       role,
       buildingCoord.x,
       buildingCoord.y,
       exitCoord.x,
       exitCoord.y,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Exiting building...", "Exited building");
   };
 
   const startMining = async (role: Hex, buildingCoord: Vector) => {
-    const tx = await worldContract.write.startMining([
+    const write = worldContract.write.startMining([
       role,
       buildingCoord.x,
       buildingCoord.y,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Starting mining...", "Started mining");
   };
 
   const stopMining = async (role: Hex) => {
-    const tx = await worldContract.write.stopMining([role]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.stopMining([role]);
+    await handleTx(write, "Stopping mining...", "Stopped mining");
   };
 
   const attack = async (attacker: Hex, target: Hex) => {
-    const tx = await worldContract.write.attack([attacker, target]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.attack([attacker, target]);
+    await handleTx(write, "Attacking...", "Attacked");
   };
 
   const revive = async (role: Hex, target: Hex) => {
-    const tx = await worldContract.write.revive([role, target]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.revive([role, target]);
+    await handleTx(write, "Reviving...", "Revived");
   };
 
   const dropERC20 = async (role: Hex, itemType: Hex, amount: bigint) => {
-    const tx = await worldContract.write.dropERC20([role, itemType, amount]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.dropERC20([role, itemType, amount]);
+    await handleTx(write, "Dropping erc20...", "Dropped");
   };
 
   const pickupERC20 = async (
@@ -276,7 +302,7 @@ export function createSystemCalls(
     tileX: number,
     tileY: number
   ) => {
-    const tx = await worldContract.write.pickupERC20([
+    const write = worldContract.write.pickupERC20([
       role,
       from,
       itemType,
@@ -284,12 +310,12 @@ export function createSystemCalls(
       tileX,
       tileY,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Picking up erc20...", "Picked up");
   };
 
   const dropERC721 = async (entity: Hex) => {
-    const tx = await worldContract.write.dropERC721([entity]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.dropERC721([entity]);
+    await handleTx(write, "Dropping erc721...", "Dropped");
   };
 
   const pickupERC721 = async (
@@ -299,49 +325,49 @@ export function createSystemCalls(
     tileX: number,
     tileY: number
   ) => {
-    const tx = await worldContract.write.pickupERC721([
+    const write = worldContract.write.pickupERC721([
       role,
       from,
       entity,
       tileX,
       tileY,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Picking up erc721...", "Picked up");
   };
 
   const stake = async (role: Hex, stakeType: Hex, coord: Vector) => {
-    const tx = await worldContract.write.stake([
+    const write = worldContract.write.stake([
       role,
       stakeType,
       coord.x,
       coord.y,
     ]);
-    await waitForTransaction(tx);
+    await handleTx(write, "Staking...", "Staked");
   };
 
   const unstake = async (role: Hex, coord: Vector) => {
-    const tx = await worldContract.write.unstake([role, coord.x, coord.y]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.unstake([role, coord.x, coord.y]);
+    await handleTx(write, "Unstaking...", "Unstaked");
   };
 
   const claim = async (role: Hex, coord: Vector) => {
-    const tx = await worldContract.write.claim([role, coord.x, coord.y]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.claim([role, coord.x, coord.y]);
+    await handleTx(write, "Claiming...", "Claimed");
   };
 
   const equip = async (equipment: Hex, equipType: Hex) => {
-    const tx = await worldContract.write.equip([equipment, equipType]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.equip([equipment, equipType]);
+    await handleTx(write, "Equipping...", "Equipped");
   };
 
   const unequip = async (host: Hex, equipType: Hex) => {
-    const tx = await worldContract.write.unequip([host, equipType]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.unequip([host, equipType]);
+    await handleTx(write, "Unequipping...", "Unequipped");
   };
 
   const craft = async (host: Hex, craftType: Hex) => {
-    const tx = await worldContract.write.craft([host, craftType]);
-    await waitForTransaction(tx);
+    const write = worldContract.write.craft([host, craftType]);
+    await handleTx(write, "Crafting...", "Crafted");
   };
 
   return {

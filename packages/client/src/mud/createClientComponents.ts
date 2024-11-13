@@ -68,5 +68,16 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     ToggledOn: defineComponent(world, {
       value: Type.Boolean,
     }),
+    // txHash -> message
+    TxSuccess: defineComponent(world, {
+      message: Type.String,
+    }),
+    // txHash -> message
+    TxError: defineComponent(world, {
+      message: Type.String,
+    }),
+    TxPending: defineComponent(world, {
+      message: Type.String,
+    }),
   };
 }

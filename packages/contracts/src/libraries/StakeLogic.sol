@@ -30,6 +30,8 @@ library StakeLogic {
   }
 
   function _unstake(bytes32 host, bytes32 building) internal {
+    _claimAndUnstake(host, building);
+
     bytes32 stakingId = getStaking(host, building);
     if (StakingInfo.getBuilding(stakingId) != building) revert Errors.HasNoStakeInBuilding();
 
