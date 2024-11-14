@@ -16,7 +16,7 @@ export function Loading() {
 
   return (
     <div
-      className="w-screen h-screen flex items-center justify-center"
+      className="absolute w-screen h-screen flex items-center justify-center"
       style={{ fontFamily: "Joystix" }}
     >
       <div>

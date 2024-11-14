@@ -6,6 +6,7 @@ import { Entity, HasValue, getComponentValue } from "@latticexyz/recs";
 import { SOURCE } from "./constants";
 import { Hex } from "viem";
 import Overlay from "./components/Overlay";
+import { Loading } from "./components/Loading";
 
 export const App = () => {
   const ready = useSyncComputedComponents();
@@ -19,5 +20,10 @@ export const App = () => {
   const hasSpawned =
     useEntityQuery([HasValue(Commander, { value: playerEntity })]).length > 0;
 
-  return <>{ready && <Overlay />}</>;
+  return (
+    <>
+      {ready && <Overlay />}
+      {!ready && <Loading />}
+    </>
+  );
 };
