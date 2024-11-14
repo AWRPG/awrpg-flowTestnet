@@ -114,5 +114,6 @@ export async function setupNetwork() {
     waitForTransaction,
     worldContract,
     write$: write$.asObservable().pipe(share()),
+    blockExplorerUrl: networkConfig.blockExplorerUrl,
   };
 }

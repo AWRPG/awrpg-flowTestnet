@@ -78,6 +78,8 @@ export async function getNetworkConfig() {
     privateKey: getBurnerPrivateKey(), //import.meta.env.VITE_PRIVATE_KEY, //
     chainId,
     chain,
+    blockExplorerUrl:
+      params.get("explorer") ?? chain.blockExplorers?.default.url,
     worldAddress,
     initialBlockNumber,
   };

@@ -10,10 +10,50 @@
  *
  */
 
-import { MUDChain, mudFoundry, redstone, garnet } from "@latticexyz/common/chains";
+import {
+  MUDChain,
+  mudFoundry,
+  redstone,
+  garnet,
+} from "@latticexyz/common/chains";
 
 /*
  * See https://mud.dev/tutorials/minimal/deploy#run-the-user-interface
  * for instructions on how to add networks.
  */
-export const supportedChains: MUDChain[] = [mudFoundry, redstone, garnet];
+export const garnetHolesky = {
+  id: 17069,
+  name: "Garnet Holesky",
+  network: "garnet-holesky",
+  summary: {
+    location: "Holesky",
+  },
+  description: "Garnet Holesky",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Holesky Ether",
+    symbol: "ETH",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.garnetchain.com"],
+      webSocket: ["wss://rpc.garnetchain.com"],
+    },
+    public: {
+      http: ["https://rpc.garnetchain.com"],
+      webSocket: ["wss://rpc.garnetchain.com"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Blockscout",
+      url: "https://explorer.garnetchain.com",
+    },
+  },
+  indexerUrl: "https://indexer.mud.garnet.qry.live",
+  testnet: true,
+};
+
+export const supportedChains: (MUDChain & {
+  indexerUrl?: undefined | string;
+})[] = [mudFoundry, redstone, garnetHolesky];
