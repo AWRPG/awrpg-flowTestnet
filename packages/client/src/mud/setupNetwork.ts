@@ -36,6 +36,7 @@ import { Subject, share } from "rxjs";
  * for the source of this information.
  */
 import mudConfig from "contracts/mud.config";
+import { requestFaucetEth } from "./requestFaucetEth";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -73,6 +74,13 @@ export async function setupNetwork() {
   })
     .extend(transactionQueue())
     .extend(writeObserver({ onWrite: (write) => write$.next(write) }));
+
+  /*
+   * try request ETH from the faucet
+   * only for testnet
+   */
+  const FAUCET_URL = "https://faucet-production-6bb3.up.railway.app";
+  requestFaucetEth(burnerAccount.address, publicClient, FAUCET_URL);
 
   /*
    * Create an object for communicating with the deployed World.
