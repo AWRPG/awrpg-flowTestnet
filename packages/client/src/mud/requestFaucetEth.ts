@@ -15,21 +15,21 @@ export async function requestFaucetEth(
 ) {
   try {
     // 1. Check initial balance
-    console.log(`{Checking initial balance for... ${address}`);
+    // console.log(`{Checking initial balance for... ${address}`);
     const initialBalance = await client.getBalance({
       address: address as `0x${string}`,
     });
-    console.log(`Initial balance: ${formatEther(initialBalance)} ETH`);
+    // console.log(`Initial balance: ${formatEther(initialBalance)} ETH`);
 
     const threshold = parseEther("0.01");
 
     if (initialBalance >= threshold) {
-      console.log(`Balance is already enough`);
+      // console.log(`Balance is already enough`);
       return;
     }
 
     // 2. Make faucet request
-    console.log("\nRequesting ETH from faucet...");
+    // console.log("\nRequesting ETH from faucet...");
     const response = await fetch(`${FAUCET_URL}/faucet`, {
       method: "POST",
       headers: {
@@ -55,30 +55,29 @@ export async function requestFaucetEth(
         address: address as `0x${string}`,
       });
 
-      console.log(`Current balance: ${formatEther(currentBalance)} ETH`);
+      // console.log(`Current balance: ${formatEther(currentBalance)} ETH`);
 
       if (currentBalance > initialBalance) {
-        console.log("\nSuccess! Balance has increased!");
-        console.log(
-          `Received: ${formatEther(currentBalance - initialBalance)} ETH`
-        );
+        // console.log("\nSuccess! Balance has increased!");
+        // console.log(
+        //   `Received: ${formatEther(currentBalance - initialBalance)} ETH`
+        // );
         return;
       }
 
       if (attempts >= maxAttempts) {
-        console.log("\nTimeout: No balance change detected after 5 minutes");
+        // console.log("\nTimeout: No balance change detected after 5 minutes");
         return;
       }
 
-      console.log(
-        `Checking again in 10 seconds... (Attempt ${attempts}/${maxAttempts})`
-      );
+      // console.log(
+      //   `Checking again in 10 seconds... (Attempt ${attempts}/${maxAttempts})`
+      // );
       setTimeout(checkBalance, 10000);
     };
 
     await checkBalance();
   } catch (error) {
-    console.error("Error:", error);
-    throw error;
+    console.error();
   }
 }
