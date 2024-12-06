@@ -112,6 +112,16 @@ export const calculatePathCoords = (
   const targetCoordId = getComponentValue(TargetTile, TARGET)?.value;
   if (!targetCoordId) return;
   const targetCoord = splitFromEntity(targetCoordId);
+  return calculatePathToTargetCoord(components, systemCalls, role, targetCoord);
+};
+
+// calc coords to move from role -> target tile coord
+export const calculatePathToTargetCoord = (
+  components: ClientComponents,
+  systemCalls: SystemCalls,
+  role: Entity,
+  targetCoord: Vector
+) => {
   const sourceCoord = getPositionFromPath(components, role);
   if (!sourceCoord) return;
   // available coords need to go through several grids' terrainValues
