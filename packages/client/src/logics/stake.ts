@@ -17,6 +17,7 @@ import { getStaking } from "../contract/hashes";
 import { useComponentValue } from "@latticexyz/react";
 import { getEntitySpecs } from "./entity";
 import useRerender from "../hooks/useRerender";
+import { singletonEntity } from "@latticexyz/store-sync/recs";
 
 export const useRemainedToClaim = (
   components: ClientComponents,
@@ -45,7 +46,8 @@ export const getRemainedToClaim = (
   const encodedType = encodeTypeEntity(outputType as Hex) as Entity;
   const timeCost = getComponentValue(StakeSpecs, encodedType)?.timeCost;
   if (!timeCost) return;
-  return lastUpdated + timeCost - unixTimeSecond();
+  const remained = lastUpdated + timeCost - unixTimeSecond();
+  return remained <= 0 ? 0 : remained;
 };
 
 /**
@@ -53,12 +55,32 @@ export const getRemainedToClaim = (
  */
 export const useHasStaking = (
   components: ClientComponents,
-  role: Entity,
   building: Entity
 ) => {
+  const role = singletonEntity;
   const stakingId = getStaking(role as Hex, building as Hex) as Entity;
   const stakingInfo = useComponentValue(components.StakingInfo, stakingId);
   return stakingInfo !== undefined;
+};
+
+export const hasStaking = (components: ClientComponents, building: Entity) => {
+  const role = singletonEntity;
+  const stakingId = getStaking(role as Hex, building as Hex) as Entity;
+  const stakingInfo = getComponentValue(components.StakingInfo, stakingId);
+  return stakingInfo !== undefined;
+};
+
+export const hasReadyStaking = (
+  components: ClientComponents,
+  building: Entity
+) => {
+  const role = singletonEntity;
+  const stakingId = getStaking(role as Hex, building as Hex) as Entity;
+  const stakingInfo = getComponentValue(components.StakingInfo, stakingId);
+  if (!stakingInfo) return false;
+  const remained = getRemainedToClaim(components, stakingId);
+  if (remained === undefined) return false;
+  return remained <= 0;
 };
 
 export const getBuildingStakeOuputTypes = (

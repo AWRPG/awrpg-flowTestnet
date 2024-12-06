@@ -14,6 +14,7 @@ import { SystemCalls } from "../mud/createSystemCalls";
 import { SetupResult } from "../mud/setup";
 import { getPosition } from "../logics/path";
 import { EliminationStrategy } from "./AttackStrategy";
+import { PlunderStrategy } from "./plunderStrategy";
 
 export const updateInterval = 2;
 
@@ -116,6 +117,7 @@ export class ExplorationStrategy implements Strategy {
 export const strategyMapping = {
   exploration: ExplorationStrategy,
   elimination: EliminationStrategy,
+  plunder: PlunderStrategy,
 };
 export function stringToStrategy(strategyName: string): Strategy | undefined {
   const StrategyClass =

@@ -1,4 +1,3 @@
-import { Vector } from "matter";
 import { TerrainType, terrainTypeMapping } from "../constants";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { ClientComponents } from "../mud/createClientComponents";
@@ -6,6 +5,7 @@ import { Entity, getComponentValue } from "@latticexyz/recs";
 import { castToBytes32, encodeTypeEntity } from "../utils/encode";
 import { combine } from "./move";
 import { getTerrainType } from "./terrain";
+import { Vector } from "../utils/vector";
 
 export const getEntityOnCoord = (
   components: ClientComponents,

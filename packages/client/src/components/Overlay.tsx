@@ -113,9 +113,11 @@ export default function Overlay() {
           <Tile tile={targetTile} />
         </div>
       )}
-      <div className="absolute pointer-events-auto top-1/4 right-2 z-120">
-        <Bots />
-      </div>
+      {toggled && (
+        <div className="absolute pointer-events-auto top-1/4 right-2 z-120">
+          <Bots />
+        </div>
+      )}
       <div className="absolute pointer-events-auto bottom-1/4 right-2 z-100">
         {TxPendingMessages.map(({ hash, message }) => (
           <TxPendingMessage key={hash} hash={hash} message={message} />

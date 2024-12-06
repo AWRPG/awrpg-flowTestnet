@@ -5,6 +5,7 @@ import {
   Entity,
   getComponentValue,
   HasValue,
+  removeComponent,
   setComponent,
 } from "@latticexyz/recs";
 
@@ -61,6 +62,10 @@ export function Bot({ bot }: { bot: Entity }) {
     });
   };
 
+  const removeStrategy = () => {
+    removeComponent(BotState, bot);
+  };
+
   return (
     <div className="flex flex-row">
       <h2>{botName}</h2>
@@ -77,11 +82,11 @@ export function Bot({ bot }: { bot: Entity }) {
       >
         set following {sourceName}
       </button>
-      <button
-        className="btn-blue"
-        onClick={() => chooseStrategy("elimination")}
-      >
-        toggle combat mode {violence ? "off" : "on"}
+      <button className="btn-blue" onClick={() => chooseStrategy("plunder")}>
+        plunder
+      </button>
+      <button className="btn-blue" onClick={() => removeStrategy()}>
+        remove
       </button>
     </div>
   );

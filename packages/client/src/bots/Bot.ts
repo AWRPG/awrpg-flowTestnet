@@ -28,6 +28,7 @@ import {
 } from "./strategy";
 import { CombatSubStrategy } from "./combatSubStrategy";
 import { withinAttackRange } from "../logics/combat";
+import { getRoleAndHostAdjacentCoord } from "../logics/building";
 
 export interface BotState {
   bot: Bot;
@@ -88,7 +89,10 @@ export class Bot {
 
     defineSystem(world, [Has(BotState)], ({ entity, type }) => {
       if (entity !== this.entity) return;
-      if (type === UpdateType.Exit) return;
+      if (type === UpdateType.Exit) {
+        this.removeStrategy();
+        return;
+      }
       const state = getComponentValue(BotState, entity)!;
       const strategies = state.strategies || [];
       const strategyClasses = strategies
@@ -183,6 +187,16 @@ export class Bot {
     const moves = coordsToMoves(pathCoords);
     if (!moves) return;
     await move(this.entity as Hex, moves);
+  }
+
+  async claim(staker: Entity) {
+    const adjacentCoord = getRoleAndHostAdjacentCoord(
+      this.components,
+      this.entity,
+      staker
+    );
+    if (!adjacentCoord) return;
+    await this.systemCalls.claim(this.entity as Hex, adjacentCoord);
   }
 
   async attack(target: Entity) {
