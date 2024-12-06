@@ -45,3 +45,32 @@ export const hasEntityOnCoord = (
   const coordId = getCoordId(position.x, position.y) as Entity;
   return getComponentValue(components.TileEntity, coordId) ? true : false;
 };
+
+// return coords that is in range with the given vector
+export const getCoordsInRange = (vector: Vector, range = 5): Vector[] => {
+  const coords = [];
+  for (let dx = -range; dx <= range; dx++) {
+    for (let dy = -range; dy <= range; dy++) {
+      if (dx !== 0 || dy !== 0) {
+        coords.push({ x: vector.x + dx, y: vector.y + dy });
+      }
+    }
+  }
+  return coords;
+};
+
+// return entities that is in range with the given vector
+export const getEntitiesinRange = (
+  components: ClientComponents,
+  position: Vector,
+  range = 5
+): Entity[] => {
+  const coords = getCoordsInRange(position, range);
+  const entities = coords
+    .map((coord) => getEntityOnCoord(components, coord))
+    .filter((entity): entity is Entity => !!entity);
+  return entities;
+  // return entities.filter(
+  //   (entity, index, self) => self.indexOf(entity) === index
+  // );
+};
