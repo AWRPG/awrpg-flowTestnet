@@ -29,6 +29,7 @@ export class PlayerInput {
 
   private static onKeyDown(event: KeyboardEvent) {
     if (!UIController.scene) return;
+    if (document.activeElement?.tagName === "TEXTAREA") return;
     // if (!this.flagUp) return;
     this.flagUp = false;
     const focusUI = UIController.focus;

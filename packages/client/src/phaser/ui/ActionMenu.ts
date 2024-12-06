@@ -105,23 +105,36 @@ export class ActionMenu extends GuiBase {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: "text=" + text,
+      body:
+        "text=" +
+        encodeURIComponent(text) +
+        "&name=" +
+        "BK" +
+        "&userName=BakaKing",
     })
-      .then((response) => {
+      .then(async (response) => {
+        // console.log("text:", JSON.parse(await response.text()));
         const reader = response.body?.getReader();
-        console.log(reader);
         if (!reader) return;
         //   if (!response.body) return;
-        reader.read().then(function pump({ done, value }) {
-          if (done) {
-            // Do something with last chunk of data then exit reader
-            return;
-          }
-          // Otherwise do something here to process current chunk
-
-          // Read some more, and call this function again
-          return reader.read().then(pump);
+        reader.read().then(({ done, value }) => {
+          if (done) return;
+          console.log("value:", value);
+          const enc = new TextDecoder("utf-8");
+          const text = enc.decode(value, { stream: true });
+          console.log(text);
         });
+        // reader.read().then(function pump({ done, value }) {
+        //   if (done) {
+        //     // Do something with last chunk of data then exit reader
+        //     return;
+        //   }
+        //   // Otherwise do something here to process current chunk
+
+        //   // Read some more, and call this function again
+        //   return reader.read().then(pump);
+        //   controller.enqueue(value);
+        // });
       })
       // .then((textJson) => {
       //   const text = JSON.parse(textJson)[0];
