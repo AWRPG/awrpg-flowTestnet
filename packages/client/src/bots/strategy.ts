@@ -13,6 +13,7 @@ import { Vector } from "../utils/vector";
 import { SystemCalls } from "../mud/createSystemCalls";
 import { SetupResult } from "../mud/setup";
 import { getPosition } from "../logics/path";
+import { EliminationStrategy } from "./AttackStrategy";
 
 export const updateInterval = 2;
 
@@ -23,6 +24,7 @@ export interface StrategyState {
   phase?: string;
   target?: Entity;
   targetCoord?: Vector;
+  violence?: boolean;
   lastUpdated?: number;
 }
 
@@ -87,7 +89,6 @@ export class ExplorationStrategy implements Strategy {
 
     if (subStrategy) {
       // Execute selected sub-strategy
-      console.log("execute sub strategy", subStrategy);
       return subStrategy.execute(params);
     }
 
@@ -114,6 +115,7 @@ export class ExplorationStrategy implements Strategy {
 
 export const strategyMapping = {
   exploration: ExplorationStrategy,
+  elimination: EliminationStrategy,
 };
 export function stringToStrategy(strategyName: string): Strategy | undefined {
   const StrategyClass =

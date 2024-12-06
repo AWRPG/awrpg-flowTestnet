@@ -117,7 +117,6 @@ export class WalkToHostSubStrategy implements MoveSubStrategy {
     const { components, systemCalls, bot, state } = params;
     const currPosition = getPosition(components, bot.entity);
     const nextPosition = this.calculateNextPosition(params);
-    console.log("nextPosition", nextPosition, currPosition);
     // arrived!
     if (nextPosition === currPosition) return state;
     if (!nextPosition) {

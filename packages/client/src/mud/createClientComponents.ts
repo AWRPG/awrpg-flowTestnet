@@ -85,6 +85,7 @@ export function createClientComponents({ components }: SetupNetworkResult) {
       target: Type.OptionalEntity,
       targetX: Type.OptionalNumber,
       targetY: Type.OptionalNumber,
+      violence: Type.Boolean,
     }),
   };
 }

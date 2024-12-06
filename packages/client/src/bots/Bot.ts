@@ -27,6 +27,7 @@ import {
   stringToStrategy,
 } from "./strategy";
 import { CombatSubStrategy } from "./combatSubStrategy";
+import { withinAttackRange } from "../logics/combat";
 
 export interface BotState {
   bot: Bot;
@@ -101,6 +102,7 @@ export class Bot {
           state.targetX && state.targetY
             ? { x: state.targetX, y: state.targetY }
             : undefined,
+        violence: state.violence ?? false,
       });
       this.executeStrategies();
     });
@@ -183,7 +185,13 @@ export class Bot {
     await move(this.entity as Hex, moves);
   }
 
-  async attack(target: Entity) {}
+  async attack(target: Entity) {
+    const { attack } = this.systemCalls;
+    // TODO: check stamina
+    const withinRange = withinAttackRange(this.components, this.entity, target);
+    if (!withinRange) return;
+    await attack(this.entity as Hex, target as Hex);
+  }
 
   async respawn() {}
 
