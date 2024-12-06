@@ -24,15 +24,15 @@ export function Tile({ tile }: { tile: Entity }) {
 
   return (
     <div className="flex flex-row space-x-3 w-auto bg-white">
-      {/* <SetTerrains tile={tile} /> */}
-      {/* {!entity && <SpawnHeroOnCoord tile={tile} />} */}
+      <SetTerrains tile={tile} />
+      {!entity && <SpawnHeroOnCoord tile={tile} />}
       {entity && <Host host={entity} />}
-      {/* {entity && sourceHost && (
+      {entity && sourceHost && (
         <Combat attacker={sourceHost as Entity} target={entity} />
-      )} */}
+      )}
       <Drop tile={tile} />
       {sourceHost && <BurnTerrain tile={tile} host={sourceHost as Entity} />}
-      {/* {!entity && <Buildable tile={tile} selectedHost={sourceHost as Entity} />} */}
+      {!entity && <Buildable tile={tile} selectedHost={sourceHost as Entity} />}
     </div>
   );
 }

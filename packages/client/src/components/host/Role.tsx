@@ -8,6 +8,7 @@ import { useCanExit } from "../../logics/building";
 import { InBuilding } from "../building/StoreBuilding";
 import { Mining, StartMining } from "./Mining";
 import { Craft } from "./Craft";
+import { Bot } from "./Bot";
 
 /**
  * display role's name, pools, bag, inBuilding, startMining, mining
@@ -25,6 +26,7 @@ export function Role({ role }: { role: Entity }) {
     <div className="flex flex-col space-y-3 w-96 bg-white">
       {/* <EntityName entity={role} /> */}
       <div className="text-lg">{hostName}</div>
+      <Bot bot={role} />
       <EntityPools entity={role} />
       <Bag host={role} />
       {isPlayer && <Craft host={role} />}

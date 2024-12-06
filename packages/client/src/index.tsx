@@ -7,6 +7,7 @@ import "./index.css";
 import { GameScene } from "./phaser/scenes/GameScene";
 import { UIScene } from "./phaser/scenes/UIScene";
 import config from "./phaser/phaser.config";
+import { setupBots } from "./mud/setupBots";
 // import { syncPools } from "./mud/syncPools";
 
 const rootElement = document.getElementById("react-root");
@@ -16,6 +17,7 @@ const root = ReactDOM.createRoot(rootElement);
 // TODO: figure out if we actually want this to be async or if we should render something else in the meantime
 setup().then(async (result) => {
   // syncPools(result);
+  setupBots(result);
 
   new Phaser.Game({
     ...config,
