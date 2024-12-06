@@ -79,5 +79,12 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     TxPending: defineComponent(world, {
       message: Type.String,
     }),
+    // strategies
+    BotState: defineComponent(world, {
+      strategies: Type.StringArray,
+      target: Type.OptionalEntity,
+      targetX: Type.OptionalNumber,
+      targetY: Type.OptionalNumber,
+    }),
   };
 }
