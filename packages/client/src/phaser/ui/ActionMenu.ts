@@ -37,6 +37,7 @@ import {
 } from "../../logics/terrain";
 import { AttackTips } from "./AttackTips";
 import { CraftMenu } from "./CraftMenu";
+import { TextInput } from "./common/TextInput";
 
 /**
  * show the action buttons player can do
@@ -44,7 +45,7 @@ import { CraftMenu } from "./CraftMenu";
 export class ActionMenu extends GuiBase {
   list: UIList;
   role?: Role;
-
+  chatInput?: TextInput;
   attackTips?: AttackTips;
 
   /** */
@@ -96,6 +97,67 @@ export class ActionMenu extends GuiBase {
     PlayerInput.onlyListenUI();
   }
 
+  async chat(text: string) {
+    console.log("Input:", text);
+    const agentId = "e0e10e6f-ff2b-0d4c-8011-1fc1eee7cb32";
+    const response = await fetch(`http://localhost:3000/${agentId}/message`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body:
+        "text=" +
+        encodeURIComponent(text) +
+        "&name=" +
+        "BK" +
+        "&userName=BakaKing",
+    })
+      .then(async (response) => {
+        // console.log("text:", JSON.parse(await response.text()));
+        const reader = response.body?.getReader();
+        if (!reader) return;
+        //   if (!response.body) return;
+        reader.read().then(({ done, value }) => {
+          if (done) return;
+          console.log("value:", value);
+          const enc = new TextDecoder("utf-8");
+          const text = enc.decode(value, { stream: true });
+          console.log(text);
+        });
+        // reader.read().then(function pump({ done, value }) {
+        //   if (done) {
+        //     // Do something with last chunk of data then exit reader
+        //     return;
+        //   }
+        //   // Otherwise do something here to process current chunk
+
+        //   // Read some more, and call this function again
+        //   return reader.read().then(pump);
+        //   controller.enqueue(value);
+        // });
+      })
+      // .then((textJson) => {
+      //   const text = JSON.parse(textJson)[0];
+      //   console.log(text);
+      //   const name = text.user;
+      //   const content = text.text;
+      //   console.log(name + ": " + content);
+      // })
+      .catch((e) => console.log(e));
+
+    // const reader = response.body?.getReader();
+    // console.log(reader);
+    // while (reader) {
+    //   const { done, value } = await reader.read();
+    //   if (done) {
+    //     // Do something with last chunk of data then exit reader
+    //     return;
+    //   }
+    //   console.log(value);
+    //   // Otherwise do something here to process current chunk
+    // }
+  }
+
   updateList() {
     const items = [];
 
@@ -108,6 +170,21 @@ export class ActionMenu extends GuiBase {
       },
     });
     items.push(item_move);
+
+    // [Button] Chat
+    const item_chat = new ButtonA(this.scene, {
+      text: "Chat",
+      onConfirm: () => {
+        this.chatInput = new TextInput(this.scene, async () => {
+          const text = this.chatInput?.input.text;
+          if (text) {
+            this.chat(text);
+          }
+        });
+        this.chatInput.show(this);
+      },
+    });
+    items.push(item_chat);
 
     // [Button] Attack
     const item_attack = new ButtonA(this.scene, {

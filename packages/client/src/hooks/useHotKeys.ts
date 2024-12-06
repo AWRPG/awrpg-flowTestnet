@@ -17,7 +17,7 @@ export default function useHotkeys() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key == "h") {
+      if (e.key == "h" && document.activeElement?.tagName !== "TEXTAREA") {
         const overlayOn = getComponentValue(ToggledOn, OVERLAY)?.value ?? false;
         overlayOn
           ? setComponent(ToggledOn, OVERLAY, { value: false })

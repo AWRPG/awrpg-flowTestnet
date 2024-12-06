@@ -36,10 +36,9 @@ export function Bot({ bot }: { bot: Entity }) {
   return (
     <div className="">
       <button
-        className="btn-blue"
-        onClick={() => chooseStrategy("exploration")}
-      >
-        set following {hostName}
+        className="btn-blue mt-2"
+        onClick={() => chooseStrategy("exploration")}>
+        Follow {hostName}
       </button>
     </div>
   );
