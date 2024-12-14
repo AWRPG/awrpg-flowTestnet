@@ -79,8 +79,8 @@ export async function setupNetwork() {
    * try request ETH from the faucet
    * only for testnet
    */
-  const FAUCET_URL = "https://faucet-production-6bb3.up.railway.app";
-  requestFaucetEth(burnerAccount.address, publicClient, FAUCET_URL);
+  // const FAUCET_URL = "https://faucet-production-6bb3.up.railway.app";
+  // requestFaucetEth(burnerAccount.address, publicClient, FAUCET_URL);
 
   /*
    * Create an object for communicating with the deployed World.

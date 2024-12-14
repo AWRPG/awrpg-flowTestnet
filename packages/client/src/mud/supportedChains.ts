@@ -50,10 +50,44 @@ export const garnetHolesky = {
       url: "https://explorer.garnetchain.com",
     },
   },
+  // indexerUrl: "https://indexer.mud.garnetchain.com/",
   indexerUrl: "https://indexer.mud.garnet.qry.live",
+  testnet: true,
+};
+
+export const mantleSepolia = {
+  id: 5003,
+  name: "Mantle Sepolia",
+  network: "mantle-sepolia",
+  summary: {
+    location: "mantle",
+  },
+  description: "Mantle Sepolia",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Mantle Sepolia",
+    symbol: "MNT",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.sepolia.mantle.xyz"],
+      webSocket: ["wss://mantle-sepolia.gateway.tenderly.co/"],
+    },
+    public: {
+      http: ["https://rpc.sepolia.mantle.xyz"],
+      // webSocket:  ["wss://sepolia.base.org"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Blockscout",
+      url: "https://sepolia.mantlescan.xyz/",
+    },
+  },
+  indexerUrl: "",
   testnet: true,
 };
 
 export const supportedChains: (MUDChain & {
   indexerUrl?: undefined | string;
-})[] = [mudFoundry, redstone, garnetHolesky];
+})[] = [mudFoundry, redstone, garnetHolesky, mantleSepolia];
