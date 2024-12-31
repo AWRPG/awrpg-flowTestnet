@@ -55,33 +55,33 @@ export const garnetHolesky = {
   testnet: true,
 };
 
-export const mantleSepolia = {
-  id: 5003,
-  name: "Mantle Sepolia",
-  network: "mantle-sepolia",
+export const flowTestnet = {
+  id: 545,
+  name: "Flow Testnet",
+  network: "flow-testnet",
   summary: {
-    location: "mantle",
+    location: "flow",
   },
-  description: "Mantle Sepolia",
+  description: "Flow Testnet",
   nativeCurrency: {
     decimals: 18,
-    name: "Mantle Sepolia",
-    symbol: "MNT",
+    name: "Flow Testnet",
+    symbol: "FLOW",
   },
   rpcUrls: {
     default: {
-      http: ["https://rpc.sepolia.mantle.xyz"],
-      webSocket: ["wss://mantle-sepolia.gateway.tenderly.co/"],
+      http: ["https://testnet.evm.nodes.onflow.org"],
+      webSocket: ["wss://testnet.evm.nodes.onflow.org"],
     },
     public: {
-      http: ["https://rpc.sepolia.mantle.xyz"],
-      // webSocket:  ["wss://sepolia.base.org"],
+      http: ["https://testnet.evm.nodes.onflow.org"],
+      webSocket: ["wss://testnet.evm.nodes.onflow.org"],
     },
   },
   blockExplorers: {
     default: {
       name: "Blockscout",
-      url: "https://sepolia.mantlescan.xyz/",
+      url: "https://evm-testnet.flowscan.io",
     },
   },
   indexerUrl: "",
@@ -90,4 +90,4 @@ export const mantleSepolia = {
 
 export const supportedChains: (MUDChain & {
   indexerUrl?: undefined | string;
-})[] = [mudFoundry, redstone, garnetHolesky, mantleSepolia];
+})[] = [mudFoundry, redstone, garnetHolesky, flowTestnet];

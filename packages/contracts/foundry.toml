@@ -28,5 +28,5 @@ eth_rpc_url = "https://rpc.garnetchain.com"
 [profile.redstone]
 eth_rpc_url = "https://rpc.redstonechain.com"
 
-[profile.sepoliaMantle]
-eth_rpc_url = "https://rpc.sepolia.mantle.xyz"
+[profile.testnetFlow]
+eth_rpc_url = "https://testnet.evm.nodes.onflow.org"

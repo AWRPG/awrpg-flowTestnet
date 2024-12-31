@@ -9,7 +9,7 @@
     "deploy:garnet": "mud deploy --profile=garnet",
     "deploy:local": "mud deploy",
     "deploy:redstone": "mud deploy --profile=redstone",
-    "deploy:sepolia-mantle": "mud deploy --profile=sepoliaMantle",
+    "deploy:testnet-flow": "mud deploy --profile=testnetFlow",
     "dev": "mud dev-contracts",
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
